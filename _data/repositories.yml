@@ -1,12 +1,11 @@
-github_users:
-  - torvalds
-  - alshedivat
+# github_users:
+#   - WorkInTheDark
+#   - neuhai
+
 
 github_repos:
-  - alshedivat/al-folio
-  - twbs/bootstrap
-  - jekyll/jekyll
-  - jquery/jquery
-  - FortAwesome/Font-Awesome
-  - jpswalsh/academicons
-  - mathjax/MathJax
+  - neuhai/Mental-LLM
+  - WorkInTheDark/human-explanation-evaluation
+  - WorkInTheDark/FairytaleQA_QAG_System 
+  - WorkInTheDark/FairytaleQA_Dataset 
+
