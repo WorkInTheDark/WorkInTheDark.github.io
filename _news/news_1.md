@@ -1,0 +1,8 @@
+---
+layout: post
+date: 2020-03-17 
+inline: true
+related_posts: false
+---
+
+Our paper [Trust in AutoML](https://dl.acm.org/doi/abs/10.1145/3377325.3377501) was accepted to **<span style="color:#f0c808">IUI 2020</span>**

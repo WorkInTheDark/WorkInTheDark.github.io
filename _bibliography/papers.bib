@@ -1,32 +1,53 @@
 ---
+,
+  abstract = {},
+  arxiv = {},
+  pdf = {},
+  abbr = {}
 ---
 
 @article{xu2023leveraging,
   title={Leveraging Large Language Models for Mental Health Prediction via Online Text Data},
   author={Xu, Xuhai and Yao, Bingsheng and Dong, Yuanzhe and Yu, Hong and Hendler, James and Dey, Anind K and Wang, Dakuo},
   journal={arXiv preprint arXiv:2307.14385},
-  year={2023}
+  year={2023},
+  abstract = {Advances in large language models (LLMs) have empowered a variety of applications. However, there is still a significant gap in research when it comes to understanding and enhancing the capabilities of LLMs in the field of mental health. In this work, we present the first comprehensive evaluation of multiple LLMs, including Alpaca, Alpaca-LoRA, FLAN-T5, GPT-3.5, and GPT-4, on various mental health prediction tasks via online text data. We conduct a broad range of experiments, covering zero-shot prompting, few-shot prompting, and instruction fine-tuning. The results indicate a promising yet limited performance of LLMs with zero-shot and few-shot prompt designs for the mental health tasks. More importantly, our experiments show that instruction finetuning can significantly boost the performance of LLMs for all tasks simultaneously. Our best-finetuned models, Mental-Alpaca and Mental-FLAN-T5, outperform the best prompt design of GPT-3.5 (25 and 15 times bigger) by 10.9% on balanced accuracy and the best of GPT-4 (250 and 150 times bigger) by 4.8%. They further perform on par with the state-of-the-art task-specific language model. We also conduct an exploratory case study on LLMs' capability on the mental health reasoning tasks, illustrating the promising capability of certain models such as GPT-4. We summarize our findings into a set of action guidelines for potential methods to enhance LLMs' capability for mental health tasks. Meanwhile, we also emphasize the important limitations before achieving deployability in real-world mental health settings, such as known racial and gender bias. We highlight the important ethical risks accompanying this line of research.},
+  arxiv = {2307.14385},
+  pdf = {https://arxiv.org/pdf/2307.14385.pdf},
+  abbr = {Arxiv}
 }
 
 @article{yao2023beyond,
   title={Beyond Labels: Empowering Human with Natural Language Explanations through a Novel Active-Learning Architecture},
   author={Yao, Bingsheng and Jindal, Ishan and Popa, Lucian and Katsis, Yannis and Ghosh, Sayan and He, Lihong and Lu, Yuxuan and Srivastava, Shashank and Hendler, James and Wang, Dakuo},
   journal={arXiv preprint arXiv:2305.12710},
-  year={2023}
+  year={2023},
+  abstract = {Data annotation is a costly task; thus, researchers have proposed low-scenario learning techniques like Active-Learning (AL) to support human annotators; Yet, existing AL works focus only on the label, but overlook the natural language explanation of a data point, despite that real-world humans (e.g., doctors) often need both the labels and the corresponding explanations at the same time. This work proposes a novel AL architecture to support and reduce human annotations of both labels and explanations in low-resource scenarios. Our AL architecture incorporates an explanation-generation model that can explicitly generate natural language explanations for the prediction model and for assisting humans' decision-making in real-world. For our AL framework, we design a data diversity-based AL data selection strategy that leverages the explanation annotations. The automated AL simulation evaluations demonstrate that our data selection strategy consistently outperforms traditional data diversity-based strategy; furthermore, human evaluation demonstrates that humans prefer our generated explanations to the SOTA explanation-generation system.},
+  arxiv = {2305.12710},
+  pdf = {https://arxiv.org/pdf/2305.12710.pdf},
+  abbr = {Arxiv}
 }
 
 @article{yao2023human,
   title={Are human explanations always helpful? towards objective evaluation of human natural language explanations},
   author={Yao, Bingsheng and Sen, Prithviraj and Popa, Lucian and Hendler, James and Wang, Dakuo},
   journal={arXiv preprint arXiv:2305.03117},
-  year={2023}
+  year={2023},
+  abstract = {Human-annotated labels and explanations are critical for training explainable NLP models. However, unlike human-annotated labels whose quality is easier to calibrate (e.g., with a majority vote), human-crafted free-form explanations can be quite subjective. Before blindly using them as ground truth to train ML models, a vital question needs to be asked: How do we evaluate a human-annotated explanation's quality? In this paper, we build on the view that the quality of a human-annotated explanation can be measured based on its helpfulness (or impairment) to the ML models' performance for the desired NLP tasks for which the annotations were collected. In comparison to the commonly used Simulatability score, we define a new metric that can take into consideration the helpfulness of an explanation for model performance at both fine-tuning and inference. With the help of a unified dataset format, we evaluated the proposed metric on five datasets (e.g., e-SNLI) against two model architectures (T5 and BART), and the results show that our proposed metric can objectively evaluate the quality of human-annotated explanations, while Simulatability falls short.},
+  arxiv = {2305.03117},
+  pdf = {https://arxiv.org/pdf/2305.03117.pdf},
+  abbr = {ACL 2023 Oral}
 }
 
 @article{xu2022nece,
   title={Nece: Narrative event chain extraction toolkit},
-  author={Xu, Guangxuan and Isaza, Paulina Toro and Li, Moshi and Oloko, Akintoye and Yao, Bingsheng and Sanctos, Cassia and Adebiyi, Aminat and Hou, Yufang and Peng, Nanyun and Wang, Dakuo},
+  author={Xu*, Guangxuan and Isaza*, Paulina Toro and Li*, Moshi and Oloko, Akintoye and Yao, Bingsheng and Sanctos, Cassia and Adebiyi, Aminat and Hou, Yufang and Peng, Nanyun and Wang, Dakuo},
   journal={arXiv preprint arXiv:2208.08063},
-  year={2022}
+  year={2022},
+  abstract = {To understand a narrative, it is essential to comprehend the temporal event flows, especially those associated with main characters; however, this can be challenging with lengthy and unstructured narrative texts. To address this, we introduce NECE, an open-access, document-level toolkit that automatically extracts and aligns narrative events in the temporal order of their occurrence. Through extensive evaluations, we show the high quality of the NECE toolkit and demonstrates its downstream application in analyzing narrative bias regarding gender. We also openly discuss the shortcomings of the current approach, and potential of leveraging generative models in future works. Lastly the NECE toolkit includes both a Python library and a user-friendly web interface, which offer equal access to professionals and layman audience alike, to visualize event chain, obtain narrative flows, or study narrative bias.},
+  arxiv = {2208.08063},
+  pdf = {https://arxiv.org/pdf/2208.08063.pdf},
+  abbr = {Arxiv}
 }
 
 @inproceedings{gehrmann-etal-2022-gemv2,
@@ -117,6 +138,9 @@
     doi = "10.18653/v1/2022.emnlp-demos.27",
     pages = "266--281",
     abstract = "Evaluations in machine learning rarely use the latest metrics, datasets, or human evaluation in favor of remaining compatible with prior work. The compatibility, often facilitated through leaderboards, thus leads to outdated but standardized evaluation practices. We pose that the standardization is taking place in the wrong spot. Evaluation infrastructure should enable researchers to use the latest methods and what should be standardized instead is how to incorporate these new evaluation advances.We introduce GEMv2, the new version of the Generation, Evaluation, and Metrics Benchmark which uses a modular infrastructure for dataset, model, and metric developers to benefit from each other{'}s work. GEMv2 supports 40 documented datasets in 51 languages, ongoing online evaluation for all datasets, and our interactive tools make it easier to add new datasets to the living benchmark.",
+    arxiv = {2206.11249},
+    pdf = {https://arxiv.org/pdf/2206.11249.pdf},
+    abbr = {EMNLP 2022 Demo}
 }
 
 @inproceedings{yao-etal-2022-corpus,
@@ -133,33 +157,38 @@
     url = "https://aclanthology.org/2022.lrec-1.375",
     pages = "3500--3508",
     abstract = "The Story Cloze Test (SCT) is designed for training and evaluating machine learning algorithms for narrative understanding and inferences. The SOTA models can achieve over 90{\%} accuracy on predicting the last sentence. However, it has been shown that high accuracy can be achieved by merely using surface-level features. We suspect these models may not \textit{truly} understand the story. Based on the SCT dataset, we constructed a human-labeled and human-verified commonsense knowledge inference dataset. Given the first four sentences of a story, we asked crowd-source workers to choose from four types of narrative inference for deciding the ending sentence and which sentence contributes most to the inference. We accumulated data on 1871 stories, and three human workers labeled each story. Analysis of the intra-category and inter-category agreements show a high level of consensus. We present two new tasks for predicting the narrative inference categories and contributing sentences. Our results show that transformer-based models can reach SOTA performance on the original SCT task using transfer learning but don{'}t perform well on these new and more challenging tasks.",
+    pdf = {https://aclanthology.org/2022.lrec-1.375.pdf},
+    abbr = {LREC 2022}
 }
 
 @inproceedings{10.1145/3491102.3517479,
-author = {Zhang, Zheng and Xu, Ying and Wang, Yanhao and Yao, Bingsheng and Ritchie, Daniel and Wu, Tongshuang and Yu, Mo and Wang, Dakuo and Li, Toby Jia-Jun},
-title = {StoryBuddy: A Human-AI Collaborative Chatbot for Parent-Child Interactive Storytelling with Flexible Parental Involvement},
-year = {2022},
-isbn = {9781450391573},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/3491102.3517479},
-doi = {10.1145/3491102.3517479},
-abstract = {Despite its benefits for children’s skill development and parent-child bonding, many parents do not often engage in interactive storytelling by having story-related dialogues with their child due to limited availability or challenges in coming up with appropriate questions. While recent advances made AI generation of questions from stories possible, the fully-automated approach excludes parent involvement, disregards educational goals, and underoptimizes for child engagement. Informed by need-finding interviews and participatory design (PD) results, we developed StoryBuddy, an AI-enabled system for parents to create interactive storytelling experiences. StoryBuddy’s design highlighted the need for accommodating dynamic user needs between the desire for parent involvement and parent-child bonding and the goal of minimizing parent intervention when busy. The PD revealed varied assessment and educational goals of parents, which StoryBuddy addressed by supporting configuring question types and tracking child progress. A user study validated StoryBuddy’s usability and suggested design insights for future parent-AI collaboration systems.},
-booktitle = {Proceedings of the 2022 CHI Conference on Human Factors in Computing Systems},
-articleno = {218},
-numpages = {21},
-keywords = {child-agent interactions, interactive storytelling, human-AI collaboration, co-reading, voice user interfaces, dialogic reading},
-location = {New Orleans, LA, USA},
-series = {CHI '22}
+    author = {Zhang*, Zheng and Xu*, Ying and Wang, Yanhao and Yao, Bingsheng and Ritchie, Daniel and Wu, Tongshuang and Yu, Mo and Wang, Dakuo and Li, Toby Jia-Jun},
+    title = {StoryBuddy: A Human-AI Collaborative Chatbot for Parent-Child Interactive Storytelling with Flexible Parental Involvement},
+    year = {2022},
+    isbn = {9781450391573},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/10.1145/3491102.3517479},
+    doi = {10.1145/3491102.3517479},
+    abstract = {Despite its benefits for children’s skill development and parent-child bonding, many parents do not often engage in interactive storytelling by having story-related dialogues with their child due to limited availability or challenges in coming up with appropriate questions. While recent advances made AI generation of questions from stories possible, the fully-automated approach excludes parent involvement, disregards educational goals, and underoptimizes for child engagement. Informed by need-finding interviews and participatory design (PD) results, we developed StoryBuddy, an AI-enabled system for parents to create interactive storytelling experiences. StoryBuddy’s design highlighted the need for accommodating dynamic user needs between the desire for parent involvement and parent-child bonding and the goal of minimizing parent intervention when busy. The PD revealed varied assessment and educational goals of parents, which StoryBuddy addressed by supporting configuring question types and tracking child progress. A user study validated StoryBuddy’s usability and suggested design insights for future parent-AI collaboration systems.},
+    booktitle = {Proceedings of the 2022 CHI Conference on Human Factors in Computing Systems},
+    articleno = {218},
+    numpages = {21},
+    keywords = {child-agent interactions, interactive storytelling, human-AI collaboration, co-reading, voice user interfaces, dialogic reading},
+    location = {New Orleans, LA, USA},
+    series = {CHI '22},
+    arxiv = {2202.06205},
+    pdf = {https://arxiv.org/pdf/2202.06205.pdf},
+    abbr = {CHI 2022}
 }
 
 @inproceedings{xu-etal-2022-fantastic,
     title = "Fantastic Questions and Where to Find Them: {F}airytale{QA} {--} An Authentic Dataset for Narrative Comprehension",
-    author = "Xu, Ying  and
-      Wang, Dakuo  and
-      Yu, Mo  and
-      Ritchie, Daniel  and
-      Yao, Bingsheng  and
+    author = "Xu*, Ying  and
+      Wang*, Dakuo  and
+      Yu*, Mo  and
+      Ritchie*, Daniel  and
+      Yao*, Bingsheng  and
       Wu, Tongshuang  and
       Zhang, Zheng  and
       Li, Toby  and
@@ -182,39 +211,15 @@ series = {CHI '22}
     doi = "10.18653/v1/2022.acl-long.34",
     pages = "447--460",
     abstract = "Question answering (QA) is a fundamental means to facilitate assessment and training of narrative comprehension skills for both machines and young children, yet there is scarcity of high-quality QA datasets carefully designed to serve this purpose. In particular, existing datasets rarely distinguish fine-grained reading skills, such as the understanding of varying narrative elements. Drawing on the reading education research, we introduce FairytaleQA, a dataset focusing on narrative comprehension of kindergarten to eighth-grade students. Generated by educational experts based on an evidence-based theoretical framework, FairytaleQA consists of 10,580 explicit and implicit questions derived from 278 children-friendly stories, covering seven types of narrative elements or relations. Our dataset is valuable in two folds: First, we ran existing QA models on our dataset and confirmed that this annotation helps assess models{'} fine-grained learning skills. Second, the dataset supports question generation (QG) task in the education domain. Through benchmarking with QG models, we show that the QG model trained on FairytaleQA is capable of asking high-quality and more diverse questions.",
-}
-
-@article{mou2022efficient,
-  title={Efficient Long Sequence Encoding via Synchronization},
-  author={Mou, Xiangyang and Yu, Mo and Yao, Bingsheng and Huang, Lifu},
-  journal={arXiv preprint arXiv:2203.07644},
-  year={2022}
-}
-
-@article{mou-etal-2021-narrative,
-    title = "Narrative Question Answering with Cutting-Edge Open-Domain {QA} Techniques: A Comprehensive Study",
-    author = "Mou, Xiangyang  and
-      Yang, Chenghao  and
-      Yu, Mo  and
-      Yao, Bingsheng  and
-      Guo, Xiaoxiao  and
-      Potdar, Saloni  and
-      Su, Hui",
-    journal = "Transactions of the Association for Computational Linguistics",
-    volume = "9",
-    year = "2021",
-    address = "Cambridge, MA",
-    publisher = "MIT Press",
-    url = "https://aclanthology.org/2021.tacl-1.61",
-    doi = "10.1162/tacl_a_00411",
-    pages = "1032--1046",
-    abstract = "Recent advancements in open-domain question answering (ODQA), that is, finding answers from large open-domain corpus like Wikipedia, have led to human-level performance on many datasets. However, progress in QA over book stories (Book QA) lags despite its similar task formulation to ODQA. This work provides a comprehensive and quantitative analysis about the difficulty of Book QA: (1) We benchmark the research on the NarrativeQA dataset with extensive experiments with cutting-edge ODQA techniques. This quantifies the challenges Book QA poses, as well as advances the published state-of-the-art with a ∼7{\%} absolute improvement on ROUGE-L. (2) We further analyze the detailed challenges in Book QA through human studies.1 Our findings indicate that the event-centric questions dominate this task, which exemplifies the inability of existing QA models to handle event-oriented scenarios.",
+    arxiv = {2203.13947},
+    pdf = {https://aclanthology.org/2022.acl-long.34.pdf},
+    abbr = {ACL 2022}
 }
 
 @inproceedings{yao-etal-2022-ais,
     title = "It is {AI}{'}s Turn to Ask Humans a Question: Question-Answer Pair Generation for Children{'}s Story Books",
-    author = "Yao, Bingsheng  and
-      Wang, Dakuo  and
+    author = "Yao*, Bingsheng  and
+      Wang*, Dakuo  and
       Wu, Tongshuang  and
       Zhang, Zheng  and
       Li, Toby  and
@@ -229,36 +234,83 @@ series = {CHI '22}
     doi = "10.18653/v1/2022.acl-long.54",
     pages = "731--744",
     abstract = "Existing question answering (QA) techniques are created mainly to answer questions asked by humans. But in educational applications, teachers often need to decide what questions they should ask, in order to help students to improve their narrative understanding capabilities. We design an automated question-answer generation (QAG) system for this education scenario: given a story book at the kindergarten to eighth-grade level as input, our system can automatically generate QA pairs that are capable of testing a variety of dimensions of a student{'}s comprehension skills. Our proposed QAG model architecture is demonstrated using a new expert-annotated FairytaleQA dataset, which has 278 child-friendly storybooks with 10,580 QA pairs. Automatic and human evaluations show that our model outperforms state-of-the-art QAG baseline systems. On top of our QAG system, we also start to build an interactive story-telling application for the future real-world deployment in this educational scenario.",
+    arxiv = {2109.03423},
+    pdf = {https://aclanthology.org/2022.acl-long.54.pdf},
+    abbr = {ACL 2022}
+}
+
+@article{mou2022efficient,
+  title={Efficient Long Sequence Encoding via Synchronization},
+  author={Mou, Xiangyang and Yu, Mo and Yao, Bingsheng and Huang, Lifu},
+  journal={arXiv preprint arXiv:2203.07644},
+  year={2022},
+  abstract = {Pre-trained Transformer models have achieved successes in a wide range of NLP tasks, but are inefficient when dealing with long input sequences. Existing studies try to overcome this challenge via segmenting the long sequence followed by hierarchical encoding or post-hoc aggregation. We propose a synchronization mechanism for hierarchical encoding. Our approach first identifies anchor tokens across segments and groups them by their roles in the original input sequence. Then inside Transformer layer, anchor embeddings are synchronized within their group via a self-attention module. Our approach is a general framework with sufficient flexibility -- when adapted to a new task, it is easy to be enhanced with the task-specific anchor definitions. Experiments on two representative tasks with different types of long input texts, NarrativeQA summary setting and wild multi-hop reasoning from HotpotQA, demonstrate that our approach is able to improve the global information exchange among segments while maintaining efficiency.},
+  arxiv = {2203.07644},
+  pdf = {https://arxiv.org/pdf/2203.07644.pdf},
+  abbr = {Arxiv}
+}
+
+@article{mou-etal-2021-narrative,
+    title = "Narrative Question Answering with Cutting-Edge Open-Domain {QA} Techniques: A Comprehensive Study",
+    author = "Mou*, Xiangyang  and
+      Yang*, Chenghao  and
+      Yu*, Mo  and
+      Yao, Bingsheng  and
+      Guo, Xiaoxiao  and
+      Potdar, Saloni  and
+      Su, Hui",
+    journal = "Transactions of the Association for Computational Linguistics",
+    volume = "9",
+    year = "2021",
+    address = "Cambridge, MA",
+    publisher = "MIT Press",
+    url = "https://aclanthology.org/2021.tacl-1.61",
+    doi = "10.1162/tacl_a_00411",
+    pages = "1032--1046",
+    abstract = "Recent advancements in open-domain question answering (ODQA), that is, finding answers from large open-domain corpus like Wikipedia, have led to human-level performance on many datasets. However, progress in QA over book stories (Book QA) lags despite its similar task formulation to ODQA. This work provides a comprehensive and quantitative analysis about the difficulty of Book QA: (1) We benchmark the research on the NarrativeQA dataset with extensive experiments with cutting-edge ODQA techniques. This quantifies the challenges Book QA poses, as well as advances the published state-of-the-art with a ∼7{\%} absolute improvement on ROUGE-L. (2) We further analyze the detailed challenges in Book QA through human studies.1 Our findings indicate that the event-centric questions dominate this task, which exemplifies the inability of existing QA models to handle event-oriented scenarios.",
+    arxiv = {2106.03826},
+    pdf = {https://aclanthology.org/2021.tacl-1.61.pdf},
+    abbr = {TACL 2021}
 }
 
 @article{zhang2021building,
   title={Building a storytelling conversational agent through parent-ai collaboration},
-  author={Zhang, Zheng and Xu, Ying and Wang, Yanhao and Wu, Tongshuang and Yao, Bingsheng and Ritchie, Daniel and Yu, Mo and Wang, Dakuo and Li, Toby Jia-Jun},
-  year={2021}
+  author={Zhang*, Zheng and Xu*, Ying and Wang, Yanhao and Wu, Tongshuang and Yao, Bingsheng and Ritchie, Daniel and Yu, Mo and Wang, Dakuo and Li, Toby Jia-Jun},
+  year={2021},
+  abstract = {In this paper, we describe the design of StoryBuddy, a prototype system that allows parents to collaborate with AI in creating interactive storytelling experiences. To accommodate dynamic user needs, StoryBuddy supports two modes: a parent-child joint reading mode where parents involve in book reading process and a child independent reading mode where parents have minimal involvement. StoryBuddy also allows parents to configure question types and track child progress, and generates questions automatically. A preliminary user study suggests that parents and children found Story-Buddy useful, helpful, and likable.},
+  pdf = {https://www.conversationaluserinterfaces.org/workshops/CSCW2021/pdfs/5-Zhang.pdf},
+  abbr = {CUI @ CSCW 2021}
 }
 
 @article{mou2020frustratingly,
   title={Frustratingly hard evidence retrieval for qa over books},
   author={Mou, Xiangyang and Yu, Mo and Yao, Bingsheng and Yang, Chenghao and Guo, Xiaoxiao and Potdar, Saloni and Su, Hui},
   journal={arXiv preprint arXiv:2007.09878},
-  year={2020}
+  year={2020},
+  abstract = {A lot of progress has been made to improve question answering (QA) in recent years, but the special problem of QA over narrative book stories has not been explored in-depth. We formulate BookQA as an open-domain QA task given its similar dependency on evidence retrieval. We further investigate how state-of-the-art open-domain QA approaches can help BookQA. Besides achieving state-of-the-art on the NarrativeQA benchmark, our study also reveals the difficulty of evidence retrieval in books with a wealth of experiments and analysis - which necessitates future effort on novel solutions for evidence retrieval in BookQA.},
+  arxiv = {2007.09878},
+  pdf = {https://arxiv.org/pdf/2007.09878.pdf},
+  abbr = {Arxiv}
 }
 
 @inproceedings{10.1145/3377325.3377501,
-author = {Drozdal, Jaimie and Weisz, Justin and Wang, Dakuo and Dass, Gaurav and Yao, Bingsheng and Zhao, Changruo and Muller, Michael and Ju, Lin and Su, Hui},
-title = {Trust in AutoML: Exploring Information Needs for Establishing Trust in Automated Machine Learning Systems},
-year = {2020},
-isbn = {9781450371186},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/3377325.3377501},
-doi = {10.1145/3377325.3377501},
-abstract = {We explore trust in a relatively new area of data science: Automated Machine Learning (AutoML). In AutoML, AI methods are used to generate and optimize machine learning models by automatically engineering features, selecting models, and optimizing hyperparameters. In this paper, we seek to understand what kinds of information influence data scientists' trust in the models produced by AutoML? We operationalize trust as a willingness to deploy a model produced using automated methods. We report results from three studies - qualitative interviews, a controlled experiment, and a card-sorting task - to understand the information needs of data scientists for establishing trust in AutoML systems. We find that including transparency features in an AutoML tool increased user trust and understandability in the tool; and out of all proposed features, model performance metrics and visualizations are the most important information to data scientists when establishing their trust with an AutoML tool.},
-booktitle = {Proceedings of the 25th International Conference on Intelligent User Interfaces},
-pages = {297–307},
-numpages = {11},
-keywords = {AutoML, automated data science, automated machine learning, AutoDS, automated artificial intelligence, AutoAI, trust},
-location = {Cagliari, Italy},
-series = {IUI '20}
+    author = {Drozdal, Jaimie and Weisz, Justin and Wang, Dakuo and Dass, Gaurav and Yao, Bingsheng and Zhao, Changruo and Muller, Michael and Ju, Lin and Su, Hui},
+    title = {Trust in AutoML: Exploring Information Needs for Establishing Trust in Automated Machine Learning Systems},
+    year = {2020},
+    isbn = {9781450371186},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/10.1145/3377325.3377501},
+    doi = {10.1145/3377325.3377501},
+    abstract = {We explore trust in a relatively new area of data science: Automated Machine Learning (AutoML). In AutoML, AI methods are used to generate and optimize machine learning models by automatically engineering features, selecting models, and optimizing hyperparameters. In this paper, we seek to understand what kinds of information influence data scientists' trust in the models produced by AutoML? We operationalize trust as a willingness to deploy a model produced using automated methods. We report results from three studies - qualitative interviews, a controlled experiment, and a card-sorting task - to understand the information needs of data scientists for establishing trust in AutoML systems. We find that including transparency features in an AutoML tool increased user trust and understandability in the tool; and out of all proposed features, model performance metrics and visualizations are the most important information to data scientists when establishing their trust with an AutoML tool.},
+    booktitle = {Proceedings of the 25th International Conference on Intelligent User Interfaces},
+    pages = {297–307},
+    numpages = {11},
+    keywords = {AutoML, automated data science, automated machine learning, AutoDS, automated artificial intelligence, AutoAI, trust},
+    location = {Cagliari, Italy},
+    series = {IUI '20},
+    arxiv = {2001.06509},
+    pdf = {https://arxiv.org/pdf/2001.06509.pdf},
+    abbr = {IUI 2020}
 }
 

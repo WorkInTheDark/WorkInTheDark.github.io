@@ -1,0 +1,57 @@
+{
+  "basics": {
+    "name": "Bingsheng \"Arthur\" Yao",
+    "label": "Ph.D. Student",
+    "image": "",
+    "url": "https://www.bingshengyao.com",
+    "summary": "Hanc marginis exiguitās nōn caperet (Fermat, n.d.)"
+  },
+  "education": [
+    {
+      "institution": "Rensselaer Polytechnic Institute, Troy, United States",
+      "url": "https://www.rpi.edu/",
+      "area": "Computer Science",
+      "studyType": "PhD",
+      "startDate": "2019-09-01",
+      "endDate": "2024-05-31"
+    },
+    {
+      "institution": "Rensselaer Polytechnic Institute, Troy, United States",
+      "url": "https://www.rpi.edu/",
+      "area": "Information Technology & Web Science",
+      "studyType": "MS",
+      "startDate": "2018-09-01",
+      "endDate": "2019-05-31"
+    },
+    {
+      "institution": "Rensselaer Polytechnic Institute, Troy, United States",
+      "url": "https://www.rpi.edu/",
+      "area": "Computer System Engineering",
+      "studyType": "BS",
+      "startDate": "2014-09-01",
+      "endDate": "2018-05-31"
+    }
+  ],
+
+  "certificates": [],
+  "publications": [],
+  "skills": [
+    {
+    "items": ["x", "x", "x"],
+    "keywords": [ "Active Learning", "Question Answering", "QA-Pair Generation", "Commonsense Reasoning", "Machine Explainability", "Human-in-the-loop"]
+    }
+  ],
+  "languages": [
+    {
+      "language": "Chinese",
+      "fluency": "Native speaker"
+    },
+    {
+      "language": "English",
+      "fluency": "Fluent"
+    }
+  ],
+  "interests": [],
+  "references": [],
+  "projects": []
+}

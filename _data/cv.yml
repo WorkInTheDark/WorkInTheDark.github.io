@@ -3,10 +3,8 @@
   contents:
     - name: Full Name
       value: Bingsheng "Arthur" Yao
-    # - name: Date of Birth
-    #   value: 14th March 1879
-    - name: Languages
-      value: English, Mandarin
+    - name: Summary
+      value: "Hanc marginis exiguitās nōn caperet (Fermat, n.d.)"
 
 - title: Education
   type: time_table

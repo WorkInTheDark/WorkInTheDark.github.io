@@ -22,7 +22,7 @@
             {%- endif -%}
             <abbr class="badge" {% if venue_style %}{{venue_style}}{% endif %}><a href="{{site.data.venues[entry.abbr].url}}">{{entry.abbr}}</a></abbr>
           {%- else -%}
-            <abbr class="badge">{{entry.abbr}}</abbr>
+            <abbr class="badge">{{entry.abbr}}</span></abbr>
           {%- endif -%}
         {%- endif -%}
         </div>
@@ -63,7 +63,9 @@
             {%- if forloop.last and author_array_limit == author_array_size -%}and&nbsp;{%- endif -%}
           {%- endif -%}
           {%- if author_is_self -%}
-            <em>{{author.first}} {{author.last}}</em>
+            <span style="color: #f0c808"><b>{{author.first}} {{author.last}}</b></span>
+            <!-- <em>{{author.first}} {{author.last}}</em> -->
+            <!-- <em>{{author.first}} {{author.last}}</em> -->
           {%- else -%}
             {%- if coauthor_url -%}
               <a href="{{coauthor_url}}">{{author.first}} {{author.last}}</a>
