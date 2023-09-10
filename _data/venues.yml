@@ -9,36 +9,36 @@
 
 "ACL 2023 Oral":
     url: https://2023.aclweb.org/
-    color: "#303030"
+    color: "#000000"
 
 "Arxiv":
     url: https://arxiv.org/list/cs.CL/recent
-    color: "#303030"
+    color: "#000000"
 
 "EMNLP 2022 Demo":
     url: https://2022.emnlp.org/
-    color: "#303030"
+    color: "#000000"
 
 "LREC 2022":
     url: https://lrec2022.lrec-conf.org/en/
-    color: "#303030"
+    color: "#000000"
 
 "CHI 2022":
     url: https://chi2022.acm.org/
-    color: "#303030"
+    color: "#000000"
 
 "ACL 2022":
     url: https://www.2022.aclweb.org/
-    color: "#303030"
+    color: "#000000"
 
 "TACL 2021":
     url: https://transacl.org/index.php/tacl
-    color: "#303030"
+    color: "#000000"
 
 "CUI @ CSCW 2021":
     url: https://cui.acm.org/workshops/CSCW2021/
-    color: "#303030"
+    color: "#000000"
 
 "IUI 2020":
     url: https://iui.acm.org/2020/
-    color: "#303030"
+    color: "#000000"

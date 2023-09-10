@@ -5,5 +5,5 @@ inline: true
 related_posts: false
 ---
 
-Our paper [StoryBuddy](https://dl.acm.org/doi/abs/10.1145/3491102.3517479) was accepted to **<span style="color:#f0c808">CHI 2022</span>**
+Our paper [StoryBuddy](https://dl.acm.org/doi/abs/10.1145/3491102.3517479) was accepted to **<span style="color:#edc707">CHI 2022</span>**
 

@@ -130,6 +130,10 @@ blockquote {
   }
 }
 
+.profile img {
+  width: 70%;
+}
+
 .profile.float-right {
   margin-left: 1rem;
 }
@@ -602,7 +606,7 @@ footer.sticky-bottom {
           padding-right: 1rem;
 
           a {
-            color: white;
+            color: #9e79a4;
 
             &:hover {
               text-decoration: none;
