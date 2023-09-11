@@ -23,7 +23,7 @@ social: true  # includes social icons at the bottom of the page
 
 His research interests lie at the interaction of **natural language processing** and **human-computer interaction**. He had worked closely with researchers from IBM Research and Prof. [Dakuo Wang](https://www.dakuowang.com/) from Northeastern University.
 
-
+i have been actively training Brazilian jiu-jitsu for three years.
 
 <!-- Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](http://reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder.
 
