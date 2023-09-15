@@ -3,7 +3,9 @@
   contents:
     - name: Full Name
       value: Bingsheng "Arthur" Yao
-    - name: Summary
+    - name: Current Occupation
+      value: 5th Year Ph.D. Student in Computer Science
+    - name: One-sentence Introduction?
       value: "Hanc marginis exiguitās nōn caperet (Fermat, n.d.)"
 
 - title: Education
@@ -12,6 +14,9 @@
     - title: Ph.D. in Computer Science
       institution: Rensselaer Polytechnic Institute
       year: 2024
+        description:
+          - title: Thesis Topic
+            contents: Enhance Machine Reasoning with Human Rationales
       # description:
       #   - Description 1.
       #   - Description 2.
@@ -27,68 +32,100 @@
       year: 2018
 
 
-- title: Experience
+- title: Professional Experience 
   type: time_table
   contents:
-    - title: Professor of Theoretical Physics
-      institution: Institute for Advanced Study, Princeton University
-      year: 1933 - 1955
+    - title: IBM AIRC Fellowship
+      institution: Rensselaer Polytechnic Institute & IBM Research
+      year: 2022 - 2023
       description:
-        - Description 1.
-        - Description 2.
-        - title: Description 3.
+        - title: Objective Human Explanation Evaluation
           contents:
-            - Sub-description 1.
-            - Sub-description 2.
-    - title: Visiting Professor
-      institution: California Institute of Technology, Pasadena, California, US
-      year: 1933
+          - Proposed a prompt-based unified data format for different tasks
+          - Enhanced the established Simulatability score with a novel metric
+to evaluate explanations' helpfulness at fine-tuning and inference
+          - Our metric can evaluate 5 datasets with 2 models (T5 and BART)
+consistently, while the established metric falls short
+        - title: Active Learning for Human Labels and Explanations
+          contents:
+            - Proposed a dual-model AL framework to generate natural language
+explanations as additional information for the prediction model
+            - Designed a novel AL selection strategy based on the similarity
+between unlabeled data and human-annotated explanations
+            - Justified human explanations with our AL framework are beneficial
+for the prediction model to perform better and converge faster
+        # - title:  
+        #   content: 
+    - title: Summer Research Extern
+      institution: IBM Research
+      year: 2021 
       description:
-        - Description 1.
-        - Description 2.
+        - title: QA-Pair Generation (QAG) for Children Storybooks
+          contents:
+            - Implemented a QAG system with 1). a heuristics-based answer
+extraction module, question; 2). a fine-tuned BART-based question
+generation module; 3). a DistilBERT-based ranking module to rank
+and select best QA-pairs
+            - Outperformed 2 SOTA QAG systems on the FairytaleQA dataset in
+terms of the mean average ROUGE-L precision at top 1, 3, 5, and 10
+QA-pairs generated per story section
+            - Developed an interactive story-telling web application built upon
+our QAG system and justified its usefulness through a user study
+with 12 pairs of parents and children
+        - title: FairytaleQA Dataset for Children Education
+          contents:
+            - Supervised education experts with carefully designed annotation
+schema to create 10, 580 QA-pairs on 278 fairytale stories
+            - Benchmarked FairytaleQA dataset can provide helpfulness on
+Question Answering and Question Generation tasks by fine-tuning
+various SOTA language models and performing in-depth analysis
 
-    - title: Director
-      institution: Kaiser Wilhelm Institute for Physics, Berlin, Germany.
-      year: 1917-1933
 
-    - title: Professor of Theoretical Physics
-      institution: Karl-Ferdinand University, Prague, Czechoslovakia
-      year: 1911 - 1917
-      description:
 
-    - title: Associate Professor of Theoretical Physics
-      institution: University of Zurich, Zurich, Switzerland
-      year: 1909 - 1911
-
-- title: Open Source Projects
+- title: Side Research Projects
   type: time_table
   contents:
-    - title: <a href="https://github.com/alshedivat/al-folio">al-folio</a>
-      year: 2015-now
-      description: A beautiful, simple, clean, and responsive Jekyll theme for academics.
+    - title: Instruction-finetune LLM for Mental Issue Detection
+      year: 2023
+      contents:
+        - Curated high-quality human-annotated datasets for mental issue
+detection in online communities
+        - Designed prompts for augmented tasks with curated datasets and
+instruction-fine-tuned an Alpaca and FLAN-T5 model
+        - Benchmarked with SOTA models (e.g., fine-tuned Alpaca-Lora,
+mental-RoBERTa) and conducted extensive ablation studies on
+prompt selection, subsampling, and transfer learning
+    - title: QA Annotation Framework with Extern KG Support
+      year: 2023
+      contents:
+        - The framework supports human annotators to select a preferred
+concept, then retrieve and rank the most relevant Commonsense Knowledge from ConceptNet to facilitate QA-pair annotation
+        - Human evaluation justified that expert-created QA-pairs with our
+framework are preferred to the ones generated by carefully
+prompted GPT-3.5 few-shot approaches
 
 - title: Honors and Awards
   type: time_table
   contents:
-    - year: 1921
-      items: 
-        - Nobel Prize in Physics 
-        - Matteucci Medal
-    - year: 2029
-      items: 
-        - Max Planck Medal
+    - title: Member of Upsilon Pi Epsilon
+      year: 2019
+      description: The International Honor Society for the Computing and Information
+Disciplines
+    - title: Member of Gamma Nu Eta
+      year: Member of Gamma Nu Eta
+      description: The National Information Technology Honor Society
 
-- title: Academic Interests
-  type: nested_list
+- title: Leadership Experience
+  type: time_table
   contents:
-    - title: Topic 1.
-      items: 
-        - Description 1.
-        - Description 2.
-    - title: Topic 2.
-      items:
-        - Description 1.
-        - Description 2.
+    - title: Teaching Assistant
+      contents:
+        - title: Computer Organization
+          year: 2018
+        - title: Introduction of AI
+          year: 2019
+        - title: Computer Organization
+          year: 2023
 
 - title: Other Interests
   type: list
