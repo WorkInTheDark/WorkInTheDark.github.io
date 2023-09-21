@@ -19,11 +19,11 @@ social: true  # includes social icons at the bottom of the page
 ---
 
 \
-4th year Ph.D. candidate in Computer Science (Advisor: [Prof. Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)) at Rensselaer Polytechnic Institute (RPI).
+5th year Ph.D. candidate in Computer Science (Advisor: [Prof. Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)) at Rensselaer Polytechnic Institute (RPI).
 
 His research interests lie at the interaction of **natural language processing** and **human-computer interaction**. He had worked closely with researchers from IBM Research and Prof. [Dakuo Wang](https://www.dakuowang.com/) from Northeastern University.
 
-I have been actively training Brazilian jiu-jitsu for three years.
+
 
 <!-- Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](http://reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder.
 

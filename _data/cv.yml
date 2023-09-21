@@ -39,15 +39,15 @@
       institution: Rensselaer Polytechnic Institute & IBM Research
       year: 2022 - 2023
       description:
-        - title: Objective Human Explanation Evaluation
+        - title: <b><u>Objective Human Explanation Evaluation</u></b>
           # contents:
           contents:
             - Proposed a prompt-based unified data format for different tasks
-            - Enhanced the established Simulatability score with a novel metric to evaluate explanations' helpfulness at fine-tuning and inference
+            - Enhanced the established Simulatability score with <b><i>a novel metric to evaluate explanations' helpfulness at fine-tuning and inference</i></u>
             - Our metric can evaluate 5 datasets with 2 models (T5 and BART) consistently, while the established metric falls short
-        - title: Active Learning for Human Labels and Explanations
+        - title: <b><u>Active Learning for Human Labels and Explanations</u></b>
           contents:
-            - Proposed a dual-model AL framework to generate natural language explanations as additional information for the prediction model
+            - <b><i>Proposed a dual-model AL framework</i></b> to generate natural language explanations as additional information for the prediction model
             - Designed a novel AL selection strategy based on the similarity between unlabeled data and human-annotated explanations
             - Justified human explanations with our AL framework are beneficial for the prediction model to perform better and converge faster
         # - title:  
@@ -56,25 +56,25 @@
       institution: IBM Research
       year: 2021 
       description:
-        - title: QA-Pair Generation (QAG) for Children Storybooks
+        - title: <b><u>QA-Pair Generation (QAG) for Children Storybooks</u></b>
           contents:
-            - Implemented a QAG system with 1). a heuristics-based answer extraction module, question; 2). a fine-tuned BART-based question generation module; 3). a DistilBERT-based ranking module to rank and select best QA-pairs
+            - Implemented a QAG system with 1). a <b><i>heuristics-based answer extraction</i></b> module, question; 2). a fine-tuned <b><i>BART-based question generation</i></b> module; 3). a <b><i>DistilBERT-based ranking module</i></b> to rank and select best QA-pairs
             - Outperformed 2 SOTA QAG systems on the FairytaleQA dataset in terms of the mean average ROUGE-L precision at top 1, 3, 5, and 10 QA-pairs generated per story section
-            - Developed an interactive story-telling web application built upon our QAG system and justified its usefulness through a user study with 12 pairs of parents and children
-        - title: FairytaleQA Dataset for Children Education
+            - Developed an <b><i>interactive story-telling web application</i></b> built upon our QAG system and justified its usefulness through a user study with 12 pairs of parents and children
+        - title: <b><u>FairytaleQA Dataset for Children Education</u></b>
           contents:
-            - Supervised education experts with carefully designed annotation schema to create 10, 580 QA-pairs on 278 fairytale stories
-            - Benchmarked FairytaleQA dataset can provide helpfulness on Question Answering and Question Generation tasks by fine-tuning various SOTA language models and performing in-depth analysis
+            - Supervised education experts with carefully designed annotation schema to create <b><i>10, 580 QA-pairs on 278 fairytale stories</i></b>
+            - <b><i>Benchmarked FairytaleQA dataset</i></b> can provide helpfulness on Question Answering and Question Generation tasks by fine-tuning various SOTA language models and performing in-depth analysis
 
-- title: Side Research Projects
+- title: (Selected) Side Research Projects
   type: time_table
   contents:
     - title: Instruction-finetune LLM for Mental Issue Detection
       year: 2023
       description:
         - Curated high-quality human-annotated datasets for mental issue detection in online communities
-        - Designed prompts for augmented tasks with curated datasets and instruction-fine-tuned an Alpaca and FLAN-T5 model
-        - Benchmarked with SOTA models (e.g., fine-tuned Alpaca-Lora, mental-RoBERTa) and conducted extensive ablation studies on prompt selection, subsampling, and transfer learning
+        - Designed prompts for augmented tasks with curated datasets and <b><i>instruction-fine-tuned an Alpaca and FLAN-T5 model</i></b>
+        - <b><i>Benchmarked with SOTA models</i></b> (e.g., fine-tuned Alpaca-Lora, mental-RoBERTa) and <b><i>conducted extensive ablation studies</i></b> on prompt selection, subsampling, and transfer learning
     - title: QA Annotation Framework with Extern KG Support
       year: 2023
       description:
@@ -106,7 +106,7 @@
       description: Computer Organization
 
 
-- title: Other Interests
-  type: list
-  contents:
-    - <u>Hobbies:</u> Hobby 1, Hobby 2, etc.
+# - title: Other Interests
+#   type: list
+#   contents:
+#     - <u>Hobbies:</u> Hobby 1, Hobby 2, etc.
