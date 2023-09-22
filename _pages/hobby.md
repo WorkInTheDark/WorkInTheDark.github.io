@@ -21,6 +21,7 @@ nav_order: 5
 ---
 
 
+
 ## Brazilian Jiu-jitsu
 I have been actively training Brazilian Jiu-jitsu with [Alan Condon](https://518empire.com/about-us/), a lifelong martial artist with black belts in 7 different martial art styles, for three years.
 
@@ -30,6 +31,8 @@ I have been actively training Brazilian Jiu-jitsu with [Alan Condon](https://518
 
 I consider myself fortunate to have developed this hobby that I am passionate about. The resilience I cultivated during the training has been invaluable in helping me navigate the challenges I have encountered throughout my doctoral studies.
 
+<br>
+<br>
 
 ## Photography
 
@@ -44,6 +47,8 @@ A list of current collections:
 - Helios-44 58mm f/2
 - Tair 11A 135mm f2.8
 
+<br>
+<br>
 
 ## Travelling
 
@@ -55,6 +60,8 @@ Of course, with the pandemic, all my travel plans have been thrown out the windo
     * I've been living in the northeastern United States for almost 10 years now, but the truth is that **Los Angeles** is where my heart is. Whenever I feel like taking a break, I don't even have to think twice about booking a flight to LA! \
     *PS - They have the absolute best Korean food anywhere in the world!* 
 
+<br>
+<br>
 
 ## Assembling and Collecting
 
@@ -70,6 +77,8 @@ I also love hunting for cool stuff and adding it to my collection. To list a few
 - diecast plane & car models
 - ties & cufflinks
 
+<br>
+<br>
 
 <p style="text-align: center; color: #edc707"> <<<<<< Construction Cordon - Work in Progress >>>>> </p>
 
