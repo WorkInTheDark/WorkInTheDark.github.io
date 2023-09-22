@@ -36,7 +36,7 @@ I consider myself fortunate to have developed this hobby that I am passionate ab
 
 ## Photography
 
-I have a preference for vintage documentary phhtography genre and interesting bokeh. In addition, I collect vintage M42 lenses. 
+I have a preference for vintage documentary photography genre and interesting bokeh. In addition, I collect vintage M42 lenses. 
 
 A list of current collections: 
 - Voigtlander Skoparex 35mm f/3.4
