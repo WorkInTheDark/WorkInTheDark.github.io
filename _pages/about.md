@@ -2,7 +2,7 @@
 layout: about
 title: About
 permalink: /
-subtitle: <b><span style="color:#9e79a4">INTJ</span> <br> I sometimes write codes. </b>
+subtitle: <b><span style="color:#9e79a4"><a href="https://www.16personalities.com/intj-personality">INTJ</a></span> <br> I sometimes write codes. </b>
 # subtitle: <a href='#'>Affiliations</a>. Address. Contacts. Moto. Etc.
 
 profile:

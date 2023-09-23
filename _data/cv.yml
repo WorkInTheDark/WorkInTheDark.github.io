@@ -32,39 +32,75 @@
       year: 2018
 
 
+# - title: Professional Experience 
+#   type: time_table
+#   contents:
+#     - title: IBM AIRC Fellowship
+#       institution: Rensselaer Polytechnic Institute & IBM Research
+#       year: 2022 - 2023
+#       description:
+#         - title: <b><u>Objective Human Explanation Evaluation</u></b>
+#           # contents:
+#           contents:
+#             - Proposed a prompt-based unified data format for different tasks
+#             - Enhanced the established Simulatability score with <b><i>a novel metric to evaluate explanations' helpfulness at fine-tuning and inference</i></u>
+#             - Our metric can evaluate 5 datasets with 2 models (T5 and BART) consistently, while the established metric falls short
+#         - title: <b><u>Active Learning for Human Labels and Explanations</u></b>
+#           contents:
+#             - <b><i>Proposed a dual-model AL framework</i></b> to generate natural language explanations as additional information for the prediction model
+#             - Designed a novel AL selection strategy based on the similarity between unlabeled data and human-annotated explanations
+#             - Justified human explanations with our AL framework are beneficial for the prediction model to perform better and converge faster
+#         # - title:  
+#         #   content: 
+#     - title: Summer Research Extern
+#       institution: IBM Research
+#       year: 2021 
+#       description:
+#         - title: <b><u>QA-Pair Generation (QAG) for Children Storybooks</u></b>
+#           contents:
+#             - Implemented a QAG system with 1). a <b><i>heuristics-based answer extraction</i></b> module, question; 2). a fine-tuned <b><i>BART-based question generation</i></b> module; 3). a <b><i>DistilBERT-based ranking module</i></b> to rank and select best QA-pairs
+#             - Outperformed 2 SOTA QAG systems on the FairytaleQA dataset in terms of the mean average ROUGE-L precision at top 1, 3, 5, and 10 QA-pairs generated per story section
+#             - Developed an <b><i>interactive story-telling web application</i></b> built upon our QAG system and justified its usefulness through a user study with 12 pairs of parents and children
+#         - title: <b><u>FairytaleQA Dataset for Children Education</u></b>
+#           contents:
+#             - Supervised education experts with carefully designed annotation schema to create <b><i>10, 580 QA-pairs on 278 fairytale stories</i></b>
+#             - <b><i>Benchmarked FairytaleQA dataset</i></b> can provide helpfulness on Question Answering and Question Generation tasks by fine-tuning various SOTA language models and performing in-depth analysis
+
 - title: Professional Experience 
   type: time_table
   contents:
-    - title: IBM AIRC Fellowship
-      institution: Rensselaer Polytechnic Institute & IBM Research
+    - title: Objective Human Explanation Evaluation 
+      institution: IBM AIRC Fellowship (Rensselaer Polytechnic Institute & IBM Research)
       year: 2022 - 2023
       description:
-        - title: <b><u>Objective Human Explanation Evaluation</u></b>
-          # contents:
-          contents:
-            - Proposed a prompt-based unified data format for different tasks
-            - Enhanced the established Simulatability score with <b><i>a novel metric to evaluate explanations' helpfulness at fine-tuning and inference</i></u>
-            - Our metric can evaluate 5 datasets with 2 models (T5 and BART) consistently, while the established metric falls short
-        - title: <b><u>Active Learning for Human Labels and Explanations</u></b>
-          contents:
-            - <b><i>Proposed a dual-model AL framework</i></b> to generate natural language explanations as additional information for the prediction model
-            - Designed a novel AL selection strategy based on the similarity between unlabeled data and human-annotated explanations
-            - Justified human explanations with our AL framework are beneficial for the prediction model to perform better and converge faster
+        - Proposed a prompt-based unified data format for different tasks
+        - Enhanced the established Simulatability score with <b><i>a novel metric to evaluate explanations' helpfulness at fine-tuning and inference</i></u>
+        - Our metric can evaluate 5 datasets with 2 models (T5 and BART) consistently, while the established metric falls short
+    - title: Active Learning for Human Labels and Explanations
+      institution: IBM AIRC Fellowship (Rensselaer Polytechnic Institute & IBM Research)
+      year: 2022 - 2023
+      description:
+        - <b><i>Proposed a dual-model AL framework</i></b> to generate natural language explanations as additional information for the prediction model
+        - Designed a novel AL selection strategy based on the similarity between unlabeled data and human-annotated explanations
+        - Justified human explanations with our AL framework are beneficial for the prediction model to perform better and converge faster
         # - title:  
         #   content: 
-    - title: Summer Research Extern
-      institution: IBM Research
+    - title: QA-Pair Generation (QAG) for Children Storybooks
+      institution: Summer Research Extern (IBM Research)
       year: 2021 
       description:
-        - title: <b><u>QA-Pair Generation (QAG) for Children Storybooks</u></b>
-          contents:
-            - Implemented a QAG system with 1). a <b><i>heuristics-based answer extraction</i></b> module, question; 2). a fine-tuned <b><i>BART-based question generation</i></b> module; 3). a <b><i>DistilBERT-based ranking module</i></b> to rank and select best QA-pairs
-            - Outperformed 2 SOTA QAG systems on the FairytaleQA dataset in terms of the mean average ROUGE-L precision at top 1, 3, 5, and 10 QA-pairs generated per story section
-            - Developed an <b><i>interactive story-telling web application</i></b> built upon our QAG system and justified its usefulness through a user study with 12 pairs of parents and children
-        - title: <b><u>FairytaleQA Dataset for Children Education</u></b>
-          contents:
-            - Supervised education experts with carefully designed annotation schema to create <b><i>10, 580 QA-pairs on 278 fairytale stories</i></b>
-            - <b><i>Benchmarked FairytaleQA dataset</i></b> can provide helpfulness on Question Answering and Question Generation tasks by fine-tuning various SOTA language models and performing in-depth analysis
+        - Implemented a QAG system with 1). a <b><i>heuristics-based answer extraction</i></b> module, question; 2). a fine-tuned <b><i>BART-based question generation</i></b> module; 3). a <b><i>DistilBERT-based ranking module</i></b> to rank and select best QA-pairs
+        - Outperformed 2 SOTA QAG systems on the FairytaleQA dataset in terms of the mean average ROUGE-L precision at top 1, 3, 5, and 10 QA-pairs generated per story section
+        - Developed an <b><i>interactive story-telling web application</i></b> built upon our QAG system and justified its usefulness through a user study with 12 pairs of parents and children
+    - title: FairytaleQA Dataset for Children Education
+      institution: Summer Research Extern (IBM Research)
+      year: 2021 
+      description: 
+        - Supervised education experts with carefully designed annotation schema to create <b><i>10, 580 QA-pairs on 278 fairytale stories</i></b>
+        - <b><i>Benchmarked FairytaleQA dataset</i></b> can provide helpfulness on Question Answering and Question Generation tasks by fine-tuning various SOTA language models and performing in-depth analysis
+
+
+
 
 - title: (Selected) Side Research Projects
   type: time_table
@@ -91,6 +127,17 @@
     - title: Member of Gamma Nu Eta
       year: 2019
       description: The National Information Technology Honor Society
+
+
+- title: Service
+  type: time_table
+  contents:
+    - title: Reviewer
+      year: 2023
+      description:
+        - ACL 2023 <b>[2]</b>, EMNLP 2023 <b>[5]</b>, ACL ARR Aug <b>[1]</b>
+
+
 
 - title: Leadership Experience
   type: time_table
