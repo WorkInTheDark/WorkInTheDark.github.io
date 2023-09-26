@@ -17,16 +17,18 @@ nav_order: 3
 ![Page 1](/assets/pdf/resume1.svg)
 ![Page 2](/assets/pdf/resume2.svg) -->
 
-<div style="text-align: center; width: 100%;">
-  <img src="/assets/pdf/resume1.svg" alt="resume-page-1">
-  <br><br>
-  <img src="/assets/pdf/resume2.svg" alt="resume-page-2">
-  <br><br>
-  <img src="/assets/pdf/resume3.svg" alt="resume-page-3">
-</div>
-
 
 
 <p style="text-align: center; color: #edc707"> <<<<<< Construction Cordon - Work in Progress >>>>> </p>
+<p style="text-align: center;">Working on new CV design now ...</p>
+
+
+<div style="text-align: center; width: 100%;">
+  <img src="/assets/pdf/resume1.svg" alt="resume-page-1" width="80%">
+  <br><br>
+  <img src="/assets/pdf/resume2.svg" alt="resume-page-2" width="80%">
+  <br><br>
+  <img src="/assets/pdf/resume3.svg" alt="resume-page-3" width="80%">
+</div>
 
 
