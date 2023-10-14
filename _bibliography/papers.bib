@@ -6,6 +6,17 @@
   abbr = {}
 ---
 
+@article{chan2023mango,
+  title={" Mango Mango, How to Let The Lettuce Dry Without A Spinner?'': Exploring User Perceptions of Using An LLM-Based Conversational Assistant Toward Cooking Partner},
+  author={Chan, Szeyi and Li, Jiachen and Yao, Bingsheng and Mahmood, Amama and Huang, Chien-Ming and Jimison, Holly and Mynatt, Elizabeth D and Wang, Dakuo},
+  journal={arXiv preprint arXiv:2310.05853},
+  abstract = {The rapid advancement of the Large Language Model (LLM) has created numerous potentials for integration with conversational assistants (CAs) assisting people in their daily tasks, particularly due to their extensive flexibility. However, users' real-world experiences interacting with these assistants remain unexplored. In this research, we chose cooking, a complex daily task, as a scenario to investigate people's successful and unsatisfactory experiences while receiving assistance from an LLM-based CA, Mango Mango. We discovered that participants value the system's ability to provide extensive information beyond the recipe, offer customized instructions based on context, and assist them in dynamically planning the task. However, they expect the system to be more adaptive to oral conversation and provide more suggestive responses to keep users actively involved. Recognizing that users began treating our LLM-CA as a personal assistant or even a partner rather than just a recipe-reading tool, we propose several design considerations for future development.},
+  year={2023},
+  arxiv = {2310.05853},
+  pdf = {https://arxiv.org/pdf/2310.05853.pdf},
+  abbr = {Arxiv}
+}
+
 @article{mahmood2023llm,
   title={LLM-Powered Conversational Voice Assistants: Interaction Patterns, Opportunities, Challenges, and Design Guidelines},
   author={Mahmood, Amama and Wang, Junxiang and Yao, Bingsheng and Wang, Dakuo and Huang, Chien-Ming},
@@ -14,6 +25,17 @@
   abstract = {Conventional Voice Assistants (VAs) rely on traditional language models to discern user intent and respond to their queries, leading to interactions that often lack a broader contextual understanding, an area in which Large Language Models (LLMs) excel. However, current LLMs are largely designed for text-based interactions, thus making it unclear how user interactions will evolve if their modality is changed to voice. In this work, we investigate whether LLMs can enrich VA interactions via an exploratory study with participants (N=20) using a ChatGPT-powered VA for three scenarios (medical self-diagnosis, creative planning, and debate) with varied constraints, stakes, and objectivity. We observe that LLM-powered VA elicits richer interaction patterns that vary across tasks, showing its versatility. Notably, LLMs absorb the majority of VA intent recognition failures. We additionally discuss the potential of harnessing LLMs for more resilient and fluid user-VA interactions and provide design guidelines for tailoring LLMs for voice assistance.},
   arxiv = {2309.13879},
   pdf = {https://arxiv.org/pdf/2309.13879.pdf},
+  abbr = {Arxiv}
+}
+
+@article{zhang2023s,
+  title={" It's a Fair Game'', or Is It? Examining How Users Navigate Disclosure Risks and Benefits When Using LLM-Based Conversational Agents},
+  author={Zhang, Zhiping and Jia, Michelle and Yao, Bingsheng and Das, Sauvik and Lerner, Ada and Wang, Dakuo and Li, Tianshi and others},
+  journal={arXiv preprint arXiv:2309.11653},
+  year={2023},
+  abstract = {The widespread use of Large Language Model (LLM)-based conversational agents (CAs), especially in high-stakes domains, raises many privacy concerns. Building ethical LLM-based CAs that respect user privacy requires an in-depth understanding of the privacy risks that concern users the most. However, existing research, primarily model-centered, does not provide insight into users' perspectives. To bridge this gap, we analyzed sensitive disclosures in real-world ChatGPT conversations and conducted semi-structured interviews with 19 LLM-based CA users. We found that users are constantly faced with trade-offs between privacy, utility, and convenience when using LLM-based CAs. However, users' erroneous mental models and the dark patterns in system design limited their awareness and comprehension of the privacy risks. Additionally, the human-like interactions encouraged more sensitive disclosures, which complicated users' ability to navigate the trade-offs. We discuss practical design guidelines and the needs for paradigmatic shifts to protect the privacy of LLM-based CA users.},
+  arxiv = {2309.11653},
+  pdf = {https://arxiv.org/pdf/2309.11653.pdf},
   abbr = {Arxiv}
 }
 
@@ -39,12 +61,12 @@
   abbr = {Arxiv}
 }
 
-@article{xu2023leveraging,
-  title={Leveraging Large Language Models for Mental Health Prediction via Online Text Data},
-  author={Xu, Xuhai and Yao, Bingsheng and Dong, Yuanzhe and Yu, Hong and Hendler, James and Dey, Anind K and Wang, Dakuo},
+@article{xu2023mental,
+  title={Mental-LLM: Leveraging Large Language Models for Mental Health Prediction via Online Text Data},
+  author={Xu, Xuhai and Yao, Bingsheng and Dong, Yuanzhe and Gabriel, Saadia and Yu, Hong and Hendler, James and Ghassemi, Marzyeh and Dey, Anind K and Wang, Dakuo},
   journal={arXiv preprint arXiv:2307.14385},
   year={2023},
-  abstract = {Advances in large language models (LLMs) have empowered a variety of applications. However, there is still a significant gap in research when it comes to understanding and enhancing the capabilities of LLMs in the field of mental health. In this work, we present the first comprehensive evaluation of multiple LLMs, including Alpaca, Alpaca-LoRA, FLAN-T5, GPT-3.5, and GPT-4, on various mental health prediction tasks via online text data. We conduct a broad range of experiments, covering zero-shot prompting, few-shot prompting, and instruction fine-tuning. The results indicate a promising yet limited performance of LLMs with zero-shot and few-shot prompt designs for the mental health tasks. More importantly, our experiments show that instruction finetuning can significantly boost the performance of LLMs for all tasks simultaneously. Our best-finetuned models, Mental-Alpaca and Mental-FLAN-T5, outperform the best prompt design of GPT-3.5 (25 and 15 times bigger) by 10.9\% on balanced accuracy and the best of GPT-4 (250 and 150 times bigger) by 4.8%. They further perform on par with the state-of-the-art task-specific language model. We also conduct an exploratory case study on LLMs' capability on the mental health reasoning tasks, illustrating the promising capability of certain models such as GPT-4. We summarize our findings into a set of action guidelines for potential methods to enhance LLMs' capability for mental health tasks. Meanwhile, we also emphasize the important limitations before achieving deployability in real-world mental health settings, such as known racial and gender bias. We highlight the important ethical risks accompanying this line of research.},
+  abstract = {Advances in large language models (LLMs) have empowered a variety of applications. However, there is still a significant gap in research when it comes to understanding and enhancing the capabilities of LLMs in the field of mental health. In this work, we present the first comprehensive evaluation of multiple LLMs, including Alpaca, Alpaca-LoRA, FLAN-T5, GPT-3.5, and GPT-4, on various mental health prediction tasks via online text data. We conduct a broad range of experiments, covering zero-shot prompting, few-shot prompting, and instruction fine-tuning. The results indicate a promising yet limited performance of LLMs with zero-shot and few-shot prompt designs for the mental health tasks. More importantly, our experiments show that instruction finetuning can significantly boost the performance of LLMs for all tasks simultaneously. Our best-finetuned models, Mental-Alpaca and Mental-FLAN-T5, outperform the best prompt design of GPT-3.5 (25 and 15 times bigger) by 10.9\% on balanced accuracy and the best of GPT-4 (250 and 150 times bigger) by 4.8\%. They further perform on par with the state-of-the-art task-specific language model. We also conduct an exploratory case study on LLMs' capability on the mental health reasoning tasks, illustrating the promising capability of certain models such as GPT-4. We summarize our findings into a set of action guidelines for potential methods to enhance LLMs' capability for mental health tasks. Meanwhile, we also emphasize the important limitations before achieving deployability in real-world mental health settings, such as known racial and gender bias. We highlight the important ethical risks accompanying this line of research.},
   arxiv = {2307.14385},
   pdf = {https://arxiv.org/pdf/2307.14385.pdf},
   code = {https://github.com/neuhai/Mental-LLM},
