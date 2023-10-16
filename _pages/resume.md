@@ -20,7 +20,6 @@ nav_order: 3
 
 
 <p style="text-align: center; color: #edc707"> <<<<<< Construction Cordon - Work in Progress >>>>> </p>
-<p style="text-align: center;">Working on new CV design now ...</p>
 
 
 <div style="text-align: center; width: 100%;">

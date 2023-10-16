@@ -57,7 +57,7 @@ Travelling is my all-time favorite thing to do. I just love learning about diffe
 Of course, with the pandemic, all my travel plans have been thrown out the window. But even though I can't travel right now, I still love thinking about all the amazing places I want to visit. And honestly, there's something about being in a new place that just helps me unwind and de-stress, almost like I'm doing meditation.
 
 - **FUN FACT(S)**
-    * I've been living in the northeastern United States for almost 10 years now, but the truth is that **Los Angeles** is where my heart is. Whenever I feel like taking a break, I don't even have to think twice about booking a flight to LA! \
+    * I've been living in the northeastern United States for almost 10 years now, but the truth is that **Los Angeles** is where my heart is. Whenever I feel like taking a break, I don't even think twice about booking a flight to LA! \
     *PS - They have the absolute best Korean food anywhere in the world!* 
 
 <br>
@@ -73,9 +73,10 @@ I'm into putting together models, toys, and custom electronics in my spare time.
 
 
 I also love hunting for cool stuff and adding it to my collection. To list a few: 
-- 'outdated' electronics that have aesthetically pleasing designs
+- electronics and mechanics that show aesthetically pleasing designs 
 - diecast plane & car models
-- ties & cufflinks
+- ties & cufflinks & rings
+- books!
 
 <br>
 <br>
