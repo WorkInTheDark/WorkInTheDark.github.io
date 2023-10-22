@@ -25,11 +25,14 @@ nav_order: 5
 ## Brazilian Jiu-jitsu
 I have been actively training Brazilian Jiu-jitsu with [Alan Condon](https://518empire.com/about-us/), a lifelong martial artist with black belts in 7 different martial art styles, for three years.
 
-- If you ask me, **what is Brazilian Jiu-jitsu**? 
-    
-    * Brazilian Jiu-jitsu is the gentle art of folding clothes, while people are still wearing them.
-
 I consider myself fortunate to have developed this hobby that I am passionate about. The resilience I cultivated during the training has been invaluable in helping me navigate the challenges I have encountered throughout my doctoral studies.
+
+If you ask me, **what is Brazilian Jiu-jitsu**? 
+    
+* The gentle art of folding clothes, while people are still wearing them.
+* Involuntary yoga.
+
+
 
 <br>
 <br>
@@ -73,10 +76,10 @@ I'm into putting together models, toys, and custom electronics in my spare time.
 
 
 I also love hunting for cool stuff and adding it to my collection. To list a few: 
-- electronics and mechanics that show aesthetically pleasing designs 
-- diecast plane & car models
-- ties & cufflinks & rings
-- books!
+- Electronics and mechanics that show aesthetically pleasing designs 
+- Diecast plane & car models
+- Ties & cufflinks & rings
+- Books!
 
 <br>
 <br>

@@ -21,7 +21,13 @@ social: false  # includes social icons at the bottom of the page
 \
 5th year Ph.D. candidate in Computer Science (Advisor: [Prof. Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)) at Rensselaer Polytechnic Institute (RPI).
 
-His research interests lie at the interaction of **natural language processing** and **human-computer interaction**. He had worked closely with researchers from IBM Research and Prof. [Dakuo Wang](https://www.dakuowang.com/) from Northeastern University.
+His research interests lie at the intersection of <span style="color:#edc707">NLP</span> and <span style="color:#edc707">HCI</span>, currently focusing on <span style="color:#edc707">enhancing human-AI collaborative workflow in various real-world scenarios</span>. He had worked closely with researchers from IBM Research and Prof. [Dakuo Wang](https://www.dakuowang.com/) from Northeastern University.
+
+
+\
+\
+<i><span style="color:#9e79a4">People often ask me why I don't have a profile photo. The truth is that I haven't been in front of a camera in almost a decade, except for renewing my driver's license and passport. 
+So, despite my fellows "strongly recommending" me having a profile photo, I don't really have a picture to put here (and other social networking platforms) yet. This challenging task is on my radar, though.  </span></i>
 
 
 

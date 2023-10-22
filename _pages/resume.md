@@ -2,7 +2,7 @@
 layout: page
 permalink: /cv/
 title: CV
-description:  Curriculum Vitae
+description:  Curriculum Vitae (Last Updated on Oct. 2023)
 nav: true
 nav_order: 3
 ---
@@ -19,7 +19,7 @@ nav_order: 3
 
 
 
-<p style="text-align: center; color: #edc707"> <<<<<< Construction Cordon - Work in Progress >>>>> </p>
+<!-- <p style="text-align: center; color: #edc707"> <<<<<< Construction Cordon - Work in Progress >>>>> </p> -->
 
 
 <div style="text-align: center; width: 100%;">
