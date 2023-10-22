@@ -13,7 +13,8 @@
                 <tr>
                   <!-- <th scope="row">{{ item.date | date: "%b %-d" }} <br> {{ item.date | date: "%Y" }}</th> -->
                   <!-- <th scope="row">{{ item.date | date: "%b %Y" }}</th> -->
-                  <th scope="row" style="width:15%">{{ item.date | date: "%b %d, %Y" }}</th>
+                  <!-- <th scope="row" style="width:15%">{{ item.date | date: "%b %d, %Y" }}</th> -->
+                  <th scope="row" style="width:12%; text-align: center;">{{ item.date | date: "%Y.%m" }}</th>
                   <td>
                     {% if item.inline -%}
                       {{ item.content | remove: '<p>' | remove: '</p>' | emojify }}
