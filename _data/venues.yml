@@ -5,42 +5,49 @@
 # "PhysRev":
 #   url: https://journals.aps.org/
 
+"In Submission":
+    color: "#000000"
+
+"EMNLP 2023":
+    url: https://2023.emnlp.org/
+    color: "#F7E7FB"
+
 "EMNLP 2023<br>Findings":
     url: https://2023.emnlp.org/
-    color: "#000000"
+    color: "#F7E7FB"
 
 "ACL 2023<br>Oral":
     url: https://2023.aclweb.org/
-    color: "#000000"
+    color: "#F7E7FB"
 
 "Arxiv":
     url: https://arxiv.org/list/cs.CL/recent
-    color: "#000000"
+    color: "#F7E7FB"
 
 "EMNLP 2022<br>Demo":
     url: https://2022.emnlp.org/
-    color: "#000000"
+    color: "#F7E7FB"
 
 "LREC 2022":
     url: https://lrec2022.lrec-conf.org/en/
-    color: "#000000"
+    color: "#F7E7FB"
 
 "CHI 2022":
     url: https://chi2022.acm.org/
-    color: "#000000"
+    color: "#F7E7FB"
 
 "ACL 2022":
     url: https://www.2022.aclweb.org/
-    color: "#000000"
+    color: "#F7E7FB"
 
 "TACL 2021":
     url: https://transacl.org/index.php/tacl
-    color: "#000000"
+    color: "#F7E7FB"
 
 "CUI @ CSCW 2021":
     url: https://cui.acm.org/workshops/CSCW2021/
-    color: "#000000"
+    color: "#F7E7FB"
 
 "IUI 2020":
     url: https://iui.acm.org/2020/
-    color: "#000000"
+    color: "#F7E7FB"
