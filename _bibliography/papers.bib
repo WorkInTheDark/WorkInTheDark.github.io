@@ -6,6 +6,36 @@
   abbr = {}
 ---
 
+@article{yao2023samples,
+      title={More Samples or More Prompt Inputs? Exploring Effective In-Context Sampling for LLM Few-Shot Prompt Engineering}, 
+      author={Bingsheng Yao and Guiming Chen and Ruishi Zou and Yuxuan Lu and Jiachen Li and Shao Zhang and Sijia Liu and James Hendler and Dakuo Wang},
+      year={2023},
+      journal={arXiv preprint arXiv:2311.09782},
+      abstract = {While most existing works on LLM prompt-engineering focus only on how to select a better set of data samples inside one single prompt input (In-Context Learning or ICL), why can't we design and leverage multiple prompt inputs together to further improve the LLM performance? In this work, we propose In-Context Sampling (ICS), a low-resource LLM prompt-engineering technique to produce the most confident prediction results by optimizing the construction of multiple ICL prompt inputs. Extensive experiments with two SOTA LLMs (FlanT5-XL and Mistral-7B) on three NLI datasets (e-SNLI, Multi-NLI, and ANLI) illustrate that ICS can consistently enhance LLM's prediction performance and confidence. An ablation study suggests that a diversity-based ICS strategy may further improve LLM's performance, which sheds light on a new yet promising future research direction.},
+      pdf = {https://arxiv.org/abs/2311.09782},
+      abbr = {Arxiv}
+}
+
+@article{lu2023human,
+      title={Human Still Wins over LLM: An Empirical Study of Active Learning on Domain-Specific Annotation Tasks}, 
+      author={Yuxuan Lu and Bingsheng Yao and Shao Zhang and Yun Wang and Peng Zhang and Tun Lu and Toby Jia-Jun Li and Dakuo Wang},
+      year={2023},
+      journal={arXiv preprint arXiv:2311.09825},
+      abstract = {Large Language Models (LLMs) have demonstrated considerable advances, and several claims have been made about their exceeding human performance. However, in real-world tasks, domain knowledge is often required. Low-resource learning methods like Active Learning (AL) have been proposed to tackle the cost of domain expert annotation, raising this question: Can LLMs surpass compact models trained with expert annotations in domain-specific tasks? In this work, we conduct an empirical experiment on four datasets from three different domains comparing SOTA LLMs with small models trained on expert annotations with AL. We found that small models can outperform GPT-3.5 with a few hundreds of labeled data, and they achieve higher or similar performance with GPT-4 despite that they are hundreds time smaller. Based on these findings, we posit that LLM predictions can be used as a warmup method in real-world applications and human experts remain indispensable in tasks involving data annotation driven by domain-specific knowledge.},
+      pdf = {https://arxiv.org/abs/2311.09825},
+      abbr = {Arxiv}
+}
+
+@article{chen2023fairytalecqa,
+      title={FairytaleCQA: Integrating a Commonsense Knowledge Graph into Children's Storybook Narratives}, 
+      author={Jiaju Chen and Yuxuan Lu and Shao Zhang and Bingsheng Yao and Yuanzhe Dong and Ying Xu and Yunyao Li and Qianwen Wang and Dakuo Wang and Yuling Sun},
+      year={2023},
+      journal={arXiv preprint arXiv:2311.09756},
+      abstract = {AI models (including LLM) often rely on narrative question-answering (QA) datasets to provide customized QA functionalities to support downstream children education applications; however, existing datasets only include QA pairs that are grounded within the given storybook content, but children can learn more when teachers refer the storybook content to real-world knowledge (e.g., commonsense knowledge). We introduce the FairytaleCQA dataset, which is annotated by children education experts, to supplement 278 storybook narratives with educationally appropriate commonsense knowledge. The dataset has 5,868 QA pairs that not only originate from the storybook narrative but also contain the commonsense knowledge grounded by an external knowledge graph (i.e., ConceptNet). A follow-up experiment shows that a smaller model (T5-large) fine-tuned with FairytaleCQA reliably outperforms much larger prompt-engineered LLM (e.g., GPT-4) in this new QA-pair generation task (QAG). This result suggests that: 1) our dataset brings novel challenges to existing LLMs, and 2) human experts' data annotation are still critical as they have much nuanced knowledge that LLMs do not know in the children educational domain.},
+      pdf = {https://arxiv.org/abs/2311.09756},
+      abbr = {Arxiv}
+}
+
 
 @article{chan2023mango,
   title={" Mango Mango, How to Let The Lettuce Dry Without A Spinner?'': Exploring User Perceptions of Using An LLM-Based Conversational Assistant Toward Cooking Partner},
