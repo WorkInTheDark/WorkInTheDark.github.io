@@ -35,11 +35,11 @@ nav_order: 3
 <style>
 #cv {
   height: 100vh;
-    width: 100vw;
+    width: 100%;
 }
-@media (min-width:480px)  {
+/* @media (min-width:480px)  {
   #cv {
   width: 80vw;
   }
-}
+} */
 </style>
