@@ -2,7 +2,7 @@
 layout: page
 permalink: /cv/
 title: CV
-description:  Curriculum Vitae (Last Updated on Oct. 2023)
+description:  Curriculum Vitae (Last Updated on Dec. 2023)
 nav: true
 nav_order: 3
 ---
@@ -23,11 +23,11 @@ nav_order: 3
 
 
 <div style="text-align: center; width: 100%;">
-  <img src="/assets/pdf/resume1.svg" alt="resume-page-1" width="80%">
+  <img src="/assets/pdf/Resume_svg_page1.svg" alt="resume-page-1" width="80%">
   <br><br>
-  <img src="/assets/pdf/resume2.svg" alt="resume-page-2" width="80%">
+  <img src="/assets/pdf/Resume_svg_page2.svg" alt="resume-page-2" width="80%">
   <br><br>
-  <img src="/assets/pdf/resume3.svg" alt="resume-page-3" width="80%">
+  <img src="/assets/pdf/Resume_svg_page3.svg" alt="resume-page-3" width="80%">
 </div>
 
 
