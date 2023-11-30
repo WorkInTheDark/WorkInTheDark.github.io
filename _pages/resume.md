@@ -23,11 +23,23 @@ nav_order: 3
 
 
 <div style="text-align: center; width: 100%;">
-  <img src="/assets/pdf/Resume_svg_page1.svg" alt="resume-page-1" width="80%">
+  <iframe src="/assets/pdf/Resume_pdf.pdf" id="cv"> </iframe>
+  <!-- <img src="/assets/pdf/Resume_svg_page1.svg" alt="resume-page-1" width="80%">
   <br><br>
   <img src="/assets/pdf/Resume_svg_page2.svg" alt="resume-page-2" width="80%">
   <br><br>
-  <img src="/assets/pdf/Resume_svg_page3.svg" alt="resume-page-3" width="80%">
+  <img src="/assets/pdf/Resume_svg_page3.svg" alt="resume-page-3" width="80%"> -->
 </div>
 
 
+<style>
+#cv {
+  height: 100vh;
+    width: 100vw;
+}
+@media (min-width:480px)  {
+  #cv {
+  width: 80vw;
+  }
+}
+</style>
