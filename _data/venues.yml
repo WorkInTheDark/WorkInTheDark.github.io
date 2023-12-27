@@ -8,6 +8,10 @@
 "In Submission":
     color: "#333333"
 
+"IMWUT 2024":
+    url: https://dl.acm.org/journal/imwut/
+    color: "#000000"
+
 "EMNLP 2023":
     url: https://2023.emnlp.org/
     color: "#000000"
