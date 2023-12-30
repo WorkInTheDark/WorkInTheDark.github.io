@@ -24,7 +24,7 @@ social: false  # includes social icons at the bottom of the page
 His research interests lie at the intersection of <span style="color:#edc707">NLP</span> and <span style="color:#edc707">HCI</span>, currently focusing on <span style="color:#edc707">enhancing human-AI collaborative workflow in various real-world scenarios</span>. He had worked closely with researchers from IBM Research and Prof. [Dakuo Wang](https://www.dakuowang.com/) from Northeastern University.
 
 
-<!-- <i><span style="color:#999999"> xxx</span></i> -->
+<i><span style="color:#999999"> Yes, this profile photo is an AI-reconstructed selfie. </span></i>
 <!-- \ -->
 <!-- \ -->
 <!-- <i><span style="color:#999999">People often ask me why I don't have a profile photo. The truth is that I haven't been in front of a camera in almost a decade, except for renewing my driver's license and passport. 
