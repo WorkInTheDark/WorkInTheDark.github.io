@@ -19,7 +19,7 @@ social: false  # includes social icons at the bottom of the page
 ---
 
 \
-5th year Ph.D. candidate in Computer Science (Advisor: [Prof. Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)) at Rensselaer Polytechnic Institute (RPI).
+5th year Ph.D. candidate in Computer Science (Advisor: Prof. [Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)) at Rensselaer Polytechnic Institute (RPI).
 
 His research interests lie at the intersection of <span style="color:#edc707">NLP</span> and <span style="color:#edc707">HCI</span>, currently focusing on <span style="color:#edc707">enhancing human-AI collaborative workflow in various real-world scenarios</span>. He had worked closely with researchers from IBM Research and Prof. [Dakuo Wang](https://www.dakuowang.com/) from Northeastern University.
 
