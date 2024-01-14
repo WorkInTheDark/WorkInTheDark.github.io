@@ -26,10 +26,6 @@
   - firstname: ["Prithviraj"]
     url: https://scholar.google.com/citations?user=Ah5WCLwAAAAJ&hl=en
 
-"Lu":
-  - firstname: ["Yuxuan"]
-    url: https://yuxuan.lu/
-
 "Yu":
   - firstname: ["Mo"]
     url: https://sites.google.com/site/moyunlp/
@@ -42,3 +38,10 @@
   - firstname: ["Xiangyang"]
     url: https://scholar.google.com/citations?user=goHiK4IAAAAJ&hl=en
 
+"Wu":
+  - firstname: ["Tongshuang"]
+    url: https://www.cs.cmu.edu/~sherryw/
+
+"Xu":
+  - firstname: ["Ying"]
+    url: https://ying-xu.com/

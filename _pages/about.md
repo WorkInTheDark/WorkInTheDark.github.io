@@ -2,7 +2,8 @@
 layout: about
 title: About
 permalink: /
-subtitle: <b><span style="color:#9e79a4"><a href="https://www.16personalities.com/intj-personality">INTJ</a></span> <br> I sometimes write codes. </b>
+subtitle: <b> <br> I sometimes write codes. </b>
+# subtitle: <b><span style="color:#2489FF"><a href="https://www.16personalities.com/intj-personality">INTJ</a></span> <br> I sometimes write codes. </b>
 # subtitle: <a href='#'>Affiliations</a>. Address. Contacts. Moto. Etc.
 
 profile:
@@ -21,7 +22,7 @@ social: false  # includes social icons at the bottom of the page
 \
 5th year Ph.D. candidate in Computer Science (Advisor: Prof. [Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)) at Rensselaer Polytechnic Institute (RPI).
 
-His research interests lie at the intersection of <span style="color:#edc707">NLP</span> and <span style="color:#edc707">HCI</span>, currently focusing on <span style="color:#edc707">enhancing human-AI collaborative workflow in various real-world scenarios</span>. He had worked closely with researchers from IBM Research and Prof. [Dakuo Wang](https://www.dakuowang.com/) from Northeastern University.
+His research interests lie at the intersection of <span style="color:#9747FF">NLP</span> and <span style="color:#9747FF">HCI</span>, currently focusing on <span style="color:#9747FF">enhancing human-AI collaborative workflow</span> and <span style="color:#9747FF">building LLM-simulated agents in various real-world scenarios</span>. He had worked closely with researchers from IBM Research and Prof. [Dakuo Wang](https://www.dakuowang.com/) from Northeastern University.
 
 
 <i><span style="color:#999999"> Yes, this photo is an AI-reconstructed selfie mimicking the comic style of SLAM DUNK. </span></i>

@@ -6,52 +6,52 @@
 #   url: https://journals.aps.org/
 
 "In Submission":
-    color: "#333333"
+    color: "#cecece"
 
 "IMWUT 2024":
     url: https://dl.acm.org/journal/imwut/
-    color: "#000000"
+    color: "#ffffff"
 
 "EMNLP 2023":
     url: https://2023.emnlp.org/
-    color: "#000000"
+    color: "#ffffff"
 
 "EMNLP 2023<br>Findings":
     url: https://2023.emnlp.org/
-    color: "#000000"
+    color: "#ffffff"
 
 "ACL 2023<br>Oral":
     url: https://2023.aclweb.org/
-    color: "#000000"
+    color: "#ffffff"
 
 "Arxiv":
     url: https://arxiv.org/list/cs.CL/recent
-    color: "#000000"
+    color: "#ffffff"
 
 "EMNLP 2022<br>Demo":
     url: https://2022.emnlp.org/
-    color: "#000000"
+    color: "#ffffff"
 
 "LREC 2022":
     url: https://lrec2022.lrec-conf.org/en/
-    color: "#000000"
+    color: "#ffffff"
 
 "CHI 2022":
     url: https://chi2022.acm.org/
-    color: "#000000"
+    color: "#ffffff"
 
 "ACL 2022":
     url: https://www.2022.aclweb.org/
-    color: "#000000"
+    color: "#ffffff"
 
 "TACL 2021":
     url: https://transacl.org/index.php/tacl
-    color: "#000000"
+    color: "#ffffff"
 
 "CUI @ CSCW 2021":
     url: https://cui.acm.org/workshops/CSCW2021/
-    color: "#000000"
+    color: "#ffffff"
 
 "IUI 2020":
     url: https://iui.acm.org/2020/
-    color: "#000000"
+    color: "#ffffff"

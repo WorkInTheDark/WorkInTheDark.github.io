@@ -60,8 +60,8 @@ Travelling is my all-time favorite thing to do. I just love learning about diffe
 Of course, with the pandemic, all my travel plans have been thrown out the window. But even though I can't travel right now, I still love thinking about all the amazing places I want to visit. And honestly, there's something about being in a new place that just helps me unwind and de-stress, almost like I'm doing meditation.
 
 - **FUN FACT(S)**
-    * I've been living in the northeastern United States for almost 10 years now, but the truth is that <span style="color:#edc707">Los Angeles</span> is where my heart is. Whenever I feel like taking a break, I don't even think twice about booking a flight to LA! \
-    <span style="color:#edc707">PS - They have the absolute best Korean food anywhere in the world!</span>
+    * I've been living in the northeastern United States for almost 10 years now, but the truth is that <span style="color:#EB7F00">Los Angeles</span> is where my heart is. Whenever I feel like taking a break, I don't even think twice about booking a flight to LA! \
+    <span style="color:#EB7F00">PS - They have the absolute best Korean food anywhere in the world!</span>
 
 <br>
 <br>
@@ -84,7 +84,7 @@ I also love hunting for cool stuff and adding it to my collection. To list a few
 <br>
 <br>
 
-<p style="text-align: center; color: #edc707"> <<<<<< Construction Cordon - Work in Progress >>>>> </p>
+<p style="text-align: center; color: #EB7F00"> <<<<<< Construction Cordon - Work in Progress >>>>> </p>
 
 
 To be added... (have to rush to draft a paper)
