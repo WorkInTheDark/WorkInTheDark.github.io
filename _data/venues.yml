@@ -8,6 +8,10 @@
 "In Submission":
     color: "#cecece"
 
+"CHI 2024":
+    url: https://chi2024.acm.org/
+    color: "#ffffff"
+
 "IMWUT 2024":
     url: https://dl.acm.org/journal/imwut/
     color: "#ffffff"
