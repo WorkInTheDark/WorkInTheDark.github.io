@@ -2,7 +2,8 @@
 layout: about
 title: About
 permalink: /
-subtitle: <b> <br> I sometimes write codes. </b>
+subtitle: <br>
+# <b> <br> I sometimes write codes. </b>
 # subtitle: <b><span style="color:#2489FF"><a href="https://www.16personalities.com/intj-personality">INTJ</a></span> <br> I sometimes write codes. </b>
 # subtitle: <a href='#'>Affiliations</a>. Address. Contacts. Moto. Etc.
 
@@ -19,13 +20,40 @@ selected_papers: true # includes a list of papers marked as "selected={true}"
 social: false  # includes social icons at the bottom of the page
 ---
 
-\
-5th year Ph.D. candidate in Computer Science (Advisor: Prof. [Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)) at Rensselaer Polytechnic Institute (RPI).
 
-His research interests lie at the intersection of <span style="color:#9747FF">NLP</span> and <span style="color:#9747FF">HCI</span>, currently focusing on <span style="color:#9747FF">enhancing human-AI collaborative workflow</span> and <span style="color:#9747FF">building LLM-simulated agents in various real-world scenarios</span>. He had worked closely with researchers from IBM Research and Prof. [Dakuo Wang](https://www.dakuowang.com/) from Northeastern University.
+My research interests lie at the intersection of **NLP** and **HCI**. My dissertation primarily focuses on enhancing language model reasoning via Active Learning (AL) with human rationales -- I proposed a novel AL architecture with a diversity-based AL sampling strategy that faithfully utilizes and generates natural language explanations, check it out from my [AL Architecture@EMNLP23](https://aclanthology.org/2023.findings-emnlp.778/) and [Humana Rationale Evaluation@ACL22](https://aclanthology.org/2023.acl-long.821/) papers!
+
+More recently, I focus on 
+<!-- two reserach directions.  -->
+<!-- Firstly, I am interested in  -->
+how to <span style="color:#9747FF">enhance human-AI collaborative workflow</span> with language models in different real-world scenarios, such as clinical diagnosis ([Sepsis Diagnosis@CHI24](https://arxiv.org/abs/2309.12368), [MentalLLM@IMWUT24](https://arxiv.org/abs/2307.14385)), patient-provider communication ([Older Adults](https://arxiv.org/abs/2309.09357))
+, children education ([FairytaleQA Dataset@ACL22](https://aclanthology.org/2022.acl-long.34/), [Children QA Generation@ACL22](https://aclanthology.org/2022.acl-long.54/), [StoryBuddyCHI22](https://dl.acm.org/doi/abs/10.1145/3491102.3517479), [KG-Based RAG for QA Generation](https://arxiv.org/abs/2311.09756), [Parent's Need for Children Storytelling](https://arxiv.org/abs/2401.13804)), etc.
 
 
-<i><span style="color:#999999"> Yes, this photo is an AI-reconstructed selfie mimicking the comic style of SLAM DUNK. </span></i>
+In the meantime, I continue my research in NLP by exploring <span style="color:#9747FF">efficient strategies for fine-tuning and inference with LLMs and domain-specific compact models</span> (i.e., [In-Context Sampling Strategy](https://arxiv.org/abs/2311.09782), [LLM vs. Domain-Specific Compact LM](https://arxiv.org/abs/2311.09825)). 
+
+
+<!-- In addition, I am devoted to <span style="color:#9747FF">build LLM-Simulated human agents</span> for different populations and domains.  -->
+ 
+
+
+***
+
+
+- **Postdoc Researcher** at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)).
+
+- **Ph.D. in Computer Science** at Rensselaer Polytechnic Institute (Advisor: Prof. [Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)). 
+
+- **M.S. in Information Technology** at Rensselaer Polytechnic Institute.
+
+- **B.S. in Computer Enginnering** at Rensselaer Polytechnic Institute.
+
+
+
+
+
+
+<i><span style="color:#999999"> This photo is an AI-reconstructed selfie mimicking the comic style of SLAM DUNK, will switch to a real photo soon. </span></i>
 <!-- \ -->
 <!-- \ -->
 <!-- <i><span style="color:#999999">People often ask me why I don't have a profile photo. The truth is that I haven't been in front of a camera in almost a decade, except for renewing my driver's license and passport. 

@@ -18,6 +18,12 @@ span,
 strong {
   color: var(--global-text-color);
   font-family: Georgia, Times, "Times New Roman", serif;
+  font-weight: normal; /* Default weight for most elements */
+}
+
+strong,
+b {
+  font-weight: bold; /* Explicitly sets bold text */
 }
 
 hr {
