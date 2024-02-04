@@ -20,17 +20,40 @@ selected_papers: true # includes a list of papers marked as "selected={true}"
 social: false  # includes social icons at the bottom of the page
 ---
 
-
+<!-- 
 My research interests lie at the intersection of **NLP** and **HCI**. My dissertation primarily focuses on enhancing language model reasoning via Active Learning (AL) with human rationales -- I proposed a novel AL architecture with a diversity-based AL sampling strategy that faithfully utilizes and generates natural language explanations, check it out from my [AL Architecture@EMNLP23](https://aclanthology.org/2023.findings-emnlp.778/) and [Humana Rationale Evaluation@ACL22](https://aclanthology.org/2023.acl-long.821/) papers!
 
 More recently, I focus on 
-<!-- two reserach directions.  -->
-<!-- Firstly, I am interested in  -->
 how to <span style="color:#9747FF">enhance human-AI collaborative workflow</span> with language models in different real-world scenarios, such as clinical diagnosis ([Sepsis Diagnosis@CHI24](https://arxiv.org/abs/2309.12368), [MentalLLM@IMWUT24](https://arxiv.org/abs/2307.14385)), patient-provider communication ([Older Adults](https://arxiv.org/abs/2309.09357))
 , children education ([FairytaleQA Dataset@ACL22](https://aclanthology.org/2022.acl-long.34/), [Children QA Generation@ACL22](https://aclanthology.org/2022.acl-long.54/), [StoryBuddyCHI22](https://dl.acm.org/doi/abs/10.1145/3491102.3517479), [KG-Based RAG for QA Generation](https://arxiv.org/abs/2311.09756), [Parent's Need for Children Storytelling](https://arxiv.org/abs/2401.13804)), etc.
 
-
 In the meantime, I continue my research in NLP by exploring <span style="color:#9747FF">efficient strategies for fine-tuning and inference with LLMs and domain-specific compact models</span> (i.e., [In-Context Sampling Strategy](https://arxiv.org/abs/2311.09782), [LLM vs. Domain-Specific Compact LM](https://arxiv.org/abs/2311.09825)). 
+
+ -->
+
+
+
+
+I am a Postdoc researcher at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)). 
+My research lies at the intersection of **NLP** and **HCI**. 
+Before joining Prof. Dakuo's group, I got Ph.D. from Rensselaer Polytechnic Institute, advised by Prof. [Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler). 
+My dissertation focuses on *enhancing machine reasoning via Active Learning (AL) with human rationales* -- I propose a novel AL architecture with a diversity-based AL sampling strategy that faithfully utilizes and generates natural language explanations ([AL Architecture@EMNLP23](https://aclanthology.org/2023.findings-emnlp.778/), [Human Rationale Evaluation@ACL22](https://aclanthology.org/2023.acl-long.821/))
+
+
+
+In terms of my research direction, I strive to <span style="color:#9747FF">enhance human-AI collaborative workflow with NLP models in real-world scenarios</span>, such as
+- Clinical Diagnosis ([Sepsis Diagnosis@CHI24](https://arxiv.org/abs/2309.12368), [Mental-LLM@IMWUT24](https://arxiv.org/abs/2307.14385))
+- Children Education ([FairytaleQA Dataset@ACL22](https://aclanthology.org/2022.acl-long.34/), [Children QA Generation@ACL22](https://aclanthology.org/2022.acl-long.54/), [StoryBuddyCHI22](https://dl.acm.org/doi/abs/10.1145/3491102.3517479), [KG-Based RAG for QA Generation](https://arxiv.org/abs/2311.09756), [Parent's Need for Children Storytelling](https://arxiv.org/abs/2401.13804))
+- Patient-Provider Communication ([Older Adults](https://arxiv.org/abs/2309.09357))
+
+with a specific focus to <span style="color:#9747FF">explore efficient development and utilization of LLMs and domain-specific compact models</span>, including
+- [In-Context Sampling Strategy](https://arxiv.org/abs/2311.09782)
+- [LLM vs. Domain-Specific Compact LM](https://arxiv.org/abs/2311.09825)
+
+I have served on program committees for various top conferences and journals, including ACL, NAACL, EMNLP, CHI, and IMWUT. 
+
+
+
 
 
 <!-- In addition, I am devoted to <span style="color:#9747FF">build LLM-Simulated human agents</span> for different populations and domains.  -->
