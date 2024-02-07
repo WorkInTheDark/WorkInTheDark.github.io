@@ -9,7 +9,7 @@ subtitle: <br>
 
 profile:
   align: right
-  image: main.jpg
+  image: profile-square.jpeg
   image_circular: false # crops the image to make it circular
   address: >
     
@@ -76,7 +76,7 @@ I have served on program committees for various top conferences and journals, in
 
 
 
-<i><span style="color:#999999"> This photo is an AI-reconstructed selfie mimicking the comic style of SLAM DUNK, will switch to a real photo soon. </span></i>
+<!-- <i><span style="color:#999999"> This photo is an AI-reconstructed selfie mimicking the comic style of SLAM DUNK, will switch to a real photo soon. </span></i> -->
 <!-- \ -->
 <!-- \ -->
 <!-- <i><span style="color:#999999">People often ask me why I don't have a profile photo. The truth is that I haven't been in front of a camera in almost a decade, except for renewing my driver's license and passport. 
