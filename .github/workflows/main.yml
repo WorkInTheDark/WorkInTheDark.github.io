@@ -5,6 +5,10 @@ on:
     - cron: "0 0 1 * *"
   # manual trigger
   workflow_dispatch:
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
 jobs:
   repo-sync:
     runs-on: ubuntu-latest
@@ -15,6 +19,6 @@ jobs:
       - name: actions-template-sync
         uses: AndreasAugustin/actions-template-sync@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.MY_PAT_TOKEN }}
           source_repo_path: alshedivat/al-folio
           upstream_branch: master
