@@ -1,4 +1,9 @@
-          <div class="news">
+    <div style="display: flex; width: 100%;">
+      <!-- News Section -->
+      <!-- <div class="news" style="width: 70%;"> -->
+              
+          <div class="news" style="width: 70%;">
+            <h2><a href="{{ '/news/' | relative_url }}" style="color: inherit;">News</a></h2>
             {% if site.news != blank -%}
             {%- assign news_size = site.news | size -%}
             <div class="table-responsive" {% if include.limit and site.announcements.scrollable and news_size > 3 %}style="max-height: 60vw"{% endif %}>
@@ -30,3 +35,57 @@
             <p>No news so far...</p>
           {%- endif %}
           </div>
+
+      <!-- </div>   -->
+
+
+      <!-- <div class="news" style="width: 30%;"> -->
+              
+        <div class="news" style="width: 30%;">
+          <h2><a href="{{ '/news/' | relative_url }}" style="color: inherit;">Travels</a></h2>
+
+          <div class="table-responsive" {% if include.limit and site.announcements.scrollable > 3 %}style="max-height: 60vw"{% endif %}>
+            <table class="table-dark table-sm table-borderless">
+            
+              <tr>
+                <th scope="row" style="width:12%; text-align: left;">{{ "2024-11-09" | date: "%Y.%m.%d" }}</th>
+                <td> <a class="news-title"> San José, Costa Rica <br> <span style="color:#EB7F00">CSCW 2024</span> </a> </td>
+              </tr>
+
+            <tr>
+              <th scope="row" style="width:12%; text-align: left;">{{ "2024-10-13" | date: "%Y.%m.%d" }}</th>
+              <td> <a class="news-title"> Pittsburgh, PA <br> <span style="color:#EB7F00">UIST 2024</span> </a> </td>
+            </tr>
+
+            <tr>
+              <th scope="row" style="width:12%; text-align: left;">{{ "2024-05-11" | date: "%Y.%m.%d" }}</th>
+              <td> <a class="news-title"> Honolulu, HI <br> <span style="color:#EB7F00">CHI 2024</span> </a> </td>
+            </tr>
+
+            <tr>
+              <th scope="row" style="width:12%; text-align: left;">{{ "2024-03-18" | date: "%Y.%m.%d" }}</th>
+              <td> <a class="news-title"> Boston, MA <br> <span style="color:#EB7F00">AMIA Summit</span> </a> </td>
+            </tr>
+
+            <tr>
+              <th scope="row" style="width:12%; text-align: left;">{{ "2024-03-14" | date: "%Y.%m.%d" }}</th>
+              <td> <a class="news-title"> San Francisco, CA <br> <span style="color:#EB7F00">CSHA 2024</span> </a> </td>
+            </tr>
+
+            <tr>
+              <th scope="row" style="width:12%; text-align: left;">{{ "2024-03-04" | date: "%Y.%m.%d" }}</th>
+              <td> <a class="news-title"> Los Angeles, CA <br> <span style="color:#EB7F00">Visit USC</span> </a> </td>
+            </tr>
+
+
+
+            </table>
+          </div>
+
+        </div>
+
+      <!-- </div>   -->
+
+
+
+    </div>
