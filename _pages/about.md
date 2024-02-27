@@ -46,7 +46,7 @@ I strive to **enhance human-AI collaborative workflow with NLP system in real-wo
 - Children Education ([FairytaleQA Dataset](https://aclanthology.org/2022.acl-long.34/)<span style="color:#EB7F00">@ACL22</span>, [Children QA Generation](https://aclanthology.org/2022.acl-long.54/)<span style="color:#EB7F00">@ACL22</span>, [StoryBuddy](https://dl.acm.org/doi/abs/10.1145/3491102.3517479)<span style="color:#EB7F00">@CHI22<span>, [KG-Based RAG for QA Generation](https://arxiv.org/abs/2311.09756), [Parent's Need for Children Storytelling](https://arxiv.org/abs/2401.13804))
 
 
-My research interests also extend to **exploring efficient development and utilization of NLP models**, for instance
+My research interests also extend to **exploring efficient development and utilization of NLP models**, including
 - [In-Context Sampling for LLMs](https://arxiv.org/abs/2311.09782)
 - [LLM vs. Domain-Specific Compact LM](https://arxiv.org/abs/2311.09825)
 
