@@ -34,9 +34,9 @@ In the meantime, I continue my research in NLP by exploring <span style="color:#
 
 
 
-<!-- I am a Postdoc researcher at Northeastern University.  -->
+I am a Postdoc researcher at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)).
 My research lies at the intersection of **NLP** and **HCI**. 
-Before joining Prof. Dakuo's group, I got Ph.D. from Rensselaer Polytechnic Institute. 
+Before joining Prof. Dakuo's group, I got Ph.D. from Rensselaer Polytechnic Institute (Advisor: Prof. [Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)). 
 My dissertation focuses on *enhancing machine reasoning via Active Learning (AL) with human rationales* -- I propose a novel AL architecture with a diversity-based AL sampling strategy that faithfully utilizes and generates natural language explanations ([AL Architecture](https://aclanthology.org/2023.findings-emnlp.778/)<span style="color:#EB7F00">@EMNLP23</span>, [Human Rationale Evaluation](https://aclanthology.org/2023.acl-long.821/)<span style="color:#EB7F00">@ACL23</span>)
 
 
