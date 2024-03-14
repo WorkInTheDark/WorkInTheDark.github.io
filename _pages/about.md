@@ -47,7 +47,7 @@ I strive to **enhance human-AI collaborative workflow with NLP system in real-wo
 
 
 My research interests also extend to **exploring efficient development and utilization of NLP models**, including
-- [In-Context Sampling for LLMs](https://arxiv.org/abs/2311.09782)
+- [In-Context Sampling for LLMs](https://arxiv.org/abs/2311.09782)<span style="color:#EB7F00">@NAACL24</span>
 - [LLM vs. Domain-Specific Compact LM](https://arxiv.org/abs/2311.09825)
 
 I have served on program committees for various top conferences and journals: \
