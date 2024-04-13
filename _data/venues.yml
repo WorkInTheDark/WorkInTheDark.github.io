@@ -8,6 +8,10 @@
 "In Submission":
     color: "#cecece"
 
+"NAACL 2024<br>Findings":
+    url: https://2024.naacl.org/
+    color: "#ffffff"
+
 "CHI 2024":
     url: https://chi2024.acm.org/
     color: "#ffffff"
