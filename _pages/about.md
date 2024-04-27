@@ -25,13 +25,23 @@ social: false  # includes social icons at the bottom of the page
 I am a Postdoc researcher at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)).
 My research lies at the intersection of **NLP** and **HCI**. 
 Before joining Prof. Dakuo's group, I got Ph.D. from Rensselaer Polytechnic Institute (Advisor: Prof. [Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)). 
-My dissertation focuses on *enhancing machine reasoning via Active Learning (AL) with human rationales* -- I propose a novel AL architecture with a diversity-based AL sampling strategy that faithfully utilizes and generates natural language explanations ([AL Architecture](https://aclanthology.org/2023.findings-emnlp.778/)<span style="color:#EB7F00">@EMNLP23</span>, [Human Rationale Evaluation](https://aclanthology.org/2023.acl-long.821/)<span style="color:#EB7F00">@ACL23</span>)
+My dissertation focuses on *enhancing machine reasoning via Active Learning (AL) with human rationales* -- I propose a novel AL architecture with a diversity-based sampling strategy that generates and benefits from natural language explanations for data sampling and prediction ([AL Architecture](https://aclanthology.org/2023.findings-emnlp.778/)<span style="color:#EB7F00">@EMNLP23</span>, [Human Rationale Evaluation](https://aclanthology.org/2023.acl-long.821/)<span style="color:#EB7F00">@ACL23</span>)
 
 
 <!-- <span style="color:#9747FF"></span> -->
-I strive to **enhance human-AI collaborative workflow with NLP system in real-world, domain-specific scenarios**, such as
-- Medical & Clinical ([Sepsis Early Prediction](https://arxiv.org/abs/2309.12368)<span style="color:#EB7F00">@CHI24</span>, [Mental-LLM](https://arxiv.org/abs/2307.14385)<span style="color:#EB7F00">@IMWUT24</span>, [Patient-Provider Communication](https://arxiv.org/abs/2309.09357))
-- Children Education ([FairytaleQA Dataset](https://aclanthology.org/2022.acl-long.34/)<span style="color:#EB7F00">@ACL22</span>, [Children QA Generation](https://aclanthology.org/2022.acl-long.54/)<span style="color:#EB7F00">@ACL22</span>, [StoryBuddy](https://dl.acm.org/doi/abs/10.1145/3491102.3517479)<span style="color:#EB7F00">@CHI22<span>, [KG-Based RAG for QA Generation](https://arxiv.org/abs/2311.09756), [Parent's Need for Children Storytelling](https://arxiv.org/abs/2401.13804))
+I strive to **enhance human-AI collaborative workflow with NLP system in real-world, domain-specific scenarios**. To list a few:
+- Medical & Clinical 
+  - [Sepsis Early Diagnosis](https://arxiv.org/abs/2309.12368)<span style="color:#EB7F00">@CHI24</span>
+  - [Mental-LLM](https://arxiv.org/abs/2307.14385)<span style="color:#EB7F00">@IMWUT24</span>
+  - Patient-Provider Communication ([Remote Patient Monitoring for Older Adults](https://arxiv.org/abs/2309.09357)<span style="color:#EB7F00">@IMWUT24</span>, Post-Treatment Cancer Patient)
+
+
+- Children Education 
+  - [FairytaleQA Dataset](https://aclanthology.org/2022.acl-long.34/)<span style="color:#EB7F00">@ACL22</span>
+  - [Children QA Generation](https://aclanthology.org/2022.acl-long.54/)<span style="color:#EB7F00">@ACL22</span>
+  - [StoryBuddy](https://dl.acm.org/doi/abs/10.1145/3491102.3517479)<span style="color:#EB7F00">@CHI22<span>
+  - [KG-Based RAG for QA Generation](https://arxiv.org/abs/2311.09756)
+  - [Parent's Need for Children Storytelling](https://arxiv.org/abs/2401.13804))
 
 
 My research interests also extend to **exploring efficient development and utilization of NLP models**, including
