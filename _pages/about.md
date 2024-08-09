@@ -45,14 +45,14 @@ My doctoral dissertation addresses enhancing data annotation efficiency, improvi
 
 Currently, I am engaged in the interdisciplinary research of blending NLP technologies with human-centered systems to enhancing human-AI collaborative workflow in real-world, domain-specific scenarios.
 
-Children Education:
+**Children Education** \
 - [Expert-Annotated FairytaleQA Dataset](https://aclanthology.org/2022.acl-long.34/)<span style="color:#EB7F00">@ACL22</span>
 - [QA-Pair Generation for Children Reading Comprehension](https://aclanthology.org/2022.acl-long.54/)<span style="color:#EB7F00">@ACL22</span>
 - [StoryBuddy: Interactive Storytelling Chatbot System](https://dl.acm.org/doi/abs/10.1145/3491102.3517479)<span style="color:#EB7F00">@CHI22<span>
 - [KG-Based RAG for QA Generation](https://arxiv.org/abs/2311.09756)
 - [Parent's Need for Children Storytelling](https://arxiv.org/abs/2401.13804)<span style="color:#EB7F00">@CSCW24<span>
 
-Medical and Clinical Setting:
+**Medical and Clinical Setting** \
   - [Human-AI Collaboration in Sepsis Early Diagnosis](https://arxiv.org/abs/2309.12368)<span style="color:#EB7F00">@CHI24</span>
   - [Mental-LLM: LLM for Mental Health Prediction via Online Text Data](https://dl.acm.org/doi/abs/10.1145/3643540)<span style="color:#EB7F00">@IMWUT24</span>
   - [Talk2Care: LLM-Based Voice Assistant for Communication Between Older Adults and Care Provider](https://dl.acm.org/doi/10.1145/3659625)<span style="color:#EB7F00">@IMWUT24</span>
@@ -68,15 +68,6 @@ Medical and Clinical Setting:
 
 
 
-
-<!-- <span style="color:#9747FF"></span> -->
-<!-- I strive to **enhance human-AI collaborative workflow with NLP system in real-world, domain-specific scenarios**. To list a few:
-- Medical & Clinical  -->
-  <!-- - [Sepsis Early Diagnosis](https://arxiv.org/abs/2309.12368)<span style="color:#EB7F00">@CHI24</span>
-  - [Mental-LLM](https://arxiv.org/abs/2307.14385)<span style="color:#EB7F00">@IMWUT24</span>
-  - Patient-Provider Communication ([Remote Patient Monitoring for Older Adults](https://arxiv.org/abs/2309.09357)<span style="color:#EB7F00">@IMWUT24</span>, Post-Treatment Cancer Patient)
- -->
-
 <!-- - Children Education 
   - [FairytaleQA Dataset](https://aclanthology.org/2022.acl-long.34/)<span style="color:#EB7F00">@ACL22</span>
   - [Children QA Generation](https://aclanthology.org/2022.acl-long.54/)<span style="color:#EB7F00">@ACL22</span>
@@ -91,18 +82,18 @@ Medical and Clinical Setting:
 
 I have served on program committees for various top conferences and journals.
 
-Area Chair
+Area Chair \
 <span style="color:#EB7F00">ACL ARR (from Jun 2024)</span>, 
 <span style="color:#EB7F00">CHI 25</span>
 
-Reviewer
+Reviewer \
 <span style="color:#EB7F00">EMNLP 23</span>, 
 <span style="color:#EB7F00">NAACL 24</span>, 
 <span style="color:#EB7F00">ACL ARR (from Aug 2023)</span>, 
 <span style="color:#EB7F00">CHI 24</span>, 
 <span style="color:#EB7F00">IUI 24</span>, 
 <span style="color:#EB7F00">IMWUT 24</span>, 
-<span style="color:#EB7F00">IJHCS</span>
+<span style="color:#EB7F00">IJHCS</span>,
 <span style="color:#EB7F00">IJHCI</span>
 
 
