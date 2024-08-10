@@ -46,15 +46,15 @@ My doctoral dissertation addresses enhancing data annotation efficiency, improvi
 <!-- My postdoctoral training aims to broaden my scientific and practical knowledge in interdisciplinary research, blending technical innovation with human-centric applications.  -->
 
 
-Currently, I am engaged in the interdisciplinary research of blending NLP technologies with human-centered systems to enhancing human-AI collaborative workflow in real-world, domain-specific scenarios，for instance, \
-*children education*:
+Currently, I am engaged in the interdisciplinary research of blending NLP technologies with human-centered systems to enhancing human-AI collaborative workflow in real-world, domain-specific scenarios, for instance, \
+*i. children education*:
 - [Expert-Annotated FairytaleQA Dataset](https://aclanthology.org/2022.acl-long.34/)<span style="color:#EB7F00">@ACL22</span>
 - [QA-Pair Generation for Children Reading Comprehension](https://aclanthology.org/2022.acl-long.54/)<span style="color:#EB7F00">@ACL22</span>
 - [StoryBuddy: Interactive Storytelling Chatbot System](https://dl.acm.org/doi/abs/10.1145/3491102.3517479)<span style="color:#EB7F00">@CHI22<span>
 - [KG-Based RAG for QA Generation](https://arxiv.org/abs/2311.09756)
 - [Parent's Need for Children Storytelling](https://arxiv.org/abs/2401.13804)<span style="color:#EB7F00">@CSCW24<span>
 
-*medical and clinical settings*:
+*ii. medical and clinical settings*:
   - [Human-AI Collaboration in Sepsis Early Diagnosis](https://arxiv.org/abs/2309.12368)<span style="color:#EB7F00">@CHI24</span>
   - [Mental-LLM: LLM for Mental Health Prediction via Online Text Data](https://dl.acm.org/doi/abs/10.1145/3643540)<span style="color:#EB7F00">@IMWUT24</span>
   - [Talk2Care: LLM-Based Voice Assistant for Communication Between Older Adults and Care Provider](https://dl.acm.org/doi/10.1145/3659625)<span style="color:#EB7F00">@IMWUT24</span>
@@ -87,13 +87,16 @@ Currently, I am engaged in the interdisciplinary research of blending NLP techno
 
 I have served on program committees for various top conferences and journals: 
 - Area Chair \
-<span style="color:#EB7F00">ACL ARR (from Jun 2024)</span>, 
+<span style="color:#EB7F00">ACL ARR (Jun 2024)</span>, 
 <span style="color:#EB7F00">CHI 25</span>
 
+- Organizing Committee \
+CHI 2024 Special Interest Group - “Human-Centered Privacy Research in the Age of Large Language Models”
+
 - Reviewer \
+<span style="color:#EB7F00">ACL ARR (Aug 2023, Oct 2023, Dec 2023)</span>, 
 <span style="color:#EB7F00">EMNLP 23</span>, 
 <span style="color:#EB7F00">NAACL 24</span>, 
-<span style="color:#EB7F00">ACL ARR (from Aug 2023)</span>, 
 <span style="color:#EB7F00">CHI 24</span>, 
 <span style="color:#EB7F00">IUI 24</span>, 
 <span style="color:#EB7F00">IMWUT 24</span>, 
