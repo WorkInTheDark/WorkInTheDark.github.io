@@ -62,6 +62,41 @@ Currently, I am engaged in the interdisciplinary research of blending NLP techno
   - [Anthropomorphic LLM-Based Conversational Agent for Mental Support](https://arxiv.org/abs/2405.13803)
 
 
+### Service
+
+I have served on program committees for various top conferences and journals: 
+- Area Chair \
+<span style="color:#EB7F00">ACL ARR (Jun 2024, Aug 2024)</span>, 
+<span style="color:#EB7F00">CHI 25</span>
+
+- Organizing Committee \
+CHI 2024 Special Interest Group - “Human-Centered Privacy Research in the Age of Large Language Models” \
+CSCW 2024 Workshop - "Challenges and Opportunities of LLM-Based Synthetic Personae
+and Data in HCI"
+
+- Reviewer \
+<span style="color:#EB7F00">ACL ARR (Aug 2023, Oct 2023, Dec 2023)</span>, 
+<span style="color:#EB7F00">EMNLP 23</span>, 
+<span style="color:#EB7F00">NAACL 24</span>, 
+<span style="color:#EB7F00">CHI 24</span>, 
+<span style="color:#EB7F00">IUI 24</span>, 
+<span style="color:#EB7F00">IMWUT 24</span>, 
+<span style="color:#EB7F00">IJHCS</span>,
+<span style="color:#EB7F00">IJHCI</span>
+
+
+<!-- 
+### Mentoring
+
+I  -->
+
+
+### Note
+
+My apologies for the inconvenience that the publication list and CV on my website are usually not the up-to-date version -- I'm trying, but it is quite time consuming. Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) page for latest update. 
+
+
+Besides, the best way for reaching out is through emails (b dot yao at northeastern dot edu). With that being said, my apologies for not being able to reply all the emails due to the large amount of emails I receive everyday and my limited bandwidth to keep track of all of them. 
 
 <!-- , I am continue to design and develop language model systems for real-world applications, adhering to human-centered design principles. These systems will address challenges and needs in real-world scenarios for various stakeholders, with a special focus on creating human-centered AI solutions that support clinical decision-making, older adult healthcare, children's education, and ethical technology use. -->
 <!-- My long-term research goals include becoming an independent researcher and developing domain-specialized and personalized human-centered AI systems to facilitate human decision-making and workflow in real-world scenarios through more nuanced and helpful interactions. Additionally, I am interested in investigating difficulties in human-human communication and collaboration and designing, developing, and evaluating language model-based assistant tools to improve human communication. -->
@@ -82,26 +117,6 @@ Currently, I am engaged in the interdisciplinary research of blending NLP techno
 <!-- - [In-Context Sampling for LLMs](https://arxiv.org/abs/2311.09782)<span style="color:#EB7F00">@NAACL24</span> -->
 <!-- - [LLM vs. Domain-Specific Compact LM](https://arxiv.org/abs/2311.09825) -->
 
-
-### Service
-
-I have served on program committees for various top conferences and journals: 
-- Area Chair \
-<span style="color:#EB7F00">ACL ARR (Jun 2024)</span>, 
-<span style="color:#EB7F00">CHI 25</span>
-
-- Organizing Committee \
-CHI 2024 Special Interest Group - “Human-Centered Privacy Research in the Age of Large Language Models”
-
-- Reviewer \
-<span style="color:#EB7F00">ACL ARR (Aug 2023, Oct 2023, Dec 2023)</span>, 
-<span style="color:#EB7F00">EMNLP 23</span>, 
-<span style="color:#EB7F00">NAACL 24</span>, 
-<span style="color:#EB7F00">CHI 24</span>, 
-<span style="color:#EB7F00">IUI 24</span>, 
-<span style="color:#EB7F00">IMWUT 24</span>, 
-<span style="color:#EB7F00">IJHCS</span>,
-<span style="color:#EB7F00">IJHCI</span>
 
 
 
