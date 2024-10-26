@@ -21,7 +21,9 @@ social: false  # includes social icons at the bottom of the page
 ---
 
 
-<span style="color:#c2613e">I am seeking self-motivated research assistants who are interested in working with me on Human-Centered NLP research projects -- I'm working on a Google Form for applicants </span>
+<!-- <span style="color:#c2613e">I am seeking self-motivated research assistants who are interested in working with me on Human-Centered NLP research projects -- I'm working on a Google Form for applicants </span> -->
+
+<span style="color:#c2613e">We **Northeastern Human-Centered AI Lab** is seeking self-motivated research assistants who are interested in working with us. Please reach out to Prof. [Dakuo Wang](https://www.dakuowang.com/) if you are interested in working with us.  </span>
 
 <span style="color:#6c7663">It is my honor to assist and mentor students throughout their research journey. I am willing to dedicate a 30-min meeting every week to each research assistant who work with me -- you can find me through email and slack.</span>
 
@@ -108,7 +110,7 @@ I have served on program committees for various top conferences and journals:
 
 ## Note
 
-My apologies for the inconvenience that the publication list and CV on my website are usually not up-to-date -- I'm trying, but honestly this is more time consuming than writing grant proposals. Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) for latest update. 
+<span style="color:#a70000">My apologies for the inconvenience that the publication list and CV on my website are usually not up-to-date -- I'm trying, but honestly this is more time consuming than writing grant proposals. Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) for latest update. </span>
 
 
 Besides, the best way for reaching out is through emails <span style="color:#6c7663">b [dot] yao [at] northeastern [dot] edu</span>. With that being said, my apologies for not being able to reply all the emails in a timely manner. 
