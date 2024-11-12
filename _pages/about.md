@@ -32,7 +32,7 @@ social: false  # includes social icons at the bottom of the page
 
 I am a postdoc associate at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)).
 Before joining Northeastern, I got Ph.D. in Computer Science from Rensselaer Polytechnic Institute (Advisor: Prof. [Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)). My research training has immersed me in the interdisciplinary fields of **Natural Language Processing (NLP)** and **Human-Computer Interaction (HCI)**. 
-I aim to promote effective Human-AI Collaboration in real-world, domain-specific scenaios by designing human-centered NLP systems to bridge stakeholders' **collaborative workflow** in medical, healthcare, and education scenarios.
+I aim to promote effective Human-AI Collaboration in real-world, domain-specific scenaios by designing human-centered NLP systems to support stakeholders' **collaborative workflow** in medical, healthcare, and education scenarios.
 
 
 ## Research
