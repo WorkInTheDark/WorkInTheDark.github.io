@@ -23,7 +23,7 @@ social: false  # includes social icons at the bottom of the page
 
 <!-- <span style="color:#c2613e">I am seeking self-motivated research assistants who are interested in working with me on Human-Centered NLP research projects -- I'm working on a Google Form for applicants </span> -->
 
-<span style="color:#c2613e"> - I am on the job market this year looking for tenured-track assistant professor position. </span> \
+<span style="color:#a70000"> - I am on the job market this year looking for tenured-track assistant professor position. </span> \
 <span style="color:#c2613e"> - Northeastern Human-Centered AI Lab is seeking self-motivated research assistants who are interested in working with us. Please reach out to Prof. [Dakuo Wang](https://www.dakuowang.com/) directly. </span>
 
 
@@ -111,7 +111,7 @@ I have served on program committees for various top conferences and journals:
 
 ## Note
 
-<span style="color:#a70000">My apologies for the inconvenience that the publication list and CV on my website are usually not up-to-date -- I'm trying, but honestly this is more time consuming than writing grant proposals. Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) for latest update. </span>
+<span style="color:#c2613e">My apologies for the inconvenience that the publication list and CV on my website are usually not up-to-date -- I'm trying, but honestly this is more time consuming than writing grant proposals. Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) for latest update. </span>
 
 
 The best way to reach out is through emails <span style="color:#6c7663">b [dot] yao [at] northeastern [dot] edu</span>. 
