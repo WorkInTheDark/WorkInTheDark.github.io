@@ -31,8 +31,8 @@ social: false  # includes social icons at the bottom of the page
 ## About Me
 
 I am a postdoc associate at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)).
-Before joining Northeastern, I got Ph.D. in Computer Science from Rensselaer Polytechnic Institute (Advisor: Prof. [Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)). My research training has immersed me in the interdisciplinary fields of **Natural Language Processing (NLP)** and **Human-Computer Interaction (HCI)**. 
-I aim to promote effective Human-AI Collaboration in real-world, domain-specific scenaios by designing human-centered NLP systems to support stakeholders' **collaborative workflow** in medical, healthcare, and education scenarios.
+Before joining Northeastern, I got Ph.D. in Computer Science from Rensselaer Polytechnic Institute (Advisor: Prof. [Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)). 
+My interdisciplinary background in Natural Language Processing (NLP) and Human-Computer Interaction (HCI) enables me to design AI systems that responsibly support the **collaborative workflow** of real-world stakeholders, empowering **human-AI collaboration**. Specifically, I propose human-centered NLP, a framework comprising three critical pillars: (i) uncovering real-world stakeholders’ collaborative workflow, (ii) developing domain-specific NLP models in low-resource environments, and (iii) designing human-centered systems into stakeholders’ workflow. 
 
 
 ## Research
@@ -45,9 +45,9 @@ From there, we need to design AI algorithms and systems -- particularly with NLP
 My prior and current work span across medical, healthcare and children education scenarios. -->
 
 
-#### I. Uncovering Real-World Stakeholders’ Needs And Challenges
+#### I. Uncovering Real-World Stakeholders’ Collaborative Workflow
 
-The first line of my research is to identify needs and challenges in stakeholders’ workflow with qualitative research methods and involvement of stakeholders.
+<!-- The first line of my research is to identify needs and challenges in stakeholders’ workflow with qualitative research methods and involvement of stakeholders. -->
 
 
 *Medical and Healthcare* \
@@ -62,9 +62,9 @@ The first line of my research is to identify needs and challenges in stakeholder
 *Interdisciplinary Team Collaboration* \
 <span style="color:#b45747">[In Submission]</span> [Interdisciplinary Team Collaboration Using Activity Theory](https://arxiv.org/abs/2410.00174) 
 
-#### II. Building NLP Models to Real-World Environments
+#### II. Developing Domain-Specific NLP Models in Low-Resource Environments
 
-*Domain-Adaptation in Low-Resource Scenarios* \
+*Domain-Adaptation Methodologies* \
 <span style="color:#b45747">[NAACL 24']</span> [In-Context Sampling for Robust Domain-Adaptive LLMs](https://aclanthology.org/2024.findings-naacl.115/) \
 <span style="color:#b45747">[EMNLP 23']</span> [Active Learning Framework with Human Natural Language Explanations](https://aclanthology.org/2023.findings-emnlp.778/) \
 <!-- <span style="color:#b45747">[In Submission]</span> Active Switch For Domain-Adaptive Compact Models and LLMs to Overcome Data Drifts -->
