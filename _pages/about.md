@@ -24,7 +24,8 @@ social: false  # includes social icons at the bottom of the page
 <!-- <span style="color:#c2613e">I am seeking self-motivated research assistants who are interested in working with me on Human-Centered NLP research projects -- I'm working on a Google Form for applicants </span> -->
 
 <span style="color:#c2613e"> - I am on the job market this year looking for tenured-track assistant professor position. </span> \
-<span style="color:#60a561"> - Northeastern Human-Centered AI Lab is seeking self-motivated research assistants who are interested in working with us. Please reach out to Prof. [Dakuo Wang](https://www.dakuowang.com/) directly. </span>
+<span style="color:#60a561"> - I am seeking self-motivated research assistants who are interested in working with me on NLP/HCI research projects. Please email me with your CV, your research interest, and tell me if there's any of my previous papers you are most interested in. </span>
+<!-- <span style="color:#60a561"> - Northeastern Human-Centered AI Lab is seeking self-motivated research assistants who are interested in working with us. Please reach out to Prof. [Dakuo Wang](https://www.dakuowang.com/) directly. </span> -->
 
 
 
