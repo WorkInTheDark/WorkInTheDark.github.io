@@ -46,7 +46,7 @@ From there, we need to design AI algorithms and systems -- particularly with NLP
 My prior and current work span across medical, healthcare and children education scenarios. -->
 
 
-#### I. Uncovering Real-World Stakeholders’ Collaborative Workflow
+#### I. Uncovering Real-World Stakeholders’ Needs and Challenges
 
 <!-- The first line of my research is to identify needs and challenges in stakeholders’ workflow with qualitative research methods and involvement of stakeholders. -->
 
@@ -81,7 +81,7 @@ My prior and current work span across medical, healthcare and children education
 
 ----
 
-#### III. Designing Human-Centered Systems into Stakeholders’ Workflow
+#### III. Embedding Human-Centered Systems into Stakeholders’ Workflow
 
 *Medical and Healthcare* \
 <span style="color:#b45747">[IMWUT '24]</span> [Talk2Care: LLM-Based Voice Assistant for Older Adults-Provider Communication](https://dl.acm.org/doi/10.1145/3659625) \
