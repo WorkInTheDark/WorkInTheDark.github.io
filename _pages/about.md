@@ -33,7 +33,9 @@ social: false  # includes social icons at the bottom of the page
 
 I am a postdoc associate at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)).
 Before joining Northeastern, I got Ph.D. in Computer Science from Rensselaer Polytechnic Institute (Advisor: Prof. [Jim Hendler](https://en.wikipedia.org/wiki/James_Hendler)). 
-My interdisciplinary background in Natural Language Processing (**NLP**) and Human-Computer Interaction (**HCI**) enables me to design use-inspired AI systems that responsibly support real-world stakeholders' collaboration, empowering **human-AI collaboration**. Specifically, I propose human-centered NLP, a framework comprising three critical pillars: (i) uncovering real-world stakeholders’ collaboration workflow, (ii) developing domain-specific NLP models in low-resource environments, and (iii) designing human-centered systems into stakeholders’ workflow. 
+My interdisciplinary background in Natural Language Processing (**NLP**) and Human-Computer Interaction (**HCI**) focuses on **Use-Inspired AI**, where I aim to design human-centered AI systems to support stakeholders' workflow in medical, healthcare, and education scenarios, empowering **human-AI collaboration**. 
+<!-- enables me to design use-inspired AI systems that responsibly support real-world stakeholders' collaboration, empowering **human-AI collaboration**.  -->
+In particular, I propose human-centered NLP, a framework comprising three critical pillars: (i) uncovering real-world stakeholders’  workflow, (ii) developing domain-specific NLP models in low-resource environments, and (iii) embedding human-centered systems into stakeholders’ workflow. 
 
 
 ## Research
