@@ -92,4 +92,4 @@ I also love hunting for cool stuff and adding it to my collection. To list a few
 <p style="text-align: center; color: #EB7F00"> <<<<<< Construction Cordon - Work in Progress >>>>> </p>
 
 
-To be added... (have to rush to draft a paper)
+To be added... (have to rush to draft a paper/grant proposal)

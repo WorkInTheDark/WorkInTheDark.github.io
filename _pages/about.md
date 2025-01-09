@@ -48,21 +48,21 @@ My interdisciplinary research at the intersection of NLP and HCI focuses on **Us
 
 In **medical** and **healthcare** scenarios, my research focuses on AI-assisted Clinical Decision Support System (CDSS) and Remote Patient Monitoring (RPM). 
 For CDSS, we looked into the human-AI competition actuality for sepsis diagnosis [\[CHI '23\]](https://dl.acm.org/doi/full/10.1145/3613904.3642343). 
-For RPM, we invesigated the clinical specifications for post-operative GI cancer patients [\[In Submission\]](https://arxiv.org/abs/2404.13409), cancer patients' cardiotoxicity [\[In Submission\]](https://arxiv.org/abs/2408.03586) and older adults with chronical diseases.
-Subsequently, we engage stakeholders in the design process of human-centered NLP systems to integrate the systems into their workflow and address needs and challenges, such as RECOVER [\[In Submission\]]() for GI cancer patients, CardioAI for breast cancer patients [\[In Submission\]](https://arxiv.org/abs/2410.04592), and Talk2Care [\[IMWUT '24a\]](https://dl.acm.org/doi/10.1145/3659625) for older adults.
+For RPM, we invesigated the clinical specifications for post-operative GI cancer patients [\[In Submission\]](https://arxiv.org/abs/2404.13409), cancer patients' cardiotoxicity [\[In Submission\]](https://arxiv.org/abs/2408.03586), and older adults with chronical diseases.
+Subsequently, we engage stakeholders in the design process of human-centered NLP systems to integrate the systems into their workflow to address needs and challenges, such as RECOVER [\[In Submission\]]() for GI cancer patients, CardioAI for breast cancer patients [\[In Submission\]](https://arxiv.org/abs/2410.04592), and Talk2Care [\[IMWUT '24a\]](https://dl.acm.org/doi/10.1145/3659625) for older adults.
 
-My research extends to **children education** scenario, in which I invesigate parents' needs through storytelling [\CSCW '24\]](https://dl.acm.org/doi/10.1145/3687035), work with education experts to collect high-quality educational datasets, such as FairytaleQA [\[ACL '22a\]](https://aclanthology.org/2022.acl-long.34/) and StorySparkQA [\[EMNLP '24\]](https://aclanthology.org/2024.emnlp-main.961/), which support the subsequent development of domain-specific NLP models for QA-pair generation [\[ACL '22b\]](https://aclanthology.org/2022.acl-long.54/) as well as interactive storytelling systems, for example, StoryBuddy [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479).
+My research extends to **children education** scenario, in which I invesigate parents' needs through storytelling [\[CSCW '24\]](https://dl.acm.org/doi/10.1145/3687035), work with education experts to collect high-quality educational datasets, such as FairytaleQA [\[ACL '22a\]](https://aclanthology.org/2022.acl-long.34/) and StorySparkQA [\[EMNLP '24\]](https://aclanthology.org/2024.emnlp-main.961/), which support the subsequent development of domain-specific NLP models for QA-pair generation [\[ACL '22b\]](https://aclanthology.org/2022.acl-long.54/) as well as interactive storytelling systems, for example, StoryBuddy [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479).
 
 Another line of my research centers on bridging the divergence between the standardized & static model development and the dynamic & complex real-world scenarios via innovative **low-resource domain adaptation** techniques. I proposed novel Active Learning framework [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/) for fine-tuning task-specific models, In-Context Sampling prompting strategy for robust ICL with LLMs [\[NAACL '24\]](https://aclanthology.org/2024.findings-naacl.115/), and instructional finetune LLMs for mental health prediction (Mental-LLM [\[IMWUT '24b\]](https://dl.acm.org/doi/abs/10.1145/3643540))
 
 
 
 
-- Ph.D. in Computer Science
+- Ph.D. in Computer Science \
 Rensselaer Polytechnic Institute (Advisor. Prof. [Jim Hendler](https://www.cs.rpi.edu/~hendler/)) 
-- M.S. in Information Technology
+- M.S. in Information Technology \
 Rensselaer Polytechnic Institute 
-- B.S. in Computer Engineering
+- B.S. in Computer Engineering \
 Rensselaer Polytechnic Institute 
 
 
