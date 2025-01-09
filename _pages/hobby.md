@@ -41,7 +41,7 @@ If you ask me, **what is Brazilian Jiu-jitsu**?
 I have a preference for vintage documentary photography genre and interesting bokeh. Fuji XT3 was my primary camera because Fuji's film texture and the lenses are relative small. Now I tend to use Leica Q2 -- and iPhone, of course.
 
 In addition, I collect vintage M42 lenses. 
-Those lenses sing unique beauty of their imperfection, such as the soviet **Tair 11A 135mm f2.8** (20 aperture blades is just a breathtaking art) and Helios-44 58mm f/2. I had a few mint Voigtlander lenses (Skoparex 35mm f/3.4, olor-Skoparex 35mm f/2.8, Tessar 50mm f/2.8, Color-Ultron 50mm f/1.8) at hand, which are all beauty beyond measure.
+Those lenses sing unique beauty of their imperfection, such as the soviet **Tair 11A 135mm f2.8** (20 aperture blades is just a breathtaking art) and Helios-44 58mm f/2. I had a few mint Voigtlander lenses (Skoparex 35mm f/3.4, Color-Skoparex 35mm f/2.8, Tessar 50mm f/2.8, Color-Ultron 50mm f/1.8) at hand, which are all beauty beyond measure.
 
 I admire the gems of wisdom in the development of human technology -- lenses, mechanical watches, cars, trains, planes...
 
