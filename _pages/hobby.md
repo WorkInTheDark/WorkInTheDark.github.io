@@ -59,9 +59,9 @@ I admire the gems of wisdom in the development of human technology -- lenses, me
 
 ## Travelling
 
-Travelling is my all-time favorite thing to do. I just love learning about different cultures, trying new foods, and experiencing different ways of life around the world. And I'm a total aviation enthusiast, so I love checking out different airlines and airports, and trying out swanky hotels. 
+Travelling is my all-time favorite thing to do. I just love learning about different cultures, trying new foods, and experiencing different ways of life around the world. And I'm a total aviation enthusiast, so I love "travelling" itself -- checking out different airlines and airports, and trying out swanky hotels. 
 
-Of course, with the pandemic, all my travel plans have been thrown out the window. But even though I can't travel right now, I still love thinking about all the amazing places I want to visit. And honestly, there's something about being in a new place that just helps me unwind and de-stress, almost like I'm doing meditation.
+Of course, with the pandemic, all my international travel plans have been thrown out the window. But even though I can't travel right now, I still love thinking about all the amazing places I want to visit. And honestly, there's something about being in a new place that just helps me unwind and de-stress, almost like I'm doing meditation.
 
 - **FUN FACT(S)**
     * I've been living in the northeastern United States for 10 years already, but the truth is that <span style="color:#EB7F00">Los Angeles</span> is where my heart is. Whenever I feel like taking a break, I don't even think twice about booking a flight to LA! \
