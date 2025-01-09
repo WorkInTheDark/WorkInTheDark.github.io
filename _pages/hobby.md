@@ -2,7 +2,7 @@
 layout: page
 permalink: /hobby/
 title: Hobby
-description: Anything not related to my primary research work
+description: Anything not related to my primary research work (Updated Jan. 2025)
 nav: true
 display_categories: [work, fun]
 nav_order: 5
@@ -24,7 +24,6 @@ nav_order: 5
 
 ## Brazilian Jiu-jitsu
 I have been actively training Brazilian Jiu-jitsu with [Alan Condon](https://518empire.com/about-us/), a lifelong martial artist with black belts in 7 different martial art styles, since the pandemic began.
-
 I consider myself fortunate to have developed this hobby that I am passionate about. The resilience I cultivated during the training has been invaluable in helping me navigate the challenges I have encountered throughout my doctoral studies.
 
 If you ask me, **what is Brazilian Jiu-jitsu**? 
@@ -42,9 +41,9 @@ If you ask me, **what is Brazilian Jiu-jitsu**?
 I have a preference for vintage documentary photography genre and interesting bokeh. Fuji XT3 was my primary camera because Fuji's film texture and the lenses are relative small. Now I tend to use Leica Q2 -- and iPhone, of course.
 
 In addition, I collect vintage M42 lenses. 
-Those lenses sing unique beauty of their imperfection, such as the soviet **Tair 11A 135mm f2.8** (20 aperture blades is just an breathtaking art) and Helios-44 58mm f/2. I had a few mint Voigtlander lenses (Skoparex 35mm f/3.4, olor-Skoparex 35mm f/2.8, Tessar 50mm f/2.8, Color-Ultron 50mm f/1.8) at hand, which are all beauty beyond measure.
+Those lenses sing unique beauty of their imperfection, such as the soviet **Tair 11A 135mm f2.8** (20 aperture blades is just a breathtaking art) and Helios-44 58mm f/2. I had a few mint Voigtlander lenses (Skoparex 35mm f/3.4, olor-Skoparex 35mm f/2.8, Tessar 50mm f/2.8, Color-Ultron 50mm f/1.8) at hand, which are all beauty beyond measure.
 
-I admire the gems of wisdom in the development of human technology -- lenses, mechanical watches, everything.
+I admire the gems of wisdom in the development of human technology -- lenses, mechanical watches, cars, trains, planes...
 
 <!-- A list of current collections: 
 - Voigtlander Skoparex 35mm f/3.4
