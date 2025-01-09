@@ -31,15 +31,18 @@ $custom-web01-grey:     #cecece !default;
 
 $custom-web02-purple:     #bc9ec1 !default;
 
-$test-color: #9e79a4 !default;
+// $test-color: #9e79a4 !default;
+
+$global-color:         #9e79a4 !default;
 
 // $arthur-blue:        #2489FF !default;
 // $arthur-blue:        #83B692 !default;
 // $arthur-blue:        #5B85AA !default;
 // $arthur-blue:         #0F7173 !default;
 
-$arthur-blue:         #365080 !default;
+// $arthur-blue:         #365080 !default;
 // $arthur-blue:         #6C698D !default;
+$arthur-blue:           #0096FF !default;
 
 $grey-color:          #828282 !default;
 $grey-color-light:    lighten($grey-color, 40%);

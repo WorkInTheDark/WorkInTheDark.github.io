@@ -2,7 +2,32 @@
  * Styles for the base elements of the theme.
  ******************************************************************************/
 
+ @import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap");
+
+// CUSTOM
+.title-blue {
+  color: var(--arthur-blue);
+}
+
+
 // Typography
+
+// p,
+// h1,
+// h2,
+// h3,
+// h4,
+// h5,
+// h6,
+// em,
+// div,
+// li,
+// span,
+// strong {
+//   color: var(--global-text-color);
+//   font-family: Georgia, Times, "Times New Roman", serif;
+//   font-weight: normal; /* Default weight for most elements */
+// }
 
 p,
 h1,
@@ -17,10 +42,9 @@ li,
 span,
 strong {
   color: var(--global-text-color);
-  font-family: Georgia, Times, "Times New Roman", serif;
+  font-family: "Lato", sans-serif;  /* Updated to Lato */
   font-weight: normal; /* Default weight for most elements */
 }
-
 
 .lato-thin {
   font-family: "Lato", sans-serif;
