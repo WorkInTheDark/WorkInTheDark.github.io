@@ -65,7 +65,7 @@ and human-centered interactive storytelling systems [\[CHI '22\]](https://dl.acm
 These datasets support the subsequent development of domain-specific NLP models for QA-pair generation [\[ACL '22b\]](https://aclanthology.org/2022.acl-long.54/) as well as the human-centered design of interactive storytelling systems, for example, StoryBuddy [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479). -->
 
 
-Following my doctoral thesis, I strive to develop efficient domain-adaptation and personalization methodologies for NLP models, which include: Active Learning for compact models [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/); 
+Following my doctoral thesis, I strive to develop **efficient domain-adaptation** and **personalization** methodologies for NLP models, which include: Active Learning for compact models [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/); 
 In-Context Sampling for LLMs [\[NAACL '24\]](https://aclanthology.org/2024.findings-naacl.115/); 
 knowledge graph Retrieval Augemented Generation for LLMs [\[Work-In-Progress\]](); 
 SFT for domain-specific LLMs, such as Mental-LLM [\[IMWUT '24b\]](https://dl.acm.org/doi/abs/10.1145/3643540); 
