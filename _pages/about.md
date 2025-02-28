@@ -40,27 +40,47 @@ social: false  # includes social icons at the bottom of the page
 
 
 I am a postdoc associate at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)).
-My research at the intersection of NLP and HCI focuses on the responsible design of **Human-Centered NLP** systems to support **stakeholders' collaboration** in real-world scenarios. 
-Recently, my research interest extends to **personalization** of NLP models and systems, such as [LLM RolePlaying Agents](https://arxiv.org/abs/2502.13012).
+My research at the intersection of NLP and HCI focuses on the responsible design of **Human-Centered NLP** systems to support **stakeholders' collaboration** in domain-specific scenarios, including medical, healthcare, and education. 
+Recently, my research interest extends to **personalization** of NLP models and systems, such as [LLM Role-Playing Agents](https://arxiv.org/abs/2502.13012).
 <!-- My research at the intersection of NLP and HCI focuses on **Use-Inspired AI**, where I strive to responsibly design human-centered NLP systems to support **stakeholders' collaboration** in real-world scenarios.  -->
 
 <!-- I propose a **human-centered NLP** framework that comprises three critical pillars: 1) uncovering stakeholders' workflow, 2) adapting NLP technologies to specific domains with low-resource learning, and 3) designing human-centered systems to be integrated into stakeholders' workflow. -->
 
 ## Research
 
-In **medical** and **healthcare** scenarios, my research focuses on AI-assisted Clinical Decision Support System (CDSS) and Remote Patient Monitoring (RPM). 
-For CDSS, we looked into the human-AI competition actuality for sepsis diagnosis [\[CHI '23\]](https://dl.acm.org/doi/full/10.1145/3613904.3642343). 
-For RPM, we invesigated the clinical specifications for post-operative GI cancer patients [\[In Submission\]](https://arxiv.org/abs/2404.13409), cancer patients' cardiotoxicity [\[In Submission\]](https://arxiv.org/abs/2408.03586), and older adults with chronical diseases.
-Subsequently, we engage stakeholders in the design process of human-centered NLP systems to integrate the systems into their workflow to address needs and challenges, such as RECOVER [\[In Submission\]]() for GI cancer patients, CardioAI [\[In Submission\]](https://arxiv.org/abs/2410.04592) for breast cancer patients, and Talk2Care [\[IMWUT '24a\]](https://dl.acm.org/doi/10.1145/3659625) for older adults.
-
-My research extends to **children education** scenario, in which we invesigate parents' needs in interactive storytelling [\[CSCW '24\]](https://dl.acm.org/doi/10.1145/3687035), and work with education experts to collect high-quality educational datasets, such as FairytaleQA [\[ACL '22a\]](https://aclanthology.org/2022.acl-long.34/) and StorySparkQA [\[EMNLP '24\]](https://aclanthology.org/2024.emnlp-main.961/).
-These datasets support the subsequent development of domain-specific NLP models for QA-pair generation [\[ACL '22b\]](https://aclanthology.org/2022.acl-long.54/) as well as the human-centered design of interactive storytelling systems, for example, StoryBuddy [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479).
+In **medical** and **healthcare**, my research focuses on understanding the needs and challenges encountered by care providers, caregivers, and patients in different clinical scenarios, followed by the human-centered design of AI-assisted Clinical Decision Support System (CDSS) and Remote Patient Monitoring (RPM) systems.
+Prior work include: 
+- Early diagnosis of sepsis [\[CHI '24\]](https://dl.acm.org/doi/full/10.1145/3613904.3642343)
+- RPM for older adults [\[IMWUT '24a\]](https://dl.acm.org/doi/10.1145/3659625), post-surgery care of GI cancer patients [\[1\]](https://arxiv.org/abs/2404.13409) [\[2\]](https://arxiv.org/abs/2502.05740), cardiotoxicity of cancer patients [\[3\]](https://arxiv.org/abs/2408.03586) [\[CHI '25a\]](https://arxiv.org/abs/2410.04592), and mental health of youth concussion patients [\[4\]](https://arxiv.org/abs/2502.03732)
 
 
-Another line of my research centers on bridging the divergence between the standardized & static model development and the dynamic & complex real-world scenarios via innovative **low-resource domain adaptation** techniques. I proposed novel Active Learning framework [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/) for fine-tuning task-specific models, In-Context Sampling prompting strategy for robust ICL with LLMs [\[NAACL '24\]](https://aclanthology.org/2024.findings-naacl.115/), and instructional finetune LLMs for mental health prediction (Mental-LLM [\[IMWUT '24b\]](https://dl.acm.org/doi/abs/10.1145/3643540))
+<!-- In **medical** and **healthcare** scenarios, my research focuses on AI-assisted Clinical Decision Support System (CDSS) and Remote Patient Monitoring (RPM).  -->
+<!-- For CDSS, we looked into the human-AI competition actuality for sepsis diagnosis [\[CHI '23\]](https://dl.acm.org/doi/full/10.1145/3613904.3642343).  -->
+<!-- For RPM, we invesigated the clinical specifications for post-operative GI cancer patients [\[In Submission\]](https://arxiv.org/abs/2404.13409), cancer patients' cardiotoxicity [\[In Submission\]](https://arxiv.org/abs/2408.03586), and older adults with chronical diseases. -->
+<!-- Subsequently, we engage stakeholders in the design process of human-centered NLP systems to integrate the systems into their workflow to address needs and challenges, such as RECOVER [\[In Submission\]]() for GI cancer patients, CardioAI [\[In Submission\]](https://arxiv.org/abs/2410.04592) for breast cancer patients, and Talk2Care [\[IMWUT '24a\]](https://dl.acm.org/doi/10.1145/3659625) for older adults. -->
+
+My research extends to support parents' need in interactive storytelling for **children education**, including:
+- Needs solicitation [\[CSCW '24\]](https://dl.acm.org/doi/10.1145/3687035)
+- Experts-annotated datasets, FairytaleQA [\[ACL '22a\]](https://aclanthology.org/2022.acl-long.34/) and StorySparkQA [\[EMNLP '24\]](https://aclanthology.org/2024.emnlp-main.961/)
+- QA-pair generation pipelines [\[ACL '22b\]](https://aclanthology.org/2022.acl-long.54/)
+- Human-centered interactive storytelling systems [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479) [\[CHI '25b\]]()
+
+<!-- in which we invesigate parents' needs in interactive storytelling [\[CSCW '24\]](https://dl.acm.org/doi/10.1145/3687035), and work with education experts to collect high-quality educational datasets, such as FairytaleQA [\[ACL '22a\]](https://aclanthology.org/2022.acl-long.34/) and StorySparkQA [\[EMNLP '24\]](https://aclanthology.org/2024.emnlp-main.961/).
+These datasets support the subsequent development of domain-specific NLP models for QA-pair generation [\[ACL '22b\]](https://aclanthology.org/2022.acl-long.54/) as well as the human-centered design of interactive storytelling systems, for example, StoryBuddy [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479). -->
 
 
+Following my doctoral thesis, I strive to develop efficient domain-adaptation and personalization methodologies for NLP models, which include:
+- Active Learning for compact models [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/)
+- In-Context Sampling for LLMs [\[NAACL '24\]](https://aclanthology.org/2024.findings-naacl.115/)
+- Knowledge graph Retrieval Augemented Generation for LLMs [\[Work-In-Progress\]]()
+- SFT for domain-specific LLMs, such as Mental-LLM [\[IMWUT '24b\]](https://dl.acm.org/doi/abs/10.1145/3643540)
+- LLM Role-Playing Agent [\[5\]](https://arxiv.org/abs/2502.13012)
 
+
+<!-- Another line of my research centers on bridging the divergence between the standardized & static model development and the dynamic & complex real-world scenarios via innovative **low-resource domain adaptation** techniques. I proposed novel Active Learning framework [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/) for fine-tuning task-specific models, In-Context Sampling prompting strategy for robust ICL with LLMs [\[NAACL '24\]](https://aclanthology.org/2024.findings-naacl.115/), and instructional finetune LLMs for mental health prediction (Mental-LLM [\[IMWUT '24b\]](https://dl.acm.org/doi/abs/10.1145/3643540)) -->
+
+
+## Education
 
 - **Ph.D. in Computer Science** \
 Rensselaer Polytechnic Institute (Advisor. Prof. [Jim Hendler](https://www.cs.rpi.edu/~hendler/)) 
@@ -91,7 +111,7 @@ Journals: Natural Human Behavior, IJHCI, IJHCS
 
 ## Note
 
-My apologies that the publication list and CV on my website are usually not up-to-date. Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) for latest update.
+My apologies that the publication list and CV on my website are usually NOT up-to-date. Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) for latest update.
 
 
 The best way to reach out is through emails: <span style="color:#3282b8">b [dot] yao [at] northeastern [dot] edu</span>. 
