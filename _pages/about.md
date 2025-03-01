@@ -49,7 +49,7 @@ Recently, my research interest extends to **personalization** of NLP models and 
 ## Research
 
 In **medical** and **healthcare**, my research focuses on understanding the needs and challenges encountered by care providers, caregivers, and patients in different clinical scenarios, followed by the human-centered design of AI-assisted Clinical Decision Support System (CDSS) and Remote Patient Monitoring (RPM) systems.
-Prior work include: early diagnosis of sepsis [\[CHI '24\]](https://dl.acm.org/doi/full/10.1145/3613904.3642343); RPM for older adults [\[IMWUT '24a\]](https://dl.acm.org/doi/10.1145/3659625), post-surgery care of GI cancer patients [\[1\]](https://arxiv.org/abs/2404.13409) [\[2\]](https://arxiv.org/abs/2502.05740), cardiotoxicity of cancer patients [\[3\]](https://arxiv.org/abs/2408.03586) [\[CHI '25a\]](https://arxiv.org/abs/2410.04592), and mental health of youth concussion patients [\[4\]](https://arxiv.org/abs/2502.03732)
+Prior work include: early diagnosis of sepsis [\[CHI '24\]](https://dl.acm.org/doi/full/10.1145/3613904.3642343); RPM for older adults [\[IMWUT '24a\]](https://dl.acm.org/doi/10.1145/3659625), post-surgery care of GI cancer patients [\[1\]](https://arxiv.org/abs/2404.13409) [\[2\]](https://arxiv.org/abs/2502.05740), cardiotoxicity of cancer patients [\[3\]](https://arxiv.org/abs/2408.03586) [\[CHI '25a\]](https://arxiv.org/abs/2410.04592), and mental health of youth concussion patients [\[4\]](https://arxiv.org/abs/2502.03732).
 
 
 <!-- In **medical** and **healthcare** scenarios, my research focuses on AI-assisted Clinical Decision Support System (CDSS) and Remote Patient Monitoring (RPM).  -->
@@ -66,9 +66,9 @@ These datasets support the subsequent development of domain-specific NLP models 
 
 
 Following my doctoral thesis, I strive to develop **efficient domain-adaptation** and **personalization** methodologies for NLP models, which include: Active Learning for compact models [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/); 
-In-Context Sampling for LLMs [\[NAACL '24\]](https://aclanthology.org/2024.findings-naacl.115/); 
-knowledge graph Retrieval Augemented Generation for LLMs [\[Work-In-Progress\]](); 
-SFT for domain-specific LLMs, such as Mental-LLM [\[IMWUT '24b\]](https://dl.acm.org/doi/abs/10.1145/3643540); 
+In-Context Sampling [\[NAACL '24\]](https://aclanthology.org/2024.findings-naacl.115/) and 
+Knowledge Graph-RAG [\[CHI '25b\]]() for LLMs; 
+Supervised fine-tuning for domain-specific LLMs, such as Mental-LLM [\[IMWUT '24b\]](https://dl.acm.org/doi/abs/10.1145/3643540);
 and LLM Role-Playing Agents [\[5\]](https://arxiv.org/abs/2502.13012).
 
 
