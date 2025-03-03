@@ -65,7 +65,7 @@ and human-centered interactive storytelling systems [\[CHI '22\]](https://dl.acm
 These datasets support the subsequent development of domain-specific NLP models for QA-pair generation [\[ACL '22b\]](https://aclanthology.org/2022.acl-long.54/) as well as the human-centered design of interactive storytelling systems, for example, StoryBuddy [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479). -->
 
 
-Following my doctoral thesis, I strive to develop **efficient domain-adaptation** and **personalization** methodologies for NLP models, which include: Active Learning for compact models [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/); 
+Following my doctoral thesis, I am also devoted to develop **efficient domain-adaptation** and **personalization** methodologies for NLP models, which include: Active Learning for compact models [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/); 
 In-Context Sampling [\[NAACL '24\]](https://aclanthology.org/2024.findings-naacl.115/) and 
 Knowledge Graph-RAG [\[CHI '25b\]]() for LLMs; 
 Supervised fine-tuning for domain-specific LLMs, such as Mental-LLM [\[IMWUT '24b\]](https://dl.acm.org/doi/abs/10.1145/3643540);
@@ -109,7 +109,7 @@ Journals: Natural Human Behavior, IJHCI, IJHCS
 My apologies that the publication list and CV on my website are usually NOT up-to-date. Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) for latest update.
 
 
-The best way to reach out is through emails: <span style="color:#3282b8">b [dot] yao [at] northeastern [dot] edu</span>. 
+The best way to reach out is through emails: <span style="color:#0096FF">b [dot] yao [at] northeastern [dot] edu</span>. 
 <!-- With that being said, my apologies for not being able to reply all the emails in a timely manner.  -->
 
 
