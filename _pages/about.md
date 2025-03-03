@@ -106,8 +106,9 @@ Journals: Natural Human Behavior, IJHCI, IJHCS
 
 ## Note
 
-My apologies that the publication list and CV on my website are usually NOT up-to-date. Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) for latest update.
+<!-- My apologies that the publication list and CV on my website are usually NOT up-to-date. Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) for latest update. -->
 
+Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) page for the most up-to-date publication record.
 
 The best way to reach out is through emails: <span style="color:#0096FF">b [dot] yao [at] northeastern [dot] edu</span>. 
 <!-- With that being said, my apologies for not being able to reply all the emails in a timely manner.  -->
