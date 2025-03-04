@@ -57,12 +57,18 @@ layout: default
             
           {%- endif %}
 
+          {% if page.second_content %}
+          <div class="clearfix">
+              {{ page.second_content | markdownify }}
+          </div>
+          {% endif %}
+
           <!-- Selected papers -->
-          {% if page.selected_papers -%}
+          <!-- {% if page.selected_papers -%}
             <br>
             <h2><a href="{{ '/publications/' | relative_url }}" style="color: inherit;">Publications</a></h2>
             {%- include selected_papers.html %}
-          {%- endif %}
+          {%- endif %} -->
 
 
           <!-- Social -->

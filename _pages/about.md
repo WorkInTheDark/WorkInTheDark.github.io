@@ -18,24 +18,23 @@ news: true  # includes a list of news items
 latest_posts: false  # includes a list of the newest posts
 selected_papers: false # includes a list of papers marked as "selected={true}"
 social: false  # includes social icons at the bottom of the page
+
+second_content: |
+  ## Service
+
+  ##### *Area Chair*
+  ACL ARR (Since Jun. '24) \
+  CHI '25, CSCW '25
+
+  ##### *Organizing Committee* 
+  CHI '24 Special Interest Group - [Human-Centered Privacy Research in the Age of Large Language Models](https://dl.acm.org/doi/10.1145/3613905.3643983) \
+  CSCW '24 Workshop - [Challenges and Opportunities of LLM-Based Synthetic Personae and Data in HCI](https://dl.acm.org/doi/10.1145/3613905.3636293)
+
+  ##### *Reviewer* 
+  Conferences: ACL ARR (Aug. '23, Oct. '23, Dec. '23), EMNLP '23, NAACL '24, CHI '24, IUI '24, IMWUT '24 \
+  Journals: Natural Human Behavior, IJHCI, IJHCS
+
 ---
-
-
-<!-- <span style="color:#c2613e">I am seeking self-motivated research assistants who are interested in working with me on Human-Centered NLP research projects -- I'm working on a Google Form for applicants </span> -->
-
-
-<!-- &#9758;&nbsp; On the academic job market this year. \ -->
-<!-- &#9758;&nbsp; I am seeking self-motivated research assistants who are interested in NLP/HCI. Please email me your CV, research interest, and whether any of my recent work is attractive to you.  -->
-
-
-<!-- <span style="color:#60a561"> - Northeastern Human-Centered AI Lab is seeking self-motivated research assistants who are interested in working with us. Please reach out to Prof. [Dakuo Wang](https://www.dakuowang.com/) directly. </span> -->
-
-
-<!-- # xx
-## xx
-### xx
-#### xx -->
-
 
 
 
@@ -59,7 +58,7 @@ Prior work include: early diagnosis of sepsis [\[CHI '24\]](https://dl.acm.org/d
 
 My research extends to support parents' need in interactive storytelling for **children education**, including needs solicitations [\[CSCW '24\]](https://dl.acm.org/doi/10.1145/3687035); experts-annotated datasets, such as FairytaleQA [\[ACL '22a\]](https://aclanthology.org/2022.acl-long.34/) and StorySparkQA [\[EMNLP '24\]](https://aclanthology.org/2024.emnlp-main.961/);
 QA-pair generation pipelines [\[ACL '22b\]](https://aclanthology.org/2022.acl-long.54/); 
-and human-centered interactive storytelling systems [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479) [\[CHI '25b\]]().
+and human-centered interactive storytelling systems [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479) [\[CHI '25b\]](https://arxiv.org/abs/2503.00590).
 
 <!-- in which we invesigate parents' needs in interactive storytelling [\[CSCW '24\]](https://dl.acm.org/doi/10.1145/3687035), and work with education experts to collect high-quality educational datasets, such as FairytaleQA [\[ACL '22a\]](https://aclanthology.org/2022.acl-long.34/) and StorySparkQA [\[EMNLP '24\]](https://aclanthology.org/2024.emnlp-main.961/).
 These datasets support the subsequent development of domain-specific NLP models for QA-pair generation [\[ACL '22b\]](https://aclanthology.org/2022.acl-long.54/) as well as the human-centered design of interactive storytelling systems, for example, StoryBuddy [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479). -->
@@ -67,7 +66,7 @@ These datasets support the subsequent development of domain-specific NLP models 
 
 Following my doctoral thesis, I am also devoted to develop **efficient domain-adaptation** and **personalization** methodologies for NLP models, which include: Active Learning for compact models [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/); 
 In-Context Sampling [\[NAACL '24\]](https://aclanthology.org/2024.findings-naacl.115/) and 
-Knowledge Graph-RAG [\[CHI '25b\]]() for LLMs; 
+Knowledge Graph-RAG [\[CHI '25b\]](https://arxiv.org/abs/2503.00590) for LLMs; 
 Supervised fine-tuning for domain-specific LLMs, such as Mental-LLM [\[IMWUT '24b\]](https://dl.acm.org/doi/abs/10.1145/3643540);
 and LLM Role-Playing Agents [\[5\]](https://arxiv.org/abs/2502.13012).
 
@@ -86,36 +85,16 @@ Rensselaer Polytechnic Institute
 
 
 
-## Service
-
-<!-- I have served on program committees for various top conferences and journals:  -->
-
-##### *Area Chair*
-ACL ARR (Since Jun. '24) \
-CHI '25, CSCW '25
-
-##### *Organizing Committee* 
-CHI '24 Special Interest Group - [Human-Centered Privacy Research in the Age of Large Language Models](https://dl.acm.org/doi/10.1145/3613905.3643983) \
-CSCW '24 Workshop - [Challenges and Opportunities of LLM-Based Synthetic Personae and Data in HCI](https://dl.acm.org/doi/10.1145/3613905.3636293)
-
-##### *Reviewer* 
-Conferences: ACL ARR (Aug. '23, Oct. '23, Dec. '23), EMNLP '23, NAACL '24, CHI '24, IUI '24, IMWUT '24 \
-Journals: Natural Human Behavior, IJHCI, IJHCS
 
 
 
 ## Note
 
-<!-- My apologies that the publication list and CV on my website are usually NOT up-to-date. Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) for latest update. -->
 
 Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) page for the most up-to-date publication record.
 
 The best way to reach out is through emails: <span style="color:#0096FF">b [dot] yao [at] northeastern [dot] edu</span>. 
-<!-- With that being said, my apologies for not being able to reply all the emails in a timely manner.  -->
 
-
-
-<!-- It is my honor to assist and mentor students throughout their research journey. I am willing to dedicate a 30-min meeting every week to each research assistant who work with me -- you can find me through email and slack. -->
 
 ***
 
