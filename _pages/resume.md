@@ -2,7 +2,7 @@
 layout: page
 permalink: /cv/
 title: CV
-description:  Curriculum Vitae (Last Updated on Dec. 2023)
+description:  Curriculum Vitae (Last Updated on Mar. 2025, Grant Activities Undisclosed )
 nav: true
 nav_order: 3
 ---
@@ -23,7 +23,7 @@ nav_order: 3
 
 
 <div style="text-align: center; width: 100%;">
-  <iframe src="/assets/pdf/BingshengYao_CV.pdf" id="cv"> </iframe>
+  <iframe src="/assets/pdf/BingshengYao_CV_Industry_20250310.pdf" id="cv"> </iframe>
   <!-- <img src="/assets/pdf/Resume_svg_page1.svg" alt="resume-page-1" width="80%">
   <br><br>
   <img src="/assets/pdf/Resume_svg_page2.svg" alt="resume-page-2" width="80%">
