@@ -40,8 +40,8 @@ second_content: |
 
 
 I am a postdoc associate at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)).
-My research at the intersection of NLP and HCI focuses on the responsible design of **Human-Centered NLP** systems to support **collaborative work** among stakeholders in various domain-specific scenarios, including medical, healthcare, and education. 
-Recently, my research interest extends to leveraging and enhancing [LLM Role-Playing Agents](https://arxiv.org/abs/2502.13012) to simulate human behaviors.
+My research at the intersection of NLP and HCI focuses on the responsible design of **Human-Centered NLP** systems to support **collaborative work** among stakeholders in various scenarios, including medical, healthcare, and education. 
+Recently, my research interest extends to leveraging and enhancing **LLM Role-Playing Agents** to simulate human behaviors.
 <!-- My research at the intersection of NLP and HCI focuses on **Use-Inspired AI**, where I strive to responsibly design human-centered NLP systems to support **stakeholders' collaboration** in real-world scenarios.  -->
 
 <!-- I propose a **human-centered NLP** framework that comprises three critical pillars: 1) uncovering stakeholders' workflow, 2) adapting NLP technologies to specific domains with low-resource learning, and 3) designing human-centered systems to be integrated into stakeholders' workflow. -->
