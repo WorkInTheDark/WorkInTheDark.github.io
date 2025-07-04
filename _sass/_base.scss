@@ -3,49 +3,15 @@
  ******************************************************************************/
 
  @import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap");
+ @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
 
-// CUSTOM
+ // CUSTOM
 .title-blue {
   color: var(--arthur-blue);
 }
 
 
-// Typography
-
-// p,
-// h1,
-// h2,
-// h3,
-// h4,
-// h5,
-// h6,
-// em,
-// div,
-// li,
-// span,
-// strong {
-//   color: var(--global-text-color);
-//   font-family: Georgia, Times, "Times New Roman", serif;
-//   font-weight: normal; /* Default weight for most elements */
-// }
-
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-em,
-div,
-li,
-span,
-strong {
-  color: var(--global-text-color);
-  font-family: "Lato", sans-serif;  /* Updated to Lato */
-  font-weight: 300; /* Default weight for most elements */
-}
-
+// CUSTOM TYPOGRAPHY
 .lato-thin {
   font-family: "Lato", sans-serif;
   font-weight: 100;
@@ -106,11 +72,295 @@ strong {
   font-style: italic;
 }
 
+.noto-serif-light {
+  font-family: "Noto Serif", serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.noto-serif-light-italic {
+  font-family: "Noto Serif", serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: italic;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.noto-serif-regular {
+  font-family: "Noto Serif", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.noto-serif-regular-italic {
+  font-family: "Noto Serif", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: italic;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.noto-serif-medium {
+  font-family: "Noto Serif", serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.noto-serif-medium-italic {
+  font-family: "Noto Serif", serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: italic;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.noto-serif-semibold {
+  font-family: "Noto Serif", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.noto-serif-semibold-italic {
+  font-family: "Noto Serif", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: italic;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+
+
+.source-serif-4-light {
+  font-family: "Source Serif 4", serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.source-serif-4-light-italic {
+  font-family: "Source Serif 4", serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.source-serif-4-regular {
+  font-family: "Source Serif 4", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.source-serif-4-regular-italic {
+  font-family: "Source Serif 4", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.source-serif-4-medium {
+  font-family: "Source Serif 4", serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.source-serif-4-medium-italic {
+  font-family: "Source Serif 4", serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.source-serif-4-semibold {
+  font-family: "Source Serif 4", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.source-serif-4-semibold-italic {
+  font-family: "Source Serif 4", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: italic;
+}
+
+
+.ibm-plex-serif-thin {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 100;
+  font-style: normal;
+}
+
+.ibm-plex-serif-extralight {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.ibm-plex-serif-light {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 300;
+  font-style: normal;
+}
+
+.ibm-plex-serif-regular {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.ibm-plex-serif-medium {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.ibm-plex-serif-semibold {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.ibm-plex-serif-bold {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.ibm-plex-serif-thin-italic {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 100;
+  font-style: italic;
+}
+
+.ibm-plex-serif-extralight-italic {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 200;
+  font-style: italic;
+}
+
+.ibm-plex-serif-light-italic {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.ibm-plex-serif-regular-italic {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.ibm-plex-serif-medium-italic {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.ibm-plex-serif-semibold-italic {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 600;
+  font-style: italic;
+}
+
+.ibm-plex-serif-bold-italic {
+  font-family: "IBM Plex Serif", serif;
+  font-weight: 700;
+  font-style: italic;
+}
+
+
+
+// Typography
+
+// p,
+// h1,
+// h2,
+// h3,
+// h4,
+// h5,
+// h6,
+// em,
+// div,
+// li,
+// span,
+// strong {
+//   color: var(--global-text-color);
+//   font-family: Georgia, Times, "Times New Roman", serif;
+//   font-weight: normal; /* Default weight for most elements */
+// }
+
+  // color: var(--global-text-color);
+  // font-family: "Lato", sans-serif;  /* Updated to Lato */
+  // font-weight: 300; /* Default weight for most elements */
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+em,
+div,
+li,
+span,
+strong {
+  color: var(--global-text-color);
+  font-family: "Source Serif 4", serif;
+  font-weight: 300; /* Default weight for most elements */
+}
 
 strong,
 b {
-  font-weight: bold; /* Explicitly sets bold text */
+  font-weight: 500; /* Explicitly sets bold text */
 }
+
+
+
+.post-title {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;    /* normal weight for first/middle names */
+  color: inherit;      /* or whatever global color you use */
+}
+
+
+.post-title .last-name {
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;    /* bold weight for last name */
+  color: #2569ED;
+}
+
+.conference {
+  font-weight: 500;    
+  // color: #2569ED;
+}
+
+h2 {
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;    
+}
+
+
+
 
 hr {
   border-top: 1px solid var(--global-divider-color);

@@ -39,9 +39,14 @@ second_content: |
 
 
 
-I am a postdoc associate at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)).
-My research at the intersection of NLP and HCI focuses on the responsible design of **Human-Centered NLP** systems to support **collaborative work** among stakeholders in various scenarios, including medical, healthcare, and education. 
-Recently, my research interest extends to leveraging and enhancing **LLM Role-Playing Agents** to simulate human behaviors.
+I am an associate research scientist in the Khoury College of Computer Sciences at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)).
+
+My research at the intersection of NLP and HCI focuses on <b>human-centered design of NLP applications</b> to support collaborative work in domain-specific scenarios, including medical, healthcare, and education.
+Recently, I am working on <b>LLM role-playing agents</b> for human behavior simulation and human-agent collaboration.
+
+
+<!-- the responsible design of **Human-Centered NLP** systems to support **collaborative work** among stakeholders in various scenarios, including medical, healthcare, and education.  -->
+<!-- Recently, my research interest extends to leveraging and enhancing **LLM Role-Playing Agents** to simulate human behaviors. -->
 <!-- My research at the intersection of NLP and HCI focuses on **Use-Inspired AI**, where I strive to responsibly design human-centered NLP systems to support **stakeholders' collaboration** in real-world scenarios.  -->
 
 <!-- I propose a **human-centered NLP** framework that comprises three critical pillars: 1) uncovering stakeholders' workflow, 2) adapting NLP technologies to specific domains with low-resource learning, and 3) designing human-centered systems to be integrated into stakeholders' workflow. -->
@@ -75,14 +80,23 @@ and LLM Role-Playing Agents [\[5\]](https://arxiv.org/abs/2502.13012).
 <!-- Another line of my research centers on bridging the divergence between the standardized & static model development and the dynamic & complex real-world scenarios via innovative **low-resource domain adaptation** techniques. I proposed novel Active Learning framework [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/) for fine-tuning task-specific models, In-Context Sampling prompting strategy for robust ICL with LLMs [\[NAACL '24\]](https://aclanthology.org/2024.findings-naacl.115/), and instructional finetune LLMs for mental health prediction (Mental-LLM [\[IMWUT '24b\]](https://dl.acm.org/doi/abs/10.1145/3643540)) -->
 
 
+## Appointment
+
+- **Associate Research Scientist** \
+2025 - Current, Northeastern University
+- **Postdoc Research Associate** \
+2024 - 2025, Northeastern University
+
+
+
 ## Education
 
 - **Ph.D. in Computer Science** \
-Rensselaer Polytechnic Institute (Advisor. Prof. [Jim Hendler](https://www.cs.rpi.edu/~hendler/)) 
+2019 - 2024, Rensselaer Polytechnic Institute (Advisor. Prof. [Jim Hendler](https://www.cs.rpi.edu/~hendler/)) 
 - **M.S. in Information Technology** \
-Rensselaer Polytechnic Institute 
+2018 - 2019, Rensselaer Polytechnic Institute 
 - **B.S. in Computer Engineering** \
-Rensselaer Polytechnic Institute 
+2014 - 2018, Rensselaer Polytechnic Institute 
 
 
 
@@ -94,7 +108,7 @@ Rensselaer Polytechnic Institute
 
 Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) page for the most up-to-date publication record.
 
-The best way to reach out is through emails: <span style="color:#0096FF">b [dot] yao [at] northeastern [dot] edu</span>. 
+The best way to reach out is through emails: <span class="conference">b [dot] yao [at] northeastern [dot] edu</span>. 
 
 
 ***
