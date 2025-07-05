@@ -3,9 +3,7 @@ layout: about
 title: About
 permalink: /
 subtitle: <br>
-# <b> <br> I sometimes write codes. </b>
-# subtitle: <b><span style="color:#2489FF"><a href="https://www.16personalities.com/intj-personality">INTJ</a></span> <br> I sometimes write codes. </b>
-# subtitle: <a href='#'>Affiliations</a>. Address. Contacts. Moto. Etc.
+
 
 profile:
   align: right
@@ -21,28 +19,24 @@ social: false  # includes social icons at the bottom of the page
 
 second_content: |
   
-  ## Service
-
-  ##### *Area Chair*
-  ACL ARR (Since Jun. '24) \
-  CHI '25, CSCW '25
-
-  ##### *Organizing Committee* 
-  CHI '24 Special Interest Group - [Human-Centered Privacy Research in the Age of Large Language Models](https://dl.acm.org/doi/10.1145/3613905.3643983) \
-  CSCW '24 Workshop - [Challenges and Opportunities of LLM-Based Synthetic Personae and Data in HCI](https://dl.acm.org/doi/10.1145/3613905.3636293)
-
-  ##### *Reviewer* 
-  Conferences: ACL ARR (Aug. '23, Oct. '23, Dec. '23), EMNLP '23, NAACL '24, CHI '24, IUI '24, IMWUT '24 \
-  Journals: Natural Human Behavior, IJHCI, IJHCS
-
 ---
 
+
+<!-- Load Lato and apply it to your H3/H4 elements -->
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  h3, h4 {
+    font-family: 'Lato', sans-serif;
+  }
+</style>
 
 
 I am an associate research scientist in the Khoury College of Computer Sciences at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)).
 
 My research at the intersection of NLP and HCI focuses on <b>human-centered design of NLP applications</b> to support collaborative work in domain-specific scenarios, including medical, healthcare, and education.
 Recently, I am working on <b>LLM role-playing agents</b> for human behavior simulation and human-agent collaboration.
+
+<span style="color: #EB7F00;"> Our lab is looking for self-motivated research assistants and Ph.D. students. Please refer to our [lab website](https://hailab.io/opening/) for more information. </span>
 
 
 <!-- the responsible design of **Human-Centered NLP** systems to support **collaborative work** among stakeholders in various scenarios, including medical, healthcare, and education.  -->
@@ -54,7 +48,7 @@ Recently, I am working on <b>LLM role-playing agents</b> for human behavior simu
 ## Research
 
 
-#### Patient Care
+#### *Patient Care*
 A critical sector with pressing needs that involves care provider teams, caregivers, and patients.
 A considerable amount of my recent work focuses on the human-centered design of AI/LLM systems to support stakeholder collaboration for **remote patient monitoring (RPM)** and **clinical decision-makings**, include identifying needs and challenges encountered by diverse stakeholders, designing and evaluating AI/LLM systems with these stakeholders. 
 
@@ -72,7 +66,7 @@ A considerable amount of my recent work focuses on the human-centered design of 
 <!-- For RPM, we invesigated the clinical specifications for post-operative GI cancer patients [\[In Submission\]](https://arxiv.org/abs/2404.13409), cancer patients' cardiotoxicity [\[In Submission\]](https://arxiv.org/abs/2408.03586), and older adults with chronical diseases. -->
 <!-- Subsequently, we engage stakeholders in the design process of human-centered NLP systems to integrate the systems into their workflow to address needs and challenges, such as RECOVER [\[In Submission\]]() for GI cancer patients, CardioAI [\[In Submission\]](https://arxiv.org/abs/2410.04592) for breast cancer patients, and Talk2Care [\[IMWUT '24a\]](https://dl.acm.org/doi/10.1145/3659625) for older adults. -->
 
-#### Children Education
+#### *Children Education*
 Another unique collaborative scenario of my HCI & NLP research.
 I worked with stakeholders (i.e., education experts and parents) to understand their painpoints in  storytelling activities, curate high-quality Question-Answering (QA) datasets, develop domain-specific NLP models, and design AI-supported interactive storytelling systems.
 
@@ -89,7 +83,7 @@ These datasets support the subsequent development of domain-specific NLP models 
 
 
 
-#### Enhance AI With Human Cognitive Behaviors
+#### *Enhance AI With Human Cognitive Behaviors*
 This summarizes my pursuit of the long-term research vision.
 AI could outperform humans in task-solving performance, however, humans' rational cognitive behaviors form real intelligence.
 My research on low-resource learning techniques pave the path for personalized AI when we provide individualized rationales as additional signals.
