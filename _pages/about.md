@@ -36,7 +36,7 @@ I am an associate research scientist in the Khoury College of Computer Sciences 
 My research at the intersection of NLP and HCI focuses on <b>human-centered design of NLP applications</b> to support collaborative work in domain-specific scenarios, including medical, healthcare, and education.
 Recently, I am working on <b>LLM role-playing agents</b> for human behavior simulation and human-agent collaboration.
 
-<span style="color: #EB7F00;"> Our lab is looking for self-motivated research assistants and Ph.D. students. Please refer to our [lab website](https://hailab.io/opening/) for more information. </span>
+<span style="color: #EB7F00;"> Our lab is looking for self-motivated research assistants, Ph.D. students, and postdocs. Please refer to our [lab website](https://hailab.io/opening/) for more information. </span>
 
 
 <!-- the responsible design of **Human-Centered NLP** systems to support **collaborative work** among stakeholders in various scenarios, including medical, healthcare, and education.  -->
