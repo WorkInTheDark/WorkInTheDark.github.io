@@ -30,99 +30,70 @@ second_content: |
   }
 </style>
 
+<span style="color: #FF3636;"> <b> Our lab is actively recruiting self-motivated research assistants, Ph.D. students, and postdocs. Please check our [lab website](https://hailab.io/opening/). </b> </span>
 
-I am an associate research scientist in the Khoury College of Computer Sciences at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)).
-
-My research at the intersection of NLP and HCI focuses on <b>human-centered design of NLP applications</b> to support collaborative work in domain-specific scenarios, including medical, healthcare, and education.
-Recently, I am working on <b>LLM role-playing agents</b> for human behavior simulation and human-agent collaboration.
-
-<span style="color: #EB7F00;"> Our lab is looking for self-motivated research assistants, Ph.D. students, and postdocs. Please refer to our [lab website](https://hailab.io/opening/) for more information. </span>
+<span style="color: #EB7F00;"> <b> If you are interested in working with me directly, please email me with a description of your skills, research interest, and attach your cv. </b> </span>
 
 
-<!-- the responsible design of **Human-Centered NLP** systems to support **collaborative work** among stakeholders in various scenarios, including medical, healthcare, and education.  -->
-<!-- Recently, my research interest extends to leveraging and enhancing **LLM Role-Playing Agents** to simulate human behaviors. -->
-<!-- My research at the intersection of NLP and HCI focuses on **Use-Inspired AI**, where I strive to responsibly design human-centered NLP systems to support **stakeholders' collaboration** in real-world scenarios.  -->
+I am an **associate research scientist** in the [Khoury College of Computer Sciences](https://www.khoury.northeastern.edu/) at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)). I received my PhD from Rensselaer Polytechnic Institute, advised by Prof. [Jim Hendler](https://www.cs.rpi.edu/~hendler/). 
 
-<!-- I propose a **human-centered NLP** framework that comprises three critical pillars: 1) uncovering stakeholders' workflow, 2) adapting NLP technologies to specific domains with low-resource learning, and 3) designing human-centered systems to be integrated into stakeholders' workflow. -->
+### Research
 
-## Research
+My research lies at the intersection of **Human-Computer Interaction (HCI)** and **Natural Language Processing (NLP)**, with two primary interests: 
 
+##### *I. Design, Develop, and Evaluate **Human-Centered NLP Systems** In Medical and Healthcare*
 
-#### *Patient Care*
-A critical sector with pressing needs that involves care provider teams, caregivers, and patients.
-A considerable amount of my recent work focuses on the human-centered design of AI/LLM systems to support stakeholder collaboration for **remote patient monitoring (RPM)** and **clinical decision-makings**, include identifying needs and challenges encountered by diverse stakeholders, designing and evaluating AI/LLM systems with these stakeholders. 
+We engage multi-stakeholders to design and validate AI/LLM-driven multi-modal intelligent systems for *remote patient monitoring (RPM)*, *patient-provider communication*, and *clinical decision-makings*. Selected work include: 
 
-*Sepsis [\[CHI '24\]](https://dl.acm.org/doi/full/10.1145/3613904.3642343); older adults [\[IMWUT '24a\]](https://dl.acm.org/doi/10.1145/3659625),  post-operative patients [\[1\]](https://arxiv.org/abs/2404.13409) [\[2\]](https://arxiv.org/abs/2502.05740) [\[3\]](https://arxiv.org/abs/2408.03586) [\[CHI '25\]](https://dl.acm.org/doi/full/10.1145/3706598.3714272), concussion [\[4\]](https://arxiv.org/abs/2502.03732)*
-
-
-
-
-<!-- In **medical** and **healthcare**, my research focuses on understanding the needs and challenges encountered by care providers, caregivers, and patients in different clinical scenarios, followed by the human-centered design of AI-assisted Clinical Decision Support System (CDSS) and Remote Patient Monitoring (RPM) systems. -->
-<!-- Prior work include: early diagnosis of sepsis [\[CHI '24\]](https://dl.acm.org/doi/full/10.1145/3613904.3642343); RPM for older adults [\[IMWUT '24a\]](https://dl.acm.org/doi/10.1145/3659625), post-surgery care of GI cancer patients [\[1\]](https://arxiv.org/abs/2404.13409) [\[2\]](https://arxiv.org/abs/2502.05740), cardiotoxicity of cancer patients [\[3\]](https://arxiv.org/abs/2408.03586) [\[CHI '25a\]](https://arxiv.org/abs/2410.04592), and mental health of youth concussion patients [\[4\]](https://arxiv.org/abs/2502.03732). -->
-
-
-<!-- In **medical** and **healthcare** scenarios, my research focuses on AI-assisted Clinical Decision Support System (CDSS) and Remote Patient Monitoring (RPM).  -->
-<!-- For CDSS, we looked into the human-AI competition actuality for sepsis diagnosis [\[CHI '23\]](https://dl.acm.org/doi/full/10.1145/3613904.3642343).  -->
-<!-- For RPM, we invesigated the clinical specifications for post-operative GI cancer patients [\[In Submission\]](https://arxiv.org/abs/2404.13409), cancer patients' cardiotoxicity [\[In Submission\]](https://arxiv.org/abs/2408.03586), and older adults with chronical diseases. -->
-<!-- Subsequently, we engage stakeholders in the design process of human-centered NLP systems to integrate the systems into their workflow to address needs and challenges, such as RECOVER [\[In Submission\]]() for GI cancer patients, CardioAI [\[In Submission\]](https://arxiv.org/abs/2410.04592) for breast cancer patients, and Talk2Care [\[IMWUT '24a\]](https://dl.acm.org/doi/10.1145/3659625) for older adults. -->
-
-#### *Children Education*
-Another unique collaborative scenario of my HCI & NLP research.
-I worked with stakeholders (i.e., education experts and parents) to understand their painpoints in  storytelling activities, curate high-quality Question-Answering (QA) datasets, develop domain-specific NLP models, and design AI-supported interactive storytelling systems.
-
-*FairytaleQA [\[ACL '22a\]](https://aclanthology.org/2022.acl-long.34/) & StorySparkQA [\[EMNLP '24\]](https://aclanthology.org/2024.emnlp-main.961/) datasets, QA Generation Models [\[ACL '22b\]](https://aclanthology.org/2022.acl-long.54/), StoryBuddy system [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479)*
-
-
-
-<!-- My research extends to support parents' need in interactive storytelling for **children education**, including needs solicitations [\[CSCW '24\]](https://dl.acm.org/doi/10.1145/3687035); experts-annotated datasets, such as FairytaleQA [\[ACL '22a\]](https://aclanthology.org/2022.acl-long.34/) and StorySparkQA [\[EMNLP '24\]](https://aclanthology.org/2024.emnlp-main.961/);
-QA-pair generation pipelines [\[ACL '22b\]](https://aclanthology.org/2022.acl-long.54/); 
-and human-centered interactive storytelling systems [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479) [\[CHI '25b\]](https://arxiv.org/abs/2503.00590). -->
-
-<!-- in which we invesigate parents' needs in interactive storytelling [\[CSCW '24\]](https://dl.acm.org/doi/10.1145/3687035), and work with education experts to collect high-quality educational datasets, such as FairytaleQA [\[ACL '22a\]](https://aclanthology.org/2022.acl-long.34/) and StorySparkQA [\[EMNLP '24\]](https://aclanthology.org/2024.emnlp-main.961/).
-These datasets support the subsequent development of domain-specific NLP models for QA-pair generation [\[ACL '22b\]](https://aclanthology.org/2022.acl-long.54/) as well as the human-centered design of interactive storytelling systems, for example, StoryBuddy [\[CHI '22\]](https://dl.acm.org/doi/abs/10.1145/3491102.3517479). -->
-
-
-
-#### *Enhance AI With Human Cognitive Behaviors*
-This summarizes my pursuit of the long-term research vision.
-AI could outperform humans in task-solving performance, however, humans' rational cognitive behaviors form real intelligence.
-My research on low-resource learning techniques pave the path for personalized AI when we provide individualized rationales as additional signals.
-Lately, I am devoted to advance **LLM Role-Playing Agents** to realistically mimic human behaviors, simulate human social dynamics, and establish human-agent collaborations.
-
-*Active Learning [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/), In-Context Sampling [\[NAACL '24\]](https://aclanthology.org/2024.findings-naacl.115/), Mental-LLM [\[IMWUT '24b\]](https://dl.acm.org/doi/abs/10.1145/3643540), LLM Role-Playing Agents [\[ACL '25\]](https://arxiv.org/abs/2502.13012)*
+Sepsis Diagnosis \[[CHI '24](https://dl.acm.org/doi/full/10.1145/3613904.3642343)\] \
+Asynchronous Older Adults-Provider Communication \[[Talk2Care (IMWUT '24)](https://dl.acm.org/doi/10.1145/3659625)\] \
+RPM for Post-Operative Cancer Patients \[[RECOVER](https://arxiv.org/abs/2502.05740), [CardioAI (CHI '25)](https://dl.acm.org/doi/full/10.1145/3706598.3714272)\] 
 
 
 
 
 
 
-<!-- Another line of my research centers on bridging the divergence between the standardized & static model development and the dynamic & complex real-world scenarios via innovative **low-resource domain adaptation** techniques. I proposed novel Active Learning framework [\[EMNLP '23\]](https://aclanthology.org/2023.findings-emnlp.778/) for fine-tuning task-specific models, In-Context Sampling prompting strategy for robust ICL with LLMs [\[NAACL '24\]](https://aclanthology.org/2024.findings-naacl.115/), and instructional finetune LLMs for mental health prediction (Mental-LLM [\[IMWUT '24b\]](https://dl.acm.org/doi/abs/10.1145/3643540)) -->
+##### *II. Design LLM/AI Agents To Effectively Establish **Mutual Human-Agent Collaboration***
+
+I envision a near future where AI agents, as they learn to think and act like humans, will work **with** us, not *for* us, becoming functionally indistinguishable from any other remote human collaborator.
+The research roadmap in this direction is bifolds: 1) design and evaluate AI agents to **think and behave collaboratively**; 2) design interface and interaction patterns to **establish mutual human-agent collaboration** through the lens of remote collaboration with decades of knowledge about what makes remote teams trust each other, share context, and coordinate effectively. Selected work include:
+
+Rationale Alignment Between Models and Humans via Active Learning \[[EMNLP '23](https://aclanthology.org/2023.findings-emnlp.778/)\] \
+Dynamic Persona Refinement Framework \[[In Submission](https://arxiv.org/abs/2510.14205)\] \
+Configurable Research Platform for Human-Agent Collaboration \[[InSubmission](https://arxiv.org/abs/2509.18008)\] 
 
 
-## Appointment
+
+
+
+
+
+
+<!-- ### Appointment
 
 - **Associate Research Scientist** \
 2025 - Current, Northeastern University
 - **Postdoc Research Associate** \
-2024 - 2025, Northeastern University
+2024 - 2025, Northeastern University -->
 
 
 
-## Education
+<!-- ### Education
 
 - **Ph.D. in Computer Science** \
 2019 - 2024, Rensselaer Polytechnic Institute (Advisor. Prof. [Jim Hendler](https://www.cs.rpi.edu/~hendler/)) 
 - **M.S. in Information Technology** \
 2018 - 2019, Rensselaer Polytechnic Institute 
 - **B.S. in Computer Engineering** \
-2014 - 2018, Rensselaer Polytechnic Institute 
+2014 - 2018, Rensselaer Polytechnic Institute  -->
 
 
 
 
 
 
-## Note
+### Note
 
 
 Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) page for the most up-to-date publication record.
