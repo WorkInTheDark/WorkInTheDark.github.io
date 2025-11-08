@@ -2,7 +2,7 @@
 layout: about
 title: About
 permalink: /
-subtitle: <br>
+subtitle: Associate Research Scientist at Northeastern University
 
 
 profile:
@@ -30,42 +30,43 @@ second_content: |
   }
 </style>
 
-<span style="color: #FF3636;"> <b> Our lab is actively recruiting self-motivated research assistants, Ph.D. students, and postdocs. Please check our [lab website](https://hailab.io/opening/). </b> </span>
 
-<span style="color: #EB7F00;"> <b> If you are interested in working with me directly, please email me with a description of your skills, research interest, and attach your cv. </b> </span>
+
+<!-- <span class="rounded-box"> <b> If you are interested in working with me directly, please email me with a description of your skills, research interest, and attach your cv. </b> </span> -->
+
+<!-- <span style="color: #FF3636;"> <b> Our lab is actively recruiting self-motivated research assistants, Ph.D. students, and postdocs. Please check our [lab website](https://hailab.io/opening/). </b> </span>
+
+<span style="color: #EB7F00;"> <b> If you are interested in working with me directly, please email me with a description of your skills, research interest, and attach your cv. </b> </span> -->
 
 
 I am an **associate research scientist** in the [Khoury College of Computer Sciences](https://www.khoury.northeastern.edu/) at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)). I received my PhD from Rensselaer Polytechnic Institute, advised by Prof. [Jim Hendler](https://www.cs.rpi.edu/~hendler/). 
 
-### Research
+<!-- ### Research -->
 
 My research lies at the intersection of *Human-Computer Interaction (HCI)* and *Natural Language Processing (NLP)*, with two primary interests: 
 
-##### **I. Design, Develop, and Evaluate Human-Centered NLP Systems**
 
-Particularly in medical and healthcare, we engage multi-stakeholders to design and validate AI/LLM-driven multi-modal intelligent systems for **remote patient monitoring (RPM)**, **patient-provider communication**, and **clinical decision-makings**. Selected work include: 
+**I. Design, Develop, and Evaluate Human-Centered NLP Systems** \
+Particularly in medical and healthcare, we engage multi-stakeholders to design and validate AI/LLM-driven multi-modal intelligent systems for *remote patient monitoring (RPM)*, *patient-provider communication*, and *clinical decision-makings*
+\[[1](https://dl.acm.org/doi/full/10.1145/3613904.3642343), [2](https://dl.acm.org/doi/10.1145/3659625), [3](https://arxiv.org/abs/2502.05740), [4](https://dl.acm.org/doi/full/10.1145/3706598.3714272)\]. 
 
-Sepsis Diagnosis \[[CHI '24](https://dl.acm.org/doi/full/10.1145/3613904.3642343)\] \
+<!-- Sepsis Diagnosis \[[CHI '24](https://dl.acm.org/doi/full/10.1145/3613904.3642343)\] \
 Asynchronous Older Adults-Provider Communication \[[Talk2Care (IMWUT '24)](https://dl.acm.org/doi/10.1145/3659625)\] \
-RPM for Post-Operative Cancer Patients \[[RECOVER](https://arxiv.org/abs/2502.05740), [CardioAI (CHI '25)](https://dl.acm.org/doi/full/10.1145/3706598.3714272)\] 
+RPM for Post-Operative Cancer Patients \[[RECOVER](https://arxiv.org/abs/2502.05740), [CardioAI (CHI '25)](https://dl.acm.org/doi/full/10.1145/3706598.3714272)\]  -->
 
 
+**II. Design LLM/AI Agents To Effectively Establish Mutual Human-Agent Collaboration** \
+I envision a near future where AI agents will work *with* us, not for us, becoming functionally indistinguishable from any other remote human collaborator.
+The research roadmap in this direction is bifolds: 1) design and evaluate AI agents to *think and behave collaboratively*; 2) design interface and interaction patterns to *establish mutual human-agent collaboration* through the lens of remote collaboration with decades of knowledge about what makes remote teams trust each other, share context, and coordinate effectively \[[1](https://arxiv.org/abs/2509.18008), [2](https://aclanthology.org/2023.findings-emnlp.778/), [3](https://arxiv.org/abs/2510.14205)\]. 
 
-
-
-
-##### **II. Design LLM/AI Agents To Effectively Establish Mutual Human-Agent Collaboration**
-
-I envision a near future where AI agents, as they learn to think and act like humans, will work **with** us, not for us, becoming functionally indistinguishable from any other remote human collaborator.
-The research roadmap in this direction is bifolds: 1) design and evaluate AI agents to **think and behave collaboratively**; 2) design interface and interaction patterns to **establish mutual human-agent collaboration** through the lens of remote collaboration with decades of knowledge about what makes remote teams trust each other, share context, and coordinate effectively. Selected work include:
-
+<!-- Selected work include:
 Rationale Alignment Between Models and Humans via Active Learning \[[EMNLP '23](https://aclanthology.org/2023.findings-emnlp.778/)\] \
 Dynamic Persona Refinement Framework \[[In Submission](https://arxiv.org/abs/2510.14205)\] \
-Configurable Research Platform for Human-Agent Collaboration \[[InSubmission](https://arxiv.org/abs/2509.18008)\] 
+Configurable Research Platform for Human-Agent Collaboration \[[InSubmission](https://arxiv.org/abs/2509.18008)\]  -->
 
 
 
-
+<span class="rounded-box"> <b> Our Human-Centered AI (NEU-HAI) Lab is actively recruiting self-motivated research assistants, Ph.D. students, and postdocs. Please check our [lab website](https://hailab.io/opening/).</b> If you are interested in working with me directly, please email me with a description of your skills, research interest, and attach your cv. </span>
 
 
 
