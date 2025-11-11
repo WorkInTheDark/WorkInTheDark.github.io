@@ -66,10 +66,10 @@ Configurable Research Platform for Human-Agent Collaboration \[[InSubmission](ht
 
 
 
-<span class="rounded-box"> <b> Our Human-Centered AI (NEU-HAI) Lab is actively recruiting self-motivated research assistants, Ph.D. students, and postdocs. Please check our [lab website](https://hailab.io/opening/).</b> If you are interested in working with me directly, please email me with a description of your skills, research interest, and attach your cv. </span>
+<!-- <span class="rounded-box"> <b> Our Human-Centered AI (NEU-HAI) Lab is actively recruiting self-motivated research assistants, Ph.D. students, and postdocs. Please check our [lab website](https://hailab.io/opening/).</b> If you are interested in working with me directly, please email me with a description of your skills, research interest, and attach your cv. </span>
+ -->
 
-
-
+<span style="color: #EB7F00;"> <b> Our Human-Centered AI (NEU-HAI) Lab is actively recruiting self-motivated research assistants, Ph.D. students, and postdocs. Please check our [lab website](https://hailab.io/opening/). If you are interested in working with me directly, please email me with a description of your skills, research interest, and attach your cv. </b></span>
 
 <!-- ### Appointment
 
