@@ -37,7 +37,7 @@ I study **how LLM agents can genuinely collaborate with humans** through the len
 
 
 #### I. Design and Study Human-Centered AI Systems for Clinical Care
-Healthcare workflows often break down at the seams between provider teams, patients, and caregivers. I design, deploy, and study AI/LLM-powered multi-modal systems that work in those gaps to support the people involved. My work spans clinical decision-making, patient-provider communication, provider coordination, remote patient monitoring, and post-surgical care.
+Healthcare workflows often break down at the seams between provider teams, patients, and caregivers. I design, deploy, and study AI/LLM-powered multi-modal systems that work in those gaps to support diverse stakeholders involved in different clinical settings. My work spans clinical decision-making, patient-provider communication, provider coordination, remote patient monitoring, and post-surgical care.
 
 <div class="filter-bar" data-filter-target="thrust-clinical">
   <button type="button" class="filter-btn is-active" data-filter="all">All</button>
