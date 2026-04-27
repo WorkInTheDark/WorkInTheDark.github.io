@@ -36,8 +36,8 @@ I study **how LLM agents can genuinely collaborate with humans** through the len
 ## Research
 
 
-#### *I. Design and Study Human-Centered AI Systems for Clinical Care*
-I design, deploy, and study AI/LLM-powered multi-modal systems that work alongside provider teams, patients, and caregivers — in settings where existing workflows break down. My work spans clinical decision-making, patient-provider communication, remote patient monitoring, and post-surgical care.
+#### I. Design and Study Human-Centered AI Systems for Clinical Care
+Healthcare workflows often break down at the seams between provider teams, patients, and caregivers. I design, deploy, and study AI/LLM-powered multi-modal systems that work in those gaps to support the people involved. My work spans clinical decision-making, patient-provider communication, provider coordination, remote patient monitoring, and post-surgical care.
 
 <div class="filter-bar" data-filter-target="thrust-clinical">
   <button type="button" class="filter-btn is-active" data-filter="all">All</button>
@@ -57,8 +57,8 @@ I design, deploy, and study AI/LLM-powered multi-modal systems that work alongsi
   <li data-tags="decision"><a href="https://dl.acm.org/doi/full/10.1145/3613904.3642343">Sepsis Diagnosis Support</a> <em>(CHI '24)</em> — <span class="thrust-desc">AI-assisted clinical decision making for sepsis diagnosis</span></li>
 </ul>
 
-#### *II. Develop and Evaluate Collaborative LLM Agents*
-I envision a near future where LLM agents work *with* us, not for us — analogous as a remote human collaborator. Toward this vision, my research focuses on **developing and evaluating LLM agents' collaborativeness**: collecting large-scale behavioral and mental-model data from controlled human-collaboration experiments, benchmarking LLMs' performance through simulations, and proposing **process-level evaluation metrics** that quantify *how* agents collaborate. This line of work is grounded in HCI infrastructure for studying human-agent collaboration and in decades of remote-collaboration research on what makes teams trust each other, share context, and coordinate effectively.
+#### II. Genuine Human-Agent Collaboration
+I envision a near future where LLM agents can genuinely work *with* us, like a remote human collaborator. To get there, I design interaction patterns and study methodologies for human-agent collaboration, and develop and benchmark LLM agents that can think and behave collaboratively. My work spans collaboration frameworks and design philosophy, trust and shared context in human-agent teams, evaluation methods for collaboration quality, agent oversight, and role-playing agents.
 
 <div class="filter-bar" data-filter-target="thrust-agents">
   <button type="button" class="filter-btn is-active" data-filter="all">All</button>
@@ -70,11 +70,11 @@ I envision a near future where LLM agents work *with* us, not for us — analogo
 </div>
 
 <ul id="thrust-agents" class="thrust-list">
-  <li data-tags="vision evaluation"><a href="https://dl.acm.org/doi/full/10.1145/3772318.3790879">Research Platform for Human-Agent Collaboration</a> <em>(CHI '26)</em> — <span class="thrust-desc">A configurable research platform for studying human-agent collaboration through the lens of remote teamwork</span></li>
-  <li data-tags="oversight evaluation"><a href="https://dl.acm.org/doi/full/10.1145/3772318.3791568">Dark Patterns Meet GUI Agents</a> <em>(CHI '26)</em> — <span class="thrust-desc">Examining LLM agent susceptibility to manipulative interfaces and the role of human oversight</span></li>
+  <li data-tags="vision evaluation"><a href="https://dl.acm.org/doi/full/10.1145/3772318.3790879">Configurable Research Platform for Human-Agent Collaboration</a> <em>(CHI '26)</em> </li>
+  <li data-tags="oversight evaluation"><a href="https://dl.acm.org/doi/full/10.1145/3772318.3791568">Dark Patterns Meet GUI Agents</a> <em>(CHI '26)</em> — <span class="thrust-desc">Examining LLM agent susceptibility to manipulative interfaces</span></li>
   <li data-tags="vision"><a href="https://dl.acm.org/doi/full/10.1145/3772363.3778744">CHI '26 Workshop "Human-Agent Collaboration"</a> <em>(CHI EA '26)</em> — <span class="thrust-desc">A vision, design philosophy, and empirical framework for treating LLM agents as remote human collaborators</span></li>
   <li data-tags="evaluation capability"><a href="https://dl.acm.org/doi/full/10.1145/3772363.3799039">Agent A/B</a> <em>(CHI EA '26)</em> — <span class="thrust-desc">Automated and scalable A/B testing on live websites with interactive LLM agents</span></li>
-  <li data-tags="capability roleplay"><a href="https://arxiv.org/abs/2510.14205">Dynamic Persona Refinement Framework</a> <em>(preprint, 2025)</em> — <span class="thrust-desc">Iteratively refining LLM personas during role-playing interactions</span></li>
+  <li data-tags="capability roleplay"><a href="https://arxiv.org/abs/2510.14205">Dynamic Persona Refinement Framework</a> <em>(preprint, 2025)</em> — <span class="thrust-desc">Iteratively optimizing behavioral and cognitive alignment</span></li>
   <li data-tags="evaluation roleplay"><a href="https://aclanthology.org/2025.findings-acl.938/">Survey of LLM Role-Playing Agent Evaluation</a> <em>(ACL Findings '25)</em> — <span class="thrust-desc">Guidelines for evaluating LLM role-playing agents</span></li>
 </ul>
 
