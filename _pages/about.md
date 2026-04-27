@@ -21,8 +21,7 @@ recruiting:
   enabled: true
   label: Recruiting
   body: >
-    We are actively seeking self-motivated research assistants. If you are interested in working
-    with me, please email me with a description of your skills, research interests, and attach your CV.
+    I am actively seeking self-motivated research assistants. See the [Prospective Students](/prospective/) page for application form and FAQs.
 
 second_content: |
   
@@ -36,8 +35,8 @@ I study **how LLM agents can genuinely collaborate with humans** through the len
 ## Research
 
 
-#### I. Design and Study Human-Centered AI Systems for Clinical Care
-Healthcare workflows often break down at the seams between provider teams, patients, and caregivers. I design, deploy, and study AI/LLM-powered multi-modal systems that work in those gaps to support diverse stakeholders involved in different clinical settings. My work spans clinical decision-making, patient-provider communication, provider coordination, remote patient monitoring, and post-surgical care.
+#### I. Human-Centered AI for Clinical Care
+Healthcare workflows often break down at the seams between provider teams, patients, and caregivers. I **investigate gaps in stakeholders' communication and coordination** across different clinical scenarios, and **design, deploy, and study AI/LLM-powered multi-modal systems** that work in those gaps to support the people involved. My work spans clinical decision-making, patient-provider communication, provider coordination, remote patient monitoring, and post-surgical care.
 
 <div class="filter-bar" data-filter-target="thrust-clinical">
   <button type="button" class="filter-btn is-active" data-filter="all">All</button>
@@ -49,16 +48,17 @@ Healthcare workflows often break down at the seams between provider teams, patie
 </div>
 
 <ul id="thrust-clinical" class="thrust-list">
-  <li data-tags="rpm postop"><a href="https://arxiv.org/abs/2502.05740">RECOVER </a> <em>(CSCW '26)</em> — <span class="thrust-desc">LLM-based remote patient monitoring for post-surgical GI cancer care</span></li>
-  <li data-tags="decision comm"><a href="https://dl.acm.org/doi/full/10.1145/3772318.3791301">Serious Illness Conversations</a> <em>(CHI '26)</em> — <span class="thrust-desc">Balancing efficiency and empathy in serious-illness conversations in the ED</span></li>
-  <li data-tags="comm coord postop"><a href="https://dl.acm.org/doi/full/10.1145/3772318.3791960">Collaboration Breakdown</a> <em>(CHI '26)</em> — <span class="thrust-desc">Within provider teams and between patients in post-surgery care</span></li>
-  <li data-tags="rpm postop"><a href="https://dl.acm.org/doi/full/10.1145/3706598.3714272">CardioAI</a> <em>(CHI '25)</em> — <span class="thrust-desc">Multimodal AI plus wearable for cancer treatment-induced cardiotoxicity</span></li>
-  <li data-tags="comm"><a href="https://dl.acm.org/doi/10.1145/3659625">Talk2Care</a> <em>(IMWUT '24)</em> — <span class="thrust-desc">Asynchronous communication between older-adults and care providers</span></li>
-  <li data-tags="decision"><a href="https://dl.acm.org/doi/full/10.1145/3613904.3642343">Sepsis Diagnosis Support</a> <em>(CHI '24)</em> — <span class="thrust-desc">AI-assisted clinical decision making for sepsis diagnosis</span></li>
+  <li data-tags="rpm postop"> <em>(CSCW '26)</em> <a href="https://arxiv.org/abs/2502.05740">RECOVER: LLM-Based Remote Monitoring System for Post-Surgical Cancer Care</a> </li>
+  <li data-tags="decision comm"> <em>(CHI '26)</em> <a href="https://dl.acm.org/doi/full/10.1145/3772318.3791301">Providers' Perspectives for Serious Illness Conversations in the ED</a> </li>
+  <li data-tags="comm coord postop"> <em>(CHI '26)</em> <a href="https://dl.acm.org/doi/full/10.1145/3772318.3791960">Collaboration Breakdowns Between Provider Teams and Patietns in Post-Surgery Care</a> </li>
+  <li data-tags="rpm postop"> <em>(CHI '25)</em> <a href="https://dl.acm.org/doi/full/10.1145/3706598.3714272">CardioAI: Multi-Modal AI Remote Monitoring System for Cancer Treatment-Induced Cardiotoxicity</a></li>
+  <li data-tags="comm"> <em>(IMWUT '24)</em> <a href="https://dl.acm.org/doi/10.1145/3659625">Talk2Care: LLM-Based Conversational Assistant for Asynchronous Older Adults-Provider Communication</a></li>
+  <li data-tags="decision"> <em>(CHI '24)</em> <a href="https://dl.acm.org/doi/full/10.1145/3613904.3642343">AI-Assisted Clinical Decision Making for Sepsis Diagnosis</a></li>
 </ul>
 
+
 #### II. Genuine Human-Agent Collaboration
-I envision a near future where LLM agents can genuinely work *with* us, like a remote human collaborator. To get there, I design interaction patterns and study methodologies for human-agent collaboration, and develop and benchmark LLM agents that can think and behave collaboratively. My work spans collaboration frameworks and design philosophy, trust and shared context in human-agent teams, evaluation methods for collaboration quality, agent oversight, and role-playing agents.
+I envision a near future where LLM agents can genuinely collaborate *with* us, not *for* us, like a remote human collaborator. To get there, I **design interaction patterns and study methodologies** for human-agent collaboration, and **develop and benchmark LLM agents** that can think and behave collaboratively. My work spans collaboration frameworks and design philosophy, trust and shared context in human-agent teams, evaluation methods for collaboration quality, agent oversight, and role-playing agents.
 
 <div class="filter-bar" data-filter-target="thrust-agents">
   <button type="button" class="filter-btn is-active" data-filter="all">All</button>
@@ -70,12 +70,12 @@ I envision a near future where LLM agents can genuinely work *with* us, like a r
 </div>
 
 <ul id="thrust-agents" class="thrust-list">
-  <li data-tags="vision evaluation"><a href="https://dl.acm.org/doi/full/10.1145/3772318.3790879">Configurable Research Platform for Human-Agent Collaboration</a> <em>(CHI '26)</em> </li>
-  <li data-tags="oversight evaluation"><a href="https://dl.acm.org/doi/full/10.1145/3772318.3791568">Dark Patterns Meet GUI Agents</a> <em>(CHI '26)</em> — <span class="thrust-desc">Examining LLM agent susceptibility to manipulative interfaces</span></li>
-  <li data-tags="vision"><a href="https://dl.acm.org/doi/full/10.1145/3772363.3778744">CHI '26 Workshop "Human-Agent Collaboration"</a> <em>(CHI EA '26)</em> — <span class="thrust-desc">A vision, design philosophy, and empirical framework for treating LLM agents as remote human collaborators</span></li>
-  <li data-tags="evaluation capability"><a href="https://dl.acm.org/doi/full/10.1145/3772363.3799039">Agent A/B</a> <em>(CHI EA '26)</em> — <span class="thrust-desc">Automated and scalable A/B testing on live websites with interactive LLM agents</span></li>
-  <li data-tags="capability roleplay"><a href="https://arxiv.org/abs/2510.14205">Dynamic Persona Refinement Framework</a> <em>(preprint, 2025)</em> — <span class="thrust-desc">Iteratively optimizing behavioral and cognitive alignment</span></li>
-  <li data-tags="evaluation roleplay"><a href="https://aclanthology.org/2025.findings-acl.938/">Survey of LLM Role-Playing Agent Evaluation</a> <em>(ACL Findings '25)</em> — <span class="thrust-desc">Guidelines for evaluating LLM role-playing agents</span></li>
+  <li data-tags="vision evaluation"> <em>(CHI '26)</em> <a href="https://dl.acm.org/doi/full/10.1145/3772318.3790879">Configurable Research Platform for Controlled Human-Agent Collaboration Experiments</a> </li>
+  <li data-tags="oversight evaluation"> <em>(CHI '26)</em> <a href="https://dl.acm.org/doi/full/10.1145/3772318.3791568">LLM Agent Susceptibility to Manipulative Interfaces</a></li>
+  <li data-tags="vision"> <em>(CHI EA '26)</em> <a href="https://dl.acm.org/doi/full/10.1145/3772363.3778744">A vision, design philosophy, and empirical framework for Human-Agent Collaboration</a></li>
+  <li data-tags="evaluation capability">  <em>(CHI EA '26)</em> <a href="https://dl.acm.org/doi/full/10.1145/3772363.3799039">Agent A/B: Automated and Scalable A/B Testing Simulation</a></li>
+  <li data-tags="capability roleplay"> <em>(Preprint, 2025)</em> <a href="https://arxiv.org/abs/2510.14205">Dynamic Persona Refinement Framework for Optimizing Behavioral and Cognitive Alignment</a></li>
+  <li data-tags="evaluation roleplay"> <em>(ACL Findings '25)</em> <a href="https://aclanthology.org/2025.findings-acl.938/">Survey of LLM Role-Playing Agent Evaluation</a></li>
 </ul>
 
 <!-- Appointment / Education sections intentionally hidden — they live on the CV. -->
