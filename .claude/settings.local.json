@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ruby --version)",
+      "Bash(bundle --version)",
+      "Bash(docker --version)",
+      "Bash(docker info *)",
+      "Bash(git rm *)",
+      "Bash(grep -o 'p,li,em,span{[^}]*}' _site/assets/css/main.css)",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://api.semanticscholar.org/graph/v1/author/1490485182/papers?fields=title,year,venue&limit=50\")",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://dblp.org/pid/256/9562.xml\")",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://www.cs.cmu.edu/~sherryw/\")",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://maartensap.com/\")",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://katy-gero.com/\")",
+      "Bash(curl -sL -A \"Mozilla/5.0\" \"https://faculty.cc.gatech.edu/~riedl/\")",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://maartensap.com/aboutme.html\")",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://www.dakuowang.com/\")",
+      "Bash(curl -sL -A \"Mozilla/5.0\" \"https://eilab-gt.github.io/\")",
+      "Bash(curl -s -A \"Mozilla/5.0 \\(compatible; bot/1.0\\)\" \"https://katy-gero.com/\" -v)",
+      "Bash(curl -sL -A \"Mozilla/5.0\" \"https://maartensap.com/\")",
+      "Bash(curl -sL -A \"Mozilla/5.0\" \"https://www.katygero.com/\")",
+      "Bash(curl -sL -A \"Mozilla/5.0\" \"https://katygero.com/\")"
+    ]
+  }
+}

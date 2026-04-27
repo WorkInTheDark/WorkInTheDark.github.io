@@ -2,8 +2,7 @@
  * Styles for the base elements of the theme.
  ******************************************************************************/
 
- @import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap");
- @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Serif:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
 
  // CUSTOM
 .title-blue {
@@ -326,12 +325,27 @@ span,
 strong {
   color: var(--global-text-color);
   font-family: "Lato", sans-serif;
-  font-weight: 300; /* Default weight for most elements */
+  font-weight: 300; /* Light weight — good for display/headings */
+}
+
+/* Body text: IBM Plex Serif for a more geometric/techy feel that pairs well with Lato
+ * sans headings. Source Serif 4 / Georgia kept as fallbacks. To swap families, just
+ * reorder the stack. Headings stay Lato (sans) for the classic serif-body pairing.
+ * `strong, b` are included so **bold** inline text follows the body family;
+ * the strong/b font-weight: 600 rule below still wins on weight. */
+p,
+li,
+em,
+strong,
+b {
+  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 strong,
 b {
-  font-weight: 500; /* Explicitly sets bold text */
+  font-weight: 600; /* Slightly bolder so bold lead-ins still pop next to serif body */
 }
 
 h1,
@@ -1395,3 +1409,203 @@ nav[data-toggle="toc"] {
     padding-top: 0.5rem;
   }
 }
+
+/*******************************************************************************
+ * Recruiting / announcement banner on the About page.
+ * Driven by `recruiting:` front matter in _pages/about.md.
+ ******************************************************************************/
+
+.recruiting-banner {
+  display: block;
+  margin: 1.25rem 0 1.75rem;
+  padding: 1rem 1.25rem 0.9rem;
+  background: rgba($arthur-blue, 0.06);
+  border-left: 4px solid $arthur-blue;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+  .recruiting-banner-label {
+    display: inline-block;
+    margin-bottom: 0.55rem;
+    padding: 0.18rem 0.65rem;
+    background: $arthur-blue;
+    color: #ffffff;
+    font-family: "Lato", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    line-height: 1.4;
+  }
+
+  .recruiting-banner-body {
+    color: var(--global-text-color);
+    font-size: 0.95rem;
+    line-height: 1.55;
+
+    p {
+      margin: 0;
+    }
+    p + p {
+      margin-top: 0.5rem;
+    }
+
+    a {
+      color: $arthur-blue;
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid rgba($arthur-blue, 0.3);
+      transition: border-color 0.15s ease-in-out;
+
+      &:hover {
+        border-bottom-color: $arthur-blue;
+        text-decoration: none;
+      }
+    }
+
+    strong, b {
+      font-weight: 700;
+    }
+  }
+}
+
+/*******************************************************************************
+ * Research-thrust headings (h4) — slightly thicker than the global h-rule (300)
+ * so the pillar captions read as section heads, not body subheadings.
+ ******************************************************************************/
+
+h4 {
+  font-weight: 500;
+}
+
+/*******************************************************************************
+ * Thrust list — paper-led project list with tag pills inside research thrusts.
+ ******************************************************************************/
+
+.thrust-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.75rem 0 1.25rem;
+
+  li {
+    margin-bottom: 0.55rem;
+    line-height: 1.5;
+  }
+
+  /* Paper / system title (the markdown link). Same weight/size/family as body
+   * text — the underline + accent color carry the "this is a link" signal. */
+  li > a {
+    text-decoration: none;
+    border-bottom: 1px solid rgba($arthur-blue, 0.3);
+
+    &:hover {
+      border-bottom-color: $arthur-blue;
+      text-decoration: none;
+    }
+  }
+
+  /* Venue marker `(CHI '26)`. Kept as <em> for semantic meaning, but rendered
+   * as plain regular body text — not italic, not grey, not smaller. */
+  li em {
+    color: var(--global-text-color);
+    font-style: normal;
+    font-size: inherit;
+    margin: 0;
+  }
+}
+
+/* Short italic description after a paper title (em-dash separated). Uses the
+ * primary text color at reduced opacity so it stays clearly readable while still
+ * reading as secondary content. Adapts to dark mode automatically. */
+.thrust-desc {
+  font-family: "Lato", sans-serif;
+  // font-family: "IBM Plex Serif", "Source Serif 4", Georgia, serif;
+  color: var(--global-text-color);
+  opacity: 0.8;
+  // font-style: italic;
+}
+
+/* Base tag pill — neutral fallback if data-tag is missing. Currently unused on
+ * the rendered page (descriptions replaced inline pills), but kept in case we
+ * want to reintroduce per-row tags later. */
+.thrust-tag {
+  display: inline-block;
+  margin: 0 0.18rem 0.18rem 0;
+  padding: 0.06rem 0.55rem;
+  background: rgba(128, 128, 128, 0.13);
+  color: var(--global-text-color-light);
+  font-family: "Lato", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 999px;
+  vertical-align: 1px;
+  white-space: nowrap;
+  cursor: default;
+}
+
+/* Per-tag colors. Each tag carries `data-tag="<slug>"` so future JS can filter
+ * by attribute selector (e.g., dim all pills NOT matching the clicked slug).
+ * Backgrounds are semi-transparent so they read on light + dark backgrounds. */
+.thrust-tag[data-tag="rpm"]      { background: rgba(38, 152, 186, 0.16);  color: #1a6b80; }
+.thrust-tag[data-tag="postop"]   { background: rgba(0, 159, 6, 0.14);     color: #1f6e2a; }
+.thrust-tag[data-tag="decision"] { background: rgba(242, 145, 5, 0.18);   color: #a05d00; }
+.thrust-tag[data-tag="comm"]     { background: rgba(149, 9, 142, 0.13);   color: #7a0673; }
+.thrust-tag[data-tag="coord"]    { background: rgba(37, 105, 237, 0.15);  color: #1d52b8; }
+
+/*******************************************************************************
+ * Filter bar — clickable filter buttons above a thrust-list.
+ * Inactive state is uniformly greyed; the active button picks up the same
+ * color family as its corresponding tag pill. JS toggles `.is-active`.
+ ******************************************************************************/
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.85rem 0 1rem;
+}
+
+.filter-btn {
+  display: inline-block;
+  padding: 0.22rem 0.75rem;
+  background: rgba(128, 128, 128, 0.10);
+  color: var(--global-text-color-light);
+  font-family: "Lato", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+
+  &:hover:not(.is-active) {
+    background: rgba(128, 128, 128, 0.18);
+    color: var(--global-text-color);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba($arthur-blue, 0.25);
+  }
+}
+
+/* Active states — neutral dark for "All", tag-color match for everything else.
+ * Active state uses higher alpha than the pill so the button reads as "selected." */
+.filter-btn.is-active[data-filter="all"]        { background: rgba(33, 37, 41, 0.85);   color: #fff; }
+
+/* Thrust I — clinical care */
+.filter-btn.is-active[data-filter="rpm"]        { background: rgba(38, 152, 186, 0.32); color: #134c5b; }
+.filter-btn.is-active[data-filter="postop"]     { background: rgba(0, 159, 6, 0.28);    color: #155020; }
+.filter-btn.is-active[data-filter="decision"]   { background: rgba(242, 145, 5, 0.36);  color: #7a4500; }
+.filter-btn.is-active[data-filter="comm"]       { background: rgba(149, 9, 142, 0.26);  color: #5d044f; }
+.filter-btn.is-active[data-filter="coord"]      { background: rgba(37, 105, 237, 0.30); color: #143e8c; }
+
+/* Thrust II — collaborative LLM agents */
+.filter-btn.is-active[data-filter="vision"]     { background: rgba(80, 70, 184, 0.30);  color: #2e2675; }
+.filter-btn.is-active[data-filter="evaluation"] { background: rgba(194, 24, 91, 0.28);  color: #6f0a30; }
+.filter-btn.is-active[data-filter="capability"] { background: rgba(46, 125, 50, 0.32);  color: #154018; }
+.filter-btn.is-active[data-filter="oversight"]  { background: rgba(193, 90, 11, 0.32);  color: #5a2900; }
+.filter-btn.is-active[data-filter="roleplay"]   { background: rgba(123, 31, 162, 0.28); color: #3d0660; }

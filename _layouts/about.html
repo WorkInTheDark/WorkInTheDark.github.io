@@ -15,6 +15,15 @@ layout: default
           <p class="desc">{{ page.subtitle }}</p>
         </header>
 
+        {% if page.recruiting and page.recruiting.enabled %}
+          <aside class="recruiting-banner" role="note" aria-label="{{ page.recruiting.label | default: 'Announcement' }}">
+            <span class="recruiting-banner-label">{{ page.recruiting.label | default: 'Announcement' }}</span>
+            <div class="recruiting-banner-body">
+              {{ page.recruiting.body | markdownify }}
+            </div>
+          </aside>
+        {% endif %}
+
         <article>
           {% if page.profile -%}
           <div class="profile float-{%- if page.profile.align == 'left' -%}left{%- else -%}right{%- endif -%}">

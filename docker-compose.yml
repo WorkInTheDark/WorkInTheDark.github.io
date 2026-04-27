@@ -5,5 +5,10 @@ services:
     image: amirpourmand/al-folio@sha256:461eeb0554d09db3778bcba86b14d7d0a9ce3f3d405a062520c278a5b0383853
     ports:
       - 8080:8080
+      - 35729:35729        # LiveReload, so the browser auto-refreshes
     volumes:
       - .:/srv/jekyll
+    environment:
+      - JEKYLL_ENV=development   # disables jekyll-minifier for much faster rebuilds
+    # --force_polling makes Jekyll detect file changes inside a Windows/WSL bind-mount
+    command: bundle exec jekyll serve --watch --force_polling --livereload --host 0.0.0.0 --port 8080
