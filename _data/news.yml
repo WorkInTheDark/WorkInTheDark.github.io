@@ -1,13 +1,25 @@
 # News items, newest first. To add an item, paste a new entry at the top.
 # To delete, just remove its block. `content` supports markdown links and inline HTML.
 
+- date: 2026-03-01
+  content: >
+    **Five** papers (two first-authored) and one workshop were accepted to **CHI 2026**!
+
+- date: 2026-02-01
+  content: >
+    **Two** papers (one first-authored) were accepted to **CSCW 2026**!
+
+- date: 2025-11-01
+  content: >
+    I received a Microsoft Agentic AI Research and Innovation (AARI) award to support my research on [human-agent collaboration](microsoft.com/en-us/research/academic-program/agentic-ai-research-and-innovation/).
+
 - date: 2025-02-01
   content: >
-    Co-first authored paper [Survey of LLM Role-Playing Agent Evaluation](https://arxiv.org/abs/2502.13012) is now publicly available on arXiv
+    A Co-first authored survey paper of [LLM Role-Playing Agent Evaluation](https://arxiv.org/abs/2502.13012) is now publicly available.
 
 - date: 2025-01-01
   content: >
-    Five papers were accepted to **<span class="conference">CHI 2025</span>**. Thanks for the hard work by collaborators and mentees!
+    Five papers were accepted to **CHI 2025**!
 
 - date: 2024-10-03
   content: >
