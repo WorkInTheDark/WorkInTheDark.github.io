@@ -12,7 +12,7 @@ It is always a pleasure to have the opportunity to talk and work with motivated 
 <aside class="norms-callout" role="note" aria-label="Important">
   <span class="norms-callout-label">Important</span>
   <div class="norms-callout-body">
-    <p>I work very closely with Prof. <a href="https://www.dakuowang.com/">Dakuo Wang</a>, so our collaborations also follow his lab's norms. <strong>Before applying, please carefully review the <a href="https://hailab.io/norms">lab norms at hailab.io/norms</a></strong>. They describe how we work together and are an important part of joining the team.</p>
+    <p><strong>Before applying, please carefully review the <a href="/norms/">lab norms</a></strong>. They describe how we work together and are an important part of joining the team.</p>
   </div>
 </aside>
 
@@ -32,7 +32,7 @@ It is always a pleasure to have the opportunity to talk and work with motivated 
   Yes. I'm always open to hearing from motivated researchers, and I review applications periodically.
 
 - **What kind of student are you looking for?** \
-  Self-motivated researchers who hold themselves to a high standard. I'm looking for people genuinely excited to explore open questions, not students treating research as another homework assignment or engineers waiting to be handed tasks.
+  Self-motivated researchers who hold themselves to a high standard. I'm looking for people genuinely excited to explore open questions, not students treating research as homework assignment or engineers waiting to be handed tasks.
 
 - **Is this a paid, volunteer, or course-credit position?** \
   The first project is volunteer. Once we've established a strong working fit, a paid RA position can be discussed.

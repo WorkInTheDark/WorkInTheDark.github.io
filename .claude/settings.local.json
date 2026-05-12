@@ -19,7 +19,13 @@
       "Bash(curl -s -A \"Mozilla/5.0 \\(compatible; bot/1.0\\)\" \"https://katy-gero.com/\" -v)",
       "Bash(curl -sL -A \"Mozilla/5.0\" \"https://maartensap.com/\")",
       "Bash(curl -sL -A \"Mozilla/5.0\" \"https://www.katygero.com/\")",
-      "Bash(curl -sL -A \"Mozilla/5.0\" \"https://katygero.com/\")"
+      "Bash(curl -sL -A \"Mozilla/5.0\" \"https://katygero.com/\")",
+      "Bash(find /Users/arthuryao -name \"LabNorm*\" 2>/dev/null | head -20)",
+      "Read(//Users/arthuryao/**)",
+      "Bash(cp \"/Users/arthuryao/Library/CloudStorage/OneDrive-NortheasternUniversity/Personal/Lab/LabNorm_260512.pdf\" \"/Users/arthuryao/Documents/GitHub/WorkInTheDark.github.io/assets/pdf/LabNorm_260512.pdf\")"
+    ],
+    "additionalDirectories": [
+      "/Users/arthuryao/Library/CloudStorage/OneDrive-NortheasternUniversity/Personal/Lab"
     ]
   }
 }
