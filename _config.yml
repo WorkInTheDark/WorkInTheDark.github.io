@@ -171,6 +171,9 @@ collections:
   projects:
     output: true
     permalink: /projects/:path/
+  phd101:
+    output: true
+    permalink: /phd101/:path/
 
 # News items now live in `_data/news.yml` — one entry per item, easy add/delete.
 announcements:

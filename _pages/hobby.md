@@ -5,7 +5,7 @@ title: Hobby
 description: Anything not related to my primary research work (Updated Jan. 2025)
 nav: true
 display_categories: [work, fun]
-nav_order: 5
+nav_order: 6
 ---
 
 <!-- For now, this page is assumed to be a static description of my hobby.  -->

@@ -4,7 +4,13 @@ permalink: /prospective/
 title: Prospective Students
 description: For prospective research assistants and PhD applicants.
 nav: true
-nav_order: 4
+nav_order: 5
+dropdown: true
+children:
+  - title: Application & FAQs
+    permalink: /prospective/
+  - title: Lab Norms
+    permalink: /norms/
 ---
 
 It is always a pleasure to have the opportunity to talk and work with motivated researchers interested in **human-agent collaboration research** at the intersection of HCI and NLP. The most efficient way to express your interest is to fill out the form below. I review applications periodically and will reach out if there is a good fit.

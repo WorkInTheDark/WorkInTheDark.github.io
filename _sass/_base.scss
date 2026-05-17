@@ -567,6 +567,9 @@ blockquote {
 
 .dropdown-item {
   color: var(--global-text-color);
+  font-family: "Lato", sans-serif;
+  font-weight: 500;     /* heavier than the global 300 so dropdown items read clearly */
+  font-size: 0.92rem;
 
   &:hover {
     color: var(--global-hover-color);
@@ -1750,4 +1753,111 @@ h4 {
       font-weight: 700;
     }
   }
+}
+
+/*******************************************************************************
+ * Lab Norms page — soft copy deterrent + attribution line.
+ * `.no-select` is a deterrent, not real copy protection (view-source, screen
+ * readers, and DevTools still expose the text). The attribution line below
+ * stays selectable so visitors can quote it back to the author if needed.
+ ******************************************************************************/
+
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: default;
+
+  /* Lab-norms typography:
+   *   h2 / h3 keep document-style sizing in Lato (sans) for clear hierarchy.
+   *   Body inherits the site-wide IBM Plex Serif from the global p/li rule,
+   *   matching the Prospective Students page. */
+  h2 {
+    font-family: "Lato", sans-serif;
+    font-size: 18pt;
+    font-weight: 700;
+    margin-top: 1.75rem;
+    margin-bottom: 0.6rem;
+  }
+
+  h3 {
+    font-family: "Lato", sans-serif;
+    font-size: 13pt;
+    font-weight: 700;
+    margin-top: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+
+  /* Tighter list spacing for a document-style read */
+  ul, ol {
+    margin-top: 0.4rem;
+    margin-bottom: 0.8rem;
+  }
+
+  li {
+    margin-bottom: 0.3rem;
+  }
+
+  /* Body line-height for the Lab Norms page.
+   * To change spacing, edit the value below (higher = more breathing room,
+   * lower = tighter). The site-wide body default is 1.5. */
+  p, li {
+    line-height: 1.7;
+  }
+}
+
+.norms-attribution {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--global-divider-color);
+  color: var(--global-text-color-light);
+  font-family: "Lato", sans-serif;
+  font-size: 0.78rem;
+  font-style: italic;
+  line-height: 1.45;
+}
+
+/*******************************************************************************
+ * PhD 101 landing page — list of mentorship-lesson links.
+ ******************************************************************************/
+
+.phd101-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 1.5rem 0;
+}
+
+.phd101-item {
+  margin-bottom: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px dashed var(--global-divider-color);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.phd101-title {
+  display: block;
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-decoration: none;
+  border-bottom: 1px solid rgba($arthur-blue, 0.25);
+  padding-bottom: 1px;
+
+  &:hover {
+    border-bottom-color: $arthur-blue;
+    text-decoration: none;
+  }
+}
+
+.phd101-summary {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--global-text-color);
+  opacity: 0.75;
+  font-style: italic;
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
