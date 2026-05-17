@@ -1,0 +1,26 @@
+<!-- Back-to-top button behavior. Shows the #back-to-top button once the user has scrolled past `threshold` pixels; clicking it smooth-scrolls to the top. -->
+<script>
+(function () {
+  var btn = document.getElementById('back-to-top');
+  if (!btn) return;
+
+  // Pixels scrolled before the button fades in. To change, edit this value.
+  var threshold = 400;
+  var visible = false;
+
+  function update() {
+    var shouldShow = window.scrollY > threshold;
+    if (shouldShow !== visible) {
+      btn.classList.toggle('visible', shouldShow);
+      visible = shouldShow;
+    }
+  }
+
+  window.addEventListener('scroll', update, { passive: true });
+  update(); // initial check in case the page loads scrolled (e.g. via #anchor)
+
+  btn.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>

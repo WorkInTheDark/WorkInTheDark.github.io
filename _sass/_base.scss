@@ -623,6 +623,18 @@ blockquote {
     }
   }
 
+  /* ──────────────────────────────────────────────────────────────────
+   * Dropdown toggle label in the navbar (e.g., "Prospective Students").
+   * EDIT BELOW to change just the parent dropdown label.
+   * Dropdown ITEMS inside the menu are styled by `.dropdown-item` further down.
+   * ────────────────────────────────────────────────────────────────── */
+  .nav-item.dropdown > .nav-link.dropdown-toggle {
+    font-family: "Lato", sans-serif;
+    font-weight: 500;       /* default body weight is 300 — bump for legibility */
+    /* font-size: inherit;  /* uncomment + set, e.g. 0.95rem, to resize */
+    /* letter-spacing: 0;   /* uncomment if you want tighter/looser tracking */
+  }
+
   .navbar-brand.social {
     padding-bottom: 0;
     padding-top: 0;
@@ -1860,4 +1872,64 @@ h4 {
   font-style: italic;
   font-size: 0.92rem;
   line-height: 1.5;
+}
+
+/*******************************************************************************
+ * Back-to-top button — fixed bottom-right circle that fades in after scrolling.
+ * Behavior is in `_includes/scripts/back-to-top.html`; scroll threshold lives there.
+ ******************************************************************************/
+
+.back-to-top {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: $arthur-blue;
+  color: #ffffff;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition:
+    opacity 0.2s ease-in-out,
+    visibility 0.2s ease-in-out,
+    transform 0.2s ease-in-out,
+    background-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+
+  /* Toggled by JS once scrollY > threshold */
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  &:hover {
+    background: darken($arthur-blue, 8%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($arthur-blue, 0.35);
+  }
+
+  /* Respect iOS safe area on mobile so the button doesn't hit the home indicator */
+  @supports (bottom: env(safe-area-inset-bottom)) {
+    bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
 }
