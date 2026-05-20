@@ -1,0 +1,12 @@
+# Optional chapter titles and descriptions for the PhD 101 landing page.
+# Keys are chapter numbers as strings (quoted). Add a block per chapter when
+# you want a title/description to appear next to "Chapter N".
+# Both `title` and `description` are optional — omit either or both.
+
+"0":
+  title: Foundations
+  description: Why research is fundamentally different from coursework, and how the rewarding mechanisms diverge.
+
+# "1":
+#   title: ...
+#   description: ...

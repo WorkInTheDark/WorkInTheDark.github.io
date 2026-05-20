@@ -1834,10 +1834,45 @@ h4 {
  * PhD 101 landing page — list of mentorship-lesson links.
  ******************************************************************************/
 
+/* Chapter group — each chapter renders as a <section> with a heading,
+ * optional description, and a list of its episodes. */
+.phd101-chapter-group {
+  margin: 2rem 0 2.5rem;
+
+  &:first-of-type {
+    margin-top: 1.25rem;
+  }
+}
+
+.phd101-chapter-heading {
+  font-family: "Lato", sans-serif;
+  font-weight: 600;
+  font-size: 1.4rem;
+  margin-bottom: 0.35rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 2px solid rgba($arthur-blue, 0.35);
+}
+
+.phd101-chapter-title {
+  font-weight: 400;       /* lighter than the "Chapter N:" prefix */
+  font-style: italic;
+  color: var(--global-text-color);
+  opacity: 0.85;
+}
+
+.phd101-chapter-description {
+  margin: 0.25rem 0 1rem;
+  color: var(--global-text-color);
+  opacity: 0.7;
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
 .phd101-list {
   list-style: none;
   padding-left: 0;
-  margin: 1.5rem 0;
+  margin: 0.5rem 0 0;
 }
 
 .phd101-item {
@@ -1862,6 +1897,21 @@ h4 {
     border-bottom-color: $arthur-blue;
     text-decoration: none;
   }
+}
+
+.phd101-episode-marker {
+  display: inline-block;
+  margin-right: 0.45rem;
+  padding: 0.05rem 0.45rem;
+  background: rgba($arthur-blue, 0.10);
+  color: $arthur-blue;
+  font-family: "Lato", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  vertical-align: 2px;
 }
 
 .phd101-summary {
