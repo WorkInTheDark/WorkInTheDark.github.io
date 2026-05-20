@@ -1,0 +1,53 @@
+<!-- Floating PhD 101 navigation, rendered on individual article pages.
+     Wide viewports: forced open via the JS below, summary hidden via CSS.
+     Narrow viewports: collapsible accordion (native <details> behavior). -->
+<details class="phd101-nav" aria-label="PhD 101 episodes">
+  <summary class="phd101-nav-summary">Episodes</summary>
+
+  <a class="phd101-nav-back" href="{{ '/phd101/' | relative_url }}">← All episodes</a>
+
+  {% assign chapters = site.phd101 | group_by: "chapter" | sort: "name" %}
+  {% for chapter in chapters %}
+    {% assign chapter_meta = site.data.phd101_chapters[chapter.name] %}
+    <div class="phd101-nav-chapter-label">
+      Ch. {{ chapter.name }}{% if chapter_meta.title %}: {{ chapter_meta.title }}{% endif %}
+    </div>
+    <ul class="phd101-nav-list">
+      {% assign episodes = chapter.items | sort: "episode" %}
+      {% for lesson in episodes %}
+      <li class="phd101-nav-item{% if lesson.url == page.url %} is-current{% endif %}">
+        <a href="{{ lesson.url | relative_url }}">
+          <span class="phd101-nav-ep">Ep. {{ lesson.episode }}</span>
+          <span class="phd101-nav-title">{{ lesson.title }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+</details>
+
+<script>
+/* Force the <details> element open on wide viewports so it behaves as a
+ * fixed sidebar. CSS hides the <summary> toggle at the same breakpoint.
+ * On narrow viewports we leave the user's open/closed state alone. */
+(function () {
+  var nav = document.querySelector('.phd101-nav');
+  if (!nav) return;
+
+  var mql = window.matchMedia('(min-width: 1241px)');
+
+  function sync() {
+    if (mql.matches) {
+      nav.open = true;
+    }
+  }
+
+  sync();
+  if (mql.addEventListener) {
+    mql.addEventListener('change', sync);
+  } else if (mql.addListener) {
+    mql.addListener(sync);  /* older Safari */
+  }
+})();
+</script>
+

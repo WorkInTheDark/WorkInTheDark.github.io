@@ -2,6 +2,9 @@
 layout: default
 ---
 <!-- page.html -->
+        {% if page.collection == 'phd101' %}
+          {% include phd101_nav.html %}
+        {% endif %}
         <div class="post">
 
           <header class="post-header">
@@ -12,6 +15,40 @@ layout: default
           <article>
             {{ content }}
           </article>
+
+          {% if page.collection == 'phd101' %}
+            {%- assign sorted = site.phd101 | sort: "order" -%}
+            {%- for lesson in sorted -%}
+              {%- if lesson.url == page.url -%}
+                {%- if forloop.first == false -%}
+                  {%- assign prev = sorted[forloop.index0 | minus: 1] -%}
+                {%- endif -%}
+                {%- if forloop.last == false -%}
+                  {%- assign next = sorted[forloop.index0 | plus: 1] -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endfor -%}
+            <nav class="phd101-prev-next" aria-label="Episode navigation">
+              {% if prev %}
+              <a class="phd101-pn phd101-pn-prev" href="{{ prev.url | relative_url }}">
+                <span class="phd101-pn-direction">← Previous</span>
+                <span class="phd101-pn-title">{{ prev.title }}</span>
+              </a>
+              {% else %}<span class="phd101-pn phd101-pn-empty" aria-hidden="true"></span>{% endif %}
+
+              <a class="phd101-pn phd101-pn-index" href="{{ '/phd101/' | relative_url }}">
+                <span class="phd101-pn-direction">↑</span>
+                <span class="phd101-pn-title">All Episodes</span>
+              </a>
+
+              {% if next %}
+              <a class="phd101-pn phd101-pn-next" href="{{ next.url | relative_url }}">
+                <span class="phd101-pn-direction">Next →</span>
+                <span class="phd101-pn-title">{{ next.title }}</span>
+              </a>
+              {% else %}<span class="phd101-pn phd101-pn-empty" aria-hidden="true"></span>{% endif %}
+            </nav>
+          {% endif %}
 
           {%- if page.related_publications != null and page.related_publications.size > 0 -%}
           {% assign publications = page.related_publications | replace: ", ", "," | split: "," | join: "|" %}
