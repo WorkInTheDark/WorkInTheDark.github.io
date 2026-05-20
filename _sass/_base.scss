@@ -1883,8 +1883,17 @@ h4 {
   text-align: justify;
 }
 
+/* Align the post header (title + description from frontmatter) with the
+ * 800px article column so the page reads as a single centered article. */
 .phd101-article .post-header {
-  display: none;
+  max-width: 800px;
+  margin: 0 auto 1rem;
+}
+
+.phd101-article .post-description {
+  font-style: italic;
+  color: var(--global-text-color-light);
+  margin-bottom: 1.5rem;
 }
 
 .phd101-article .post-title,
