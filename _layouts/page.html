@@ -18,26 +18,34 @@ layout: default
 
           {% if page.collection == 'phd101' %}
             {%- assign sorted = site.phd101 | sort: "order" -%}
+            {%- assign current_idx = -1 -%}
             {%- for lesson in sorted -%}
               {%- if lesson.url == page.url -%}
-                {%- if forloop.first == false -%}
-                  {%- assign prev = sorted[forloop.index0 | minus: 1] -%}
-                {%- endif -%}
-                {%- if forloop.last == false -%}
-                  {%- assign next = sorted[forloop.index0 | plus: 1] -%}
-                {%- endif -%}
+                {%- assign current_idx = forloop.index0 -%}
               {%- endif -%}
             {%- endfor -%}
+            {%- if current_idx >= 0 -%}
+              {%- assign prev_idx = current_idx | minus: 1 -%}
+              {%- if prev_idx >= 0 -%}
+                {%- assign prev = sorted[prev_idx] -%}
+              {%- endif -%}
+              {%- assign next_idx = current_idx | plus: 1 -%}
+              {%- if next_idx < sorted.size -%}
+                {%- assign next = sorted[next_idx] -%}
+              {%- endif -%}
+            {%- endif -%}
             <nav class="phd101-prev-next" aria-label="Episode navigation">
               {% if prev %}
               <a class="phd101-pn phd101-pn-prev" href="{{ prev.url | relative_url }}">
                 <span class="phd101-pn-direction">← Previous</span>
                 <span class="phd101-pn-title">{{ prev.title }}</span>
               </a>
-              {% else %}<span class="phd101-pn phd101-pn-empty" aria-hidden="true"></span>{% endif %}
+              {% else %}
+              <span class="phd101-pn phd101-pn-empty" aria-hidden="true"></span>
+              {% endif %}
 
               <a class="phd101-pn phd101-pn-index" href="{{ '/phd101/' | relative_url }}">
-                <span class="phd101-pn-direction">↑</span>
+                <span class="phd101-pn-direction">↑ Back</span>
                 <span class="phd101-pn-title">All Episodes</span>
               </a>
 
@@ -46,7 +54,9 @@ layout: default
                 <span class="phd101-pn-direction">Next →</span>
                 <span class="phd101-pn-title">{{ next.title }}</span>
               </a>
-              {% else %}<span class="phd101-pn phd101-pn-empty" aria-hidden="true"></span>{% endif %}
+              {% else %}
+              <span class="phd101-pn phd101-pn-empty" aria-hidden="true"></span>
+              {% endif %}
             </nav>
           {% endif %}
 
