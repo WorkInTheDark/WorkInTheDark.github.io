@@ -17,7 +17,20 @@ layout: default
           </article>
 
           {% if page.collection == 'phd101' %}
-            {%- assign sorted = site.phd101 | sort: "order" -%}
+            {%- comment -%}
+              Build a (chapter, episode)-sorted list of all phd101 articles.
+              Doing this with `sort: "order"` is unreliable because the `order`
+              field can collide across chapters once the chapter structure changes.
+              We group by chapter, sort chapters, then concat each chapter's
+              episodes (sorted by episode number) into a single flat array.
+            {%- endcomment -%}
+            {%- assign chapters = site.phd101 | group_by: "chapter" | sort: "name" -%}
+            {%- assign sorted = "" | split: "," -%}
+            {%- for ch in chapters -%}
+              {%- assign ep_sorted = ch.items | sort: "episode" -%}
+              {%- assign sorted = sorted | concat: ep_sorted -%}
+            {%- endfor -%}
+
             {%- assign current_idx = -1 -%}
             {%- for lesson in sorted -%}
               {%- if lesson.url == page.url -%}
