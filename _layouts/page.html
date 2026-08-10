@@ -8,8 +8,16 @@ layout: default
         <div class="post">
 
           <header class="post-header">
+            {%- if page.collection == 'phd101' %}
+            <div class="phd101-episode-tag">Ch. {{ page.chapter }} &middot; Ep. {{ page.episode }}</div>
+            {%- endif %}
             <h1 class="post-title">{{ page.title }}</h1>
+            {%- if page.subtitle %}
+            <p class="post-subtitle">{{ page.subtitle }}</p>
+            {%- endif %}
+            {%- if page.description %}
             <p class="post-description">{{ page.description }}</p>
+            {%- endif %}
           </header>
 
           <article>

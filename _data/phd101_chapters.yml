@@ -2,6 +2,11 @@
 # Keys are chapter numbers as strings (quoted). Add a block per chapter when
 # you want a title/description to appear next to "Chapter N".
 # Both `title` and `description` are optional — omit either or both.
+#
+# TODO (after the series is finalized): convert the prose cross-references in
+# the episodes ("in the previous post", "Ch. 0 Ep. 4 (title)", ...) into real
+# internal hyperlinks. Deferred on purpose, because chapter/episode numbering
+# is still shifting and links would go stale with every reordering.
 
 "0":
   title: Foundations
@@ -16,13 +21,17 @@
   description: How to build a coherent motivation, formulate a research question, and design a study that holds up under scrutiny.
 
 "3":
-  title: In-Depth Advice for the PhD Journey
-  description: Longer-form reflections on quality, peer pressure, and sustaining yourself through the PhD.
+  title: Your Wellbeing Is Your Research
+  description: Why taking care of yourself is not separate from doing good work, and how to sustain yourself through the long stretches of a PhD.
 
-# "4":
+"4":
+  title: In-Depth Advice for the PhD Journey
+  description: Longer-form reflections on the standard you hold yourself to, reliability, and how both quietly shape your trajectory.
+
+# "5":
 #   title: Academic Networking
 #   description: ...
 
-# "5":
+# "6":
 #   title: Beyond the PhD
 #   description: ...

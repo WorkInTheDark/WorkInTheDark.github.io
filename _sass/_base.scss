@@ -1864,44 +1864,176 @@ h4 {
   margin: 0.25rem 0 1rem;
   color: var(--global-text-color);
   opacity: 0.7;
-  font-style: italic;
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
-.phd101-list {
-  list-style: none;
-  padding-left: 0;
-  margin: 0.5rem 0 0;
+/* ─── Filter controls ──────────────────────────────────────────────────
+ * Chapter chips + text search. Both are progressive enhancements: every
+ * card is rendered server-side, and the JS in _pages/phd101.md only hides
+ * what does not match. With JS off the page is a complete listing. */
+.phd101-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.75rem 0 0.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--global-divider-color);
 }
 
-.phd101-item {
-  margin-bottom: 1rem;
-  padding-bottom: 0.85rem;
-  border-bottom: 1px dashed var(--global-divider-color);
-
-  &:last-child {
-    border-bottom: 0;
-  }
+.phd101-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
-.phd101-title {
-  display: block;
+.phd101-chip {
+  padding: 0.25rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--global-divider-color);
+  border-radius: 999px;
+  color: var(--global-text-color-light);
+  font-family: "Lato", sans-serif;
+  font-size: 0.78rem;
   font-weight: 600;
-  font-size: 1.05rem;
-  text-decoration: none;
-  border-bottom: 1px solid rgba($arthur-blue, 0.25);
-  padding-bottom: 1px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    color 0.15s ease-in-out;
 
   &:hover {
-    border-bottom-color: $arthur-blue;
-    text-decoration: none;
+    border-color: $arthur-blue;
+    color: $arthur-blue;
   }
+
+  &.is-active {
+    background: rgba($arthur-blue, 0.10);
+    border-color: rgba($arthur-blue, 0.45);
+    color: $arthur-blue;
+  }
+}
+
+.phd101-search {
+  flex: 1 1 200px;
+  max-width: 260px;
+  margin-left: auto;
+  padding: 0.3rem 0.7rem;
+  background: transparent;
+  border: 1px solid var(--global-divider-color);
+  border-radius: 6px;
+  color: var(--global-text-color);
+  font-family: "Lato", sans-serif;
+  font-size: 0.82rem;
+
+  &::placeholder {
+    color: var(--global-text-color-light);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $arthur-blue;
+  }
+}
+
+.phd101-result-count,
+.phd101-empty {
+  margin: 0.6rem 0 0;
+  color: var(--global-text-color-light);
+  font-family: "Lato", sans-serif;
+  font-size: 0.78rem;
+  min-height: 1rem;
+}
+
+.phd101-empty[hidden],
+.phd101-card[hidden],
+.phd101-chapter-group[hidden] {
+  display: none;
+}
+
+/* ─── Episode cards ────────────────────────────────────────────────────
+ * Three per row on a laptop, two on a tablet, one on a phone. The column
+ * count follows available width via auto-fit rather than fixed
+ * breakpoints, so it also adapts when the window is resized. */
+.phd101-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+
+.phd101-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0.85rem 1rem 0.95rem;
+  border: 1px solid var(--global-divider-color);
+  border-radius: 8px;
+  color: var(--global-text-color);
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    transform 0.1s ease-in-out;
+
+  &:hover {
+    border-color: $arthur-blue;
+    background: rgba($arthur-blue, 0.05);
+    text-decoration: none;
+    transform: translateY(-1px);
+  }
+}
+
+.phd101-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.phd101-readtime {
+  margin-left: auto;
+  color: var(--global-text-color-light);
+  font-family: "Lato", sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* Only ever on the very first episode of the series. */
+.phd101-start-flag {
+  padding: 0.05rem 0.45rem;
+  background: $arthur-blue;
+  color: #ffffff;
+  font-family: "Lato", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+
+/* The title is a maxim; the subtitle is what tells a scanning reader what the
+ * episode covers. So the two are separated by family, weight, and size —
+ * not by color. `--global-text-color-light` is #828282, which at this size
+ * falls below the WCAG AA 4.5:1 contrast minimum on white. */
+.phd101-card-title {
+  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-weight: 500;
+  font-size: 1.02rem;
+  line-height: 1.3;
+  color: var(--global-text-color);
+}
+
+.phd101-card-subtitle {
+  margin-top: 0.4rem;
+  color: var(--global-text-color);
+  font-size: 0.88rem;
+  line-height: 1.5;
 }
 
 .phd101-episode-marker {
   display: inline-block;
-  margin-right: 0.45rem;
   padding: 0.05rem 0.45rem;
   background: rgba($arthur-blue, 0.10);
   color: $arthur-blue;
@@ -1911,17 +2043,6 @@ h4 {
   letter-spacing: 0.03em;
   text-transform: uppercase;
   border-radius: 4px;
-  vertical-align: 2px;
-}
-
-.phd101-summary {
-  display: block;
-  margin-top: 0.3rem;
-  color: var(--global-text-color);
-  opacity: 0.75;
-  font-style: italic;
-  font-size: 0.92rem;
-  line-height: 1.5;
 }
 
 /*******************************************************************************
@@ -2210,11 +2331,39 @@ h4 {
   text-align: justify;
 }
 
-/* Align the post header (title + description from frontmatter) with the
+/* Align the post header (title + subtitle from frontmatter) with the
  * 800px article column so the page reads as a single centered article. */
 .phd101-article .post-header {
   max-width: 800px;
   margin: 0 auto 1rem;
+}
+
+/* Episode tag — the "Ch. N · Ep. M" pill above the title, generated from the
+ * `chapter:` / `episode:` frontmatter by _layouts/page.html. Replaces the old
+ * `##### *Chapter N Episode M*` line that used to open each markdown file. */
+.phd101-episode-tag {
+  display: inline-block;
+  margin-bottom: 0.7rem;
+  padding: 0.12rem 0.6rem;
+  background: rgba($arthur-blue, 0.10);
+  color: $arthur-blue;
+  font-family: "Lato", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+
+/* Subtitle — frontmatter `subtitle:`. The main title is a saying or maxim, so
+ * the subtitle carries the plain-language topic of the episode. Upright, and
+ * separated from the title by weight, size, and color rather than by style. */
+.phd101-article .post-subtitle {
+  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-weight: 400;
+  font-style: normal;
+  color: var(--global-text-color-light);
+  margin-bottom: 0.9rem;
 }
 
 .phd101-article .post-description {
@@ -2223,7 +2372,39 @@ h4 {
   margin-bottom: 1.5rem;
 }
 
-.phd101-article .post-title,
+/*******************************************************************************
+ * Epigraph — centered, italic quote opening an episode, above the first
+ * paragraph. Authored in the markdown as:
+ *
+ *   <p class="phd101-epigraph">The quote.<br>
+ *   <span class="phd101-epigraph-source">— Attribution</span></p>
+ ******************************************************************************/
+
+.phd101-article .post article p.phd101-epigraph {
+  max-width: 34rem;
+  margin: 0 auto 2.25rem;
+  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  text-align: center;      /* overrides the justified body-paragraph rule */
+  color: var(--global-text-color-light);
+}
+
+.phd101-epigraph-source {
+  display: inline-block;
+  margin-top: 0.45rem;
+  font-style: normal;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
+.phd101-article .post-title {
+  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-weight: 600;       /* semibold */
+  font-style: normal;     /* upright — the italic belongs to the subtitle */
+}
+
 .phd101-article .post article h1,
 .phd101-article .post article h2{
   font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
@@ -2266,13 +2447,21 @@ h4 {
   margin-bottom: 0.4rem;
 }
 
-/* (4) Subtitle / description (frontmatter `summary:`) */
+/* (4) Subtitle under the title (frontmatter `subtitle:`) */
+.phd101-article .post-subtitle {
+  font-size: 1.15rem;    /* try 1rem ... 1.35rem */
+  line-height: 1.35;
+}
+
+/* (4b) Description (frontmatter `description:` — rarely set on episodes) */
 .phd101-article .post-description {
   font-size: 1rem;       /* try 0.9rem ... 1.1rem */
   line-height: 1.4;
 }
 
-/* (5) Episode marker, e.g. `##### *Chapter 1 Episode 4*` */
+/* (5) h5 in the body. No episode uses one today — the old
+ *     `##### *Chapter N Episode M*` line was replaced by the .phd101-episode-tag
+ *     pill in the header — but the rule is kept for future use. */
 .phd101-article .post article h5 {
   font-size: 1rem;    /* try 0.8rem ... 1rem */
   font-weight: 400;
