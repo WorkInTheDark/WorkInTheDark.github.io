@@ -1,0 +1,12 @@
+<!-- Invitation to email a question. Rendered once, on the PhD 101 landing page —
+     deliberately not on individual episodes. The address comes from `email:` in
+     _config.yml and passes through jekyll-email-protect's `encode_email`, so
+     scrapers see HTML entities rather than plaintext. -->
+{%- if site.email -%}
+<aside class="phd101-ask">
+  <p class="phd101-ask-copy">
+    Have a question about anything in this series, or something you would like me to cover?
+    <a class="phd101-ask-link" href="mailto:{{ site.email | encode_email }}?subject=PhD%20101">Write to me</a>. I read everything, and reader questions often become later episodes.
+  </p>
+</aside>
+{%- endif -%}

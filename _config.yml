@@ -6,7 +6,7 @@ title: blank # the website title (if blank, full name will be used instead)
 first_name: Bingsheng 
 middle_name: 
 last_name: Arthur Yao
-email: 
+email: b.yao@northeastern.edu
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
   Personal website for Bingsheng "Arthur" Yao.
 footer_text: >
@@ -368,7 +368,8 @@ enable_masonry:             true   # enables automatic project cards arrangement
 enable_math:                true   # enables math typesetting (uses MathJax)
 enable_tooltips:            false  # enables automatic tooltip links generated
                                    # for each section titles on pages and posts
-enable_darkmode:            false   # enables switching between light/dark modes
+enable_darkmode:            true   # enables switching between light/dark modes
+enable_navbar_email:        false  # enables the envelope icon in the navbar social row
 enable_navbar_social:       true  # enables displaying social links in the
                                    # navbar on the about page
 enable_project_categories:  true   # enables categorization of projects into

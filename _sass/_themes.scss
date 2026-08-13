@@ -31,6 +31,18 @@
   --global-danger-block-text: #600;
   --global-danger-block-title: #c00;
 
+  /* PhD 101 accent. $arthur-blue is tuned for white backgrounds — on the dark
+   * theme it only reaches ~3.4:1, so the dark block below swaps in a lightened
+   * variant for anything carrying text or a visible edge. */
+  --phd101-accent: #{$arthur-blue};
+  --phd101-accent-solid: #{$arthur-blue};
+  --phd101-accent-on-solid: #{$white-color};
+  --phd101-accent-wash: #{rgba($arthur-blue, 0.05)};
+  --phd101-accent-tint: #{rgba($arthur-blue, 0.10)};
+  --phd101-accent-edge: #{rgba($arthur-blue, 0.18)};
+  --phd101-accent-edge-strong: #{rgba($arthur-blue, 0.45)};
+  --phd101-accent-rule: #{rgba($arthur-blue, 0.35)};
+
   .fa-sun {
     display : none;
   }
@@ -118,6 +130,17 @@ html[data-theme='dark'] {
   --global-danger-block-bg: #ffe0e0;
   --global-danger-block-text: #600;
   --global-danger-block-title: #c00;
+
+  /* Lightened accent: ~8:1 against the dark background, where the light-mode
+   * blue manages only ~3.4:1. Solid fills flip to dark text on light blue. */
+  --phd101-accent: #{lighten($arthur-blue, 22%)};
+  --phd101-accent-solid: #{lighten($arthur-blue, 22%)};
+  --phd101-accent-on-solid: #{$grey-color-dark};
+  --phd101-accent-wash: #{rgba(lighten($arthur-blue, 22%), 0.08)};
+  --phd101-accent-tint: #{rgba(lighten($arthur-blue, 22%), 0.16)};
+  --phd101-accent-edge: #{rgba(lighten($arthur-blue, 22%), 0.30)};
+  --phd101-accent-edge-strong: #{rgba(lighten($arthur-blue, 22%), 0.55)};
+  --phd101-accent-rule: #{rgba(lighten($arthur-blue, 22%), 0.40)};
 
   .fa-sun {
     padding-left: 10px;

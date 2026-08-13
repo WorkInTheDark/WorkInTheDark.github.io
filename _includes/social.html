@@ -1,4 +1,9 @@
-            {%- if site.email -%}
+            {%- comment -%}
+              `site.email` is set so the PhD 101 "Write to me" link can use it,
+              but the envelope icon is kept out of the navbar — gate it on
+              `enable_navbar_email` in _config.yml to bring it back.
+            {%- endcomment -%}
+            {%- if site.email and site.enable_navbar_email -%}
             <a href="mailto:{{ site.email | encode_email }}" title="email"><i class="fas fa-envelope"></i></a>
             {% endif %}
             {%- if site.telegram_username -%}
