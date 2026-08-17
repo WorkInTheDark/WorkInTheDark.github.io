@@ -2,7 +2,7 @@
 layout: page
 permalink: /cv/
 title: CV
-description:  Curriculum Vitae (Last Updated on Mar. 2025, Grant Activities Undisclosed )
+description:  Curriculum Vitae (Last Updated on July. 2026, Pending Grant Activities Undisclosed)
 nav: true
 nav_order: 2
 ---
