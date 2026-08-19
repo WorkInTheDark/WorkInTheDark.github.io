@@ -1919,6 +1919,52 @@ h4 {
   }
 }
 
+/* "New since [ any time ▾ ]" — reads as a sentence, so the label and the select
+ * sit tight together. Hidden until the filter script unhides it, since neither
+ * control does anything without JS. */
+.phd101-since {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.phd101-since[hidden] {
+  display: none;
+}
+
+.phd101-since-label {
+  margin: 0;
+  color: var(--global-text-color-light);
+  font-family: "Lato", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.phd101-since-select,
+.phd101-since-date {
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: 1px solid var(--global-divider-color);
+  border-radius: 6px;
+  color: var(--global-text-color);
+  font-family: "Lato", sans-serif;
+  font-size: 0.8rem;
+
+  &:hover {
+    border-color: var(--phd101-accent);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--phd101-accent);
+  }
+}
+
+.phd101-since-date[hidden] {
+  display: none;
+}
+
 .phd101-search {
   flex: 1 1 200px;
   max-width: 260px;
