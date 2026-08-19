@@ -1919,14 +1919,17 @@ h4 {
   }
 }
 
-/* "New since [ any time ▾ ]" — reads as a sentence, so the label and the select
- * sit tight together. Hidden until the filter script unhides it, since neither
- * control does anything without JS. */
+/* "What's new" group — same row as the chapter chips, but fenced off by an
+ * accent rule and carrying a filled count badge, so it does not read as one
+ * more chapter filter. Hidden until the filter script unhides it, since
+ * neither control does anything without JS. */
 .phd101-since {
   display: flex;
   align-items: center;
   gap: 0.4rem;
   flex-wrap: wrap;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--phd101-accent-edge-strong);
 }
 
 .phd101-since[hidden] {
@@ -1934,11 +1937,10 @@ h4 {
 }
 
 .phd101-since-label {
-  margin: 0;
-  color: var(--global-text-color-light);
+  color: var(--phd101-accent);
   font-family: "Lato", sans-serif;
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .phd101-since-select,
@@ -1962,6 +1964,35 @@ h4 {
 }
 
 .phd101-since-date[hidden] {
+  display: none;
+}
+
+/* The one solid shape in the row, and a shortcut to the view it advertises. */
+.phd101-since-count {
+  padding: 0.1rem 0.5rem;
+  background: var(--phd101-accent-solid);
+  color: var(--phd101-accent-on-solid);
+  border-radius: 999px;
+  font-family: "Lato", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &.is-active {
+    background: transparent;
+    border: 1px solid var(--phd101-accent);
+    color: var(--phd101-accent);
+    padding: 0.03rem 0.43rem;
+  }
+}
+
+.phd101-since-count[hidden] {
   display: none;
 }
 
@@ -2477,6 +2508,7 @@ h4 {
 }
 
 .phd101-epigraph-source {
+  color: inherit;
   display: inline-block;
   margin-top: 0.45rem;
   font-style: normal;
