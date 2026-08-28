@@ -1,0 +1,25 @@
+# Deploy with:  cd worker && npx wrangler deploy
+#
+# The dashboard's file-upload flow rejects a Worker whose entry file has an
+# `import` (it thinks a build step is needed). `cloudflare:email` is a built-in
+# module, so nothing actually needs building — wrangler deploys it as-is, and
+# it is also the reliable way to attach the send_email binding.
+
+name = "phd101-contact"
+main = "phd101-contact-worker-cloudflare.js"
+compatibility_date = "2025-01-01"
+
+# Cloudflare Email Routing may only deliver to a verified destination address.
+[[send_email]]
+name = "SEND"
+destination_address = "arthuryao33@gmail.com"
+
+[vars]
+TO_ADDRESS = "arthuryao33@gmail.com"
+FROM_ADDRESS = "phd101@bingshengyao.com"
+
+# Uncomment once the Worker is deployed and you want it on your own domain
+# instead of the workers.dev URL. The zone must be in the same account.
+# [[routes]]
+# pattern = "contact.bingshengyao.com"
+# custom_domain = true

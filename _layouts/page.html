@@ -24,6 +24,10 @@ layout: default
             {{ content }}
           </article>
 
+          {% if page.collection == 'phd101' or page.url == '/phd101/' %}
+            {% include phd101_contact.html %}
+          {% endif %}
+
           {% if page.collection == 'phd101' %}
             {%- comment -%}
               Build a (chapter, episode)-sorted list of all phd101 articles.

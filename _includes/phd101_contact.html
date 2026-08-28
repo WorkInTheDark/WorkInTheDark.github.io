@@ -1,0 +1,163 @@
+<!-- Floating "Share your thoughts with me!" tab + message dialog, rendered on the
+     PhD 101 landing page and on every episode.
+
+     GitHub Pages serves static files, so nothing here can send mail by itself.
+     Two modes, chosen by `phd101_contact.endpoint` in _config.yml:
+
+       endpoint set   -> the form POSTs to that form backend (Formspree,
+                         Web3Forms, Basin, ...), which relays to site.email.
+       endpoint empty -> the form composes a mailto: draft in the reader's mail
+                         client instead, so the feature still works unconfigured.
+
+     `access_key` is only needed by Web3Forms; other providers ignore it. -->
+{%- assign contact = site.phd101_contact -%}
+{%- if contact.enabled and site.email -%}
+<button type="button" class="phd101-contact-tab" aria-haspopup="dialog" aria-expanded="false"
+        aria-controls="phd101-contact-dialog" aria-label="Share your thoughts with me">
+  <svg class="phd101-contact-tab-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+       stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+  </svg>
+  <span class="phd101-contact-tab-label">Share your thoughts with me!</span>
+</button>
+
+<div class="phd101-contact-backdrop" hidden></div>
+
+<div class="phd101-contact-dialog" id="phd101-contact-dialog" role="dialog" aria-modal="true"
+     aria-labelledby="phd101-contact-heading" hidden>
+  <button type="button" class="phd101-contact-close" aria-label="Close">&times;</button>
+
+  <h2 class="phd101-contact-heading" id="phd101-contact-heading">Share your thoughts with me!</h2>
+  <p class="phd101-contact-intro">A question, a disagreement, or something you would like me to cover. I read everything.</p>
+
+  <p class="phd101-contact-private">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+    </svg>
+    <span><strong>This stays private.</strong> Your message comes straight to my inbox. It is never published on this site, never shown to anyone else, and your address is used only to write back to you &mdash; never for a mailing list.</span>
+  </p>
+
+  <form class="phd101-contact-form" method="post"
+        {% if contact.endpoint %}action="{{ contact.endpoint }}"{% endif %}>
+    {% if contact.access_key %}<input type="hidden" name="access_key" value="{{ contact.access_key }}">{% endif %}
+    <input type="hidden" name="_subject" value="PhD 101 — message from a reader">
+    <input type="hidden" name="page" value="{{ page.title | default: 'PhD 101' }} ({{ page.url | absolute_url }})">
+
+    <label class="phd101-contact-label" for="phd101-contact-name">Your name</label>
+    <input class="phd101-contact-input" id="phd101-contact-name" name="name" type="text" required autocomplete="name">
+
+    <label class="phd101-contact-label" for="phd101-contact-email">Your email <span class="phd101-contact-hint">so I can reply</span></label>
+    <input class="phd101-contact-input" id="phd101-contact-email" name="email" type="email" required autocomplete="email">
+
+    <label class="phd101-contact-label" for="phd101-contact-message">Message</label>
+    <textarea class="phd101-contact-input phd101-contact-textarea" id="phd101-contact-message" name="message" rows="6" required></textarea>
+
+    <!-- Honeypot: bots fill it in, humans never see it. -->
+    <div class="phd101-contact-hp" aria-hidden="true">
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+    </div>
+
+    <button class="phd101-contact-submit" type="submit">Send</button>
+  </form>
+
+  <p class="phd101-contact-status" role="status" aria-live="polite"></p>
+  <p class="phd101-contact-note">
+    {%- if contact.endpoint -%}
+    Delivered to me by a form service that relays the message and keeps no copy for anyone but me.
+    {%- else -%}
+    This opens a draft in your own mail app, addressed to me. Nothing passes through any third party.
+    {%- endif -%}
+  </p>
+</div>
+
+<script>
+/* Dialog behavior + submission. Everything is progressive: without JS the tab
+ * does nothing and the dialog stays hidden, which is why the markup is inert
+ * by default rather than a bare <form> the reader could half-submit. */
+(function () {
+  var tab = document.querySelector('.phd101-contact-tab');
+  var dialog = document.getElementById('phd101-contact-dialog');
+  var backdrop = document.querySelector('.phd101-contact-backdrop');
+  var closeBtn = document.querySelector('.phd101-contact-close');
+  var form = document.querySelector('.phd101-contact-form');
+  var status = document.querySelector('.phd101-contact-status');
+  var submit = document.querySelector('.phd101-contact-submit');
+  if (!tab || !dialog || !form) return;
+
+  var endpoint = {% if contact.endpoint %}{{ contact.endpoint | jsonify }}{% else %}''{% endif %};
+  var mailto = {{ site.email | jsonify }};
+  var lastFocus = null;
+
+  function say(message, isError) {
+    status.textContent = message;
+    status.classList.toggle('is-error', !!isError);
+  }
+
+  function open() {
+    lastFocus = document.activeElement;
+    dialog.hidden = false;
+    backdrop.hidden = false;
+    tab.setAttribute('aria-expanded', 'true');
+    document.getElementById('phd101-contact-name').focus();
+    document.addEventListener('keydown', onKeydown);
+  }
+
+  function close() {
+    dialog.hidden = true;
+    backdrop.hidden = true;
+    tab.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('keydown', onKeydown);
+    if (lastFocus) lastFocus.focus();
+  }
+
+  function onKeydown(event) {
+    if (event.key === 'Escape') { close(); return; }
+    if (event.key !== 'Tab') return;
+    /* Keep focus inside the dialog while it is open. */
+    var focusable = dialog.querySelectorAll('button, input, textarea, a[href]');
+    var list = Array.prototype.filter.call(focusable, function (el) { return !el.disabled && el.offsetParent !== null; });
+    if (!list.length) return;
+    var first = list[0], last = list[list.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  }
+
+  tab.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (form.querySelector('[name="_gotcha"]').value) return;   /* bot */
+
+    var data = new FormData(form);
+
+    /* No form backend configured: hand the message to the reader's mail app. */
+    if (!endpoint) {
+      var body = 'From: ' + data.get('name') + ' <' + data.get('email') + '>\n' +
+                 'Page: ' + data.get('page') + '\n\n' + data.get('message');
+      window.location.href = 'mailto:' + mailto +
+        '?subject=' + encodeURIComponent('PhD 101 — message from a reader') +
+        '&body=' + encodeURIComponent(body);
+      say('Opening your mail app with the message ready to send.', false);
+      return;
+    }
+
+    submit.disabled = true;
+    say('Sending…', false);
+
+    fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } })
+      .then(function (response) { return response.ok ? response : Promise.reject(response); })
+      .then(function () {
+        form.hidden = true;
+        say('Thank you — your message is on its way to me.', false);
+      })
+      .catch(function () {
+        submit.disabled = false;
+        say('That did not go through. Please try again, or email me directly at ' + mailto + '.', true);
+      });
+  });
+})();
+</script>
+{%- endif -%}

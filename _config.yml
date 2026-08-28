@@ -210,6 +210,7 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - vendor
+  - worker   # Cloudflare Worker source, deployed separately — not part of the site
 keep_files:
   - CNAME
   - .nojekyll
@@ -370,6 +371,16 @@ enable_tooltips:            false  # enables automatic tooltip links generated
                                    # for each section titles on pages and posts
 enable_darkmode:            true   # enables switching between light/dark modes
 enable_navbar_email:        false  # enables the envelope icon in the navbar social row
+
+# PhD 101 "Share your thoughts with me!" box (landing page + every episode).
+# GitHub Pages cannot send mail, so `endpoint` points at a form backend that
+# relays to `email:` above — e.g. https://formspree.io/f/XXXXXXXX or
+# https://api.web3forms.com/submit. Leave it empty and the form falls back to
+# opening a pre-filled draft in the reader's own mail app.
+phd101_contact:
+  enabled: true
+  endpoint: https://phd101-contact.arthuryao33.workers.dev  # Cloudflare Worker (worker/); empty = mailto: fallback
+  access_key:      # only Web3Forms needs this
 enable_navbar_social:       true  # enables displaying social links in the
                                    # navbar on the about page
 enable_project_categories:  true   # enables categorization of projects into

@@ -2313,6 +2313,277 @@ h4 {
 }
 
 /*******************************************************************************
+ * "Share your thoughts with me!" — a tab pinned to the right margin on the
+ * PhD 101 landing page and every episode, opening a message dialog.
+ *
+ * The tab is vertically centred rather than bottom-anchored so it never
+ * collides with the back-to-top button in the bottom-right corner.
+ ******************************************************************************/
+
+/* Floating, detached from the edge: a frosted circle that widens on hover to
+ * reveal its label. Translucent + blurred so it reads as an overlay rather than
+ * page furniture, and small enough when collapsed that it never covers text. */
+.phd101-contact-tab {
+  position: fixed;
+  top: 50%;
+  right: 1.5rem;
+  z-index: 1000;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 46px;
+  padding: 0 13px;
+  background: var(--phd101-accent-tint);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border: 1px solid var(--phd101-accent-edge);
+  border-radius: 999px;
+  color: var(--phd101-accent);
+  font-family: "Lato", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transition:
+    gap 0.22s ease-in-out,
+    background-color 0.22s ease-in-out,
+    box-shadow 0.22s ease-in-out;
+
+  &:hover,
+  &:focus-visible {
+    gap: 9px;
+    background: var(--phd101-accent-wash);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.18);
+
+    .phd101-contact-tab-label {
+      max-width: 13rem;
+      opacity: 1;
+    }
+  }
+}
+
+.phd101-contact-tab-icon {
+  flex: 0 0 auto;
+}
+
+.phd101-contact-tab-label {
+  display: block;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  transition: max-width 0.22s ease-in-out, opacity 0.18s ease-in-out;
+}
+
+/* No hover to reveal on touch, and no room to expand over the text column —
+ * the circle alone opens the dialog. */
+@media (hover: none), (max-width: 900px) {
+  .phd101-contact-tab:hover .phd101-contact-tab-label,
+  .phd101-contact-tab:focus-visible .phd101-contact-tab-label {
+    max-width: 0;
+    opacity: 0;
+  }
+
+  .phd101-contact-tab:hover,
+  .phd101-contact-tab:focus-visible {
+    gap: 0;
+  }
+}
+
+.phd101-contact-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.phd101-contact-backdrop[hidden],
+.phd101-contact-tab[hidden] {
+  display: none;
+}
+
+.phd101-contact-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1002;
+  transform: translate(-50%, -50%);
+  width: min(30rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  padding: 1.5rem 1.6rem 1.4rem;
+  background: var(--global-bg-color);
+  border: 1px solid var(--global-divider-color);
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.phd101-contact-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.7rem;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--global-text-color-light);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--phd101-accent);
+  }
+}
+
+.phd101-contact-heading {
+  margin: 0 0 0.3rem;
+  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-weight: 600;
+  font-size: 1.3rem;
+  color: var(--global-text-color);
+}
+
+.phd101-contact-intro {
+  margin: 0 0 1rem;
+  font-family: "Lato", sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--global-text-color);
+  opacity: 0.8;
+}
+
+/* Said before the reader types anything, not buried under the Send button. */
+.phd101-contact-private {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0 0 1.1rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--phd101-accent-tint);
+  border-radius: 8px;
+  color: var(--global-text-color);
+  font-family: "Lato", sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.5;
+
+  svg {
+    flex: 0 0 auto;
+    margin-top: 0.15rem;
+    color: var(--phd101-accent);
+  }
+
+  strong {
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+  }
+}
+
+.phd101-contact-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-family: "Lato", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--global-text-color);
+}
+
+.phd101-contact-hint {
+  font-weight: 400;
+  color: var(--global-text-color-light);
+}
+
+.phd101-contact-input {
+  width: 100%;
+  margin-bottom: 0.9rem;
+  padding: 0.45rem 0.65rem;
+  background: transparent;
+  border: 1px solid var(--global-divider-color);
+  border-radius: 6px;
+  color: var(--global-text-color);
+  font-family: "Lato", sans-serif;
+  font-size: 0.9rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--phd101-accent);
+  }
+}
+
+.phd101-contact-textarea {
+  resize: vertical;
+  min-height: 6rem;
+  line-height: 1.5;
+}
+
+.phd101-contact-submit {
+  padding: 0.4rem 1.2rem;
+  background: var(--phd101-accent-solid);
+  border: 1px solid var(--phd101-accent-solid);
+  border-radius: 6px;
+  color: var(--phd101-accent-on-solid);
+  font-family: "Lato", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease-in-out;
+
+  &:hover {
+    opacity: 0.88;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+}
+
+/* Honeypot: off-screen, out of the tab order, hidden from assistive tech. */
+.phd101-contact-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.phd101-contact-status {
+  margin: 0.7rem 0 0;
+  font-family: "Lato", sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--global-text-color);
+
+  &:empty {
+    display: none;
+  }
+
+  &.is-error {
+    color: #c0392b;
+  }
+}
+
+.phd101-contact-note {
+  margin: 0.7rem 0 0;
+  font-family: "Lato", sans-serif;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--global-text-color-light);
+}
+
+/* Narrow screens: shorten the tab so it does not run the height of the phone. */
+@media (max-width: 600px) {
+  .phd101-contact-dialog {
+    padding: 1.25rem 1.1rem 1.1rem;
+  }
+}
+
+/*******************************************************************************
  * "Write to me" line closing every PhD 101 episode. Deliberately quiet — one
  * sentence on a hairline, sized below the body text so it reads as an aside
  * rather than as the article's conclusion.
