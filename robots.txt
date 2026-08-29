@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://WorkInTheDark.github.io/sitemap.xml
+Sitemap: https://www.bingshengyao.com/sitemap.xml
