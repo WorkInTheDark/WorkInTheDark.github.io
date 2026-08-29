@@ -2584,41 +2584,6 @@ h4 {
 }
 
 /*******************************************************************************
- * "Write to me" line closing every PhD 101 episode. Deliberately quiet — one
- * sentence on a hairline, sized below the body text so it reads as an aside
- * rather than as the article's conclusion.
- ******************************************************************************/
-
-.phd101-ask {
-  max-width: 800px;
-  margin: 2.5rem auto 0;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--global-divider-color);
-}
-
-.phd101-ask-copy {
-  margin: 0;
-  font-family: "Lato", sans-serif;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: var(--global-text-color);
-  opacity: 0.85;
-}
-
-.phd101-ask-link {
-  color: var(--phd101-accent);
-  font-weight: 600;
-  text-decoration: none;
-  border-bottom: 1px solid var(--phd101-accent-edge-strong);
-
-  &:hover {
-    color: var(--phd101-accent);
-    border-bottom-color: var(--phd101-accent);
-    text-decoration: none;
-  }
-}
-
-/*******************************************************************************
  * Prev / Back / Next nav at the bottom of every PhD 101 article.
  * Three equal-width cells, identical inner structure (direction label + title).
  * Side cells align toward their direction (left/right); the back cell centers.

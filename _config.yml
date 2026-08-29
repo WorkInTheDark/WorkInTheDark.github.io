@@ -19,7 +19,7 @@ keywords: bingsheng yao, Bingsheng Yao, bingsheng, bingsheng rpi, yao rpi, bings
 lang: en # the language of your site (for example: en, fr, cn, ru, etc.)
 icon: profile-square.jpeg  # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
 
-url: https://WorkInTheDark.github.io # the base hostname & protocol for your site
+url: https://www.bingshengyao.com # the base hostname & protocol for your site
 baseurl:  # the subpath of your site, e.g. /blog/
 last_updated: true # set to true if you want to display last updated in the footer
 impressum_path:  # set to path to include impressum link in the footer, use the same path as permalink in a page, helps to conform with EU GDPR
@@ -379,7 +379,7 @@ enable_navbar_email:        false  # enables the envelope icon in the navbar soc
 # opening a pre-filled draft in the reader's own mail app.
 phd101_contact:
   enabled: true
-  endpoint: https://phd101-contact.arthuryao33.workers.dev  # Cloudflare Worker (worker/); empty = mailto: fallback
+  endpoint: https://contact.bingshengyao.com  # Cloudflare Worker (worker/); empty = mailto: fallback
   access_key:      # only Web3Forms needs this
 enable_navbar_social:       true  # enables displaying social links in the
                                    # navbar on the about page

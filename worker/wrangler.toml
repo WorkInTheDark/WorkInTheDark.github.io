@@ -18,8 +18,8 @@ destination_address = "arthuryao33@gmail.com"
 TO_ADDRESS = "arthuryao33@gmail.com"
 FROM_ADDRESS = "phd101@bingshengyao.com"
 
-# Uncomment once the Worker is deployed and you want it on your own domain
-# instead of the workers.dev URL. The zone must be in the same account.
-# [[routes]]
-# pattern = "contact.bingshengyao.com"
-# custom_domain = true
+# On your own domain rather than workers.dev, which some campus networks block.
+# Cloudflare creates the DNS record and certificate for this hostname.
+[[routes]]
+pattern = "contact.bingshengyao.com"
+custom_domain = true
