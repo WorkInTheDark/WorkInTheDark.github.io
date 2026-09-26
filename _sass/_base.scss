@@ -2106,7 +2106,9 @@ h4 {
   color: var(--global-text-color);
 }
 
-.phd101-card-subtitle {
+/* Topic — the plain-language answer to "what is this episode about", sitting
+ * where the subtitle sentence used to and styled exactly as it was. */
+.phd101-card-topic {
   margin-top: 0.4rem;
   color: var(--global-text-color);
   font-size: 0.88rem;
