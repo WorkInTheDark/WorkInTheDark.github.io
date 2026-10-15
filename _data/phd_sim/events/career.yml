@@ -1,0 +1,341 @@
+# PhD Simulator: career events (section K of event-ideas.md).
+# The engine runs internship applications and offers, fellowship results and job-market offers.
+# These events are the human moments around them, plus a few flags from content-spec 12b.
+
+# ---------------------------------------------------------------------------
+# Internships
+# ---------------------------------------------------------------------------
+
+- id: car_invert_binary_tree
+  title: "Invert a Binary Tree"
+  category: career
+  when:
+    year: [1, 4]
+    turn: [6, 14]
+    status_none: [job_market]
+    flags_all: [internship_applied]
+  text:
+    - "Your internship interview at {company} is for a research role on language models. The first question: \"Let's warm up. Invert a binary tree.\""
+  choices:
+    - label: "Invert the binary tree"
+      check: { stat: coding, vs: 55, spread: 15 }
+      success:
+        text: "Six clean lines, edge cases handled. The interviewer relaxes and asks about your research."
+        effects: { career_prep: "+2", coding: "+1", sanity: "+3±1" }
+      failure:
+        text: "You invert it twice, which gives back the original tree. The interviewer says \"interesting\" and writes something down."
+        effects: { sanity: "-4±2" }
+    - label: "Ask clarifying questions first"
+      check: { stat: presenting, vs: 50, spread: 15 }
+      success:
+        text: "Your questions turn it into a conversation. You solve it slowly, but they like how you think."
+        effects: { career_prep: "+2", presenting: "+1" }
+      failure:
+        text: "You ask so many questions that time runs out before you write any code."
+        effects: { sanity: "-3±1" }
+    - label: "Solve it fast, then pivot to research"
+      text: "You solve it and steer to your paper. The interviewer glances at the clock. Mixed signals."
+      effects: { career_prep: "+1", sanity: "-1" }
+
+- id: car_mentor_leaves
+  title: "Your Mentor Has Left the Building"
+  category: career
+  hook: internship
+  when:
+    turn: [20, 21]
+  text:
+    - "Week two of your internship at {company}. Your mentor announces they are moving to another team, effective Friday. Your project doc still says \"TBD with mentor\"."
+  choices:
+    - label: "Find a new mentor yourself"
+      check: { stat: network, vs: 50, spread: 15 }
+      success:
+        text: "A senior researcher two desks over adopts you, and turns out to be better at this than your first mentor."
+        effects: { network: "+5±2", coding: "+2±1", sanity: "+2±1" }
+      failure:
+        text: "Everyone is \"happy to chat\". Nobody is happy to mentor. You spend a week in limbo."
+        effects: { sanity: "-5±2", days: -2 }
+    - label: "Scope the project yourself"
+      text: "You write your own project plan. Your manager approves it without reading it. Freedom, sort of."
+      effects: { taste: "+3±1", coding: "+2±1", sanity: "-3±1" }
+    - label: "Ask your old mentor for weekly chats"
+      text: "They agree to a 30-minute call every Thursday from their new team. Not ideal, but steady."
+      effects: { network: "+3±1", sanity: "+1" }
+
+- id: car_press_release_footnote
+  title: "Footnote 3"
+  category: career
+  rarity: uncommon
+  hook: internship
+  when:
+    turn: [23, 25]
+  text:
+    - "Your internship project at {company} ships. The press release thanks \"the team\". Your name is in footnote 3, spelled correctly."
+  choices:
+    - label: "Add it to your CV"
+      text: "\"Shipped to millions of users.\" It is one line on your CV, and recruiters read that line first."
+      effects: { career_prep: "+2", sanity: "+3±1" }
+    - label: "Ask about a return offer"
+      check: { stat: network, vs: 55, spread: 15 }
+      success:
+        text: "Your manager says they were about to bring it up. A return offer is on the table."
+        effects: { sanity: "+6±2", network: "+3±1" }
+        flag_set: [return_offer]
+      failure:
+        text: "\"Let's revisit after headcount planning.\" Nobody knows when that is."
+        effects: { sanity: "-3±1" }
+    - label: "Pitch a paper on the project"
+      check: { stat: writing, vs: 55, spread: 15 }
+      success:
+        text: "Legal approves a short workshop paper. People start citing it before you're back on campus."
+        effects: { citations: "+4±2", writing: "+2±1", days: -1 }
+      failure:
+        text: "Legal says the paper can come out \"after the next product cycle\". Maybe next year."
+        effects: { sanity: "-2±1" }
+
+# ---------------------------------------------------------------------------
+# Fellowships
+# ---------------------------------------------------------------------------
+
+- id: car_fellowship_won
+  title: "Fellowship!"
+  category: career
+  weight: 3.0
+  when:
+    flags_all: [fellowship_won]
+    status_any: [fellowship]
+  text:
+    - "The fellowship is yours. For one whole year: no TA duty, no grading, no office hours. Your calendar suddenly has room in it."
+  choices:
+    - label: "Put the time into a bold idea"
+      text: "You start the project you have been too busy to start. It might not work. That is the point."
+      effects: { taste: "+3±1", sanity: "+3±1", energy: "-3±1" }
+    - label: "Catch up on sleep first"
+      text: "Two weeks of real sleep. You are sharper than you have been since orientation."
+      effects: { energy: "+12±3", health: "+2±1" }
+    - label: "Celebrate with the lab"
+      text: "You buy the lab dinner. {labmate} toasts \"to no grading\". A few labmates look envious."
+      effects: { labmates_rel: "+4±1", sanity: "+5±2", energy: "-2±1" }
+
+- id: car_fellowship_rejection
+  title: "Fellowship Feedback"
+  category: career
+  when:
+    year: [1, 3]
+    turn: [12, 17]
+    flags_all: [fellowship_applied]
+    flags_none: [fellowship_won]
+  text:
+    - "The fellowship results are out, and you didn't get it. The reviewer comments come too. One says \"too ambitious\", another \"not ambitious enough\", and a third calls it \"incremental\"."
+  choices:
+    - label: "Read it as critique, not a verdict"
+      text: "Two comments are actually useful. You fold them into next year's research statement."
+      effects: { taste: "+2±1", sanity: "+2±1", career_prep: "+1" }
+      tip: "Critique-Centric Feedback"
+    - label: "Vent to your cohort over dinner"
+      text: "Half your cohort got the same three comments. Dinner turns into a dramatic reading."
+      effects: { friends_rel: "+3±1", sanity: "+4±1" }
+    - label: "Start next year's application today"
+      text: "You open a new document while you're still annoyed. It is a surprisingly productive mood."
+      effects: { writing: "+2±1", career_prep: "+2", energy: "-4±2" }
+
+# ---------------------------------------------------------------------------
+# Job market (the engine computes offers; these are the moments around them)
+# ---------------------------------------------------------------------------
+
+- id: car_sixty_cover_letters
+  title: "Sixty Cover Letters"
+  category: career
+  when:
+    status_any: [job_market]
+    turn: [1, 6]
+  text:
+    - "Faculty application season: 60 openings, each wanting a custom cover letter, a research statement and a teaching statement. You have already mixed up two department names."
+  choices:
+    - label: "Write 60 truly custom letters"
+      text: "Each letter names the faculty you would work with. It takes three weeks and part of your soul."
+      effects: { career_prep: "+3", writing: "+2±1", energy: "-12±3" }
+    - label: "Use one template plus a custom paragraph"
+      text: "Good letters, sent on time. You triple-check every department name."
+      effects: { career_prep: "+2", energy: "-5±2" }
+    - label: "Apply only to your best 25"
+      text: "Fewer letters, more care. Your Sanity survives application season."
+      effects: { career_prep: "+1", sanity: "+4±1" }
+
+- id: car_late_letters
+  title: "Letter Pending"
+  category: career
+  when:
+    status_any: [job_market]
+    turn: [2, 7]
+  text:
+    - "Three application portals show the same red status: \"Letter of recommendation: not received.\" The deadlines were yesterday. The missing letter is from {advisor}."
+  choices:
+    - label: "Send {advisor} a gentle reminder"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "{advisor} apologizes and uploads all three within the hour. Two committees say late letters are fine."
+        effects: { career_prep: "+1", sanity: "+3±1" }
+      failure:
+        text: "{advisor} replies \"on it!\" and uploads one. The other two arrive next week."
+        effects: { sanity: "-5±2" }
+    - label: "Send a page of talking points"
+      text: "You send a one-page summary of your work. {advisor} uses it, and the letters go out the next morning."
+      effects: { writing: "+1", career_prep: "+1", energy: "-2±1" }
+    - label: "Email the search committees yourself"
+      text: "Two of the three committees reply kindly. The third portal has no contact address, only a FAQ."
+      effects: { network: "+1", sanity: "-2±1" }
+
+- id: car_startup_pingpong
+  title: "Equity and a Ping-Pong Table"
+  category: career
+  when:
+    status_any: [job_market]
+    turn: [1, 8]
+  text:
+    - "A startup founder messages you: \"We'd love you as a founding researcher. Generous equity, a ping-pong table, free snacks.\" Salary is not mentioned. Twice."
+  choices:
+    - label: "Hear them out"
+      text: "The pitch is wild and a little convincing. You add startups to your search, just in case."
+      effects: { network: "+3±1", energy: "-2±1" }
+      flag_set: [startup_idea]
+    - label: "Ask about the salary directly"
+      check: { stat: presenting, vs: 50, spread: 15 }
+      success:
+        text: "They name a real number: below big tech, above what you feared. You are more interested than you expected."
+        effects: { network: "+2±1", sanity: "+2±1" }
+        flag_set: [startup_idea]
+      failure:
+        text: "\"We think about compensation holistically.\" The conversation ends there."
+        effects: { sanity: "-2±1" }
+    - label: "Decline and stay on your track"
+      text: "You wish them luck. They thank you and ask if you know anyone else."
+      effects: { sanity: "+2±1" }
+
+- id: car_forgotten_school
+  title: "Wait, I Applied There?"
+  category: career
+  hook: job_market
+  when:
+    turn: [8, 15]
+  text:
+    - "A job-talk invitation arrives from a school you had completely forgotten you applied to. You search your sent mail to see what you promised them."
+  choices:
+    - label: "Accept and study the department"
+      text: "You read every faculty page and three of their papers. On the visit, you sound like you've wanted this job for years."
+      effects: { career_prep: "+2", energy: "-3±1", days: -2 }
+    - label: "Accept and give your usual talk"
+      check: { stat: presenting, vs: 55, spread: 15 }
+      success:
+        text: "Your usual talk lands just as well. The search chair calls it \"refreshingly clear\"."
+        effects: { career_prep: "+2", presenting: "+1" }
+      failure:
+        text: "Your talk mentions collaborating with a research center they closed years ago."
+        effects: { career_prep: "+1", sanity: "-3±1" }
+    - label: "Decline politely"
+      text: "One fewer flight, one more free weekend. A small pang, then relief."
+      effects: { sanity: "+4±1", energy: "+3±1" }
+
+- id: car_campus_visit
+  title: "Twelve One-on-Ones"
+  category: career
+  hook: job_market
+  when:
+    turn: [8, 16]
+  text:
+    - "Campus visit: breakfast with the search chair, twelve 30-minute one-on-ones, your job talk, then dinner. Every single person asks, \"So, tell me about your research.\""
+  choices:
+    - label: "Be fully on for all twelve"
+      text: "Twelve slightly different versions of your pitch. Everyone loves you. You fall asleep in your dinner clothes."
+      effects: { network: "+5±2", career_prep: "+2", energy: "-14±3" }
+    - label: "Ask about their work instead"
+      check: { stat: knowledge, vs: 55, spread: 15 }
+      success:
+        text: "You've read their papers and ask sharp questions. Half the meetings run over, happily."
+        effects: { network: "+6±2", career_prep: "+2", energy: "-6±2" }
+      failure:
+        text: "You mix up two professors' papers. One of them is very gracious about it."
+        effects: { network: "+1", sanity: "-4±2", energy: "-6±2" }
+    - label: "Save your energy for the talk"
+      text: "Short one-on-ones, a sharp job talk. Dinner is quiet, but fine."
+      effects: { presenting: "+2±1", career_prep: "+1", energy: "-6±2" }
+
+- id: car_offer_deadlines
+  title: "One Week Apart"
+  category: career
+  hook: job_market
+  when:
+    turn: [12, 20]
+  text:
+    - "One place wants your answer by next Friday. The place you like more will decide a week after that. Both say, \"Take all the time you need.\""
+  choices:
+    - label: "Ask the first place for more time"
+      check: { stat: network, vs: 50, spread: 15 }
+      success:
+        text: "They give you two extra weeks. Now the dates line up."
+        effects: { sanity: "+5±2", network: "+1" }
+      failure:
+        text: "\"We can't extend, but we really hope you'll join!\" The clock keeps ticking."
+        effects: { sanity: "-5±2" }
+    - label: "Ask the second place to decide sooner"
+      check: { stat: presenting, vs: 55, spread: 15 }
+      success:
+        text: "Your email is polite and clear. They move their decision up by a week."
+        effects: { sanity: "+5±2", career_prep: "+1" }
+      failure:
+        text: "They say they will \"try\". They do not."
+        effects: { sanity: "-4±2" }
+    - label: "Ask {advisor} what they would do"
+      text: "{advisor} tells you which one they would pick and, more usefully, why. You feel calmer about either."
+      effects: { sanity: "+3±1", advisor_rel: "+2±1", taste: "+1" }
+
+- id: car_famous_lab_postdoc
+  title: "A Famous Lab Writes Back"
+  category: career
+  rarity: uncommon
+  hook: job_market
+  when:
+    turn: [10, 22]
+  text:
+    - "The head of a famous lab emails: they liked your talk and might have a postdoc opening. Could you chat on Thursday? Your heart rate disagrees with your calendar."
+  choices:
+    - label: "Take the call and prepare hard"
+      text: "You read their last ten papers. The call runs long and ends with \"let's stay in touch\". From them, that means something."
+      effects: { network: "+5±2", knowledge: "+2±1", days: -2 }
+    - label: "Ask {advisor} what they know"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "{advisor} knows them well and makes a call of their own. You go into Thursday with an ally."
+        effects: { network: "+4±1", advisor_rel: "+2±1" }
+      failure:
+        text: "{advisor} says, \"They work their postdocs very hard.\" That is all they say."
+        effects: { sanity: "-2±1", knowledge: "+1" }
+    - label: "Keep it as a quiet plan B"
+      text: "You reply warmly and stay focused on your main search. A safety net, maybe."
+      effects: { sanity: "+4±1" }
+
+- id: car_labmate_startup
+  title: "Employee #4"
+  category: career
+  rarity: uncommon
+  when:
+    year: [4, 8]
+    has_advisor: true
+  text:
+    - "{labmate} pulls you aside: they are leaving to start a company, they just raised a small seed round, and they want you as employee number four. \"You'd own a real piece of it.\""
+  choices:
+    - label: "Say you're interested"
+      text: "{labmate} is thrilled. You agree to talk details once you're on the job market. The door is open."
+      effects: { labmates_rel: "+4±1", network: "+2±1" }
+      flag_set: [labmate_startup_offer]
+    - label: "Ask to see the numbers first"
+      check: { stat: taste, vs: 50, spread: 15 }
+      success:
+        text: "The plan makes sense. {labmate} respects the questions and keeps a spot open for you."
+        effects: { labmates_rel: "+2±1", sanity: "+2±1" }
+        flag_set: [labmate_startup_offer]
+      failure:
+        text: "The plan is one slide with a hockey-stick curve on it. You say you'll think about it."
+        effects: { sanity: "-1" }
+    - label: "Decline, but offer to advise"
+      text: "You'll review their model evaluations for free. {labmate} is a little disappointed, but grateful."
+      effects: { network: "+3±1", labmates_rel: "+1", days_next: -1 }

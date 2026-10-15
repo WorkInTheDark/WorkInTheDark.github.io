@@ -1,0 +1,173 @@
+# One-line turn-log flavor (content-spec.md, section 13).
+# Lines from event-ideas.md, section P (Small absurdities).
+
+- text: "You open final_v3_REAL_final.tex."
+- text: "The coffee machine breaks. Lab productivity falls by a third."
+- text: "The building's heating is either off or set to Sahara."
+- text: "Your experiment finishes. It was the wrong config."
+- text: "The printer jams the morning of your poster session."
+  when: { flags_all: [trip_planned] }
+- text: "An undergrad calls you \"professor\". You don't correct them."
+- text: "You accidentally reply-all to the department list."
+- text: "Your virtual background slips during a job interview. Your laundry makes a brief appearance."
+  when:
+    any:
+      - { status_any: [job_market] }
+      - { turn: [6, 14] }
+- text: "The fire alarm goes off during your practice talk."
+- text: "A \"quick sync\" is booked for 90 minutes."
+- text: "A package update breaks your Python environment."
+- text: "An hour-long bug turns out to be a typo in a config key."
+- text: "You find your own paper on a course reading list, described wrongly."
+  when: { telemetry: { acceptances: ">=1" } }
+- text: "\"Can you hear me?\" Four times, at the start of every meeting."
+- text: "Your paper gets cited for the opposite of what it says."
+  when: { telemetry: { acceptances: ">=1" } }
+
+# Extra lines (not from the ideas list)
+
+# Seasons and the calendar
+- text: "Orientation week. The new students still believe the GPU queue is a myth."
+  when: { turn: [1, 2] }
+- text: "Fall semester starts. The lab fridge still holds three yogurts from last spring."
+  when: { turn: [1, 2] }
+- text: "Three people at the department Halloween party come dressed as chatbots."
+  when: { turn: [5, 5] }
+- text: "The lab is empty for Thanksgiving week. The GPUs are all yours."
+  when: { turn: [7, 7] }
+- text: "Finals week. The library has no free seats and one working outlet."
+  when: { any: [ { turn: [8, 8] }, { turn: [18, 18] } ] }
+- text: "You grade the same wrong answer 43 times."
+  when: { status_any: [ta], any: [ { turn: [8, 8] }, { turn: [18, 18] } ] }
+- text: "Office hours before the midterm. The line reaches the elevator."
+  when: { status_any: [ta], turn: [4, 5] }
+- text: "Winter break. The building is quiet, and the heating has gone home too."
+  when: { turn: [9, 9] }
+- text: "Your out-of-office reply says you're on break. You answer emails anyway."
+  when: { turn: [9, 9] }
+- text: "New semester, new to-do list. It looks a lot like the old one."
+  when: { turn: [10, 10] }
+- text: "It's dark by 4:30 pm. Your body clock files a complaint."
+  when: { turn: [9, 13] }
+- text: "The lab group chat fills with red envelope emojis."
+  when: { turn: [11, 12] }
+- text: "Spring break. The undergrads leave, and the campus Wi-Fi finally works."
+  when: { turn: [14, 14] }
+- text: "The trees outside the lab bloom. You admire them through the window."
+  when: { turn: [15, 17] }
+- text: "Regrade requests arrive, all sent after midnight."
+  when: { status_any: [ta], turn: [18, 18] }
+- text: "Annual review season. You list your accomplishments, then add some stronger verbs."
+  when: { turn: [17, 18] }
+- text: "Summer starts. The campus is quiet and the parking is easy."
+  when: { turn: [19, 19] }
+- text: "Half the lab is on internships. Lab meeting is three people and a laptop."
+  when: { turn: [20, 25] }
+- text: "The building's AC gives up in the heat wave. The server room is the coolest place on campus."
+  when: { turn: [22, 24] }
+- text: "The new cohort arrives. They all have better laptops than you."
+  when: { turn: [26, 26] }
+- text: "The lab chat gains eleven new members, and eleven new questions about the cluster."
+  when: { turn: [26, 26] }
+- text: "Half the lab is coughing. The other half is wearing masks and looking worried."
+  when: { turn: [8, 14] }
+
+# Lab life
+- text: "Someone microwaves fish in the lab kitchen again."
+- text: "Lab meeting runs 40 minutes over. Nobody knows why."
+- text: "The lab fridge has a sign that says \"Please label your food\". The sign is not labeled."
+- text: "A labmate brings homemade cookies. Productivity rises briefly, then falls."
+- text: "Someone renames the lab Wi-Fi to \"Reviewer2_Is_Watching\"."
+- text: "The most senior student in the lab tells a deadline story with three morals."
+- text: "You find a comment in the lab codebase that just says \"sorry\"."
+- text: "The group chat debates lunch for an hour. Everyone eats at their desk."
+
+# Research life
+- text: "The GPU queue has 412 jobs ahead of yours. You read a paper instead."
+- text: "Your loss curve goes down smoothly. You don't trust it."
+- text: "You spend an hour making a figure colorblind-friendly. Worth it."
+- text: "Your random seed is 42. Of course it is."
+- text: "Your experiment log says \"try again tomorrow\". It was written three weeks ago."
+- text: "A bug in your evaluation script makes your results worse and more honest."
+- text: "Overleaf reports 37 errors. The PDF looks fine."
+- text: "You rename a file from results to results_new to results_final to results_final2."
+- text: "Your notes from last month say \"KEY INSIGHT\" with nothing after it."
+- text: "The paper you need is behind a paywall. Your university has access. Your VPN does not."
+- text: "A tokenizer splits your name into five pieces."
+- text: "Your model answers every question with a confident paragraph about penguins."
+- text: "Your prompt is now longer than your abstract."
+- text: "Someone at lab meeting says \"just fine-tune it\" as if it's one step."
+- text: "Your baseline gets better after you fix a bug. Your method doesn't."
+- text: "You read a paper that solves your problem. It's from 1998."
+- text: "A related-work search for your topic returns your own paper first. A small victory."
+  when: { telemetry: { first_author_pubs: ">=1" } }
+- text: "Your job crashes at 98%."
+
+# Data, annotation and user studies
+- text: "Your annotation guidelines are now 14 pages long. Nobody agrees on what counts as \"neutral\"."
+- text: "Inter-annotator agreement comes back at 0.41. You learn the word \"moderate\"."
+- text: "You compute Cohen's kappa three times and get three different numbers."
+- text: "A study participant asks whether the chatbot in your study is a real person."
+- text: "Your think-aloud participant thinks very quietly."
+- text: "A participant rates your prototype 7 out of 7, then says they never clicked it."
+- text: "A pilot participant finds the bug you hunted all week. It takes them four seconds."
+- text: "The anchor on your survey scale says \"Strongly Disagre\". It's been live for a day."
+- text: "Your interview transcript has 40 instances of \"um\". Thirty-eight are yours."
+- text: "The IRB asks you to change \"may\" to \"might\" on page 12."
+- text: "A clinician partner replies to a three-paragraph email with one word: \"Thursday?\""
+- text: "A participant stays after the session to tell you how to fix your whole interface. They're right."
+
+# Writing
+- text: "You spend an afternoon choosing between \"utilize\" and \"use\". You choose \"use\"."
+- text: "You now notice orphan words in other people's papers."
+- text: "Your abstract is 251 words. The limit is 250."
+- text: "Your bibliography has the same paper three times, with three different years."
+- text: "You move a figure up one line. LaTeX moves it two pages down."
+- text: "Your paper title has a colon. Of course it has a colon."
+- text: "You write \"Interestingly,\" and then delete it. Then you write it again."
+
+# Conference life
+- text: "Your conference badge spells your name wrong. You answer to it all week."
+  when: { status_any: [at_conference] }
+- text: "The line for coffee is longer than the line for the keynote."
+  when: { status_any: [at_conference] }
+- text: "You come home with four tote bags and no memory of picking them up."
+  when: { status_any: [at_conference] }
+- text: "Everyone at your poster asks the same question. You start answering before they finish."
+  when: { status_any: [at_conference] }
+- text: "You meet someone whose papers you've cited six times. You forget their name instantly."
+  when: { status_any: [at_conference] }
+
+# Advisors (plain wording; the nickname appears only through events)
+- text: "Your advisor replies at 12:40 am: \"Great figure. No need to reply until Monday.\""
+  when: { advisor: [kind_funded] }
+- text: "Your advisor buys bubble tea for everyone who came to lab meeting in person."
+  when: { advisor: [kind_funded] }
+- text: "Your advisor spots an orphan word on page 6 of your draft."
+  when: { advisor: [kind_funded] }
+- text: "Your advisor answers your email from an airport. Again."
+  when: { advisor: [famous_absent] }
+- text: "Your advisor schedules a check-in about your check-in."
+  when: { advisor: [micromanager] }
+- text: "Your advisor has a new grant, a new hire and a new spreadsheet."
+  when: { advisor: [grant_machine] }
+- text: "Your advisor pitches a startup idea over lunch. It's the third one this month."
+  when: { advisor: [serial_founder] }
+- text: "Your advisor asks whether your p-value survived the correction."
+  when: { advisor: [methods_purist] }
+- text: "Your advisor tells a story from 1994 that turns out to be exactly relevant."
+  when: { advisor: [near_retirement] }
+- text: "Your advisor sketches a ten-year research vision on a napkin."
+  when: { advisor: [visionary] }
+- text: "Your advisor sends you a paper at 6 am with the subject line \"!!\"."
+  when: { advisor: [hungry_ap] }
+- text: "Your advisor apologizes that the travel budget is, once again, mostly hope."
+  when: { advisor: [kind_unfunded] }
+- text: "Your advisor forwards a message from the company side with one word: \"thoughts?\""
+  when: { advisor: [industry_joint] }
+
+# Life
+- text: "Your cat sits on the exact paragraph you're reading."
+  when: { flags_all: [cat_adopted] }
+- text: "Your cat knocks your coffee off the desk, then looks at you."
+  when: { flags_all: [cat_adopted] }

@@ -1,0 +1,533 @@
+# PhD Simulator: milestone events (section I of event-ideas.md).
+# Courses, quals, the thesis proposal and committee, defense prep, the defense, graduation.
+# The engine runs the milestones themselves (quals/proposal/defense Q&A); these are the human moments around them.
+
+# ---------------------------------------------------------------------------
+# Coursework
+# ---------------------------------------------------------------------------
+
+- id: mil_required_course
+  title: "Required, Apparently"
+  category: milestone
+  when:
+    status_any: [coursework]
+  text:
+    - "A required course on a topic you will never use again assigns a 40-page problem set every week. Your research sits untouched in another tab."
+  choices:
+    - label: "Do the minimum, protect research time"
+      text: "A solid B-plus and zero regrets. Your project barely noticed the course existed."
+      effects: { sanity: "+2±1", knowledge: "+1", days: 1 }
+    - label: "Take it seriously anyway"
+      text: "You learn more than you expected. You also sleep less than you expected."
+      effects: { energy: "-6±2", knowledge: "+4±1", taste: "+1" }
+    - label: "Find an angle that connects to your work"
+      check: { stat: taste, vs: 50, spread: 15 }
+      success:
+        text: "One lecture hands you a framing your project has been missing. Worth every problem set."
+        effects: { taste: "+3±1", knowledge: "+2±1", sanity: "+2±1" }
+      failure:
+        text: "You try very hard to make it relevant. It stays very irrelevant."
+        effects: { energy: "-4±2", sanity: "-2±1" }
+
+- id: mil_course_project_paper
+  title: "This Could Be a Paper"
+  category: milestone
+  rarity: uncommon
+  when:
+    status_any: [coursework]
+    telemetry: { first_author_pubs: "==0" }
+    project: { stage: [idea, lit, pilot, design, build, guidelines] }
+  text:
+    - "Your course project comes back with one comment from the instructor: \"This could be a paper.\" It overlaps a lot with {project}."
+  choices:
+    - label: "Fold it into {project}"
+      text: "Half your pilot is already done. Coursework that counts twice is the best kind."
+      effects: { project.progress: "+15±5", project.quality.N: "+4±2", energy: "-3±1" }
+    - label: "Ask {advisor} if it's worth pursuing"
+      check: { stat: advisor_rel, vs: 45, spread: 15 }
+      success:
+        text: "{advisor} reads it that week and suggests a sharper framing. You both leave the meeting excited."
+        effects: { project.progress: "+10±3", project.quality.N: "+6±2", advisor_rel: "+3±1" }
+      failure:
+        text: "{advisor} says \"interesting\" in the tone that means \"later\". The report goes into a folder."
+        effects: { project.progress: "+3±1", sanity: "-2±1" }
+    - label: "Keep it as a course project"
+      text: "You take the A and move on. Your evenings stay free, at least for now."
+      effects: { sanity: "+3±1", knowledge: "+1" }
+
+- id: mil_finals_vs_deadline
+  title: "Finals, Meet Deadline"
+  category: milestone
+  when:
+    status_any: [coursework]
+    any:
+      - { turn: [7, 8] }
+      - { turn: [17, 18] }
+    project: { stage: writing, turns_to_deadline: "<=1" }
+  text:
+    - "Your final exam and the deadline for {project} land in the same week. Both insist they are the priority."
+  choices:
+    - label: "Prioritize the paper"
+      text: "The paper goes in. The exam goes okay-ish. You learn your program's minimum passing grade."
+      effects: { project.progress: "+10±3", knowledge: "-1", sanity: "-3±1" }
+    - label: "Prioritize the exam"
+      text: "You ace the final. The paper goes in rougher than you would like."
+      effects: { knowledge: "+3±1", project.quality.C: "-4±2", sanity: "-2±1" }
+    - label: "Do both by giving up sleep"
+      text: "You survive both. You will not remember this week, but your body will."
+      effects: { energy: "-14±3", health: "-3±1", project.progress: "+8±2", knowledge: "+2±1" }
+      status: { add: deadline_mode, turns: 1 }
+
+# ---------------------------------------------------------------------------
+# Quals
+# ---------------------------------------------------------------------------
+
+- id: mil_quals_reading_list
+  title: "80 Papers, Two Weeks"
+  category: milestone
+  when:
+    status_any: [quals_prep]
+  text:
+    - "The quals reading list arrives: 80 papers, two weeks. Several are 40 pages long. One is a scanned PDF from the 1990s, slightly crooked."
+  choices:
+    - label: "Read every single one"
+      text: "You read all 80. Your notes are beautiful. Your eyes are not."
+      effects: { knowledge: "+6±2", energy: "-14±3", sanity: "-4±2" }
+    - label: "Split the list with your cohort"
+      check: { stat: friends_rel, vs: 45, spread: 15 }
+      success:
+        text: "Five of you each summarize 16 papers. The shared notes are the best study guide in department history."
+        effects: { knowledge: "+5±1", friends_rel: "+3±1", energy: "-5±2" }
+      failure:
+        text: "Two people never send their summaries. You read their 32 papers the night before."
+        effects: { knowledge: "+3±1", energy: "-10±3", friends_rel: "-2±1" }
+    - label: "Read the core 20 deeply, skim the rest"
+      text: "You know 20 papers cold and the other 60 by their figures. Honestly, that is the job."
+      effects: { knowledge: "+4±1", energy: "-6±2" }
+      tip: "Paper Reading"
+
+- id: mil_quals_classic_paper
+  title: "The Classic You Never Read"
+  category: milestone
+  when:
+    status_any: [quals_prep]
+  text:
+    - "{senior} warns you: {committee} always asks about one classic paper from before you were born. You have cited it twice. You have never read it."
+  choices:
+    - label: "Read it, plus what it builds on"
+      text: "Half of modern NLP turns out to be this paper with more GPUs. You see the field differently now."
+      effects: { knowledge: "+5±2", taste: "+2±1", days: -2 }
+      tip: "Literature Search"
+    - label: "Ask {senior} what they were asked"
+      check: { stat: labmates_rel, vs: 50, spread: 15 }
+      success:
+        text: "{senior} still has their notes, including the exact question. You prepare a crisp answer."
+        effects: { knowledge: "+3±1", labmates_rel: "+2±1", sanity: "+2±1" }
+      failure:
+        text: "\"Something about the second figure?\" That is all {senior} remembers."
+        effects: { sanity: "-3±1" }
+    - label: "Read a blog post about it"
+      text: "The blog post is confident and slightly wrong. Now you are confident and slightly wrong."
+      effects: { knowledge: "+1", sanity: "+2±1" }
+
+- id: mil_quals_passed
+  title: "You Passed. Now What?"
+  category: milestone
+  weight: 3.0
+  when:
+    milestone: { quals: passed }
+    year: [1, 2]
+    turn: [18, 21]
+  text:
+    - "You pass quals. The lab cheers, someone produces a cake, and by 9 pm everyone is back in the lab chat talking about the next deadline."
+  choices:
+    - label: "Take the whole weekend off"
+      text: "Two days, no laptop. You remember what your apartment looks like in daylight."
+      effects: { energy: "+10±3", sanity: "+8±2", days: -1 }
+      tip: "When and How to Rest"
+    - label: "Celebrate tonight, work tomorrow"
+      text: "One good evening with the lab. By morning you are back at your desk, a little lighter."
+      effects: { sanity: "+4±1", labmates_rel: "+3±1" }
+    - label: "Call home with the news"
+      text: "Your family asks if this means you are a doctor now. Not yet, but they are proud anyway."
+      effects: { family_rel: "+5±2", sanity: "+3±1" }
+
+# ---------------------------------------------------------------------------
+# Thesis proposal and committee
+# ---------------------------------------------------------------------------
+
+- id: mil_proposal_why_phd
+  title: "Not a Product"
+  category: milestone
+  when:
+    status_any: [proposal_prep]
+  text:
+    - "At your practice proposal talk, {labmate} raises a hand: \"Honest question. Why is this a PhD and not a product?\" The room goes quiet."
+  choices:
+    - label: "Rebuild the talk around the question"
+      text: "You rework the first five slides around what nobody knows yet, not what you built. The talk gets sharper."
+      effects: { taste: "+3±1", presenting: "+2±1", days: -2 }
+      tip: "Implications and Venue"
+    - label: "Answer on the spot"
+      check: { stat: taste, vs: 55, spread: 15 }
+      success:
+        text: "\"A product helps one hospital. The findings explain why it helped, for everyone.\" {labmate} nods slowly."
+        effects: { presenting: "+3±1", sanity: "+3±1" }
+      failure:
+        text: "You describe the product. In detail. Nobody is convinced, including you."
+        effects: { sanity: "-4±2", presenting: "+1" }
+    - label: "Write it down for later"
+      text: "It goes on your list of questions to think about. The list is getting long."
+      effects: { energy: "+2±1", sanity: "+1" }
+
+- id: mil_committee_formation
+  title: "Assembling the Committee"
+  category: milestone
+  when:
+    status_any: [proposal_prep]
+  text:
+    - "You need a committee. Your first choice is on sabbatical on another continent, and {committee} has not answered an email since March."
+  choices:
+    - label: "Ask the sabbatical one to join by video"
+      check: { stat: network, vs: 50, spread: 15 }
+      success:
+        text: "They agree, from nine time zones away. Your dream committee is set."
+        effects: { sanity: "+4±1", network: "+2±1" }
+      failure:
+        text: "They reply with a lovely photo of a mountain and a polite no."
+        effects: { sanity: "-3±1", days: -1 }
+    - label: "Ask {advisor} to nudge {committee}"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "{advisor} walks down the hall. {committee} replies within the hour: \"Happy to!\""
+        effects: { sanity: "+4±1" }
+      failure:
+        text: "Even {advisor} cannot get a reply. You start looking for a fourth option."
+        effects: { sanity: "-4±2", days: -1 }
+    - label: "Pick people who answer email"
+      text: "You choose responsiveness over fame. Scheduling will be easy, though the names carry a little less weight."
+      effects: { sanity: "+3±1", career_prep: "-1" }
+
+- id: mil_scalability_member
+  title: "But Does It Scale?"
+  category: milestone
+  when:
+    status_any: [proposal_prep]
+  text:
+    - "Your industry external member returns your proposal draft. Every section has the same comment: \"Does this scale?\" Including the section on interviewing 12 nurses."
+  choices:
+    - label: "Add a scalability section"
+      text: "Two new pages on deploying to a million users. Your external member is delighted. {advisor} is puzzled."
+      effects: { writing: "+2±1", network: "+2±1", advisor_rel: "-1", days: -2 }
+    - label: "Explain why depth matters here"
+      check: { stat: presenting, vs: 55, spread: 15 }
+      success:
+        text: "\"Twelve nurses tell us what a million logs can't.\" Your external member writes that down."
+        effects: { presenting: "+3±1", network: "+3±1", sanity: "+2±1" }
+      failure:
+        text: "They nod thoughtfully and ask, \"Sure, but does it scale?\""
+        effects: { sanity: "-4±2" }
+    - label: "Reply \"Yes\" and move on"
+      text: "It works for now. You have a feeling the question will be back on proposal day."
+      effects: { sanity: "+2±1" }
+
+- id: mil_committee_argument
+  title: "Crossfire"
+  category: milestone
+  rarity: uncommon
+  when:
+    status_any: [proposal_prep]
+  text:
+    - "Ten minutes into your committee meeting, {committee} and your external member start arguing about where your thesis should go. You are still on slide 3."
+  choices:
+    - label: "Make the case for your own direction"
+      check: { stat: taste, vs: 60, spread: 15 }
+      success:
+        text: "You lay out where you want to go and why. They both stop, then agree with you, which surprises everyone."
+        effects: { taste: "+3±1", presenting: "+2±1", sanity: "+4±2" }
+        tip: "Find Out What You Are Devoted To"
+      failure:
+        text: "You try. Now they are both arguing with you instead, which is at least unifying."
+        effects: { sanity: "-5±2", presenting: "+1" }
+    - label: "Let them argue it out"
+      text: "They go for 40 minutes. You take notes and leave with two theses' worth of feedback."
+      effects: { knowledge: "+2±1", energy: "-3±1", sanity: "-3±1" }
+    - label: "Look to {advisor} for help"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "{advisor} steps in with a compromise. The meeting lands, and you owe them one."
+        effects: { sanity: "+3±1", advisor_rel: "+1" }
+      failure:
+        text: "{advisor} joins the argument, on a third side."
+        effects: { sanity: "-4±2" }
+
+- id: mil_everything_connects
+  title: "Everything Connects"
+  category: milestone
+  when:
+    status_any: [proposal_prep]
+    telemetry: { first_author_pubs: ">=2" }
+  text:
+    - "Each of your papers made sense on its own. The proposal needs them to tell one story. Right now they tell three, plus an awkward silence."
+  choices:
+    - label: "Trace each paper back to one gap"
+      text: "You find the thread: each paper fixes a limitation the last one exposed. Chapter 1 almost writes itself."
+      effects: { taste: "+4±1", writing: "+3±1", energy: "-4±2", days: -3 }
+      tip: "Approach and Methods"
+    - label: "Draw one diagram that links them"
+      check: { stat: taste, vs: 55, spread: 15 }
+      success:
+        text: "Three boxes, two arrows, and suddenly it is obviously one thesis."
+        effects: { taste: "+3±1", presenting: "+2±1", sanity: "+3±1" }
+      failure:
+        text: "Fourteen boxes, arrows in every direction. It looks like a subway map."
+        effects: { sanity: "-3±1", energy: "-2±1" }
+    - label: "Leave the odd paper out"
+      text: "Two papers tell a clean story; the third becomes an appendix. It stings a little."
+      effects: { writing: "+2±1", sanity: "-2±1", days: 1 }
+
+# ---------------------------------------------------------------------------
+# Defense preparation (hook: defense_prep)
+# ---------------------------------------------------------------------------
+
+- id: mil_defense_scheduling
+  title: "Five Calendars"
+  category: milestone
+  hook: defense_prep
+  text:
+    - "You need one two-hour slot when five busy people are all free. The scheduling poll comes back with a single green cell: a Friday at 7:30 am."
+  choices:
+    - label: "Book the 7:30 am slot"
+      text: "You book it before anyone changes their mind. Everyone will arrive with coffee and low expectations."
+      effects: { sanity: "+3±1", energy: "-2±1" }
+    - label: "Ask one member to move a meeting"
+      check: { stat: network, vs: 50, spread: 15 }
+      success:
+        text: "They move a meeting, and you get a civilized 2 pm slot."
+        effects: { sanity: "+5±1", network: "+1" }
+      failure:
+        text: "They can't. Meanwhile someone else books Friday, and the poll now has zero green cells."
+        effects: { sanity: "-5±2", days: -1 }
+    - label: "Ask {advisor} to wrangle them"
+      check: { stat: advisor_rel, vs: 55, spread: 15 }
+      success:
+        text: "{advisor} sends one email. Four replies arrive within the hour, all saying yes."
+        effects: { sanity: "+5±1", advisor_rel: "+1" }
+      failure:
+        text: "{advisor} replies-all with their own availability, which is also only Friday at 7:30 am."
+        effects: { sanity: "-2±1" }
+
+- id: mil_thesis_formatting
+  title: "Margins, Again"
+  category: milestone
+  hook: defense_prep
+  text:
+    - "The graduate school rejects your thesis formatting for the fourth time. This round: page numbers on landscape pages are 0.1 inches too low."
+  choices:
+    - label: "Fix exactly what they asked"
+      text: "You move the page numbers. Approval comes back with a new note about table caption fonts."
+      effects: { writing: "+1", sanity: "-3±1", days: -1 }
+    - label: "Switch to the official template"
+      check: { stat: coding, vs: 50, spread: 15 }
+      success:
+        text: "The template compiles on the first try. The office approves it the same day."
+        effects: { sanity: "+5±1", days: -1 }
+      failure:
+        text: "The template breaks every figure. You spend two days putting them back."
+        effects: { sanity: "-4±2", days: -2 }
+    - label: "Visit the formatting office in person"
+      text: "The office is open Tuesdays, 10 to 11. The reviewer fixes it with you in ten minutes. Why didn't you do this in round one?"
+      effects: { sanity: "+3±1", energy: "-2±1", days: -2 }
+
+- id: mil_one_more_chapter
+  title: "Just One More Chapter"
+  category: milestone
+  hook: defense_prep
+  text:
+    - "{committee} reads your draft and suggests \"just one more chapter\" on future directions. Your defense is a few weeks away."
+  choices:
+    - label: "Write the chapter"
+      text: "Twenty pages in ten days. It is actually good, and you are actually tired."
+      effects: { writing: "+4±1", energy: "-12±3", days: -3 }
+    - label: "Negotiate a shorter section"
+      check: { stat: presenting, vs: 55, spread: 15 }
+      success:
+        text: "You propose a focused five-page section instead. {committee} agrees and seems impressed by the pitch."
+        effects: { writing: "+2±1", sanity: "+2±1", days: -1 }
+      failure:
+        text: "{committee} agrees to something shorter. Their idea of shorter is 18 pages."
+        effects: { energy: "-6±2", days: -2 }
+    - label: "Ask {advisor} to weigh in"
+      check: { stat: advisor_rel, vs: 55, spread: 15 }
+      success:
+        text: "{advisor} suggests a closing slide on future work instead. Everyone is happy."
+        effects: { sanity: "+4±1" }
+      failure:
+        text: "{advisor} loves the idea. Now two people want the chapter."
+        effects: { sanity: "-4±2", days: -2 }
+
+- id: mil_third_paper_pending
+  title: "Still Under Review"
+  category: milestone
+  hook: defense_prep
+  when:
+    paper: { status: under_review, first_author: true }
+  text:
+    - "{paper} is still under review at {venue}. The decision is due in the middle of your defense prep, and your defense date depends on it."
+  choices:
+    - label: "Refresh the portal every hour"
+      text: "The portal does not change. Your Sanity does."
+      effects: { sanity: "-6±2", energy: "-3±1" }
+    - label: "Write the thesis as if it's accepted"
+      text: "The last chapter assumes the best. Writing it calms you more than refreshing ever did."
+      effects: { writing: "+3±1", sanity: "+2±1", days: -1 }
+    - label: "Plan a backup with {advisor}"
+      text: "You map out what happens if it is rejected. Not fun, but you sleep better. {advisor} seems reassured too."
+      effects: { sanity: "+4±1", advisor_rel: "+2±1", days: -1 }
+
+# ---------------------------------------------------------------------------
+# Defense day (hook: defense, before the Q&A)
+# ---------------------------------------------------------------------------
+
+- id: mil_defense_typo
+  title: "Slide 2"
+  category: milestone
+  hook: defense
+  text:
+    - "Your defense begins. Slide 2 is on the big screen, and \"Dissertation\" is spelled \"Dissertaiton\". Everyone has seen it."
+  choices:
+    - label: "Laugh it off and keep going"
+      check: { stat: presenting, vs: 50, spread: 15 }
+      success:
+        text: "\"Clearly it needed one more revision.\" The room laughs, and the tension is gone."
+        effects: { presenting: "+2±1", sanity: "+5±2" }
+      failure:
+        text: "Your joke lands in silence. You click to slide 3 a little too fast."
+        effects: { sanity: "-4±2" }
+    - label: "Pause and fix it live"
+      text: "Fifteen seconds of typing in front of five professors feels like an hour. {committee} says, \"We've all done it.\""
+      effects: { sanity: "+1", energy: "-3±1" }
+    - label: "Pretend you didn't notice"
+      check: { stat: sanity, vs: 50, spread: 15 }
+      success:
+        text: "You forget about it by slide 4. Nobody mentions it, probably."
+        effects: { sanity: "+2±1" }
+      failure:
+        text: "You think about it for all 60 slides."
+        effects: { sanity: "-5±2", energy: "-2±1" }
+
+- id: mil_defense_prepared_question
+  title: "The Question You Prepared For"
+  category: milestone
+  hook: defense
+  text:
+    - "Ten minutes in, {committee} interrupts with exactly the question you spent all last week preparing for. You have a backup slide for it. Slide 47."
+  choices:
+    - label: "Jump to backup slide 47"
+      text: "The slide appears, perfectly labeled. {committee} raises an eyebrow, impressed."
+      effects: { presenting: "+2±1", sanity: "+4±1" }
+    - label: "Answer it from memory"
+      check: { stat: knowledge, vs: 50, spread: 15 }
+      success:
+        text: "You answer without notes, point by point. The committee exchanges a look that means \"ready\"."
+        effects: { presenting: "+3±1", knowledge: "+2±1", sanity: "+6±2" }
+      failure:
+        text: "You forget the third point, the best one. It is on slide 47."
+        effects: { sanity: "-3±1" }
+    - label: "\"I'll come back to that at the end\""
+      text: "Smart pacing. Now you have something to look forward to in the Q&A."
+      effects: { energy: "+3±1", sanity: "+2±1" }
+
+- id: mil_defense_projector
+  title: "No Signal"
+  category: milestone
+  hook: defense
+  text:
+    - "Five minutes before your defense, the projector says \"No Signal\". You have tried three adapters. The committee is arriving."
+  choices:
+    - label: "Present from the room's computer"
+      check: { stat: coding, vs: 45, spread: 15 }
+      success:
+        text: "Your backup PDF on a USB stick works. The fonts are slightly off; everything else is fine."
+        effects: { sanity: "+3±1" }
+      failure:
+        text: "The room's computer wants to install 40 minutes of updates. You start late and flustered."
+        effects: { sanity: "-6±2", energy: "-4±2" }
+    - label: "Send {labmate} for another adapter"
+      text: "{labmate} sprints across the building and returns, out of breath, with the right one. You owe them lunch."
+      effects: { labmates_rel: "+2±1", sanity: "+2±1", energy: "-3±1" }
+    - label: "Give the talk at the whiteboard"
+      check: { stat: presenting, vs: 65, spread: 15 }
+      success:
+        text: "Five years of research, one marker, no slides. The committee calls it the clearest talk they've seen all year."
+        effects: { presenting: "+5±2", sanity: "+6±2" }
+      failure:
+        text: "You draw Figure 3 from memory. It is not Figure 3."
+        effects: { sanity: "-6±2", presenting: "+1" }
+
+- id: mil_defense_remote_freeze
+  title: "You're Frozen"
+  category: milestone
+  hook: defense
+  text:
+    - "{committee} joins your defense by video from a conference hotel. Their picture freezes every few minutes, always mid-question, mouth open."
+  choices:
+    - label: "Repeat every answer twice"
+      text: "They hear everything because you say everything twice. Your voice gives out right before the last slide."
+      effects: { energy: "-6±2", presenting: "+1" }
+    - label: "Suggest they switch to audio only"
+      check: { stat: presenting, vs: 50, spread: 15 }
+      success:
+        text: "Audio only, and suddenly it works. {committee} thanks you for the fix."
+        effects: { sanity: "+3±1", presenting: "+1" }
+      failure:
+        text: "They turn off video and unmute a hotel lobby. Everyone hears a suitcase."
+        effects: { sanity: "-3±1" }
+    - label: "Let {advisor} relay their questions"
+      text: "{committee} types questions into the chat and {advisor} reads them aloud. Slower, but steady."
+      effects: { sanity: "+2±1", advisor_rel: "+2±1", energy: "-2±1" }
+
+# ---------------------------------------------------------------------------
+# Graduation (hook: graduation)
+# ---------------------------------------------------------------------------
+
+- id: mil_minor_revisions
+  title: "Congratulations, Doctor"
+  category: milestone
+  hook: graduation
+  text:
+    - "Between \"Congratulations, Doctor\" and commencement sit 14 pages of minor revisions. The graduate school's filing deadline is this Friday."
+  choices:
+    - label: "Address all 14 pages properly"
+      text: "Every comment answered, every figure fixed. The final thesis is the best version of your work."
+      effects: { writing: "+3±1", energy: "-8±2" }
+    - label: "Fix what matters, explain the rest"
+      check: { stat: writing, vs: 55, spread: 15 }
+      success:
+        text: "Your response letter is so clear that the committee signs off in a day."
+        effects: { writing: "+2±1", sanity: "+4±1" }
+      failure:
+        text: "{committee} replies: \"Please address all comments.\" All 14 pages it is."
+        effects: { energy: "-10±3", sanity: "-4±2" }
+    - label: "Recruit {labmate} to proofread with you"
+      text: "Two people, one weekend, a lot of snacks. Filed on Thursday."
+      effects: { labmates_rel: "+3±1", sanity: "+2±1", energy: "-4±2" }
+
+- id: mil_hood_backwards
+  title: "The Hood"
+  category: milestone
+  hook: graduation
+  text:
+    - "Commencement. In line to cross the stage, you notice the person behind you trying not to laugh. Your doctoral hood is on backwards."
+  choices:
+    - label: "Cross the stage as you are"
+      text: "Your family's favorite photo of the day, possibly of the decade. You wave like you meant it."
+      effects: { sanity: "+6±2", family_rel: "+2±1" }
+      achievement: hood_backwards
+    - label: "Ask the person behind you to fix it"
+      text: "They flip it around in five seconds. It turns out they did the same thing at their master's."
+      effects: { sanity: "+4±1", network: "+1" }
+    - label: "Get {labmate} to take a photo first"
+      text: "\"For the lab chat,\" {labmate} says. It becomes the chat's icon for the next three years."
+      effects: { labmates_rel: "+3±1", sanity: "+5±1" }
+      achievement: hood_backwards

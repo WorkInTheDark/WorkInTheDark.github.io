@@ -1,0 +1,10 @@
+export { prepareData } from "./data.js";
+export { newRun, rollTraits, ACTIVITIES, ACTIVITY_BY_ID, STAT_LABELS, yearOf, tOf, semesterOf, TURNS } from "./state.js";
+export { Game } from "./game.js";
+export { newSeed } from "./rng.js";
+export { PROJECT_TYPES, STAGE_LABELS, currentStage, stageNeed, writingCompletion, deadlineLabel, venuesForType, absToLabel, turnsToDeadline } from "./projects.js";
+export { totalCitations, hIndex, firstAuthorPubs, paperCitations, hasStatus } from "./derived.js";
+export { RESPONSES } from "./reviews.js";
+export { STRATEGIES } from "./milestones.js";
+import * as storage from "./save.js";
+export { storage };

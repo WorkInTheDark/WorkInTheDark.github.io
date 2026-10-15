@@ -1,0 +1,252 @@
+# The field and the world (event-ideas.md, section M).
+# Events with hook: model_release bind {model} and {biglab}. The engine moves the
+# hiring climate and topic hype; these events are what it feels like from inside.
+
+- id: wor_everyone_pivots
+  title: "Everyone Pivots"
+  category: world
+  rarity: common
+  hook: model_release
+  repeatable: true
+  cooldown: 10
+  text:
+    - "{biglab} releases {model}. Within a week, every reading group, lab meeting and arXiv title is about it."
+    - "{biglab} releases {model}, and the field changes its plans overnight. Three talks at this week's seminar are rewritten the morning of."
+  choices:
+    - label: "Spend the weekend trying it"
+      text: "You find two things it does brilliantly and one it gets hilariously wrong. You keep notes on all three."
+      effects: { energy: "-6±2", knowledge: "+3±1", taste: "+2±1" }
+    - label: "Stay on your own path"
+      check: { stat: taste, vs: 50, spread: 20 }
+      success:
+        text: "While everyone chases {model}, you have your corner of the field to yourself."
+        effects: { sanity: "+3±1", taste: "+2±1" }
+      failure:
+        text: "At lab meeting, three people ask why you're not using {model}. You don't have a great answer yet."
+        effects: { sanity: "-4±2" }
+    - label: "Start a quick evaluation of it"
+      text: "Your two-day evaluation finds where {model} breaks. People start emailing you about it."
+      effects: { days: -2, energy: "-4±1", network: "+4±2", coding: "+1" }
+
+- id: wor_biglab_claims
+  title: "Solved, Apparently"
+  category: world
+  rarity: uncommon
+  hook: model_release
+  when:
+    project: { stage_kind: work }
+  text:
+    - "{biglab}'s announcement for {model} says it \"solves\" {project.topic}. You read the fine print. It was tested on forty easy examples."
+  choices:
+    - label: "Test {model} on your data"
+      text: "On your data, it gets 61%. Your paper now has a strong new baseline and a sharper story."
+      effects: { days: -2, energy: "-4±1", project.quality.S: "+6±2", project.quality.N: "+3±1" }
+    - label: "Write a careful thread about it"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success:
+        text: "Your thread is shared widely. Researchers send you their own failure cases."
+        effects: { network: "+5±2", citations: "+3±1", sanity: "+2±1" }
+      failure:
+        text: "The thread gets four likes, two of them from labmates."
+        effects: { sanity: "-3±1", days: -1 }
+    - label: "Ignore it and keep working"
+      text: "Nobody remembers the claim a month later. Reviewers might, though."
+      effects: { project.progress: "+6±2", sanity: "+2±1" }
+      flag_set: [ignored_new_model]
+
+- id: wor_topic_hot
+  title: "Suddenly Popular"
+  category: world
+  rarity: uncommon
+  when:
+    project: { stage_kind: work }
+    world: { hype: ">=75" }
+  text:
+    - "Your topic, {project.topic}, is suddenly the hottest thing in the field: {roll:38-45} new papers this month alone."
+  choices:
+    - label: "Rush to get yours out first"
+      text: "You work three weekends straight. The draft moves fast, and a few corners get cut."
+      effects: { project.progress: "+12±3", energy: "-8±3", project.quality.S: "-4±2" }
+    - label: "Read every one of them"
+      text: "Two overlap with yours. Now you know exactly what makes your work different."
+      effects: { days: -2, knowledge: "+4±1", project.quality.N: "+3±1" }
+    - label: "Find the angle nobody's taking"
+      check: { stat: taste, vs: 55, spread: 20 }
+      success:
+        text: "Everyone is building systems. Nobody asked the users. You will."
+        effects: { project.quality.N: "+8±2", sanity: "+3±1" }
+      failure:
+        text: "Every angle you find is already taken, sometimes twice."
+        effects: { project.progress: "-5±2", sanity: "-3±1" }
+
+- id: wor_agents_everywhere
+  title: "Is It an Agent?"
+  category: world
+  rarity: common
+  when:
+    project: { stage_kind: work }
+  text:
+    - "Suddenly every paper needs \"agents\". Every call for papers, talk title and lab meeting slide has the word in it. {labmate} asks whether {project} is an agent."
+  choices:
+    - label: "Rebrand it as an agent"
+      text: "Your slides say \"agentic\" eleven times. People seem more interested, and somewhat more confused."
+      effects: { project.quality.N: "+3±1", project.quality.C: "-3±1", network: "+2±1" }
+    - label: "Explain that it's a pipeline"
+      text: "\"It's a pipeline.\" A few people nod. One of them is a reviewer, and they appreciate it."
+      effects: { taste: "+2±1", sanity: "+1" }
+    - label: "Build a real agent version"
+      text: "You spend a week on it. It works, and it's actually more interesting than the buzzword."
+      effects: { days: -3, energy: "-5±2", coding: "+2±1", project.quality.N: "+5±2" }
+
+- id: wor_benchmark_debate
+  title: "Does It Mean Anything?"
+  category: world
+  rarity: uncommon
+  when:
+    project: { type: empirical, stage: [experiments, writing] }
+  text:
+    - "A field-wide online debate breaks out: does the benchmark behind {project} measure anything at all? The top post has {roll:900-3000} replies."
+  choices:
+    - label: "Add a second evaluation"
+      text: "A small human evaluation backs up your numbers. It costs a week and makes the paper much harder to attack."
+      effects: { days: -2, energy: "-5±2", project.quality.S: "+7±2" }
+    - label: "Join the debate"
+      text: "You post a careful take and spend two days answering replies. Some of them are useful."
+      effects: { network: "+3±1", sanity: "-4±2", days: -1 }
+    - label: "Write an honest limitations paragraph"
+      text: "One clear paragraph on what the benchmark can and can't tell you. Reviewers tend to like that."
+      effects: { project.quality.C: "+3±1", writing: "+1" }
+
+- id: wor_famous_post
+  title: "A Famous Post"
+  category: world
+  rarity: rare
+  when:
+    paper: { status: accepted }
+  text:
+    - "A famous researcher posts about {paper}: \"This is the kind of work the field needs.\" Your phone does not stop buzzing for an hour."
+  choices:
+    - label: "Reply with a short thank-you"
+      text: "Gracious and brief. A few hundred people read your paper this week."
+      effects: { citations: "+6±2", network: "+4±2", sanity: "+5±2" }
+    - label: "Post a thread explaining the paper"
+      check: { stat: writing, vs: 50, spread: 20 }
+      success:
+        text: "The thread takes off. Three labs email you about follow-up work."
+        effects: { citations: "+10±3", network: "+6±2", energy: "-3±1" }
+      failure:
+        text: "The replies turn into an argument about your figure's font. Some people read the paper anyway."
+        effects: { citations: "+3±1", sanity: "-3±1" }
+    - label: "Send a screenshot to your parents"
+      text: "Your parents don't fully get it, but they print it out and put it on the fridge."
+      effects: { family_rel: "+4±2", sanity: "+5±2", citations: "+2±1" }
+
+- id: wor_survey_pioneering
+  title: "Pioneering Work"
+  category: world
+  rarity: uncommon
+  when:
+    paper: { status: accepted }
+  text:
+    - "A new survey paper calls {paper} \"pioneering work\". You read the sentence three times to make sure it's yours."
+  choices:
+    - label: "Email the authors a thank-you"
+      text: "They reply warmly and ask whether you'd review their next draft."
+      effects: { network: "+4±2", citations: "+2±1" }
+    - label: "Add it to your research statement"
+      text: "\"Described as pioneering by a recent survey.\" It reads well in the statement."
+      effects: { career_prep: "+2", sanity: "+3±1" }
+    - label: "Read how they describe it"
+      text: "They describe it correctly, mostly. You'll take it."
+      effects: { sanity: "+2±1", taste: "+1" }
+
+- id: wor_hiring_freeze
+  title: "The Freeze"
+  category: world
+  rarity: uncommon
+  hook: job_market
+  when:
+    world: { hiring: freeze }
+    has_advisor: true
+  text:
+    - "Three companies on your list announce hiring freezes in the same week. One recruiter writes to \"keep in touch for next year\"."
+  choices:
+    - label: "Widen your search"
+      text: "You add twelve more places and a few you'd never considered. It's a long weekend of cover letters."
+      effects: { days: -2, career_prep: "+3", sanity: "-3±1" }
+    - label: "Ask {advisor.nick} about a postdoc"
+      text: "Your advisor has a few ideas and a few names. Suddenly the year ahead looks less frozen."
+      effects: { advisor_rel: "+2±1", sanity: "+3±1", career_prep: "+1" }
+      flag_set: [postdoc_backup]
+    - label: "Lean on your network"
+      check: { stat: network, vs: 55, spread: 20 }
+      success:
+        text: "A former labmate's team still has one open position. They forward your CV that afternoon."
+        effects: { career_prep: "+3", sanity: "+4±1" }
+      failure:
+        text: "Everyone you ask is frozen too. A few promise to let you know when things thaw."
+        effects: { sanity: "-4±2", network: "+1" }
+
+- id: wor_hiring_boom
+  title: "Offers, Unasked"
+  category: world
+  rarity: uncommon
+  when:
+    world: { hiring: boom }
+    turn: [2, 14]
+    status_none: [job_market]
+  text:
+    - "Hiring is booming. Two recruiters you've never met email you about summer internships, and one even spells your name right."
+  choices:
+    - label: "Take both calls"
+      text: "Two calls, two friendly recruiters, two promising next steps."
+      effects: { days: -1, career_prep: "+3", network: "+3±1", energy: "-3±1" }
+    - label: "Ask {advisor.nick} which one fits"
+      requires: { has_advisor: true }
+      text: "Your advisor knows someone on one of the teams. Your reply now sounds much better informed."
+      effects: { advisor_rel: "+2±1", career_prep: "+2" }
+    - label: "Archive them, you're busy"
+      text: "Your research gets the week. In this market, the recruiters will write again."
+      effects: { sanity: "+2±1" }
+
+- id: wor_retro_method
+  title: "Back in Fashion"
+  category: world
+  rarity: uncommon
+  text:
+    - "A method from the 2010s is suddenly back in fashion. Half of today's new papers cite something older than your undergrad degree."
+  choices:
+    - label: "Read the original paper"
+      text: "It's surprisingly good, and it has a section everyone forgot about."
+      effects: { days: -1, knowledge: "+3±1", taste: "+2±1" }
+    - label: "Ask {senior} what it was like"
+      text: "{senior} talks for an hour. You learn more than the papers taught you."
+      effects: { labmates_rel: "+3±1", knowledge: "+1", sanity: "+2±1" }
+    - label: "Post \"we had this in 2014\""
+      text: "It gets a lot of likes from people who were there, and a lot of replies from people who weren't."
+      effects: { sanity: "+2±1", network: "-1" }
+
+- id: wor_arxiv_flood
+  title: "The Daily Listing"
+  category: world
+  rarity: common
+  repeatable: true
+  cooldown: 8
+  text:
+    - "Today's arXiv listing in your area is {roll:380-460} papers long."
+    - "You open today's arXiv listing. It is {roll:380-460} papers long, and it's only Tuesday."
+  choices:
+    - label: "Skim every title"
+      text: "An hour later, you have seven open tabs and a mild headache."
+      effects: { energy: "-3±1", knowledge: "+2±1" }
+    - label: "Search for anything like yours"
+      check: { stat: taste, vs: 50, spread: 25 }
+      success:
+        text: "Nothing overlaps. You breathe out."
+        effects: { sanity: "+3±1" }
+      failure:
+        text: "One paper looks close. After an hour of reading, you decide it isn't. Probably."
+        effects: { sanity: "-4±1", knowledge: "+1" }
+    - label: "Close the tab"
+      text: "The important ones will find you. They always do."
+      effects: { sanity: "+2±1" }

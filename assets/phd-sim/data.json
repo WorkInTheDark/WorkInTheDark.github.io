@@ -1,0 +1,15 @@
+---
+layout: none
+permalink: /assets/phd-sim/data.json
+sitemap: false
+---
+{%- assign first = true -%}
+{"phd101": {
+{%- for e in site.phd101 -%}
+{%- if e.topic -%}
+{%- unless first -%},{%- endunless -%}
+{{ e.topic | jsonify }}: {"title": {{ e.title | jsonify }}, "url": {{ e.url | relative_url | jsonify }}}
+{%- assign first = false -%}
+{%- endif -%}
+{%- endfor -%}
+}, "data": {{ site.data.phd_sim | jsonify }}}

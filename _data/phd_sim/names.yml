@@ -1,0 +1,180 @@
+# Fictional name pools. No real public figures.
+first:
+  - Aisha
+  - Mateo
+  - Priya
+  - Kenji
+  - Zara
+  - Lucas
+  - Mei
+  - Omar
+  - Sofia
+  - Jonah
+  - Amara
+  - Ravi
+  - Lena
+  - Tariq
+  - Hana
+  - Diego
+  - Nadia
+  - Felix
+  - Yuki
+  - Samir
+  - Chloe
+  - Kwame
+  - Ingrid
+  - Arjun
+  - Leila
+  - Bruno
+  - Ana
+  - Tomás
+  - Ming
+  - Fatima
+  - Elias
+  - Noor
+  - Ivan
+  - Grace
+  - Kofi
+  - Sana
+  - Mira
+  - Hugo
+  - Jae
+  - Esme
+  - Rohan
+  - Lucia
+  - Theo
+  - Asha
+  - Dmitri
+  - Ines
+  - Wei
+  - Tunde
+  - Clara
+  - Javier
+  - Riya
+  - Oskar
+  - Lin
+  - Malik
+  - Freya
+  - Sora
+  - Emeka
+  - Paula
+  - Arash
+  - Nina
+last:
+  - Okafor
+  - Lindqvist
+  - Nakamura
+  - Haddad
+  - Moreau
+  - Patel
+  - Kowalski
+  - Silva
+  - Chen
+  - Abara
+  - Rossi
+  - Novak
+  - Mensah
+  - Ivanova
+  - Tanaka
+  - Ferreira
+  - Byrne
+  - Sato
+  - Rahman
+  - Delgado
+  - Kaur
+  - Fischer
+  - Adeyemi
+  - Larsen
+  - Park
+  - Romero
+  - Hoffmann
+  - Nguyen
+  - Costa
+  - Varga
+  - Osei
+  - Petrov
+  - Ibrahim
+  - Duarte
+  - Sharma
+  - Brennan
+  - Yilmaz
+  - Wójcik
+  - Achebe
+  - Takahashi
+  - Morales
+  - Lund
+  - Kim
+  - Aziz
+  - Herrera
+  - Dubois
+  - Mwangi
+  - Ortega
+  - Saito
+  - Quinn
+companies:
+  - Lumenware
+  - Quanta Systems
+  - Bramble
+  - Northstar Cloud
+  - Fennec Labs
+  - Vellum AI
+  - Kestrel Health
+  - Tidewater
+  - Copperline
+  - Hollow Oak
+  - Brightloom
+  - Mosaic Data
+labs:
+  - Helix AI
+  - Northwind Labs
+  - Polaris Research
+  - Juniper Intelligence
+  - Cobalt AI
+  - Meridian Labs
+  - Tessellate
+  - Openfield
+models:
+  - "Helix-{n}"
+  - "Atlas {n} Ultra"
+  - "Nimbus {n}.5"
+  - "Orca-{n}"
+  - "Lumen {n} Pro"
+  - "Quill-{n}"
+  - "Monolith {n}"
+  - "Sparrow {n}"
+  - "Cascade-{n}"
+  - "Zephyr {n}o"
+cities:
+  - Vienna
+  - Bangkok
+  - Vancouver
+  - Honolulu
+  - Yokohama
+  - Miami
+  - Dublin
+  - Singapore
+  - Toronto
+  - Barcelona
+  - Seoul
+  - Lisbon
+  - Montréal
+  - New Orleans
+  - Abu Dhabi
+  - Mexico City
+  - Kyoto
+  - Copenhagen
+  - Hamburg
+  - Melbourne
+  - Suzhou
+  - Albuquerque
+  - Rotterdam
+  - Nairobi
+pets:
+  - Pixel
+  - Gradient
+  - Baseline
+  - Tofu
+  - Mochi
+  - Bayes
+  - Latte
+  - Epoch

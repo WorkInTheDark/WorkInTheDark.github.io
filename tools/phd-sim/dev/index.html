@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PhD Simulator (dev)</title>
+  <link rel="stylesheet" href="/assets/css/phd-sim.css">
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #fff; }
+    html[data-theme='dark'] body { background: #1c1c1d; }
+    .dev-bar { display: flex; gap: .5rem; padding: .5rem 1rem; font: 13px system-ui; border-bottom: 1px solid #ddd; }
+    .wrap { max-width: 930px; margin: 0 auto; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="dev-bar">Dev page for the PhD Simulator.
+    <button onclick="document.documentElement.toggleAttribute('data-theme') || document.documentElement.setAttribute('data-theme','dark')">Toggle dark</button>
+    <button onclick="localStorage.clear(); location.reload()">Clear saves</button>
+  </div>
+  <div class="wrap"><div id="phd-sim" data-src="/tools/phd-sim/out/data.json"></div></div>
+  <script type="module" src="/assets/js/phd-sim/main.js"></script>
+</body>
+</html>

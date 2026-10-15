@@ -1,0 +1,20 @@
+# Status chips shown under the stats bar.
+- { id: sick,                 name: "Sick",                 desc: "You lose 5 free days." }
+- { id: jet_lagged,           name: "Jet-lagged",           desc: "Working at 80%." }
+- { id: burnout,              name: "Burnout",              desc: "Free days halved, no overtime. Rest." }
+- { id: post_rejection_blues, name: "Post-rejection blues", desc: "Sanity dips each turn; working at 90%." }
+- { id: deadline_mode,        name: "Deadline mode",        desc: "Working at 115%, but it costs Sanity." }
+- { id: in_the_zone,          name: "In the zone",          desc: "Working at 120%." }
+- { id: in_love,              name: "In love",              desc: "Sanity up, focus slightly down." }
+- { id: injured,              name: "Injured",              desc: "No exercise for now." }
+- { id: visa_pending,         name: "Visa pending",         desc: "Fingers crossed." }
+- { id: on_internship,        name: "Internship",           desc: "The routine is paused for the internship." }
+- { id: on_leave,             name: "On leave",             desc: "No research; Sanity and Health recover." }
+- { id: defense_prep,         name: "Defense prep",         desc: "5 fixed days per turn on the thesis and slides." }
+- { id: coursework,           name: "Coursework",           desc: "Classes take fixed days." }
+- { id: ta,                   name: "TA",                   desc: "Teaching takes fixed days." }
+- { id: quals_prep,           name: "Quals prep",           desc: "Reading days count toward quals readiness." }
+- { id: proposal_prep,        name: "Proposal prep",        desc: "Project days count toward proposal readiness." }
+- { id: job_market,           name: "On the market",        desc: "Applications and interviews." }
+- { id: at_conference,        name: "At a conference",      desc: "Away for the conference." }
+- { id: fellowship,           name: "Fellowship",           desc: "No TA duty this year." }

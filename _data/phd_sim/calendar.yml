@@ -1,0 +1,28 @@
+# Turn-of-year labels (each turn = two weeks; the year starts on 1 September).
+turns:
+  - { t: 1,  dates: "Sep 1–14",      semester: fall,   note: "Fall semester starts" }
+  - { t: 2,  dates: "Sep 15–28",     semester: fall }
+  - { t: 3,  dates: "Sep 29–Oct 12", semester: fall }
+  - { t: 4,  dates: "Oct 13–26",     semester: fall }
+  - { t: 5,  dates: "Oct 27–Nov 9",  semester: fall,   note: "Halloween" }
+  - { t: 6,  dates: "Nov 10–23",     semester: fall }
+  - { t: 7,  dates: "Nov 24–Dec 7",  semester: fall,   note: "Thanksgiving" }
+  - { t: 8,  dates: "Dec 8–21",      semester: fall,   note: "Finals" }
+  - { t: 9,  dates: "Dec 22–Jan 4",  semester: break,  note: "Winter break" }
+  - { t: 10, dates: "Jan 5–18",      semester: spring, note: "Spring semester starts" }
+  - { t: 11, dates: "Jan 19–Feb 1",  semester: spring }
+  - { t: 12, dates: "Feb 2–15",      semester: spring, note: "Lunar New Year" }
+  - { t: 13, dates: "Feb 16–Mar 1",  semester: spring }
+  - { t: 14, dates: "Mar 2–15",      semester: spring, note: "Spring break" }
+  - { t: 15, dates: "Mar 16–29",     semester: spring }
+  - { t: 16, dates: "Mar 30–Apr 12", semester: spring }
+  - { t: 17, dates: "Apr 13–26",     semester: spring }
+  - { t: 18, dates: "Apr 27–May 10", semester: spring, note: "Finals" }
+  - { t: 19, dates: "May 11–24",     semester: summer, note: "Summer starts" }
+  - { t: 20, dates: "May 25–Jun 7",  semester: summer }
+  - { t: 21, dates: "Jun 8–21",      semester: summer }
+  - { t: 22, dates: "Jun 22–Jul 5",  semester: summer }
+  - { t: 23, dates: "Jul 6–19",      semester: summer }
+  - { t: 24, dates: "Jul 20–Aug 2",  semester: summer }
+  - { t: 25, dates: "Aug 3–16",      semester: summer }
+  - { t: 26, dates: "Aug 17–30",     semester: summer, note: "New cohort arrives" }

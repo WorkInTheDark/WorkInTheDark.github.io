@@ -1,0 +1,472 @@
+# PhD Simulator: events around reviews, rebuttals and decisions.
+# Source ideas: docs/phd-simulator/event-ideas.md, section E (ticked only).
+# Schema: docs/phd-simulator/content-spec.md.
+#
+# Review-content ideas (the reviewer who cites seven papers by one author,
+# LLM-written reviews, "incremental" citing a paper from after the deadline,
+# the concern already answered in Section 3, the model released last week,
+# the request for a larger study) live in _data/phd_sim/reviews.yml as
+# personas and concerns, not here.
+#
+# Hooks used here:
+#   reviews_in    binds {paper} and {venue}; before the rebuttal
+#   after_submit  binds {paper} and {venue}; desk rejects need a bound paper
+#   after_accept  binds {paper} and {venue}
+#   after_reject  binds {paper} and {venue}
+#   turn          everything else
+#
+# telemetry rebuttals >= 1 is used as a proxy for "this paper had a rebuttal".
+
+# ===========================================================================
+# Reviews arrive (hook: reviews_in)
+# ===========================================================================
+
+- id: rev_well_written_two
+  title: "Well Written. Score: 2."
+  category: reviews
+  rarity: common
+  hook: reviews_in
+  text:
+    - "Reviewer 3: \"The paper is well written, well motivated, and the experiments are thorough.\" Overall score: 2."
+    - "One review praises your writing for a full paragraph, lists two minor typos, and gives {paper} a 2."
+  choices:
+    - label: "Ask what would change their mind"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success:
+        text: "Your question is short and polite. The reviewer admits they \"expected more\" and raises the score half a point."
+        effects: { paper.score: "+3±1", sanity: "+1" }
+      failure:
+        text: "Your question gets no answer. The 2 stays a 2, mysterious and well written."
+        effects: { sanity: "-2±1" }
+    - label: "Flag the mismatch to the area chair"
+      check: { stat: writing, vs: 60, spread: 20 }
+      success:
+        text: "The area chair agrees that the review's text doesn't support its score, and weighs it less."
+        effects: { paper.score: "+4±2" }
+      failure:
+        text: "The area chair reads your note as a complaint about a low score, which, to be fair, it is."
+        effects: { paper.score: "-2±1", sanity: "-2±1" }
+    - label: "Spend your effort on the others"
+      text: "You leave Reviewer 3 alone and answer the other two carefully. Sometimes a 2 is just a 2."
+      effects: { paper.score: "+1", sanity: "+1" }
+
+# ===========================================================================
+# Desk rejects (hook: after_submit, the only hook that binds the new paper)
+# The anonymous-repo desk reject is merged into wri_anonymize_repo
+# (events/writing.yml). Every desk-reject outcome grants desk_rejected.
+# ===========================================================================
+
+- id: rev_desk_one_line
+  title: "One Line Over"
+  category: reviews
+  rarity: rare
+  hook: after_submit
+  text:
+    - "A week after you submit, the program chairs write: {paper} runs one line onto page 9, past the 8-page limit. It is desk-rejected."
+  choices:
+    - label: "Appeal, politely"
+      check: { stat: writing, vs: 80, spread: 15 }
+      success:
+        text: "On a second look, the stray line belongs to the Limitations section, which doesn't count toward the limit. Reinstated, with apologies."
+        effects: { sanity: "+4±2" }
+      failure:
+        text: "The chairs reply kindly and firmly: the limit is the limit. You count the lines on page 8. Exactly enough."
+        effects: { paper.desk_reject: true, sanity: "-8±3" }
+        achievement: desk_rejected
+    - label: "Tell the lab the whole story"
+      text: "The lab laughs with you, mostly. Two labmates quietly recount their own page limits."
+      effects: { paper.desk_reject: true, sanity: "-4±2", labmates_rel: "+3±1" }
+      achievement: desk_rejected
+    - label: "Fix it and move on"
+      text: "Two lines gone in five minutes, and a sticky note on your monitor: \"COUNT THE PAGES.\" The paper waits for the next cycle."
+      effects: { paper.desk_reject: true, sanity: "-6±2", writing: "+2±1" }
+      achievement: desk_rejected
+
+# Arc: the acknowledgments slip
+#   rev_desk_acknowledgments (after_submit)
+#     -> hope nobody reads them -> rev_desk_ack_caught (scheduled, 60%)
+- id: rev_desk_acknowledgments
+  title: "Thanks, Everyone"
+  category: reviews
+  rarity: uncommon
+  hook: after_submit
+  arc: ack_slip
+  when:
+    flags_none: [anonymity_checklist]
+  text:
+    - "Rereading the submitted PDF, you reach the last page. The acknowledgments, which you meant to delete, thank your lab by name and list your grant number."
+  choices:
+    - label: "Tell the chairs yourself"
+      check: { stat: writing, vs: 30, spread: 20 }
+      success:
+        text: "The chairs thank you for reporting it, strip the paragraph, and let the paper through."
+        effects: { sanity: "+2±1" }
+        flag_set: [anonymity_checklist]
+      failure:
+        text: "The chairs thank you for your honesty. The policy, unfortunately, has no honesty clause. Desk rejected."
+        effects: { paper.desk_reject: true, sanity: "-8±3" }
+        achievement: desk_rejected
+        flag_set: [anonymity_checklist]
+    - label: "Ask your advisor what to do"
+      requires: { has_advisor: true }
+      check: { stat: advisor_rel, vs: 45, spread: 20 }
+      success:
+        text: "Your advisor replies in four minutes: \"Tell the chairs. Now.\" You do, and they let it through."
+        effects: { sanity: "+1", advisor_rel: "+1" }
+        flag_set: [anonymity_checklist]
+      failure:
+        text: "Your advisor is on a long flight. By the time they land, the chairs have found it. Desk rejected."
+        effects: { paper.desk_reject: true, sanity: "-8±3" }
+        achievement: desk_rejected
+        flag_set: [anonymity_checklist]
+    - label: "Hope nobody reads acknowledgments"
+      text: "You close the PDF. Surely nobody reads the acknowledgments. You check your email a lot this week."
+      effects: { sanity: "-2±1" }
+      flag_set: [ack_unreported]
+      schedule: { event: rev_desk_ack_caught, in: [1, 2], chance: 0.6 }
+
+- id: rev_desk_ack_caught
+  title: "Someone Read the Acknowledgments"
+  category: reviews
+  rarity: uncommon
+  trigger: scheduled
+  arc: ack_slip
+  when:
+    paper: { status: under_review }
+    flags_all: [ack_unreported]
+  text:
+    - "An email from the program chairs: they read the acknowledgments. {paper} is desk-rejected for breaking anonymity."
+  choices:
+    - label: "Start a pre-submission checklist"
+      text: "Item one: delete the acknowledgments. Item two: check item one. The checklist will outlive the paper."
+      effects: { paper.desk_reject: true, sanity: "-6±2", writing: "+1" }
+      achievement: desk_rejected
+      flag_clear: [ack_unreported]
+      flag_set: [anonymity_checklist]
+    - label: "Warn the lab"
+      text: "Three labmates quietly open their own drafts and delete their acknowledgments. You may have saved someone else's paper."
+      effects: { paper.desk_reject: true, sanity: "-5±2", labmates_rel: "+3±1" }
+      achievement: desk_rejected
+      flag_clear: [ack_unreported]
+      flag_set: [anonymity_checklist]
+
+- id: rev_desk_todo
+  title: "[TODO]"
+  category: reviews
+  rarity: uncommon
+  hook: after_submit
+  when:
+    flags_none: [anonymity_checklist]
+  text:
+    - "Scrolling the submitted PDF, you find it on page 6, in red: \"[TODO: rerun with new seeds - {labmate}]\". A real name, in an anonymous submission. The portal closes in nine minutes."
+  choices:
+    - label: "Delete it and re-upload, fast"
+      check: { stat: energy, vs: 45, spread: 20 }
+      success:
+        text: "One deleted line, one recompile, and the new PDF lands with 40 seconds to spare. Your heart rate takes longer to recover."
+        effects: { sanity: "-2±1" }
+        flag_set: [anonymity_checklist]
+      failure:
+        text: "The upload finishes at 12:00:07, and the portal keeps the old PDF. A week later, the paper is desk-rejected."
+        effects: { paper.desk_reject: true, sanity: "-10±3" }
+        achievement: desk_rejected
+        flag_set: [anonymity_checklist]
+    - label: "Email the chairs and explain"
+      check: { stat: writing, vs: 40, spread: 20 }
+      success:
+        text: "The chairs accept a corrected PDF. They've seen worse, they say, and they list some."
+        effects: { sanity: "+1" }
+        flag_set: [anonymity_checklist]
+      failure:
+        text: "The chairs are sympathetic and firm. The name was visible to reviewers, so the paper is desk-rejected."
+        effects: { paper.desk_reject: true, sanity: "-10±3" }
+        achievement: desk_rejected
+        flag_set: [anonymity_checklist]
+
+# ===========================================================================
+# Acceptances (hook: after_accept)
+# ===========================================================================
+
+- id: rev_accept_lab_meeting
+  title: "Accepted, Mid-Slide"
+  category: reviews
+  rarity: common
+  hook: after_accept
+  when:
+    has_advisor: true
+  text:
+    - "Halfway through lab meeting, while {labmate} presents, your phone lights up: \"{venue} decision: Accept.\""
+  choices:
+    - label: "Wait until {labmate} finishes"
+      text: "You sit on the news for 25 minutes. When you share it at the end, the room cheers, and {labmate} cheers loudest."
+      effects: { sanity: "+4±2", labmates_rel: "+3±1" }
+    - label: "Announce it right now"
+      text: "The room cheers. {labmate}'s ablation slide never quite recovers."
+      effects: { sanity: "+6±2", labmates_rel: "-2±1" }
+    - label: "Slide your phone to {advisor}"
+      text: "{advisor} reads it, nods once, and keeps a straight face for nine more minutes. Then announces it to the room."
+      effects: { sanity: "+4±2", advisor_rel: "+3±1" }
+
+- id: rev_score_raised
+  title: "Score Raised"
+  category: reviews
+  rarity: common
+  hook: after_accept
+  when:
+    telemetry: { rebuttals: ">=1" }
+  text:
+    - "In the final reviews you see it: Reviewer 3 raised their score from 2.5 to 3.5. \"The new analysis addresses my concern.\" It made the difference."
+  choices:
+    - label: "Write down what convinced them"
+      text: "Their concern was right. Fixing it made the paper better, not just the score. You save the note for next time."
+      effects: { writing: "+2±1", taste: "+1" }
+      tip: "Critique-Centric Feedback"
+    - label: "Screenshot it for the lab chat"
+      text: "The lab chat fills with celebration emoji. {labmate} asks to see your response, for science."
+      effects: { sanity: "+5±2", labmates_rel: "+2±1" }
+    - label: "Move the analysis into the main text"
+      text: "The new analysis becomes Figure 4. Readers will find it, and so will citations."
+      effects: { paper.citations: "+3±1", energy: "-3±1", days: -1 }
+
+- id: rev_camera_ready_promises
+  title: "Promises, Promises"
+  category: reviews
+  rarity: common
+  hook: after_accept
+  when:
+    telemetry: { rebuttals: ">=1" }
+  text:
+    - "The camera-ready is due in two weeks. Your rebuttal promised a new baseline, an error analysis, and a clearer Figure 2."
+  choices:
+    - label: "Deliver every promise"
+      text: "Everything you promised is in. Reviewer 2 will never check. You did it anyway, and your advisor noticed."
+      effects: { days: -3, energy: "-7±2", advisor_rel: "+4±2", paper.citations: "+3±1" }
+      tip: "Deliver Your Commitments"
+    - label: "Deliver the main ones"
+      text: "The baseline and the figure make it in. The error analysis becomes \"future work\"."
+      effects: { days: -1, energy: "-3±1", advisor_rel: "-1" }
+    - label: "Submit it as accepted"
+      text: "Nobody stops you. Your advisor notices the missing error analysis and says nothing, which is worse."
+      effects: { sanity: "+3±1", advisor_rel: "-5±2", network: "-1" }
+
+- id: rev_fourth_submission
+  title: "Fourth Time"
+  category: reviews
+  rarity: uncommon
+  weight: 3.0
+  hook: after_accept
+  when:
+    paper: { submissions: ">=4" }
+  text:
+    - "{paper} has been rejected so many times it has its own folder of reviews. This time, all three reviews are positive. One calls it \"timely\"."
+  choices:
+    - label: "Frame the acceptance email"
+      text: "It goes on the wall by your desk, above a sticky note that says \"resubmit\"."
+      effects: { sanity: "+10±3" }
+      trait_add: rejection_hardened
+    - label: "Reread the first round of reviews"
+      text: "Round one said the paper wasn't ready. Round one was right. It's a much better paper now."
+      effects: { sanity: "+6±2", taste: "+3±1" }
+      trait_add: rejection_hardened
+      tip: "Sustain Through the Journey"
+    - label: "Thank everyone who read all four"
+      text: "Your advisor and {labmate} have read every version. You buy the first round, and they make you tell the whole story."
+      effects: { sanity: "+7±2", labmates_rel: "+3±1", advisor_rel: "+2±1" }
+      trait_add: rejection_hardened
+
+- id: rev_best_paper_nomination
+  title: "Nominated"
+  category: reviews
+  rarity: rare
+  hook: after_accept
+  text:
+    - "The acceptance comes with a Best Paper nomination. For two months you rehearse a 30-second thank-you. At the ceremony, another paper wins."
+  choices:
+    - label: "Clap, sincerely"
+      text: "The winning paper is very good. You clap, and someone behind you whispers that yours was their favorite."
+      effects: { sanity: "+2±1", network: "+3±1" }
+    - label: "Add \"nominee\" to your CV"
+      text: "Best Paper Nominee. It counts. It absolutely counts."
+      effects: { sanity: "+3±1", career_prep: "+2" }
+    - label: "Read the winner on the flight home"
+      text: "It's excellent. You fill two pages with ideas, and only one of them is \"why not us\"."
+      effects: { taste: "+3±1", sanity: "-1" }
+      tip: "Self-Motivation"
+
+- id: rev_outstanding_paper
+  title: "Outstanding Paper"
+  category: reviews
+  rarity: legendary
+  hook: after_accept
+  when:
+    paper: { tier: top }
+  text:
+    - "A second email from the chairs, two weeks after the acceptance: {paper} has been selected for an Outstanding Paper Award at {venue}."
+  choices:
+    - label: "Read it five times, then call home"
+      text: "Your family doesn't know what the award is. They are prouder than anyone at the conference will be."
+      effects: { sanity: "+15±4", family_rel: "+5±2", paper.citations: "+30±8" }
+      achievement: best_paper
+    - label: "Rebuild the talk from scratch"
+      text: "An award paper gets a full room. You rewrite the talk for it, and it's the best one you've ever given."
+      effects: { sanity: "+12±3", energy: "-5±2", presenting: "+5±2", network: "+4±2", paper.citations: "+35±10" }
+      achievement: best_paper
+      status: { add: in_the_zone, turns: 2 }
+    - label: "Post the news"
+      text: "Your post is shared by people you've only ever cited. Your inbox fills with invitations and one recruiter."
+      effects: { sanity: "+12±3", network: "+6±2", career_prep: "+3", paper.citations: "+40±12" }
+      achievement: best_paper
+
+# ===========================================================================
+# Rejections (hook: after_reject)
+# ===========================================================================
+
+- id: rev_meta_engages_with_two
+  title: "4, 4, and 2"
+  category: reviews
+  rarity: common
+  hook: after_reject
+  text:
+    - "Scores: 4, 4 and 2. The meta-review summarizes the 2, quotes the 2, and recommends rejection."
+  choices:
+    - label: "Write to the senior area chair"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success:
+        text: "A thoughtful reply: the meta-review \"could have engaged more with the positive reviews.\" The decision stands, but you feel heard."
+        effects: { sanity: "+4±2" }
+      failure:
+        text: "A template reply thanks you for your feedback on the review process."
+        effects: { sanity: "-3±1" }
+    - label: "Reread the 2 for anything real"
+      text: "Under the tone, one point is real. You fix it, and the next version is harder to reject."
+      effects: { taste: "+2±1", writing: "+1", sanity: "-1" }
+      tip: "Critique-Centric Feedback"
+    - label: "Resubmit next cycle, same paper"
+      text: "New reviewers, new odds. You attach a short response to the old reviews and hope for two 4s and a quiet third."
+      effects: { sanity: "+2±1" }
+
+- id: rev_no_rebuttal_replies
+  title: "Read by Nobody"
+  category: reviews
+  rarity: common
+  hook: after_reject
+  when:
+    telemetry: { rebuttals: ">=1" }
+  text:
+    - "You wrote a careful response with two new experiments. Not one reviewer replied, and the meta-review repeats the concerns you answered."
+  choices:
+    - label: "Put the new experiments in the paper"
+      text: "The rebuttal experiments go into the next version. This time, someone has to read them."
+      effects: { writing: "+1", taste: "+1", sanity: "-1" }
+    - label: "Report it to the chairs"
+      check: { stat: writing, vs: 50, spread: 20 }
+      success:
+        text: "The chairs acknowledge that the reviewers didn't engage, and make a note. It changes nothing, and helps anyway."
+        effects: { sanity: "+3±1" }
+      failure:
+        text: "An auto-reply, then nothing. You have now written two documents nobody read."
+        effects: { sanity: "-3±1" }
+    - label: "Close the laptop for the evening"
+      text: "You make dinner, call a friend, and don't open the reviews again until Monday."
+      effects: { energy: "+3±1", sanity: "+4±2", friends_rel: "+2±1" }
+
+- id: rev_score_lowered
+  title: "In Light of the Other Reviews"
+  category: reviews
+  rarity: uncommon
+  hook: after_reject
+  when:
+    telemetry: { rebuttals: ">=1" }
+  text:
+    - "Reviewer 1 had given a 3.5. After reading Reviewer 2, they lowered it to 2.5: \"I agree with R2's concerns.\" You had answered R2's concerns."
+  choices:
+    - label: "File a review issue report"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success:
+        text: "The area chair acknowledges the score change was never explained. The decision stands, but the note goes on record."
+        effects: { sanity: "+3±1" }
+      failure:
+        text: "Your report is filed. So, apparently, is everything else."
+        effects: { sanity: "-3±1" }
+    - label: "Fix R2's concern anyway"
+      text: "Annoyingly, the fix makes the paper better. R2 was rude, but not entirely wrong."
+      effects: { taste: "+2±1", writing: "+1", sanity: "-2±1", energy: "-2±1" }
+    - label: "Vent to {labmate}"
+      text: "{labmate} once had a reviewer lower a score twice. You feel better, and slightly worse about science."
+      effects: { sanity: "+3±1", labmates_rel: "+2±1" }
+    - label: "Shrug. You've seen worse."
+      requires: { telemetry: { rejections: ">=3" } }
+      text: "Three rejections ago, this would have ruined your week. Today it ruins an afternoon, at most."
+      effects: { sanity: "+2±1" }
+      trait_add: rejection_hardened
+
+- id: rev_decision_at_dinner
+  title: "Decision at Dinner"
+  category: reviews
+  rarity: uncommon
+  hook: after_reject
+  text:
+    - "Your phone buzzes halfway through dinner with your family. It's the {venue} decision, and it's a no. Everyone has already seen your face."
+  choices:
+    - label: "Tell them what happened"
+      text: "Nobody at the table knows what a meta-review is. They are outraged on your behalf anyway, and it helps."
+      effects: { sanity: "+4±2", family_rel: "+4±2" }
+    - label: "\"Just work stuff.\""
+      text: "Nobody believes you. You skip dessert and reread the reviews under the table."
+      effects: { sanity: "-3±1", family_rel: "-2±1" }
+    - label: "Explain peer review, in full"
+      text: "Twenty minutes later, your uncle has a theory about Reviewer 2. It's not wrong."
+      effects: { sanity: "+2±1", family_rel: "+2±1", presenting: "+2±1" }
+
+# ===========================================================================
+# Any turn (hook: turn)
+# ===========================================================================
+
+- id: rev_chi_revise_resubmit
+  title: "Revise and Resubmit"
+  category: reviews
+  rarity: common
+  weight: 2.0
+  when:
+    turn: [5, 8]
+    paper: { status: revise_resubmit }
+  text:
+    - "{venue} says Revise and Resubmit. The reviewers' list of changes would rewrite half of {paper}, and the revision is due right after the holidays."
+  choices:
+    - label: "Rewrite half the paper"
+      text: "New framing, new analysis, a new discussion section. It's nearly a new paper, and a better one."
+      effects: { days: -3, energy: "-8±3", sanity: "-4±2", paper.score: "+6±2", writing: "+2±1" }
+      tip: "Critique-Centric Feedback"
+    - label: "Fix only the must-fix list"
+      text: "You make the required changes and explain the rest in the response letter. Solid, not dazzling."
+      effects: { days: -1, energy: "-3±1", paper.score: "+3±1" }
+    - label: "Split the rewrite with {labmate}"
+      check: { stat: labmates_rel, vs: 55, spread: 15 }
+      success:
+        text: "{labmate} takes the related work and the discussion. Two people, one voice, half the time."
+        effects: { days: -1, energy: "-4±2", paper.score: "+5±2", labmates_rel: "+1" }
+      failure:
+        text: "{labmate}'s half is good, but in a completely different voice. The paper now has two personalities."
+        effects: { days: -2, energy: "-4±2", paper.score: "+2±1", labmates_rel: "-2±1" }
+
+- id: rev_review_ten
+  title: "Ten Papers, Two Weeks"
+  category: reviews
+  rarity: uncommon
+  repeatable: true
+  cooldown: 13
+  when:
+    year: [2, 8]
+  text:
+    - "An area chair asks you to review ten papers. Reviews are due in two weeks."
+    - "Reviewing assignments are out: ten papers, two weeks, and one of them is 40 pages with appendices."
+  choices:
+    - label: "Review all ten, properly"
+      text: "Ten careful reviews. The area chair remembers your name, and you learn more about why papers get rejected than your own rejections taught you."
+      effects: { days: -4, energy: "-6±2", knowledge: "+3±1", taste: "+2±1", network: "+2±1" }
+    - label: "Take three, decline seven"
+      text: "Three thorough reviews, on time. The area chair thanks you for saying no early."
+      effects: { days: -1, knowledge: "+1", network: "+1" }
+    - label: "Accept all ten and skim"
+      text: "Your reviews are short; one is three sentences. The area chair notices. Somewhere, you've just become someone's Reviewer 2."
+      effects: { days: -1, sanity: "-2±1", network: "-2±1" }

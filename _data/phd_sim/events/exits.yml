@@ -1,0 +1,174 @@
+# Ways out of the PhD. Leaving is never framed as losing.
+- id: exi_hard_week
+  title: "Is This Worth It?"
+  category: exit
+  rarity: uncommon
+  repeatable: true
+  cooldown: 20
+  when: { year: [2, 8], stat: { sanity: "<25" }, milestone: { graduated: false } }
+  text:
+    - "It's 2 am and you're asking the question everyone asks eventually: is this worth it?"
+    - "You catch yourself browsing job listings during a seminar. Not for the first time."
+  choices:
+    - label: "Take a semester of leave"
+      text: "You file the paperwork. The relief is immediate."
+      status: { add: on_leave, turns: 6 }
+      effects: { sanity: "+10±3", advisor_rel: "-3±1" }
+      tip: "When and How to Rest"
+    - label: "Talk to your advisor about it"
+      check: { stat: advisor_rel, vs: 50, spread: 20 }
+      success: { text: "Your advisor listens, then helps you cut your plan in half. It helps more than you expected.", effects: { sanity: "+12±3", advisor_rel: "+4±2" }, tip: "Sustain Through the Journey" }
+      failure: { text: "The conversation is awkward. At least it's said out loud now.", effects: { sanity: "+4±2" } }
+    - label: "Leave with a Master's"
+      text: "You decide. It feels like putting down something heavy."
+      ending: masters_out
+    - label: "Sleep on it and keep going"
+      text: "Morning helps a little. It usually does."
+      effects: { sanity: "+5±2", energy: "+5±2" }
+- id: exi_bubble_tea_seed
+  title: "The Usual?"
+  category: exit
+  rarity: uncommon
+  when: { year: [1, 6], has_advisor: true }
+  text:
+    - "The bubble tea shop owner knows your order, your thesis topic, and your advisor's name. Today she mentions she's thinking of selling the shop."
+  choices:
+    - label: "Ask what it would cost, out of curiosity"
+      text: "More than a stipend. Less than you'd think. You put the number in your notes app."
+      flag_set: [bubble_tea_dream]
+      effects: { sanity: "+3±1" }
+    - label: "Wish her luck and get back to work"
+      text: "Your tea is perfect, as always."
+      effects: { sanity: "+2±1" }
+- id: exi_family_business_seed
+  title: "The Family Business"
+  category: exit
+  rarity: uncommon
+  when: { year: [1, 6], semester: [break] }
+  text:
+    - "Over holiday dinner, your uncle asks, again, when you'll come home and help run the family business. This year he has a spreadsheet."
+  choices:
+    - label: "Look at the spreadsheet"
+      text: "It's a terrible spreadsheet. You could fix it in an afternoon. That's the dangerous part."
+      flag_set: [family_business]
+      effects: { family_rel: "+4±2" }
+    - label: "Change the subject to dessert"
+      text: "Dessert wins. It always does."
+      effects: { sanity: "+2±1", family_rel: "+1" }
+- id: exi_med_school_seed
+  title: "You'd Make a Good Doctor"
+  category: exit
+  rarity: rare
+  when: { year: [2, 6], flags_all: [clinical_partner] }
+  text:
+    - "After another study session, a clinician you work with says, half-joking: \"You understand our workflow better than our residents. Ever thought about med school?\""
+  choices:
+    - label: "Laugh, then look up the requirements"
+      text: "You bookmark the page. Then you bookmark it again in a different browser."
+      flag_set: [med_school_curious]
+      effects: { sanity: "+2±1" }
+    - label: "Laugh it off"
+      text: "You're flattered. You're also very happy not to work night shifts."
+      effects: { sanity: "+2±1" }
+- id: exi_bubble_tea_offer
+  title: "For Sale"
+  category: exit
+  rarity: rare
+  when: { year: [2, 8], flags_all: [bubble_tea_dream], stat: { sanity: "<40" }, milestone: { graduated: false } }
+  text:
+    - "The sign in the bubble tea shop window says FOR SALE. The owner sees you staring and waves you in."
+  choices:
+    - label: "Buy the shop"
+      text: "You hand in your keycard and pick up an apron. It fits."
+      ending: bubble_tea
+    - label: "Not yet. Maybe after the defense"
+      text: "You order the usual. She gives you an extra topping, on the house."
+      effects: { sanity: "+4±2" }
+- id: exi_quant_recruiter
+  title: "A Recruiter Calls"
+  category: career
+  rarity: uncommon
+  when: { year: [3, 7], stat: { coding: ">=50" }, milestone: { graduated: false } }
+  text:
+    - "A recruiter from a trading firm messages you: \"Your statistics skills are wasted on papers. Want to talk?\" The salary range in the message has a lot of digits."
+  choices:
+    - label: "Take the call, out of curiosity"
+      text: "Forty minutes on market microstructure. You understand about half, and you're intrigued."
+      flag_set: [quant_recruiter]
+      effects: { days: -1, network: "+2±1" }
+    - label: "Ignore it and get back to work"
+      text: "You archive the message. Mostly."
+      effects: { sanity: "+1" }
+- id: exi_policy_briefing
+  title: "Brief the Staffers"
+  category: career
+  rarity: uncommon
+  when: { year: [3, 7], milestone: { graduated: false }, telemetry: { acceptances: ">=1" } }
+  text:
+    - "A policy institute invites you to brief a room of government staffers on how AI systems get evaluated. They want it plain, short, and with no jargon."
+  choices:
+    - label: "Say yes and write a one-pager"
+      text: "Explaining your field without jargon turns out to be hard, and useful. They ask you to stay in touch."
+      flag_set: [policy_interest]
+      effects: { days: -2, network: "+4±2", presenting: "+2±1" }
+    - label: "Decline politely"
+      text: "Your advisor says there will be other invitations."
+      effects: { sanity: "+1" }
+- id: exi_explainer_video
+  title: "Your Video Took Off"
+  category: career
+  rarity: rare
+  when: { year: [2, 7], telemetry: { acceptances: ">=1" }, milestone: { graduated: false } }
+  text:
+    - "The five-minute explainer you made for your paper has 50,000 views. The comments are mostly kind, and one of them is from a researcher you admire."
+  choices:
+    - label: "Make another one"
+      text: "You buy a better microphone. The second video does even better."
+      flag_set: [video_fame]
+      effects: { days: -2, citations: "+6±3", network: "+4±2", sanity: "+3±1" }
+    - label: "Enjoy it and get back to research"
+      text: "You screenshot the nice comment and keep going."
+      effects: { citations: "+3±2", sanity: "+3±1" }
+- id: exi_magazine_piece
+  title: "Write It for Everyone"
+  category: career
+  rarity: uncommon
+  when: { year: [2, 7], milestone: { graduated: false } }
+  text:
+    - "A science magazine asks if you'd write 1,200 words about your research for a general audience. No equations, no hedging in every sentence."
+  choices:
+    - label: "Write it"
+      text: "Your editor cuts every second qualifier. The piece is clearer than anything you've written, and your aunt shares it."
+      flag_set: [science_writer]
+      effects: { days: -2, writing: "+3±1", network: "+2±1" }
+    - label: "Decline, there's a deadline"
+      text: "Maybe next time. There's always a deadline."
+      effects: { sanity: "-1" }
+- id: exi_med_school_letter
+  title: "An Envelope"
+  category: exit
+  rarity: rare
+  when: { year: [3, 8], flags_all: [med_school_curious], stat: { sanity: "<45" }, milestone: { graduated: false } }
+  text:
+    - "You applied to a medical school on a whim last fall. Today there's an acceptance letter in your inbox, and a deadline to reply."
+  choices:
+    - label: "Go to med school"
+      text: "You tell your advisor, who says the clinicians always knew. You start in August."
+      ending: switched_fields
+    - label: "Stay and finish the PhD"
+      text: "You decline, carefully. It's good to know the door was open."
+      effects: { sanity: "+5±2" }
+- id: exi_family_offer
+  title: "The Offer from Home"
+  category: exit
+  rarity: rare
+  when: { year: [3, 8], flags_all: [family_business], stat: { sanity: "<45" }, milestone: { graduated: false } }
+  text:
+    - "Your uncle calls. He's ready to retire, and he wants you to take over the family business. \"You can bring your laptop,\" he adds, as if that settles it."
+  choices:
+    - label: "Go home and run it"
+      text: "You pack your office into two boxes. The spreadsheet never stood a chance."
+      ending: family_business
+    - label: "Not yet"
+      text: "He says the offer stands. It probably does."
+      effects: { sanity: "+3±1", family_rel: "+3±1" }

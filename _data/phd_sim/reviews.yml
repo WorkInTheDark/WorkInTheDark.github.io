@@ -1,0 +1,986 @@
+# PhD Simulator: reviewer personas, review concerns and meta-review lines.
+# Used by the review model and the rebuttal mini-game (design doc 8.6, 9.1).
+# Schema: docs/phd-simulator/content-spec.md, section 14.
+# Tokens: {model}, {fake_prior}, {venue}, {topic}.
+#
+# Folded in from event-ideas.md section E (and one from B):
+#   "incremental, citing a paper from after the deadline" -> incremental_from_the_future
+#   "cite seven papers, all by the same author"           -> seven_citations
+#   "two reviews are clearly LLM-written"                 -> persona llm_written + llm_vague_* concerns
+#   "main concern is answered in Section 3"               -> answered_in_section_3
+#   "comparison to a model released last week"           -> model_from_last_week
+#   "a reviewer asks for a larger study" (B)               -> larger_study
+#   "well written, and gives it a 2"                      -> reviewer_2 opener (also event rev_well_written_two)
+
+personas:
+  - id: expert
+    name: "The Expert"
+    bias: 0
+    openness: 0.9
+    silent: false
+    llm: false
+    weight: 1.0
+    openers:
+      - "I have worked on closely related problems, so I read this paper carefully, appendix included."
+      - "This paper tackles a real problem in {topic}, and most of my concerns can be fixed."
+      - "The paper is technically solid. My questions are mostly about scope and framing."
+      - "I checked the main results against the released code, and they match."
+
+  - id: skimmer
+    name: "The Skimmer"
+    bias: -2
+    openness: 0.7
+    silent: false
+    llm: false
+    weight: 1.2
+    openers:
+      - "The paper proposes something about {topic}. I did not have time to read the appendix."
+      - "Confidence: 2. This is not my main area, but the idea seems reasonable."
+      - "Overall the paper is fine, though I may have missed some details."
+      - "I read the abstract, the figures and the conclusion carefully."
+
+  - id: reviewer_2
+    name: "Reviewer 2"
+    bias: -10
+    openness: 0.3
+    silent: false
+    llm: false
+    weight: 1.0
+    openers:
+      - "The authors propose yet another approach to {topic}."
+      - "The paper is well written and easy to follow. Unfortunately, I have serious concerns."
+      - "I struggle to see what this paper adds to the literature."
+      - "I have several major concerns, listed in no particular order, since they are all major."
+
+  - id: champion
+    name: "The Champion"
+    bias: 10
+    openness: 1.0
+    silent: false
+    llm: false
+    weight: 0.7
+    openers:
+      - "This is one of the best papers in my batch, and I would like to see it at {venue}."
+      - "I enjoyed reading this paper and learned something from it."
+      - "This paper asks exactly the question the field should be asking about {topic}."
+
+  - id: citation_seeker
+    name: "The Citation Seeker"
+    bias: -3
+    openness: 0.8
+    silent: false
+    llm: false
+    weight: 0.8
+    openers:
+      - "The paper overlooks an important line of prior work."
+      - "The idea is interesting, but it is closely related to {fake_prior}, which is not discussed."
+      - "The related work section is incomplete in ways that matter."
+
+  - id: scope_police
+    name: "The Scope Police"
+    bias: -6
+    openness: 0.5
+    silent: false
+    llm: false
+    weight: 0.8
+    openers:
+      - "This is a solid paper, but I am not convinced it belongs at {venue}."
+      - "This reads more like an HCI paper than an NLP paper."
+      - "This reads more like an NLP paper than an HCI paper."
+      - "The work may find a more appreciative audience at a domain-specific venue."
+
+  - id: baseline_hunter
+    name: "The Baseline Hunter"
+    bias: -4
+    openness: 0.7
+    silent: false
+    llm: false
+    weight: 0.9
+    openers:
+      - "The idea is interesting, but the experimental comparison is incomplete."
+      - "Why not simply use {model}?"
+      - "The baselines in the main table are not the strongest available."
+
+  - id: llm_written
+    name: "The LLM-Written Review"
+    bias: -2
+    openness: 0.2
+    silent: false
+    llm: true
+    weight: 0.8
+    openers:
+      - "This paper delves into the intricate landscape of {topic}, offering a comprehensive exploration."
+      - "Strengths: The paper is well-written. Weaknesses: The paper could be improved."
+      - "In the ever-evolving field of {topic}, this paper presents a novel and timely contribution."
+      - "Overall, this paper makes a valuable contribution, but there are several areas for improvement."
+
+  - id: methodologist
+    name: "The Methodologist"
+    bias: -3
+    openness: 0.8
+    silent: false
+    llm: false
+    weight: 0.9
+    openers:
+      - "My main concerns are about the statistical analysis."
+      - "The results are promising, but I am not yet convinced they are significant."
+      - "How many random seeds were used? The paper does not say."
+
+  - id: silent_one
+    name: "The Silent One"
+    bias: -1
+    openness: 0.0
+    silent: true
+    llm: false
+    weight: 0.9
+    openers:
+      - "Good paper."
+      - "The paper is fine. Some parts could be clearer."
+      - "I have no major concerns."
+
+  - id: qual_purist
+    name: "The Qualitative Purist"
+    bias: -3
+    openness: 0.7
+    silent: false
+    llm: false
+    weight: 0.6
+    openers:
+      - "The study is interesting, but the qualitative method is underspecified."
+      - "I would like to know much more about the participants and the setting."
+      - "The paper reports what participants said, but not what the authors made of it."
+
+  - id: practitioner
+    name: "The Practitioner"
+    bias: 1
+    openness: 0.9
+    silent: false
+    llm: false
+    weight: 0.6
+    openers:
+      - "As someone who builds these systems, I wonder whether this would survive a real deployment."
+      - "I like the problem. I am less sure the solution would work outside the lab."
+      - "This could be useful in practice, if the authors address cost and latency."
+
+  - id: first_timer
+    name: "The First-Time Reviewer"
+    bias: 0
+    openness: 1.1
+    silent: false
+    llm: false
+    weight: 0.6
+    openers:
+      - "I read this paper very carefully and have 23 comments, listed by line number."
+      - "Line 112 has a typo. Line 113 has another typo."
+      - "This is my first time reviewing for {venue}, so I tried to be thorough."
+
+concerns:
+  # -------------------------------------------------------------------------
+  # Novelty (N)
+  # -------------------------------------------------------------------------
+  - id: incremental
+    component: N
+    severity: major
+    valid: 0.5
+    text:
+      - "The contribution is incremental over {fake_prior}."
+      - "The proposed method is a modest extension of existing techniques."
+      - "The novelty over prior work on {topic} is limited."
+
+  - id: incremental_from_the_future
+    component: N
+    severity: major
+    valid: 0.05
+    personas: [reviewer_2]
+    text:
+      - "The work is incremental given {fake_prior}, which was posted two weeks ago."
+      - "This has essentially been done already. See {fake_prior}, which appeared last month."
+
+  - id: similar_to_prior
+    component: N
+    severity: major
+    valid: 0.4
+    personas: [citation_seeker, expert]
+    text:
+      - "The approach is very similar to {fake_prior}. The paper should explain the difference."
+      - "I do not see a substantive difference between this method and {fake_prior}."
+
+  - id: seven_citations
+    component: N
+    severity: minor
+    valid: 0.15
+    personas: [citation_seeker]
+    text:
+      - "The related work misses several key papers: {fake_prior} and the six follow-up papers by the same authors."
+      - "Please cite and discuss {fake_prior}, along with its six sequels, which together define this area."
+
+  - id: known_result
+    component: N
+    severity: major
+    valid: 0.35
+    text:
+      - "The main finding is already well known in the community."
+      - "It is not surprising that current models struggle with {topic}."
+
+  - id: unsurprising
+    component: N
+    severity: minor
+    valid: 0.4
+    text:
+      - "The results are not surprising."
+      - "The findings confirm what practitioners already suspected."
+
+  - id: engineering_not_research
+    component: N
+    severity: major
+    valid: 0.4
+    personas: [reviewer_2, scope_police]
+    text:
+      - "This is a solid engineering effort, but the research contribution is unclear."
+      - "The paper describes a system, not a finding."
+
+  - id: just_prompting
+    component: N
+    severity: major
+    valid: 0.4
+    personas: [reviewer_2, baseline_hunter]
+    text:
+      - "The method amounts to careful prompt engineering."
+      - "Once the framing is removed, the contribution is a prompt."
+
+  - id: obsoleted_by_model
+    component: N
+    severity: major
+    valid: 0.25
+    personas: [reviewer_2, baseline_hunter]
+    text:
+      - "With {model} now available, it is unclear whether this problem still exists."
+      - "A stronger model would likely solve this task without the proposed method."
+
+  - id: why_new_dataset
+    component: N
+    severity: major
+    valid: 0.35
+    text:
+      - "It is unclear why a new dataset is needed when existing benchmarks already cover {topic}."
+      - "The paper does not explain what this benchmark measures that others do not."
+
+  - id: generic_implications
+    component: N
+    severity: major
+    valid: 0.5
+    personas: [qual_purist]
+    text:
+      - "The design implications are generic; most could have been written without running the study."
+      - "\"Designers should consider users' needs\" is not a design implication."
+
+  - id: replicates_prior_study
+    component: N
+    severity: minor
+    valid: 0.4
+    text:
+      - "The interview findings largely replicate {fake_prior}."
+      - "Several of the themes are already reported in prior HCI work on {topic}."
+
+  - id: missing_hci_literature
+    component: N
+    severity: minor
+    valid: 0.5
+    personas: [qual_purist, scope_police]
+    text:
+      - "The paper ignores decades of HCI research on this question."
+      - "The related work cites recent NLP papers but none of the foundational HCI work on {topic}."
+
+  - id: missing_nlp_literature
+    component: N
+    severity: minor
+    valid: 0.5
+    personas: [expert, baseline_hunter]
+    text:
+      - "The related work misses recent NLP work on {topic}."
+      - "Several recent model-based approaches to this problem are not discussed."
+
+  - id: no_takeaway
+    component: N
+    severity: major
+    valid: 0.45
+    text:
+      - "The paper reports what happens but not why."
+      - "I finished the paper without a clear takeaway."
+
+  - id: position_not_new
+    component: N
+    severity: minor
+    valid: 0.4
+    text:
+      - "The position is reasonable, but similar arguments have been made before."
+      - "I agree with the authors, which is part of the problem: so does everyone."
+
+  - id: benchmark_saturating
+    component: N
+    severity: minor
+    valid: 0.3
+    text:
+      - "Current models already score above 90% on this task, so it is unclear what remains to be learned."
+
+  - id: llm_vague_novelty
+    component: N
+    severity: minor
+    valid: 0.15
+    personas: [llm_written]
+    text:
+      - "The novelty of the approach could be further highlighted."
+      - "It would be beneficial to further elaborate on how this work differs from existing approaches."
+
+  # -------------------------------------------------------------------------
+  # Soundness (S): NLP and modeling
+  # -------------------------------------------------------------------------
+  - id: missing_baseline
+    component: S
+    severity: major
+    valid: 0.6
+    personas: [baseline_hunter]
+    text:
+      - "The paper does not compare against strong recent baselines."
+      - "A simple retrieval baseline is missing."
+      - "The comparison omits the most obvious baseline: a larger model with a good prompt."
+
+  - id: model_from_last_week
+    component: S
+    severity: major
+    valid: 0.15
+    personas: [baseline_hunter, reviewer_2]
+    text:
+      - "The paper does not compare against {model}, which was released last week."
+      - "Why not evaluate {model}? It came out a week ago and is clearly the new state of the art."
+
+  - id: single_dataset
+    component: S
+    severity: major
+    valid: 0.6
+    text:
+      - "Results are reported on a single dataset, so it is unclear whether they generalize."
+      - "One dataset is not enough to support claims about {topic} in general."
+
+  - id: no_significance_test
+    component: S
+    severity: major
+    valid: 0.6
+    personas: [methodologist]
+    text:
+      - "No significance tests are reported."
+      - "The improvements are within what I would expect from random variation."
+
+  - id: single_seed
+    component: S
+    severity: minor
+    valid: 0.6
+    personas: [methodologist]
+    text:
+      - "Results appear to come from a single random seed."
+      - "Please report the mean and standard deviation over at least five seeds."
+
+  - id: contamination
+    component: S
+    severity: major
+    valid: 0.4
+    personas: [expert]
+    text:
+      - "The test set may have appeared in the pretraining data of the evaluated models."
+      - "The authors do not check for data contamination."
+
+  - id: llm_judge_bias
+    component: S
+    severity: major
+    valid: 0.5
+    text:
+      - "Using an LLM as the judge raises concerns about bias toward its own outputs."
+      - "The LLM-based evaluation is not validated against human judgments."
+
+  - id: prompt_sensitivity
+    component: S
+    severity: minor
+    valid: 0.55
+    text:
+      - "Results may be sensitive to the prompt wording, and only one prompt is reported."
+      - "How were the prompts chosen? Were they tuned on the test set?"
+
+  - id: closed_model_reproducibility
+    component: S
+    severity: minor
+    valid: 0.5
+    text:
+      - "The results rely on a closed API model that may change at any time, which hurts reproducibility."
+
+  - id: missing_ablation
+    component: S
+    severity: major
+    valid: 0.55
+    text:
+      - "There is no ablation showing which component matters."
+      - "It is unclear how much each part of the method contributes."
+
+  - id: ablation_undercuts
+    component: S
+    severity: major
+    valid: 0.4
+    personas: [expert, reviewer_2]
+    text:
+      - "The ablation suggests the main component contributes very little."
+      - "Removing the proposed module barely changes the results, according to the authors' own table."
+
+  - id: undertuned_baselines
+    component: S
+    severity: minor
+    valid: 0.45
+    personas: [baseline_hunter]
+    text:
+      - "The baselines appear under-tuned compared to the proposed method."
+      - "The proposed method gets a hyperparameter search. The baselines get the defaults."
+
+  - id: metric_mismatch
+    component: S
+    severity: major
+    valid: 0.5
+    text:
+      - "Automatic overlap metrics may not reflect the quality humans care about."
+      - "The chosen metric rewards fluency, not correctness."
+
+  - id: tiny_human_eval
+    component: S
+    severity: major
+    valid: 0.5
+    text:
+      - "The human evaluation uses only 50 examples and three annotators."
+      - "The human evaluation is too small to support the claims."
+
+  - id: low_agreement
+    component: S
+    severity: major
+    valid: 0.55
+    text:
+      - "Inter-annotator agreement is low, which calls the labels into question."
+      - "Agreement is not reported for the human evaluation."
+
+  - id: annotator_expertise
+    component: S
+    severity: minor
+    valid: 0.5
+    text:
+      - "It is unclear whether the annotators had the expertise this task requires."
+      - "Crowdworkers may not be qualified to judge clinical text."
+
+  - id: train_test_overlap
+    component: S
+    severity: major
+    valid: 0.35
+    text:
+      - "Some test examples appear to be near-duplicates of training examples."
+      - "The data split may leak information from train to test."
+
+  - id: no_error_analysis
+    component: S
+    severity: minor
+    valid: 0.6
+    text:
+      - "There is no error analysis."
+      - "I would like to see examples where the method fails, and why."
+
+  - id: cherry_picked
+    component: S
+    severity: minor
+    valid: 0.35
+    text:
+      - "The qualitative examples look cherry-picked."
+      - "The examples in the case study seem chosen to flatter the method."
+
+  - id: compute_cost
+    component: S
+    severity: minor
+    valid: 0.4
+    personas: [practitioner]
+    text:
+      - "The paper does not report the computational cost."
+      - "Is the improvement worth five times the inference cost?"
+
+  - id: english_only
+    component: S
+    severity: minor
+    valid: 0.6
+    text:
+      - "All experiments are in English, which the paper should state explicitly."
+      - "Would the findings hold for languages other than English?"
+
+  - id: deployment_unrealistic
+    component: S
+    severity: major
+    valid: 0.45
+    personas: [practitioner]
+    text:
+      - "It is unclear whether this would work in a real deployment, with real latency and real users."
+      - "The setting assumes clean inputs that real systems never see."
+
+  - id: answered_in_section_3
+    component: S
+    severity: major
+    valid: 0.05
+    personas: [skimmer, reviewer_2]
+    text:
+      - "My main concern is that the paper never explains how the evaluation data was collected."
+      - "It is unclear which model is used as the backbone."
+      - "The paper does not say how participants were recruited."
+
+  - id: llm_vague_soundness
+    component: S
+    severity: minor
+    valid: 0.2
+    personas: [llm_written]
+    text:
+      - "The experimental evaluation could be more comprehensive."
+      - "Additional experiments would further strengthen the paper's claims."
+
+  # -------------------------------------------------------------------------
+  # Soundness (S): user studies and HCI
+  # -------------------------------------------------------------------------
+  - id: small_sample
+    component: S
+    severity: major
+    valid: 0.5
+    personas: [methodologist]
+    text:
+      - "With 12 participants, the findings may not generalize."
+      - "The sample size is small for the strength of the claims."
+
+  - id: larger_study
+    component: S
+    severity: major
+    valid: 0.4
+    personas: [reviewer_2, methodologist]
+    text:
+      - "The study should be repeated with a much larger sample of clinicians, ideally at several hospitals."
+      - "I would like to see a large-scale deployment before drawing these conclusions."
+      - "Twelve clinicians is a pilot, not a study. Please recruit more."
+
+  - id: convenience_sample
+    component: S
+    severity: minor
+    valid: 0.55
+    text:
+      - "Participants were recruited from the authors' own institution, which may bias the results."
+      - "Most participants appear to be students, not the intended users."
+
+  - id: no_power_analysis
+    component: S
+    severity: minor
+    valid: 0.4
+    personas: [methodologist]
+    text:
+      - "No power analysis justifies the sample size."
+
+  - id: lab_not_field
+    component: S
+    severity: major
+    valid: 0.5
+    personas: [practitioner, qual_purist]
+    text:
+      - "A lab study cannot show how the tool would be used in a real clinic."
+      - "The tasks are performed outside the participants' real workflow."
+
+  - id: novelty_effect
+    component: S
+    severity: minor
+    valid: 0.45
+    text:
+      - "The positive ratings may reflect a novelty effect."
+      - "A one-session study cannot tell us whether people would keep using the tool."
+
+  - id: likert_tests
+    component: S
+    severity: minor
+    valid: 0.5
+    personas: [methodologist]
+    text:
+      - "Likert responses are analyzed with t-tests; non-parametric tests would be more appropriate."
+      - "Averaging Likert items as if they were interval data needs justification."
+
+  - id: vague_thematic_analysis
+    component: S
+    severity: major
+    valid: 0.5
+    personas: [qual_purist]
+    text:
+      - "The qualitative analysis is underspecified. Who coded the data, and how were disagreements resolved?"
+      - "\"Themes emerged from the data\" is not a description of a method."
+
+  - id: no_inter_rater_reliability
+    component: S
+    severity: minor
+    valid: 0.3
+    personas: [methodologist]
+    text:
+      - "No inter-rater reliability is reported for the qualitative coding."
+
+  - id: demand_characteristics
+    component: S
+    severity: minor
+    valid: 0.4
+    text:
+      - "Participants knew the authors built the system, which may have inflated their ratings."
+      - "The experimenter was in the room during sessions, which may have influenced the responses."
+
+  - id: unrealistic_scenarios
+    component: S
+    severity: major
+    valid: 0.5
+    personas: [practitioner, expert]
+    text:
+      - "The task scenarios do not reflect real clinical workflows."
+      - "No clinician would encounter this scenario in practice."
+
+  - id: no_comparison_condition
+    component: S
+    severity: major
+    valid: 0.5
+    text:
+      - "The study has no baseline condition, so it is unclear what the tool is better than."
+      - "Without a control condition, the positive results are hard to interpret."
+
+  - id: self_report_only
+    component: S
+    severity: minor
+    valid: 0.5
+    text:
+      - "All measures are self-reported; actual behavior was not measured."
+      - "Perceived usefulness is not the same as usefulness."
+
+  - id: order_effects
+    component: S
+    severity: minor
+    valid: 0.45
+    personas: [methodologist]
+    text:
+      - "The order of conditions was not counterbalanced."
+
+  - id: survey_bots
+    component: S
+    severity: minor
+    valid: 0.45
+    text:
+      - "The online survey has no attention checks, so some responses may come from bots."
+
+  - id: labmate_pilot
+    component: S
+    severity: minor
+    valid: 0.4
+    text:
+      - "The pilot participants appear to be lab members, who may not represent the target users."
+
+  # -------------------------------------------------------------------------
+  # Clarity (C)
+  # -------------------------------------------------------------------------
+  - id: hard_to_follow
+    component: C
+    severity: major
+    valid: 0.6
+    text:
+      - "The paper is hard to follow."
+      - "I had to read Section 3 three times to understand the method."
+
+  - id: unclear_motivation
+    component: C
+    severity: major
+    valid: 0.55
+    text:
+      - "The motivation is unclear. Why does this problem matter, and to whom?"
+      - "It is not clear who would use this, or why."
+
+  - id: inconsistent_notation
+    component: C
+    severity: minor
+    valid: 0.5
+    text:
+      - "The notation changes between Sections 3 and 4."
+      - "The same quantity has three different names in the paper."
+
+  - id: unreadable_figures
+    component: C
+    severity: minor
+    valid: 0.6
+    text:
+      - "Figure 2 is unreadable when printed."
+      - "The axis labels in Figure 3 are too small to read."
+
+  - id: overclaiming
+    component: C
+    severity: major
+    valid: 0.55
+    personas: [expert, reviewer_2]
+    text:
+      - "The abstract claims more than the results show."
+      - "\"Solves\" is a strong word for a two-point gain."
+
+  - id: not_self_contained
+    component: C
+    severity: minor
+    valid: 0.5
+    text:
+      - "Too much is pushed to the appendix, so the main paper is not self-contained."
+
+  - id: typos
+    component: C
+    severity: minor
+    valid: 0.7
+    personas: [first_timer]
+    text:
+      - "The paper has many typos and needs proofreading."
+      - "Line 112 contains a typo. So do lines 140, 141 and 207."
+
+  - id: missing_details
+    component: C
+    severity: major
+    valid: 0.5
+    personas: [expert]
+    text:
+      - "Important implementation details are missing, so the work cannot be reproduced."
+      - "The paper does not give enough detail to replicate the study."
+
+  - id: jargon
+    component: C
+    severity: minor
+    valid: 0.4
+    personas: [scope_police]
+    text:
+      - "The paper uses NLP terms without explanation, which will lose HCI readers."
+      - "The paper assumes familiarity with HCI methods that many readers at {venue} will not have."
+
+  - id: unclear_contributions
+    component: C
+    severity: major
+    valid: 0.5
+    text:
+      - "The contributions are not clearly stated."
+      - "After the introduction, I was still not sure what the paper contributes."
+
+  - id: too_many_contributions
+    component: C
+    severity: major
+    valid: 0.45
+    personas: [expert]
+    text:
+      - "The paper tries to make four contributions and makes none of them clearly."
+      - "A dataset, a method, a user study and a benchmark is too much for one paper."
+
+  - id: scattered_study_design
+    component: C
+    severity: major
+    valid: 0.5
+    personas: [qual_purist, methodologist]
+    text:
+      - "The study design is spread across four sections and is hard to reconstruct."
+      - "I could not tell how many sessions each participant completed, or in what order."
+
+  - id: title_overclaims
+    component: C
+    severity: minor
+    valid: 0.4
+    text:
+      - "The title promises more than the paper delivers."
+
+  - id: thin_limitations
+    component: C
+    severity: minor
+    valid: 0.6
+    text:
+      - "The Limitations section is a single generic sentence."
+
+  - id: buried_result
+    component: C
+    severity: minor
+    valid: 0.45
+    text:
+      - "The main result appears only on page 7."
+      - "The key finding is hidden in the middle of Section 5."
+
+  - id: table_overload
+    component: C
+    severity: minor
+    valid: 0.45
+    text:
+      - "Table 2 has 14 columns and no clear takeaway."
+
+  - id: missing_participant_info
+    component: C
+    severity: minor
+    valid: 0.55
+    personas: [qual_purist]
+    text:
+      - "Participant roles and experience are not reported."
+      - "The participant table should describe the participants in much more detail."
+
+  - id: quotes_without_analysis
+    component: C
+    severity: minor
+    valid: 0.45
+    personas: [qual_purist]
+    text:
+      - "The findings section is mostly quotes, with little analysis connecting them."
+
+  - id: orphan_words
+    component: C
+    severity: minor
+    valid: 0.9
+    personas: [first_timer]
+    text:
+      - "Several paragraphs end with a single word on their last line."
+
+  - id: llm_vague_clarity
+    component: C
+    severity: minor
+    valid: 0.2
+    personas: [llm_written]
+    text:
+      - "The paper could benefit from further clarification of certain aspects."
+      - "Some sections could be more concise and clearer."
+
+  - id: llm_vague_limitations
+    component: C
+    severity: minor
+    valid: 0.1
+    personas: [llm_written]
+    text:
+      - "The authors should discuss the limitations of their approach in more detail."
+      - "A dedicated limitations section would strengthen the paper."
+
+  # -------------------------------------------------------------------------
+  # Fit (venue, track, policy)
+  # -------------------------------------------------------------------------
+  - id: not_nlp
+    component: fit
+    severity: major
+    valid: 0.4
+    personas: [scope_police]
+    text:
+      - "This is an HCI paper. I am not sure what the NLP contribution is."
+      - "There is no new model or method, so it is unclear why this paper is at {venue}."
+
+  - id: not_hci
+    component: fit
+    severity: major
+    valid: 0.4
+    personas: [scope_police, qual_purist]
+    text:
+      - "The paper is mainly a modeling contribution; the user study feels added on."
+      - "The human-centered part is too thin for {venue}."
+
+  - id: workshop_paper
+    component: fit
+    severity: major
+    valid: 0.4
+    personas: [reviewer_2]
+    text:
+      - "This would make a good workshop paper."
+      - "The contribution is better suited to a workshop."
+
+  - id: domain_venue
+    component: fit
+    severity: major
+    valid: 0.4
+    personas: [scope_police]
+    text:
+      - "The natural audience for this work is clinical informatics, not {venue}."
+      - "This might be better received at a medical informatics venue."
+
+  - id: wrong_track
+    component: fit
+    severity: minor
+    valid: 0.5
+    text:
+      - "The paper may fit better in a different track."
+
+  - id: too_applied
+    component: fit
+    severity: major
+    valid: 0.35
+    personas: [reviewer_2]
+    text:
+      - "The work is too applied for {venue}."
+      - "This is a nice application, but where is the general lesson?"
+
+  - id: too_narrow
+    component: fit
+    severity: major
+    valid: 0.45
+    text:
+      - "The paper studies a narrow setting of limited interest to the broader community."
+      - "Results from one hospital in one specialty may not interest most of the {venue} audience."
+
+  - id: no_learning_contribution
+    component: fit
+    severity: major
+    valid: 0.4
+    personas: [scope_police]
+    text:
+      - "The paper lacks the learning contribution expected at {venue}."
+
+  - id: thin_ethics_statement
+    component: fit
+    severity: minor
+    valid: 0.5
+    text:
+      - "The ethics statement does not discuss risks to patients."
+      - "The paper should discuss how the system could cause harm when it is wrong."
+
+  - id: checklist_mismatch
+    component: fit
+    severity: minor
+    valid: 0.5
+    text:
+      - "The responsible research checklist says the code will be released, but the paper does not say where."
+
+  - id: theme_track_mismatch
+    component: fit
+    severity: minor
+    valid: 0.4
+    text:
+      - "The paper was submitted to the special theme but does not engage with it."
+
+  - id: llm_vague_impact
+    component: fit
+    severity: minor
+    valid: 0.15
+    personas: [llm_written]
+    text:
+      - "The broader impact of this work could be discussed more thoroughly."
+      - "The authors may wish to consider the broader implications of their work for society."
+
+meta:
+  accept:
+    - "The reviewers agree that the paper makes a clear contribution, and the rebuttal resolved the main concerns. Accept."
+    - "All reviewers see value in this work. Please make the promised changes in the final version."
+    - "Despite some concerns about scope, this is a solid contribution to {venue}. Accept."
+    - "The author response convinced two reviewers, and I agree with them. Accept."
+    - "A timely study of {topic} with a careful evaluation. Accept, with minor revisions to the presentation."
+    - "Reviewer 2 raises valid points, but they can be addressed in the camera-ready. Accept."
+    - "A clear, well-executed paper. I recommend acceptance and encourage the authors to release their code."
+  findings:
+    - "The paper is sound, but the contribution is modest for the main conference. Recommended for Findings."
+    - "Reviewers appreciate the careful experiments but question the novelty. Findings is a good home for this work."
+    - "Solid but incremental. Findings."
+    - "The rebuttal addressed several concerns, though not enough for the main conference. Findings."
+    - "A useful resource for the community; the analysis could go deeper. Findings."
+    - "The reviewers are split. The work is valuable and sound, and Findings is the right venue for it."
+  reject:
+    - "The reviewers raise concerns about soundness that the rebuttal did not fully resolve. Reject."
+    - "While the topic is important, the contribution is not yet clear. We encourage the authors to resubmit."
+    - "Two reviewers find the evaluation insufficient, and I agree. Reject."
+    - "The paper has potential, but the current version is not ready for {venue}."
+    - "Reviewers question whether {venue} is the right venue for this work. Reject."
+    - "The rebuttal was appreciated but did not change the reviewers' assessment. Reject."
+    - "Reviewer 3's concerns are serious and were not resolved. Reject."
+  revise:
+    - "The reviewers see value in this work but request substantial revisions. Revise and resubmit."
+    - "The study is promising, but the analysis needs to be rewritten. Revise and resubmit."
+    - "Please address every reviewer concern, especially the framing of the contribution, and resubmit."
+    - "The committee asks for a revised version with a clearer account of the study design and the participants."
+    - "Major revision: the reviewers ask for a deeper discussion of the design implications."
+    - "The paper is close. A careful revision that addresses R1 and R3 could make it a strong contribution."

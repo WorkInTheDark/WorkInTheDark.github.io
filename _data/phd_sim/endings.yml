@@ -1,0 +1,137 @@
+# Career outcomes. `offer` is the one-liner on the offer card; `text` is the ending paragraph.
+# No ending is a loss.
+- id: tenure_track
+  name: "Tenure-Track Professor"
+  group: Academia
+  offer: "An assistant professor job. Your own lab, your own students, your own grant rejections."
+  text: "You start your own lab. Your first student arrives in September, nervous and brilliant. You catch yourself saying things your advisor used to say, and you mostly mean them."
+- id: teaching_college
+  name: "Professor at a Teaching College"
+  group: Academia
+  offer: "Small classes, students who visit office hours, and summers to think."
+  text: "You teach. You are good at it, and it matters. Every year a few students find you after class with a question that turns into a project."
+- id: postdoc_famous
+  name: "Postdoc in a Famous Lab"
+  group: Academia
+  offer: "Two years in a lab everyone has heard of."
+  text: "You join a lab whose papers you used to read in reading group. The coffee is better and the deadlines are the same."
+- id: eternal_postdoc
+  name: "The Eternal Postdoc"
+  group: Academia
+  offer: "A postdoc. Then, perhaps, another one."
+  text: "Your first postdoc becomes your second. You know every visa form by heart and every reviewer by writing style. It's a life, and an interesting one."
+- id: lecturer_abroad
+  name: "Lecturer Across the Pond"
+  group: Academia
+  offer: "A permanent lectureship overseas, with a new vocabulary for everything."
+  text: "You move abroad, learn what \"REF\" means, and discover that tea breaks are where the real collaborations start."
+- id: faculty_back_home
+  name: "Faculty Back Home"
+  group: Academia
+  offer: "A faculty job in your home country, near family."
+  text: "You go home with a doctorate and a suitcase of ideas. Your parents finally understand your job: you are a professor now."
+- id: frontier_lab
+  name: "Research Scientist at a Frontier Lab"
+  group: Industry
+  offer: "A research job at one of the labs everyone is racing."
+  text: "You join a frontier lab. The compute is unimaginable, the meetings are many, and occasionally your name is on something the whole field reads."
+- id: bigtech_rs
+  name: "Research Scientist at Big Tech"
+  group: Industry
+  offer: "A research scientist role with a stable team and a nice badge."
+  text: "You become a research scientist at a big company. You still publish, you finally have a budget, and nobody asks you to TA."
+- id: applied_scientist
+  name: "Applied Scientist"
+  group: Industry
+  offer: "Build models that real users touch."
+  text: "Your models ship. Millions of people use something you made, and none of them know your name, which turns out to be fine."
+- id: ml_engineer
+  name: "ML Engineer (with a PhD, for Fun)"
+  group: Industry
+  offer: "Engineering work, good pay, and coworkers who call you Doctor as a joke."
+  text: "You write code all day and sleep well at night. Sometimes you miss research. Then someone mentions Reviewer 2, and you stop missing it."
+- id: quant
+  name: "Quant Researcher"
+  group: Industry
+  offer: "A trading firm wants your statistics skills."
+  text: "You move into finance. The models are different, the salaries are absurd, and your p-values are finally worth money."
+- id: ux_researcher
+  name: "UX Researcher"
+  group: Industry
+  offer: "Lead user research for AI products."
+  text: "You spend your days talking to the people who use AI products, which is what your PhD trained you to do best. Product teams start asking for you by name."
+- id: return_offer
+  name: "The Return Offer"
+  group: Industry
+  offer: "Your internship team wants you back, full time."
+  text: "You go back to the team from your internship. Your old desk is still there, and so is the sticky note you left on the monitor."
+- id: founder_acquired
+  name: "Founder, Acquired"
+  group: Startup
+  offer: ""
+  text: "You start a company from your thesis. Three stressful years later, a big company buys it. You take a long vacation, then start reading papers again."
+- id: founder_pivot
+  name: "Founder, Pivoted to B2B SaaS"
+  group: Startup
+  offer: ""
+  text: "Your startup begins as a research vision and becomes a dashboard for enterprise customers. It pays the bills. You still have the original slide deck."
+- id: founder_bigtech
+  name: "Founder, Then Big Tech"
+  group: Startup
+  offer: ""
+  text: "Your startup doesn't make it, and you learn more in eighteen months than in five years of grad school. A big lab hires you the week after you close it."
+- id: founder
+  name: "Start Your Own Company"
+  group: Startup
+  offer: "Turn your thesis into a startup. High risk, great stories."
+  text: ""
+- id: employee_four
+  name: "Employee #4 at a Labmate's Startup"
+  group: Startup
+  offer: "Your old labmate's startup wants you. Equity, chaos, and familiar faces."
+  text: "You join your labmate's startup as employee number four. The office is a converted garage and the whiteboard has your old lab's handwriting on it."
+- id: policy_fellow
+  name: "Policy Fellow"
+  group: Other
+  offer: "A fellowship advising on AI policy."
+  text: "You explain language models to people who write the rules. It's slower than research and, some days, more important."
+- id: science_journalist
+  name: "Science Journalist"
+  group: Other
+  offer: "Write about AI for people who will never read an arXiv paper."
+  text: "You become the person who explains AI research to the public, carefully, without the hype. Researchers start sending you their preprints."
+- id: ai_youtuber
+  name: "AI YouTuber"
+  group: Other
+  offer: "Your paper explainer videos have an audience. Make it a job."
+  text: "Your paper explainers find an audience. You have a ring light, a sponsor, and a comment section full of grad students thanking you."
+- id: clinical_informatics
+  name: "Clinical Informatics at a Hospital"
+  group: Other
+  offer: "Join a hospital's informatics team and put your work at the bedside."
+  text: "You join the hospital you used to recruit clinicians from. Now you're the one they call when the alerts don't make sense, and you fix them."
+- id: masters_out
+  name: "Master's Out, Happily"
+  group: Leaving
+  offer: ""
+  text: "You leave with a Master's degree and no regrets. The skills come with you, and so do the friends. A PhD was one path; yours turned out to be another."
+- id: bubble_tea
+  name: "Bubble Tea Shop Owner"
+  group: Leaving
+  offer: ""
+  text: "You open a bubble tea shop near campus. Grad students come in at odd hours, and you always know exactly what they need: less ice, half sugar, and someone to say the paper will be fine."
+- id: switched_fields
+  name: "Switched Fields"
+  group: Leaving
+  offer: ""
+  text: "You start medical school. Your classmates are amazed that you already know what an EHR is, and that you have opinions about its interface."
+- id: family_business
+  name: "Back to the Family Business"
+  group: Leaving
+  offer: ""
+  text: "You go home and join the family business. Within a year you've automated the inventory and your aunt calls you \"the scientist\"."
+- id: eternal_student
+  name: "The Eternal Student"
+  group: Leaving
+  offer: ""
+  text: "Year eight ends and the university gently points out the time limit. You leave with a Master's, a drawer of almost-finished papers, and stories nobody believes."

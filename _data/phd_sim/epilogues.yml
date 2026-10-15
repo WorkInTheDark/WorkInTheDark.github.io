@@ -1,0 +1,18 @@
+# Epilogue lines. Up to three matching lines appear on the end card (plus a labmate and a paper line).
+- { text: "You and your partner still argue about whose thesis acknowledgments were sweeter.", when: { flags_any: [dating, partner, in_relationship] }, priority: 5 }
+- { text: "Your cat still sleeps on the keyboard. Some of your best emails were typed by paw.", when: { flags_all: [cat_adopted] }, priority: 5 }
+- { text: "You kept exercising. Your back thanks you every day.", when: { telemetry: { exercise_days: ">=60" } }, priority: 3 }
+- { text: "Your body kept the score of every all-nighter. You sleep properly now.", when: { telemetry: { overtime_days: ">=80" } }, priority: 3 }
+- { text: "Your friends from grad school are still your closest friends.", when: { stat: { friends_rel: ">=70" } }, priority: 3 }
+- { text: "Your family framed your diploma before you did.", when: { stat: { family_rel: ">=70" }, milestone: { graduated: true } }, priority: 3 }
+- { text: "You and your advisor still meet for coffee when you're in town.", when: { stat: { advisor_rel: ">=75" } }, priority: 4 }
+- { text: "You still buy bubble tea for your own team when they show up in person. Some habits are contagious.", when: { advisor: [kind_funded], telemetry: { lab_meetings_in_person: ">=20" } }, priority: 6 }
+- { text: "You notice orphan words everywhere now. Menus. Billboards. Wedding invitations.", when: { advisor: [kind_funded] }, priority: 4 }
+- { text: "Your first first-author paper is still the one you're proudest of.", when: { telemetry: { first_author_pubs: ">=1" } }, priority: 1 }
+- { text: "You keep a folder of every rejection. It's thick, and it's the reason the CV is long.", when: { telemetry: { rejections: ">=5" } }, priority: 3 }
+- { text: "Somewhere, a first-year is reading your paper in reading group and loving it.", when: { telemetry: { citations: ">=200" } }, priority: 2 }
+- { text: "You saw more of the world through conferences than in the rest of your life combined.", when: { telemetry: { conferences: ">=5" } }, priority: 2 }
+- { text: "You still play music on weekends. It was never a distraction; it was the point.", when: { traits_any: [musician] }, priority: 3 }
+- { text: "The clinicians you worked with still send you interesting problems.", when: { flags_all: [clinical_partner] }, priority: 3 }
+- { text: "You mentor a few students informally. You tell them to close the laptop sometimes.", when: { telemetry: { mentor_days: ">=15" } }, priority: 2 }
+- { text: "You learned to say no, which was the hardest skill the PhD taught you.", when: { telemetry: { burnouts: ">=1" } }, priority: 2 }

@@ -4,7 +4,7 @@ permalink: /prospective/
 title: Prospective Students
 description: For prospective research assistants and PhD applicants.
 nav: true
-nav_order: 5
+nav_order: 6
 dropdown: true
 children:
   - title: Application & FAQs

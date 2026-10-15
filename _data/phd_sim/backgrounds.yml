@@ -1,0 +1,32 @@
+backgrounds:
+  - id: undergrad
+    name: "Straight from undergrad"
+    desc: "Lots of energy, little experience. Nobody told you the unwritten rules."
+    skills: { taste: 22, coding: 30, writing: 24, presenting: 24, knowledge: 22 }
+    network: 10
+    energy_bonus: 10
+  - id: masters
+    name: "Master's first"
+    desc: "You've done this before, sort of. You arrive with a half-finished project."
+    skills: { taste: 32, coding: 35, writing: 32, presenting: 30, knowledge: 34 }
+    network: 18
+    starting_project: true
+  - id: industry
+    name: "Industry returnee"
+    desc: "You can ship code. Academic writing and slow processes are another matter."
+    skills: { taste: 26, coding: 52, writing: 24, presenting: 34, knowledge: 26 }
+    network: 35
+    impatient: true
+  - id: switcher
+    name: "Career switcher"
+    desc: "You come from psychology, nursing or design. You know people; code is new."
+    skills: { taste: 30, coding: 16, writing: 34, presenting: 34, knowledge: 54 }
+    network: 20
+    study_bonus: true
+origins:
+  - id: domestic
+    name: "Domestic"
+    desc: "Family is a drive or a short flight away."
+  - id: international
+    name: "International"
+    desc: "Visas, time zones, long trips home, and twice the holidays."

@@ -1,0 +1,31 @@
+# Traits. The engine applies each trait's effect by id; these are the player-facing texts.
+start:
+  - { id: night_owl,         name: "Night Owl",         up: "Overtime costs less Energy.",                         down: "Early meetings cost extra Sanity." }
+  - { id: early_bird,        name: "Early Bird",        up: "Works 5% faster.",                                    down: "Deadline nights cost extra Energy." }
+  - { id: perfectionist,     name: "Perfectionist",     up: "Papers come out 10% better.",                         down: "Every stage takes longer; rejections sting more." }
+  - { id: procrastinator,    name: "Procrastinator",    up: "Huge bursts in the turn before a deadline.",          down: "Slow at the start of every stage." }
+  - { id: resilient,         name: "Resilient",         up: "Sanity losses are 30% smaller.",                      down: "Friends assume you're fine." }
+  - { id: anxious,           name: "Anxious",           up: "Prepares hard: bonus in quals, proposal and defense.", down: "Sanity losses are 20% bigger." }
+  - { id: social_butterfly,  name: "Social Butterfly",  up: "Network grows 50% faster; social days restore more.", down: "Isolation hits harder." }
+  - { id: introvert,         name: "Introvert",         up: "Reading and writing go 10% faster.",                  down: "Networking costs extra Energy." }
+  - { id: code_wizard,       name: "Code Wizard",       up: "Coding starts 20 points higher.",                     down: "Writing starts 10 points lower." }
+  - { id: wordsmith,         name: "Wordsmith",         up: "Writing starts 20 points higher.",                    down: "Coding starts 10 points lower." }
+  - { id: polyglot,          name: "Polyglot",          up: "Bonus Network at conferences.",                       down: "None, really. It's just nice." }
+  - { id: gym_rat,           name: "Gym Rat",           up: "Exercise days do double good.",                       down: "Grumpy after three turns without exercise." }
+  - { id: caffeine_powered,  name: "Caffeine-Powered",  up: "An extra effective day when Energy runs low.",         down: "Health slowly pays for it." }
+  - { id: overcommitter,     name: "Overcommitter",     up: "Gets more invitations and co-authorships.",           down: "Every yes costs a day." }
+  - { id: lucky,             name: "Lucky",             up: "Rare and legendary events come more often.",          down: "Other people will think you're good." }
+  - { id: imposter_syndrome, name: "Imposter Syndrome", up: "Over-prepares: papers come out 5% better.",           down: "Good news costs a little Sanity." }
+  - { id: extremely_online,  name: "Extremely Online",  up: "Networking boosts citations 30%.",                    down: "Distraction events." }
+  - { id: homebody,          name: "Homebody",          up: "Home life restores more Sanity.",                     down: "Travel costs Sanity." }
+  - { id: foodie,            name: "Foodie",            up: "Conference trips restore Sanity.",                    down: "Adventurous eating has risks." }
+  - { id: first_gen,         name: "First-Gen Student", up: "Setbacks hurt less.",                                 down: "Nobody told you the unwritten rules." }
+  - { id: parent,            name: "Parent",            up: "Works 10% faster; a strong Sanity buffer.",           down: "Two fixed family days every turn." }
+  - { id: musician,          name: "Musician",          up: "Hobby days restore 50% more Sanity.",                 down: "Gigs occasionally eat a day." }
+  - { id: stats_nerd,        name: "Stats Nerd",        up: "Analysis stages produce sounder work.",               down: "Methods reviewers love you a bit too much." }
+  - { id: optimist,          name: "Optimist",          up: "Sanity recovers a little every turn.",                down: "Deadlines are always closer than they appear." }
+earned:
+  - { id: rejection_hardened, name: "Rejection-Hardened", up: "Rejections hurt half as much.", down: "" }
+  - { id: burnout_survivor,   name: "Burnout Survivor",   up: "You know your limits now: Sanity recovers faster.", down: "" }
+  - { id: cat_person,         name: "Cat Person",         up: "A small Sanity bonus every turn.", down: "Your keyboard is never safe." }
+  - { id: deadline_junkie,    name: "Deadline Junkie",    up: "Deadline mode is even stronger.", down: "Deadline mode costs more Sanity." }

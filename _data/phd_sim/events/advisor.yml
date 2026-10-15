@@ -1,0 +1,447 @@
+# PhD Simulator: events for any advisor archetype (event-ideas.md, section F).
+# Schema: docs/phd-simulator/content-spec.md. Every event requires an advisor.
+
+- id: adv_quick_question
+  title: "Quick Question"
+  category: advisor
+  rarity: common
+  repeatable: true
+  cooldown: 8
+  when: { has_advisor: true, advisor_not: [kind_funded] }
+  text:
+    - "11:04 pm. An email from {advisor}, subject line \"quick question\". The question is not quick."
+    - "Your phone buzzes at 11 pm: \"Quick question: could you rerun everything with the new data split?\""
+  choices:
+    - label: "Answer it tonight"
+      text: "You reply at 12:40 am. {advisor} answers \"thx\" at 12:41. They seem pleased."
+      effects: { energy: "-4±2", sanity: "-2±1", advisor_rel: "+3±1" }
+    - label: "Reply in the morning"
+      text: "You sleep. By morning, a second email from {advisor} has answered the first one."
+      effects: { energy: "+2±1", sanity: "+2±1" }
+    - label: "Send \"On it tomorrow!\""
+      check: { stat: advisor_rel, vs: 45, spread: 20 }
+      success:
+        text: "A thumbs-up comes back. Ten seconds of work, and everyone sleeps."
+        effects: { sanity: "+2±1", advisor_rel: "+1" }
+      failure:
+        text: "Two more \"quick\" emails arrive before midnight. You read them all."
+        effects: { energy: "-2±1", sanity: "-3±1" }
+
+- id: adv_grant_due_friday
+  title: "Due Friday"
+  category: advisor
+  rarity: common
+  when: { has_advisor: true }
+  text:
+    - "{advisor} needs help with a grant proposal due Friday. \"Just the preliminary results section. You know the work best.\""
+  choices:
+    - label: "Write the section"
+      text: "You write four pages about your own work in the future tense. {advisor} is clearly grateful."
+      effects: { days: -3, energy: "-3±1", writing: "+3±1", advisor_rel: "+4±2" }
+    - label: "Offer figures, not prose"
+      text: "You send two clean figures. Both end up on page one."
+      effects: { days: -1, advisor_rel: "+2±1" }
+    - label: "Say your own deadline comes first"
+      check: { stat: advisor_rel, vs: 50, spread: 20 }
+      success:
+        text: "\"Fair. Your paper matters more right now.\" You get your week back."
+        effects: { sanity: "+2±1" }
+      failure:
+        text: "{advisor} says \"fine\" in a way that is not quite fine."
+        effects: { sanity: "-2±1", advisor_rel: "-4±2" }
+
+- id: adv_your_idea_returns
+  title: "A Brand-New Idea"
+  category: advisor
+  rarity: uncommon
+  when: { has_advisor: true, year: [2, 8] }
+  text:
+    - "{advisor} bursts into lab meeting with an exciting new idea. It's the idea you pitched last year, the one they called \"not quite there\"."
+  choices:
+    - label: "Say \"I pitched that last year!\""
+      check: { stat: advisor_rel, vs: 55, spread: 15 }
+      success:
+        text: "{advisor} laughs, checks their notes, and agrees. \"Then you should lead it.\""
+        effects: { sanity: "+5±2", taste: "+2±1", advisor_rel: "+2±1" }
+      failure:
+        text: "\"Similar, but this version is different.\" It is not different."
+        effects: { sanity: "-4±2", advisor_rel: "-2±1" }
+    - label: "Say \"Great idea!\" and smile"
+      text: "You start a new folder for it. Your notes from last year are already inside."
+      effects: { sanity: "-2±1", taste: "+2±1", advisor_rel: "+3±1" }
+    - label: "Send them your old slides"
+      text: "\"Ha, you were early.\" Your slides from last year become the starting point."
+      effects: { sanity: "+2±1", knowledge: "+2±1", advisor_rel: "+2±1" }
+
+- id: adv_vacation_reschedule
+  title: "Rescheduled Into Your Vacation"
+  category: advisor
+  rarity: common
+  when: { has_advisor: true, advisor_not: [kind_funded] }
+  text:
+    - "{advisor} forgets your meeting, apologizes warmly, and moves it to the one week you'll be away."
+  choices:
+    - label: "Take the call from vacation"
+      text: "You take it from a parking lot. It lasts 12 minutes. {advisor} seems pleased."
+      effects: { sanity: "-4±2", days_next: -1, family_rel: "-2±1", advisor_rel: "+3±1" }
+    - label: "Ask to move it again"
+      check: { stat: advisor_rel, vs: 45, spread: 20 }
+      success:
+        text: "\"Oh! Of course. Enjoy your break.\" It moves to the week after."
+        effects: { sanity: "+2±1" }
+      failure:
+        text: "It moves to the morning you fly back."
+        effects: { energy: "-4±2", sanity: "-2±1" }
+    - label: "Send a written update instead"
+      text: "A tidy one-page update. {advisor} replies \"perfect, enjoy!\" and means it."
+      effects: { sanity: "+1", writing: "+2±1", advisor_rel: "+1" }
+
+- id: adv_guest_lecture
+  title: "Tomorrow's Guest Lecture"
+  category: advisor
+  rarity: uncommon
+  when: { has_advisor: true, year: [2, 8], semester: [fall, spring] }
+  text:
+    - "{advisor} is stuck in another meeting. \"Could you give my guest lecture tomorrow? The slides are mostly done.\""
+  choices:
+    - label: "Give it with their slides"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "The slides are from 2019, but you narrate them well. Two students ask for your email."
+        effects: { energy: "-3±1", presenting: "+3±1", advisor_rel: "+3±1" }
+      failure:
+        text: "Slide 14 cites a model nobody has heard of. You improvise for ten long minutes."
+        effects: { energy: "-3±1", sanity: "-4±2", presenting: "+2±1" }
+    - label: "Rebuild the slides tonight"
+      text: "You give a crisp lecture built around your own work. {advisor} hears it went great."
+      effects: { energy: "-7±2", sanity: "-2±1", presenting: "+4±1", advisor_rel: "+4±2" }
+    - label: "Say you can't this time"
+      text: "The lecture is canceled. The class gets a free hour and seems thrilled."
+      effects: { sanity: "+1", advisor_rel: "-2±1" }
+
+- id: adv_star_student
+  title: "My Star Student"
+  category: advisor
+  rarity: uncommon
+  hook: conference
+  when: { has_advisor: true }
+  text:
+    - "At the {venue} reception in {city}, {advisor} introduces you to a famous researcher as \"my star student\". The famous researcher turns to you, expectantly."
+  choices:
+    - label: "Pitch your work in one minute"
+      check: { stat: presenting, vs: 55, spread: 15 }
+      success:
+        text: "They ask one sharp question, then for your paper. You've made a real contact."
+        effects: { sanity: "+3±1", presenting: "+2±1", network: "+5±2" }
+      failure:
+        text: "You say \"basically\" eleven times. They are very kind about it."
+        effects: { sanity: "-3±1", network: "+2±1" }
+    - label: "Ask about their work instead"
+      text: "They talk for twenty minutes. You learn a lot and are remembered as a great listener."
+      effects: { knowledge: "+2±1", network: "+3±1" }
+    - label: "Laugh: \"Star is generous.\""
+      text: "Everyone laughs. {advisor} looks quietly proud."
+      effects: { sanity: "+2±1", network: "+2±1", advisor_rel: "+1" }
+
+- id: adv_reading_group
+  title: "You're Running Reading Group"
+  category: advisor
+  rarity: common
+  when: { has_advisor: true, year: [1, 6], semester: [fall, spring] }
+  text:
+    - "\"{player} will run reading group this semester,\" {advisor} announces. This is the first you've heard of it."
+  choices:
+    - label: "Run it properly"
+      text: "You pick good papers and bring snacks. Attendance doubles."
+      effects: { days: -2, energy: "-3±1", knowledge: "+4±1", labmates_rel: "+3±1" }
+    - label: "Make it a rotation"
+      check: { stat: labmates_rel, vs: 50, spread: 15 }
+      success:
+        text: "Everyone takes a week. You only present twice."
+        effects: { knowledge: "+2±1", labmates_rel: "+2±1" }
+      failure:
+        text: "Nobody signs up. You present for six weeks straight."
+        effects: { days_next: -2, sanity: "-3±1", knowledge: "+3±1" }
+    - label: "Pick only papers for your project"
+      text: "Every paper is about your project. The lab learns a lot about it, and so do you."
+      effects: { knowledge: "+3±1", taste: "+2±1", labmates_rel: "-1" }
+
+- id: adv_weekly_reports
+  title: "Weekly Progress Reports"
+  category: advisor
+  rarity: common
+  when: { has_advisor: true }
+  text:
+    - "{advisor} wants a written progress report every week from now on. \"Just a few bullet points. Every Friday.\""
+  choices:
+    - label: "Write them every Friday"
+      text: "Writing down what you did turns out to be useful. Writing down what you didn't do, less so."
+      effects: { days_next: -1, writing: "+2±1", advisor_rel: "+3±1" }
+    - label: "Turn your notes into the report"
+      check: { stat: writing, vs: 45, spread: 15 }
+      success:
+        text: "Your lab notebook becomes the report. Ten minutes a week."
+        effects: { writing: "+1", advisor_rel: "+2±1" }
+      failure:
+        text: "Your notes say \"fixed thing\" four times. {advisor} asks which thing."
+        effects: { sanity: "-2±1", advisor_rel: "-2±1" }
+    - label: "Propose a shared progress doc"
+      text: "{advisor} likes it. Nobody reads it but you, which helps more than you expect."
+      effects: { sanity: "+1", taste: "+1", advisor_rel: "+1" }
+
+- id: adv_mentor_undergrad
+  title: "A Very Motivated Undergrad"
+  category: advisor
+  rarity: common
+  when: { has_advisor: true, year: [2, 8] }
+  text:
+    - "{advisor} asks you to mentor {mentee}, a new undergrad who is \"very motivated\". {mentee} has already emailed you twice."
+  choices:
+    - label: "Give them a real subproject"
+      text: "You write {mentee} a two-page plan. Explaining your project makes you understand it better."
+      effects: { days_next: -2, presenting: "+2±1", labmates_rel: "+2±1", advisor_rel: "+2±1" }
+      flag_set: [has_undergrad_mentee]
+    - label: "Start them on reading"
+      text: "You send {mentee} five papers. They read all five by Tuesday and come back with good questions."
+      effects: { knowledge: "+1", sanity: "+1" }
+      flag_set: [has_undergrad_mentee]
+    - label: "Suggest {labmate} instead"
+      check: { stat: labmates_rel, vs: 50, spread: 15 }
+      success:
+        text: "{labmate} is delighted. They've wanted a mentee for months."
+        effects: { labmates_rel: "+1", advisor_rel: "-1" }
+      failure:
+        text: "{labmate} is swamped, so {mentee} becomes yours anyway, a week late."
+        effects: { days_next: -1, labmates_rel: "-3±1" }
+        flag_set: [has_undergrad_mentee]
+
+- id: adv_inspiring_talk
+  title: "One Inspiring Keynote"
+  category: advisor
+  rarity: common
+  when: { has_advisor: true, advisor_not: [kind_funded], year: [1, 6], project: { stage_kind: work } }
+  text:
+    - "{advisor} comes back from one inspiring keynote and wants {project} to go in a whole new direction. \"Everything is about this now.\""
+  choices:
+    - label: "Pivot {project}"
+      text: "Back to the idea stage, with half your novelty and a fresh whiteboard."
+      effects: { project.pivot: true, sanity: "-4±2", taste: "+2±1", advisor_rel: "+3±1" }
+    - label: "Add one experiment in that direction"
+      text: "One small experiment satisfies the keynote energy, and it actually adds something."
+      effects: { days: -2, project.progress: "-5±2", project.quality.N: "+4±2" }
+    - label: "Wait a week and see"
+      check: { stat: advisor_rel, vs: 45, spread: 20 }
+      success:
+        text: "A week later, {advisor} has moved on to a different keynote."
+        effects: { sanity: "+3±1" }
+      failure:
+        text: "A week later, they've watched the keynote twice more and are disappointed in you."
+        effects: { sanity: "-2±1", advisor_rel: "-3±1" }
+
+- id: adv_caught_in_the_middle
+  title: "Caught in the Middle"
+  category: advisor
+  rarity: uncommon
+  when: { has_advisor: true, project: { stage: [analysis, writing] } }
+  text:
+    - "{advisor} wants {project} framed as a methods paper. Your collaborator wants a findings paper. Both email you, separately, within the same minute."
+  choices:
+    - label: "Side with your advisor"
+      text: "Methods it is. The collaborator goes quiet for a week."
+      effects: { project.quality.N: "+3±1", advisor_rel: "+3±1", network: "-2±1" }
+    - label: "Side with the collaborator"
+      text: "Findings it is. {advisor} agrees, slowly, and remembers."
+      effects: { project.quality.C: "+3±1", network: "+3±1", advisor_rel: "-3±1" }
+    - label: "Draft both framings"
+      text: "You write two introductions. Everyone picks the second one, which neither of them proposed."
+      effects: { days: -2, energy: "-4±2", writing: "+2±1", project.quality.C: "+5±2" }
+    - label: "Get them both on one call"
+      check: { stat: presenting, vs: 55, spread: 15 }
+      success:
+        text: "Twenty minutes later they agree, and each thinks it was their idea."
+        effects: { sanity: "+2±1", advisor_rel: "+2±1", network: "+2±1" }
+      failure:
+        text: "The call runs an hour. You leave with three framings instead of two."
+        effects: { sanity: "-4±2" }
+
+- id: adv_sounds_good
+  title: "\"sounds good\""
+  category: advisor
+  rarity: common
+  when: { has_advisor: true }
+  text:
+    - "You send {advisor} a 2,000-word email laying out three options, with pros and cons for each. The reply: \"sounds good\"."
+  choices:
+    - label: "Pick the option you liked"
+      text: "You go with option B. Nobody objects, possibly because nobody read option A."
+      effects: { sanity: "+3±1", taste: "+2±1" }
+    - label: "Ask \"Which one?\""
+      check: { stat: advisor_rel, vs: 50, spread: 20 }
+      success:
+        text: "They call you and talk it through. Ten genuinely useful minutes."
+        effects: { taste: "+3±1", advisor_rel: "+2±1" }
+      failure:
+        text: "The reply: \"sounds good\"."
+        effects: { sanity: "-3±1" }
+    - label: "Send a three-line version"
+      text: "The three-line version gets a real answer in four minutes. Lesson learned."
+      effects: { writing: "+3±1", advisor_rel: "+2±1" }
+      tip: "How to Communicate"
+
+- id: adv_draft_too_late
+  title: "Comments on Version 2"
+  category: advisor
+  rarity: common
+  when: { has_advisor: true, advisor_not: [kind_funded, micromanager], project: { stage: [writing, revise] } }
+  text:
+    - "{advisor} finally sends comments on your draft of {project}. They are on version 2. You are on version 5."
+  choices:
+    - label: "Map their comments onto v5"
+      text: "Half the comments are already fixed. The other half are good."
+      effects: { days: -1, project.quality.C: "+4±2", advisor_rel: "+2±1" }
+    - label: "Reply \"Fixed in v5!\""
+      text: "\"Oh, great.\" You suspect v5 will be read sometime around v8."
+      effects: { sanity: "+2±1", advisor_rel: "-2±1" }
+    - label: "Ask them to read v5 now"
+      check: { stat: advisor_rel, vs: 50, spread: 20 }
+      success:
+        text: "They read v5 that night. The comments are sharp and on time."
+        effects: { project.quality.S: "+4±2", project.quality.C: "+3±1", advisor_rel: "+1" }
+      failure:
+        text: "\"Will do!\" They do not."
+        effects: { sanity: "-3±1" }
+
+# ---------------------------------------------------------------------------
+# Arc: sabbatical. The advisor goes abroad; meetings move to 6 am your time.
+# Start -> 6 am call -> (optional visit) -> return. Every path ends at the return.
+
+- id: adv_sabbatical_start
+  title: "Sabbatical Abroad"
+  category: advisor
+  rarity: uncommon
+  arc: sabbatical
+  when: { has_advisor: true, year: [2, 6] }
+  text:
+    - "{advisor} is taking a sabbatical abroad for the next few months. \"Nothing changes! We'll just meet at 6 am your time.\""
+  choices:
+    - label: "Set three alarms"
+      text: "You buy a second coffee maker. The first 6 am meeting goes fine, mostly."
+      effects: { sanity: "-2±1", advisor_rel: "+3±1" }
+      flag_set: [sabbatical_dawn]
+      schedule: { event: adv_sabbatical_call, in: [2, 3], chance: 1.0 }
+    - label: "Propose written updates instead"
+      check: { stat: writing, vs: 50, spread: 15 }
+      success:
+        text: "{advisor} agrees: a written update each week, plus one call a month."
+        effects: { sanity: "+3±1", writing: "+1" }
+        flag_set: [sabbatical_async]
+        schedule: { event: adv_sabbatical_call, in: [2, 3], chance: 1.0 }
+      failure:
+        text: "\"Let's try 6 am first and see.\" Fair enough."
+        effects: { sanity: "-2±1" }
+        flag_set: [sabbatical_dawn]
+        schedule: { event: adv_sabbatical_call, in: [2, 3], chance: 1.0 }
+    - label: "Say 6 am is your best hour"
+      requires: { traits_any: [early_bird] }
+      tag: "Early Bird"
+      text: "You're sharpest at dawn anyway. {advisor} is impressed by how awake you are."
+      effects: { sanity: "+1", advisor_rel: "+4±1" }
+      flag_set: [sabbatical_dawn]
+      schedule: { event: adv_sabbatical_call, in: [2, 3], chance: 1.0 }
+    - label: "Stay up until 6 am instead"
+      requires: { traits_any: [night_owl] }
+      tag: "Night Owl"
+      text: "For you, 6 am is the end of the day. The meetings are oddly relaxed."
+      effects: { energy: "-3±1", sanity: "+2±1", advisor_rel: "+2±1" }
+      flag_set: [sabbatical_dawn]
+      schedule: { event: adv_sabbatical_call, in: [2, 3], chance: 1.0 }
+
+- id: adv_sabbatical_call
+  title: "The 6 am Call"
+  category: advisor
+  trigger: scheduled
+  arc: sabbatical
+  when: { has_advisor: true }
+  text:
+    - "5:58 am. You join the call. {advisor} is eating lunch in the sun and wants to tell you about their host lab."
+  choices:
+    - label: "Join their lab's meeting too"
+      text: "You present to a lab you've never met, at dawn. Two of them email you afterward."
+      effects: { energy: "-4±2", network: "+4±2", advisor_rel: "+2±1" }
+      schedule: { event: adv_sabbatical_return, in: [3, 4], chance: 1.0 }
+    - label: "Keep it to your project"
+      text: "You get exactly the feedback you need, then sleep for another hour."
+      effects: { energy: "+2±1", advisor_rel: "+1" }
+      schedule: { event: adv_sabbatical_return, in: [3, 4], chance: 1.0 }
+    - label: "Ask to visit for a week"
+      requires: { status_none: [visa_pending] }
+      check: { stat: advisor_rel, vs: 55, spread: 15 }
+      success:
+        text: "\"Yes! I'll find the travel money.\" You start looking at flights."
+        effects: { sanity: "+4±2" }
+        flag_set: [sabbatical_visit]
+        schedule: { event: adv_sabbatical_visit, in: [2, 3], chance: 1.0 }
+      failure:
+        text: "\"I'd love that, but the budget is tight this year.\" You understand."
+        effects: { sanity: "-2±1" }
+        schedule: { event: adv_sabbatical_return, in: [3, 4], chance: 1.0 }
+
+- id: adv_sabbatical_visit
+  title: "A Week Abroad"
+  category: advisor
+  trigger: scheduled
+  arc: sabbatical
+  when: { has_advisor: true }
+  text:
+    - "You spend a week in {advisor}'s host lab abroad. The coffee is better, and so is the whiteboard."
+  choices:
+    - label: "Give a talk to their lab"
+      check: { stat: presenting, vs: 50, spread: 15 }
+      success:
+        text: "Great questions, a long lunch after, and an invitation to come back."
+        effects: { presenting: "+3±1", network: "+6±2" }
+        status: { add: jet_lagged, turns: 1 }
+        schedule: { event: adv_sabbatical_return, in: [2, 3], chance: 1.0 }
+      failure:
+        text: "The projector fights you for ten minutes. The discussion after is still good."
+        effects: { sanity: "-2±1", network: "+3±1" }
+        status: { add: jet_lagged, turns: 1 }
+        schedule: { event: adv_sabbatical_return, in: [2, 3], chance: 1.0 }
+    - label: "Work side by side with {advisor}"
+      text: "A week of real daytime meetings. You get more done than in the last two months."
+      effects: { days: -2, taste: "+3±1", advisor_rel: "+4±2" }
+      status: { add: jet_lagged, turns: 1 }
+      schedule: { event: adv_sabbatical_return, in: [2, 3], chance: 1.0 }
+    - label: "Explore the city on the weekend"
+      text: "You see the sights, eat everything, and come home with ideas and a fridge magnet."
+      effects: { sanity: "+6±2", network: "+2±1" }
+      status: { add: jet_lagged, turns: 1 }
+      schedule: { event: adv_sabbatical_return, in: [2, 3], chance: 1.0 }
+
+- id: adv_sabbatical_return
+  title: "Back From Sabbatical"
+  category: advisor
+  trigger: scheduled
+  arc: sabbatical
+  when: { has_advisor: true }
+  text:
+    - "{advisor} is back from sabbatical, full of ideas, with a small souvenir for everyone. Your meetings return to a human hour."
+  choices:
+    - label: "Pitch an idea from the trip"
+      check: { stat: taste, vs: 50, spread: 20 }
+      success:
+        text: "One idea sticks. {advisor} wants a paper on it."
+        effects: { taste: "+3±1", advisor_rel: "+3±1" }
+        flag_clear: [sabbatical_dawn, sabbatical_async, sabbatical_visit]
+      failure:
+        text: "\"Interesting! Let's revisit.\" It is never revisited."
+        effects: { sanity: "-1", taste: "+1" }
+        flag_clear: [sabbatical_dawn, sabbatical_async, sabbatical_visit]
+    - label: "Enjoy your first 10 am meeting"
+      text: "You sleep until 8, like a person. It is wonderful."
+      effects: { energy: "+4±2", sanity: "+5±2" }
+      flag_clear: [sabbatical_dawn, sabbatical_async, sabbatical_visit]
+    - label: "Ask for the people they met"
+      text: "Forty minutes of stories, and three introductions to people you should know."
+      effects: { network: "+3±1", advisor_rel: "+2±1" }
+      flag_clear: [sabbatical_dawn, sabbatical_async, sabbatical_visit]

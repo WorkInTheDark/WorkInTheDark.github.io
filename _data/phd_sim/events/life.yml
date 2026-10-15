@@ -1,0 +1,503 @@
+# Life outside the lab (event-ideas.md, section N).
+# Seasonal events use turn windows (calendar: content-spec.md, section 4).
+# Arc "cat": lif_cat_adopt -> (lif_cat_foster_end) -> lif_cat_lab_meeting, lif_cat_keyboard.
+
+# --- Housing ---------------------------------------------------------------
+
+- id: lif_lease_renewal
+  title: "Lease Renewal"
+  category: life
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when:
+    turn: [25, 26]
+  text:
+    - "Your lease renewal arrives. The rent goes up again, by an amount your stipend has never heard of."
+    - "Lease renewal season. Your landlord's letter calls the rent increase \"a modest adjustment\"."
+  choices:
+    - label: "Sign it and sigh"
+      text: "You sign. Your budget spreadsheet gets a new row called \"fewer takeout nights\"."
+      effects: { sanity: "-4±1" }
+    - label: "Negotiate with the landlord"
+      check: { stat: presenting, vs: 55, spread: 20 }
+      success:
+        text: "You point out the broken heater and the mystery leak. The increase gets cut in half."
+        effects: { sanity: "+3±1", presenting: "+1" }
+      failure:
+        text: "Your landlord listens kindly and changes nothing."
+        effects: { sanity: "-4±1", days: -1 }
+    - label: "Move somewhere cheaper"
+      text: "Three viewings, one van, and many boxes later, you have a cheaper place and a longer commute."
+      effects: { days: -3, energy: "-6±2", sanity: "+3±1" }
+
+- id: lif_roommate_drums
+  title: "The Drummer"
+  category: life
+  rarity: common
+  text:
+    - "Your roommate's new hobby is drums. They practice every evening from 8 to 10, which used to be your writing time."
+  choices:
+    - label: "Buy noise-canceling headphones"
+      text: "The drums become a distant thud. You can almost think again."
+      effects: { sanity: "+2±1", energy: "-1" }
+    - label: "Work late at the lab instead"
+      text: "The lab at night is quiet. Too quiet, some evenings."
+      effects: { energy: "-3±1", labmates_rel: "+2±1", friends_rel: "-2±1" }
+    - label: "Ask for a practice schedule"
+      check: { stat: friends_rel, vs: 45, spread: 20 }
+      success:
+        text: "They agree to weekends only. In return, you agree to come to their first gig."
+        effects: { sanity: "+4±1", friends_rel: "+3±1" }
+      failure:
+        text: "They agree, then forget. The drums carry on."
+        effects: { sanity: "-3±1", friends_rel: "-2±1" }
+    - label: "Join in on bass"
+      requires: { traits_any: [musician] }
+      tag: "Musician"
+      text: "Your roommate is thrilled. You now have a band, a terrible name for it, and a great outlet."
+      effects: { sanity: "+7±2", friends_rel: "+4±1", days: -1 }
+
+- id: lif_move_deadline_week
+  title: "Moving Week"
+  category: life
+  rarity: uncommon
+  when:
+    project: { turns_to_deadline: "<=1" }
+  text:
+    - "Your lease ends the same week as your deadline for {project}. The boxes are packed. The paper is not."
+  choices:
+    - label: "Move everything in one weekend"
+      text: "Two days of stairs and tape. On Monday your back hurts, and so does the draft."
+      effects: { days: -2, energy: "-8±3", project.progress: "-6±2" }
+    - label: "Ask the lab to help, buy pizza"
+      text: "Four labmates, one van and six pizzas. The move takes an afternoon, and you owe everyone."
+      effects: { days: -1, energy: "-4±1", labmates_rel: "+4±2" }
+    - label: "Live out of boxes until the deadline"
+      text: "You write the paper sitting on a box labeled KITCHEN. It works, mostly."
+      effects: { sanity: "-5±2", health: "-2±1" }
+
+# --- Seasons and holidays ------------------------------------------------------
+
+- id: lif_first_snow
+  title: "First Snow"
+  category: life
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when:
+    turn: [6, 10]
+  text:
+    - "The first snow of the year. Your walk to the lab takes twice as long, and you arrive looking like a snowman."
+  choices:
+    - label: "Work from home today"
+      text: "Hot tea, warm socks, and a surprisingly good writing day."
+      effects: { sanity: "+3±1", labmates_rel: "-1" }
+    - label: "Trudge in anyway"
+      text: "You arrive soaked. The lab is empty except for {labmate}, who also trudged in."
+      effects: { energy: "-4±1", labmates_rel: "+2±1" }
+    - label: "Build a snowman with the lab"
+      text: "It wears a lab badge and holds a sign that says REVIEWER 2. Everyone takes a photo."
+      effects: { sanity: "+5±2", labmates_rel: "+3±1", days: -1 }
+
+- id: lif_first_warm_day
+  title: "First Warm Day"
+  category: life
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when:
+    turn: [15, 17]
+  text:
+    - "The first warm day of spring. You walk into the lab at 10 am and nobody is there. Everyone is outside on the grass."
+  choices:
+    - label: "Join them outside"
+      text: "The whole lab lies in the sun, talking about anything but work. It's the best lab meeting of the year."
+      effects: { sanity: "+6±2", energy: "+3±1", labmates_rel: "+2±1", days: -1 }
+    - label: "Enjoy the empty lab"
+      text: "Quiet, focused, and a little lonely. You get a lot done."
+      effects: { coding: "+2±1", sanity: "-1" }
+    - label: "Read papers on the grass"
+      text: "You read two papers in the sun. You remember both of them better than usual."
+      effects: { knowledge: "+2±1", sanity: "+3±1", energy: "+2±1" }
+
+- id: lif_thanksgiving_dinner
+  title: "Lab Thanksgiving"
+  category: life
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when:
+    turn: [7, 7]
+  text:
+    - "{senior} hosts a Thanksgiving potluck for everyone in the lab who can't fly home."
+  choices:
+    - label: "Bring a dish you can actually cook"
+      text: "Your dish is gone in ten minutes. Several people ask for the recipe."
+      effects: { labmates_rel: "+4±1", sanity: "+4±1", days: -1 }
+    - label: "Bring a store-bought pie"
+      text: "Nobody judges the pie. Everyone eats the pie."
+      effects: { labmates_rel: "+2±1", sanity: "+3±1" }
+    - label: "Stay home and write"
+      text: "You get a good writing day. The group chat fills with photos of food."
+      effects: { sanity: "-3±1", labmates_rel: "-2±1" }
+    - label: "Cook something ambitious"
+      requires: { traits_any: [foodie] }
+      tag: "Foodie"
+      text: "Your dish is the talk of the evening. People from two other labs show up just to try it."
+      effects: { labmates_rel: "+6±2", sanity: "+5±1", network: "+2±1", days: -1 }
+
+- id: lif_lunar_new_year
+  title: "Lunar New Year"
+  category: life
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when:
+    turn: [11, 12]
+  text:
+    - "{labmate} invites the lab over to make dumplings for Lunar New Year."
+  choices:
+    - label: "Fold dumplings until midnight"
+      text: "Your first dumplings look like modern art. By the fortieth, they look like dumplings."
+      effects: { labmates_rel: "+4±1", sanity: "+5±2", days: -1 }
+    - label: "Come for dinner, leave early"
+      text: "You eat well, laugh a lot, and are home by nine."
+      effects: { labmates_rel: "+2±1", sanity: "+3±1" }
+    - label: "Send wishes and keep working"
+      text: "You send a red envelope emoji to the group chat. It's not quite the same."
+      effects: { sanity: "-2±1", labmates_rel: "-1" }
+
+- id: lif_winter_break_home
+  title: "Home for the Holidays"
+  category: life
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when:
+    turn: [9, 9]
+  text:
+    - "Home for winter break. Over dinner, a relative asks when you'll graduate. Everyone stops eating to hear the answer."
+  choices:
+    - label: "Give a confident date"
+      text: "\"Two more years.\" Everyone is pleased. You will hear this date again next year."
+      effects: { family_rel: "+3±1", sanity: "-2±1" }
+    - label: "Explain how a PhD works"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "Your explanation lands. An aunt says it sounds like a startup with no money, which is fair."
+        effects: { family_rel: "+5±2", presenting: "+1" }
+      failure:
+        text: "Ten minutes in, someone asks if you could just finish early."
+        effects: { family_rel: "+1", sanity: "-3±1" }
+    - label: "Ask about your cousin's new job"
+      text: "The table turns to your cousin. You get a quiet second helping of dessert."
+      effects: { sanity: "+3±1", family_rel: "+1" }
+
+- id: lif_fix_printer
+  title: "The Printer"
+  category: life
+  rarity: common
+  when:
+    turn: [7, 12]
+  text:
+    - "You explain your research to your relatives over the holidays. They listen carefully, then ask if you can fix their printer."
+  choices:
+    - label: "Fix the printer"
+      check: { stat: coding, vs: 45, spread: 20 }
+      success:
+        text: "You fix it in five minutes. You are now the family's AI expert and IT department."
+        effects: { family_rel: "+5±2", sanity: "+2±1" }
+      failure:
+        text: "Two hours later, the printer prints one page and stops forever. Nobody blames you, out loud."
+        effects: { family_rel: "+2±1", energy: "-3±1" }
+    - label: "Explain your research again"
+      text: "Second try: \"I help computers understand people.\" That one sticks."
+      effects: { presenting: "+2±1", family_rel: "+2±1" }
+    - label: "Recommend a new printer"
+      text: "They buy one online. You set it up. You are the IT department anyway."
+      effects: { family_rel: "+2±1", sanity: "+1" }
+
+# --- Cat arc --------------------------------------------------------------
+
+- id: lif_cat_adopt
+  title: "A Cat Named Baseline"
+  category: life
+  rarity: uncommon
+  arc: cat
+  when:
+    flags_none: [cat_adopted, cat_fostering]
+  text:
+    - "A shelter near campus posts a photo of a grumpy gray cat named Baseline. Baseline needs a quiet home with someone who works from home a lot."
+  choices:
+    - label: "Adopt Baseline"
+      text: "Baseline inspects your apartment, sits on your printed draft, and moves in."
+      effects: { sanity: "+8±3", days: -1 }
+      flag_set: [cat_adopted]
+      trait_add: cat_person
+      achievement: cat_person
+      schedule:
+        - { event: lif_cat_lab_meeting, in: [2, 5], chance: 1.0 }
+        - { event: lif_cat_keyboard, in: [6, 12], chance: 1.0 }
+    - label: "Foster for a month first"
+      text: "Baseline arrives on a trial basis. Baseline does not seem to know it's a trial."
+      effects: { sanity: "+4±2" }
+      flag_set: [cat_fostering]
+      schedule: { event: lif_cat_foster_end, in: [2, 2], chance: 1.0 }
+    - label: "Not with these deadlines"
+      text: "You close the tab. Baseline finds a home with fewer deadlines a week later."
+      effects: { sanity: "-1" }
+
+- id: lif_cat_foster_end
+  title: "The Trial Ends"
+  category: life
+  rarity: common
+  trigger: scheduled
+  arc: cat
+  when:
+    flags_all: [cat_fostering]
+  text:
+    - "The foster month is over. Baseline has claimed your desk chair, your sweater and most of your heart."
+  choices:
+    - label: "Make it official"
+      text: "You sign the papers. Baseline celebrates by knocking a pen off your desk."
+      effects: { sanity: "+6±2" }
+      flag_set: [cat_adopted]
+      flag_clear: [cat_fostering]
+      trait_add: cat_person
+      achievement: cat_person
+      schedule:
+        - { event: lif_cat_lab_meeting, in: [2, 5], chance: 1.0 }
+        - { event: lif_cat_keyboard, in: [6, 12], chance: 1.0 }
+    - label: "Return Baseline to the shelter"
+      text: "The shelter finds Baseline a family within a week. Your chair is yours again, and a little too empty."
+      effects: { sanity: "-4±2", days: 1 }
+      flag_clear: [cat_fostering]
+
+- id: lif_cat_lab_meeting
+  title: "Guest Speaker"
+  category: life
+  rarity: common
+  trigger: scheduled
+  arc: cat
+  when:
+    flags_all: [cat_adopted]
+  text:
+    - "Halfway through your video update at lab meeting, Baseline sits on your keyboard and blocks the camera. Nobody hears your results. Everyone asks the cat's name."
+  choices:
+    - label: "Introduce Baseline properly"
+      text: "Baseline gets a round of applause. Your results get a follow-up meeting."
+      effects: { labmates_rel: "+4±1", sanity: "+3±1" }
+    - label: "Close the door and carry on"
+      text: "Baseline meows through the rest of your update. Your slides have never had a louder audience."
+      effects: { presenting: "+1", sanity: "-2±1" }
+    - label: "Make Baseline the lab mascot"
+      text: "By Friday, Baseline is the lab's Slack icon. {labmate} makes stickers."
+      effects: { labmates_rel: "+5±2", sanity: "+4±1", days: -1 }
+
+- id: lif_cat_keyboard
+  title: "Submitted by Baseline"
+  category: life
+  rarity: common
+  trigger: scheduled
+  arc: cat
+  when:
+    flags_all: [cat_adopted]
+  text:
+    - "You leave a half-written peer review open and go make tea. Baseline walks across the keyboard. The review is now submitted, with a score of 1 and the comment \"jjjjjjjjjjjjjjj;\"."
+  choices:
+    - label: "Email the area chair and confess"
+      check: { stat: writing, vs: 45, spread: 20 }
+      success:
+        text: "The area chair reopens it and writes back, \"Please thank the cat for its time.\""
+        effects: { sanity: "+3±1", network: "+2±1" }
+      failure:
+        text: "The area chair reopens it three days later. You rewrite the whole review over the weekend."
+        effects: { days: -1, sanity: "-2±1" }
+    - label: "Edit the review before the deadline"
+      text: "The system still allows edits. Baseline's version stays in the history log forever."
+      effects: { days: -1, energy: "-2±1", writing: "+1" }
+    - label: "Leave it. Baseline has a point."
+      text: "Somewhere, an author gets the shortest review of their life. You and Baseline sleep well."
+      effects: { sanity: "+4±1", network: "-3±1" }
+
+# --- Family and friends ------------------------------------------------------
+
+- id: lif_parents_visit
+  title: "Where You Work"
+  category: life
+  rarity: uncommon
+  when:
+    semester: [fall, spring, summer]
+  text:
+    - "Your parents visit for a week and want to see \"where you work\". You think about your desk, the empty coffee cups and the whiteboard."
+  choices:
+    - label: "Give them the full lab tour"
+      text: "They meet your labmates, admire the GPUs, and take a photo of your name on the door."
+      effects: { days: -2, family_rel: "+6±2", sanity: "+3±1", labmates_rel: "+2±1" }
+    - label: "Show them the nice library"
+      text: "The library is beautiful and dignified. Your parents assume your desk looks like this."
+      effects: { days: -1, family_rel: "+3±1", sanity: "+2±1" }
+    - label: "Skip campus, show them the city"
+      text: "A week of good food and long walks. They still don't know what you do, and nobody minds."
+      effects: { days: -3, family_rel: "+5±2", sanity: "+6±2", energy: "+2±1" }
+
+- id: lif_dating_app
+  title: "\"So What Do You Do?\""
+  category: life
+  rarity: common
+  text:
+    - "A dating-app match asks what you do. You type \"PhD student\". The conversation ends."
+    - "Your dating-app match asks what you do. You say \"PhD.\" They reply \"oh\" and are never heard from again."
+  choices:
+    - label: "Try \"I teach computers to read\""
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "A new match asks a follow-up question. Then another. You have a coffee date on Saturday."
+        effects: { sanity: "+5±2", friends_rel: "+1", days: -1 }
+      failure:
+        text: "\"So you're the reason my phone autocorrects everything?\" Also ends."
+        effects: { sanity: "-2±1" }
+    - label: "Delete the app, go to trivia night"
+      text: "Your friends' team wins on a question about the history of computing. That was you."
+      effects: { friends_rel: "+4±1", sanity: "+3±1", days: -1 }
+    - label: "Put the phone down and work"
+      text: "The paper doesn't ask what you do. It just needs doing."
+      effects: { sanity: "-1", friends_rel: "-1" }
+
+- id: lif_long_distance
+  title: "Twelve Hours Apart"
+  category: life
+  rarity: common
+  repeatable: true
+  cooldown: 10
+  when:
+    origin: international
+  text:
+    - "Your family is twelve time zones away. When you wake up, they're going to bed. When they wake up, you're debugging."
+  choices:
+    - label: "Call at 7 am before the lab"
+      text: "A sleepy, happy call. Your mom asks if you're eating. You say yes, which is mostly true."
+      effects: { energy: "-3±1", family_rel: "+5±2", sanity: "+2±1" }
+    - label: "Call at midnight after work"
+      text: "They're just having breakfast. You're just having dinner. It works."
+      effects: { health: "-1", family_rel: "+4±1", sanity: "+3±1" }
+    - label: "Trade voice messages"
+      text: "A slow, warm conversation across a whole day. Not the same, but close."
+      effects: { family_rel: "+2±1", sanity: "+1" }
+
+- id: lif_friend_promoted
+  title: "Same Day"
+  category: life
+  rarity: uncommon
+  hook: after_reject
+  text:
+    - "The same day {paper} is rejected from {venue}, your undergrad friend posts that they've been promoted. Again."
+  choices:
+    - label: "Send a sincere congratulations"
+      text: "You mean it, mostly. They write back, \"Your stuff is way cooler though.\""
+      effects: { friends_rel: "+4±1", sanity: "-2±1" }
+    - label: "Mute the group chat for a day"
+      text: "A quiet day without anyone's good news. Tomorrow you'll be happy for them."
+      effects: { sanity: "+2±1", friends_rel: "-2±1" }
+    - label: "Congratulate them, invite them to dinner"
+      text: "They pay, to celebrate. You talk about everything except reviews. It helps."
+      effects: { friends_rel: "+5±2", sanity: "+4±1", days: -1 }
+
+- id: lif_friend_wedding
+  title: "The Wedding Weekend"
+  category: life
+  rarity: uncommon
+  when:
+    project: { turns_to_deadline: "<=1" }
+  text:
+    - "Your close friend's wedding is the same weekend as your submission deadline for {project}. The invitation has been on your fridge for months."
+  choices:
+    - label: "Go and enjoy every minute"
+      text: "You dance badly and toast well. On Monday you are behind and happy about it."
+      effects: { days: -3, friends_rel: "+6±2", sanity: "+7±2", project.progress: "-8±3" }
+    - label: "Go to the ceremony, skip the party"
+      text: "You see the vows, hug the couple, and catch the last train home to write."
+      effects: { days: -1, friends_rel: "+3±1", sanity: "+2±1", energy: "-3±1" }
+    - label: "Send a gift and a video toast"
+      text: "Your video toast plays between dinner and dessert. You watch the replay at 2 am, still writing."
+      effects: { friends_rel: "-3±1", sanity: "-2±1" }
+
+# --- Things that break ---------------------------------------------------------
+
+- id: lif_laptop_dies
+  title: "Black Screen"
+  category: life
+  rarity: uncommon
+  when:
+    project: { turns_to_deadline: "<=1" }
+  text:
+    - "The week before your deadline for {project}, your laptop makes a soft clicking noise and never turns on again."
+  choices:
+    - label: "Restore from your backup"
+      check: { stat: coding, vs: 50, spread: 20 }
+      success:
+        text: "Your nightly backup has everything up to last night. You lose one paragraph and zero sleep."
+        effects: { days: -1, sanity: "+2±1" }
+      failure:
+        text: "Your last backup is from March. March was a long time ago."
+        effects: { project.progress: "-15±4", sanity: "-8±3" }
+    - label: "Rebuild from Git and Overleaf"
+      text: "The code is on Git and the paper is on Overleaf. The figures were only on your desktop."
+      effects: { days: -2, energy: "-5±2", project.progress: "-5±2" }
+    - label: "Borrow {labmate}'s old laptop"
+      check: { stat: labmates_rel, vs: 50, spread: 20 }
+      success:
+        text: "{labmate} hands over a laptop covered in stickers. It's slow, but it runs, and you owe them big."
+        effects: { days: -1, labmates_rel: "+2±1" }
+      failure:
+        text: "{labmate}'s laptop is from 2015 and needs updates for a day before it does anything."
+        effects: { days: -2, sanity: "-3±1" }
+
+- id: lif_phone_cracks
+  title: "Cracked"
+  category: life
+  rarity: common
+  hook: conference
+  repeatable: true
+  cooldown: 13
+  text:
+    - "On the first morning in {city}, your phone slips out of your hand on the convention center stairs. The screen is now a spider web."
+  choices:
+    - label: "Tape it and carry on"
+      text: "The tape covers the cracks and half the conference app. You navigate by asking strangers."
+      effects: { sanity: "-2±1", network: "+2±1" }
+    - label: "Find a repair shop in {city}"
+      text: "Two hours across town, a new screen, and you miss the morning session."
+      effects: { energy: "-4±1", sanity: "+2±1", network: "-2±1" }
+    - label: "Go phone-free for the trip"
+      text: "Without a phone, you talk to everyone at the coffee breaks. It's the best conference you've had."
+      effects: { network: "+4±2", sanity: "+2±1", energy: "-2±1" }
+
+- id: lif_free_pizza
+  title: "Free Pizza"
+  category: life
+  rarity: common
+  repeatable: true
+  cooldown: 8
+  when:
+    semester: [fall, spring]
+  text:
+    - "A seminar on medieval tax records is offering free pizza. You have no interest in medieval tax records. You go anyway."
+    - "Free pizza at a seminar on bridge corrosion. You know nothing about bridges. You go anyway."
+    - "A poster in the elevator says \"Soil Acoustics Seminar, Free Pizza\". You go anyway."
+  choices:
+    - label: "Take two slices and slip out"
+      text: "Lunch solved. Nobody noticed. Probably."
+      effects: { energy: "+3±1", sanity: "+1" }
+    - label: "Stay for the whole talk"
+      text: "The speaker uses a method you've never seen. It might work on your data, too."
+      effects: { days: -1, knowledge: "+2±1", taste: "+2±1" }
+    - label: "Stay and ask a question"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "Your question is good. The speaker asks to grab coffee, and now you know someone in a whole other field."
+        effects: { network: "+3±1", presenting: "+1", energy: "+2±1" }
+      failure:
+        text: "Your question was answered on slide 4. You eat a third slice in silence."
+        effects: { sanity: "-2±1", energy: "+3±1" }

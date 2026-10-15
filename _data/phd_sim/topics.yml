@@ -1,0 +1,142 @@
+# Research topics drawn at the start of each run (6–8 per run). Each has project titles per kind of work.
+# hype: starting hype (0–100); it random-walks during the run.
+- id: clinician_llm_eval
+  name: "LLM evaluation with clinicians"
+  hype: 65
+  titles:
+    - "Beyond Accuracy: Clinician-Centered Evaluation of Medical Language Models"
+    - "Would a Nurse Trust This? Evaluating LLM Answers in Clinical Workflows"
+    - "ClinEval: A Benchmark Built with the Clinicians Who Will Use It"
+- id: explainable_qa
+  name: "explanations for question answering"
+  hype: 55
+  titles:
+    - "Do Explanations Help? A Human Evaluation of Explainable Question Answering"
+    - "Why Did It Say That? Faithful Rationales for Open-Domain QA"
+    - "Explanations People Actually Read: Rethinking Rationale Evaluation"
+- id: childrens_reading
+  name: "children's reading comprehension"
+  hype: 40
+  titles:
+    - "StoryQuest: Question Generation for Young Readers"
+    - "Once Upon a Question: Narrative Comprehension for Children's Stories"
+    - "Reading Together: An AI Companion for Parent–Child Storytime"
+- id: mental_health_llm
+  name: "language models for mental-health support"
+  hype: 60
+  titles:
+    - "Listening Machines: Evaluating LLM Responses to Wellbeing Questions"
+    - "Careful Words: Safety-Aware Generation for Peer Support Platforms"
+    - "Counselor-in-the-Loop: Human Oversight for Supportive Chatbots"
+- id: human_ai_writing
+  name: "human-AI co-writing"
+  hype: 62
+  titles:
+    - "Who Wrote This Sentence? Authorship and Agency in AI-Assisted Writing"
+    - "Ghost in the Draft: How Writers Negotiate LLM Suggestions"
+    - "Co-Pilot or Back-Seat Driver? A Field Study of AI Writing Assistants"
+- id: annotator_disagreement
+  name: "annotator disagreement"
+  hype: 45
+  titles:
+    - "Disagreement Is Signal: Learning from Annotator Variation"
+    - "Whose Label Is It Anyway? Modeling Perspectives in Subjective Tasks"
+    - "Beyond Majority Vote: Preserving Minority Annotations in NLP Datasets"
+- id: ehr_decision_support
+  name: "decision support in the EHR"
+  hype: 58
+  titles:
+    - "What Happens Between the Clicks: Embedding AI Alerts in Clinical Workflows"
+    - "Alert Fatigue, Revisited: Designing Sepsis Predictions Nurses Act On"
+    - "Summarize the Chart: LLM-Generated Patient Summaries at the Bedside"
+- id: llm_judges
+  name: "LLMs as evaluators"
+  hype: 70
+  titles:
+    - "Judge Not: Biases in LLM-as-a-Judge Evaluation"
+    - "Who Grades the Grader? Calibrating Model-Based Evaluation"
+    - "Self-Preference in Automatic Evaluation, Measured Carefully"
+- id: accessibility_agents
+  name: "AI agents for accessibility"
+  hype: 57
+  titles:
+    - "Screen Reader, Meet Agent: Conversational Web Navigation for Blind Users"
+    - "Describe It Better: Context-Aware Alt Text Generation"
+    - "Ask, Don't Assume: Clarifying Questions in Assistive Agents"
+- id: older_adults
+  name: "conversational agents for older adults"
+  hype: 42
+  titles:
+    - "Talking to Grandma's Assistant: Voice Agents in Later Life"
+    - "Patience by Design: Conversational Repair for Older Users"
+    - "Companion or Tool? Long-Term Use of Voice Agents at Home"
+- id: data_documentation
+  name: "dataset documentation"
+  hype: 38
+  titles:
+    - "Read the Datasheet: How Practitioners Actually Use Dataset Documentation"
+    - "Provenance Matters: Tracing the Origins of Popular NLP Benchmarks"
+    - "The Missing README: Auditing Documentation Across 500 Datasets"
+- id: hallucination
+  name: "hallucination detection"
+  hype: 72
+  titles:
+    - "Confidently Wrong: Detecting Hallucinations in Long-Form Generation"
+    - "Trust but Verify: Claim-Level Fact Checking for LLM Outputs"
+    - "When Models Make Things Up: A Human Study of Hallucination Harm"
+- id: education_feedback
+  name: "AI feedback in education"
+  hype: 50
+  titles:
+    - "Feedback That Teaches: LLM Comments on Student Essays"
+    - "The Tutor Who Never Sleeps: Learning Outcomes with AI Tutors"
+    - "Grading the Graders: Teacher Oversight of Automated Feedback"
+- id: multilingual
+  name: "low-resource languages"
+  hype: 48
+  titles:
+    - "Lost in Tokenization: Fair Evaluation for Low-Resource Languages"
+    - "Small Data, Big Gaps: Community-Built Benchmarks for Underserved Languages"
+    - "Translate, Then Trust? Cross-Lingual Transfer for Health Information"
+- id: interactive_ml
+  name: "interactive machine teaching"
+  hype: 44
+  titles:
+    - "Teach Me Like a Colleague: Interactive Correction of Model Behavior"
+    - "Human Feedback, Fewer Clicks: Efficient Interactive Labeling"
+    - "Fixing Models with Examples: A Study of Domain Experts as Teachers"
+- id: misinformation
+  name: "health misinformation"
+  hype: 52
+  titles:
+    - "Myth or Medicine? Detecting Health Misinformation in Online Forums"
+    - "Correcting Without Lecturing: Gentle Rebuttals to Health Myths"
+    - "Follow the Claim: Tracing Viral Health Advice Across Platforms"
+- id: summarization_eval
+  name: "summarization evaluation"
+  hype: 47
+  titles:
+    - "Is This Summary Good? Revisiting Human Judgments for Summarization"
+    - "Faithful by Design: Constrained Summaries of Clinical Notes"
+    - "The Summary Nobody Asked For: User-Centered Summarization Goals"
+- id: agents_workflows
+  name: "LLM agents in professional workflows"
+  hype: 75
+  titles:
+    - "Agents at Work: A Diary Study of LLM Agents in Real Jobs"
+    - "Delegation Without Abdication: Oversight Interfaces for AI Agents"
+    - "Hand It Off: When Professionals Let Agents Act on Their Behalf"
+- id: speech_dialogue
+  name: "spoken dialogue systems"
+  hype: 46
+  titles:
+    - "Um, Actually: Disfluency-Aware Spoken Dialogue"
+    - "Turn-Taking Is Hard: Timing in Voice Assistants"
+    - "Say It Again: Repair Strategies in Spoken Conversational AI"
+- id: privacy_nlp
+  name: "privacy in NLP"
+  hype: 50
+  titles:
+    - "Forget Me Not: Measuring Memorization of Personal Data in LLMs"
+    - "De-Identify, Then Share: Privacy-Preserving Clinical Text Release"
+    - "Who Is in the Training Data? Users' Mental Models of LLM Privacy"

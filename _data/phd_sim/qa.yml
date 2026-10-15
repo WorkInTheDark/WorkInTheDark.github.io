@@ -1,0 +1,511 @@
+# PhD Simulator: committee and interview questions (content-spec section 15).
+# Stages: quals | proposal | defense | job_talk
+# Kinds: knowledge (answer directly) | weakness (acknowledge) | big_picture (reframe) | gotcha (acknowledge or reframe)
+
+questions:
+
+  # -------------------------------------------------------------------------
+  # Quals
+  # -------------------------------------------------------------------------
+
+  - id: qa_classic_paper
+    stages: [quals]
+    kind: knowledge
+    skill: knowledge
+    difficulty: 60
+    text: "Tell us about the classic paper on your list that everyone cites and nobody reads. What did it actually claim?"
+
+  - id: qa_attention_cost
+    stages: [quals]
+    kind: knowledge
+    skill: knowledge
+    difficulty: 50
+    text: "Why does self-attention get so expensive on long inputs, and what do people do about it?"
+
+  - id: qa_overlap_metrics
+    stages: [quals]
+    kind: knowledge
+    skill: knowledge
+    difficulty: 45
+    text: "What do word-overlap metrics like BLEU actually measure, and when do they disagree with people?"
+
+  - id: qa_likert_ttest
+    stages: [quals, defense]
+    kind: gotcha
+    skill: knowledge
+    difficulty: 60
+    text: "Can you average Likert responses and run a t-test on them? Defend your answer."
+
+  - id: qa_within_between
+    stages: [quals]
+    kind: knowledge
+    skill: knowledge
+    difficulty: 45
+    text: "When would you choose a within-subjects design over a between-subjects one?"
+
+  - id: qa_tokenization
+    stages: [quals]
+    kind: knowledge
+    skill: knowledge
+    difficulty: 50
+    text: "Explain subword tokenization. What goes wrong for languages it wasn't built for?"
+
+  - id: qa_kappa
+    stages: [quals, proposal]
+    kind: gotcha
+    skill: knowledge
+    difficulty: 55
+    text: "Your annotators reach a kappa of 0.4. Is that good? Who gets to decide?"
+
+  - id: qa_benchmark_overfit
+    stages: [quals, defense]
+    kind: big_picture
+    skill: taste
+    difficulty: 55
+    text: "If the whole field tunes on the same benchmark for five years, what are we actually measuring?"
+
+  - id: qa_hci_blindspot
+    stages: [quals]
+    kind: weakness
+    skill: knowledge
+    difficulty: 50
+    text: "Your reading list is almost all NLP. What do you know about how HCI evaluates systems?"
+
+  - id: qa_think_aloud
+    stages: [quals]
+    kind: knowledge
+    skill: knowledge
+    difficulty: 40
+    text: "What can a think-aloud study tell you that a usage log cannot?"
+
+  - id: qa_naive_in_ten_years
+    stages: [quals, job_talk]
+    kind: big_picture
+    skill: taste
+    difficulty: 65
+    text: "Ten years from now, which part of today's NLP will look naive?"
+
+  - id: qa_understanding
+    stages: [quals]
+    kind: gotcha
+    skill: taste
+    difficulty: 60
+    text: "Does a model that predicts the next word understand anything? Yes or no."
+
+  - id: qa_preference_tuning
+    stages: [quals]
+    kind: knowledge
+    skill: knowledge
+    difficulty: 55
+    text: "Explain how models are tuned with human preference feedback, and one way it can go wrong."
+
+  - id: qa_p_value
+    stages: [quals]
+    kind: knowledge
+    skill: knowledge
+    difficulty: 50
+    text: "What exactly does a p-value of 0.04 tell you? And what doesn't it tell you?"
+
+  - id: qa_survey_bias
+    stages: [quals]
+    kind: knowledge
+    skill: knowledge
+    difficulty: 35
+    text: "Name two ways the wording of a survey question can bias the answer."
+
+  - id: qa_disagree_paper
+    stages: [quals]
+    kind: big_picture
+    skill: taste
+    difficulty: 60
+    text: "Which paper on your reading list do you disagree with most, and why?"
+
+  - id: qa_quals_gap
+    stages: [quals]
+    kind: weakness
+    skill: taste
+    difficulty: 55
+    text: "You've read 80 papers. Which open problem in them do you think nobody is working on?"
+
+  # -------------------------------------------------------------------------
+  # Proposal
+  # -------------------------------------------------------------------------
+
+  - id: qa_why_phd
+    stages: [proposal, defense]
+    kind: big_picture
+    skill: presenting
+    difficulty: 55
+    text: "Why is this a PhD and not a product?"
+
+  - id: qa_one_sentence_rq
+    stages: [proposal]
+    kind: gotcha
+    skill: taste
+    difficulty: 60
+    text: "State your research question in one sentence. Now say it again without the word \"LLM\"."
+
+  - id: qa_who_benefits
+    stages: [proposal, defense]
+    kind: weakness
+    skill: taste
+    difficulty: 55
+    text: "Who exactly benefits if this works, and have you asked them?"
+
+  - id: qa_three_phds
+    stages: [proposal]
+    kind: weakness
+    skill: taste
+    difficulty: 55
+    text: "This looks like three PhDs. Which part would you cut?"
+
+  - id: qa_irb_timeline
+    stages: [proposal]
+    kind: weakness
+    skill: taste
+    difficulty: 50
+    text: "Your timeline assumes IRB approval in four weeks. What happens if it takes twelve?"
+
+  - id: qa_sample_size
+    stages: [proposal, defense]
+    kind: weakness
+    skill: knowledge
+    difficulty: 60
+    text: "Twelve clinicians. How do you know that's enough?"
+
+  - id: qa_missing_baseline
+    stages: [proposal]
+    kind: weakness
+    skill: knowledge
+    difficulty: 55
+    text: "What's the strongest baseline you are not planning to compare against?"
+
+  - id: qa_next_model
+    stages: [proposal, defense, job_talk]
+    kind: gotcha
+    skill: taste
+    difficulty: 70
+    text: "If next year's model solves your task zero-shot, what is left of this thesis?"
+
+  - id: qa_connect_studies
+    stages: [proposal]
+    kind: big_picture
+    skill: presenting
+    difficulty: 55
+    text: "How do your three studies connect? Draw it for us."
+
+  - id: qa_helps_vs_scores
+    stages: [proposal]
+    kind: knowledge
+    skill: taste
+    difficulty: 55
+    text: "How will you know your system actually helps people, rather than just scoring well?"
+
+  - id: qa_does_it_scale
+    stages: [proposal, defense, job_talk]
+    kind: gotcha
+    skill: presenting
+    difficulty: 45
+    text: "Does this scale?"
+
+  - id: qa_participant_risk
+    stages: [proposal]
+    kind: knowledge
+    skill: knowledge
+    difficulty: 45
+    text: "What could go wrong for a participant in your study, and how will you prevent it?"
+
+  - id: qa_novelty_crowd
+    stages: [proposal]
+    kind: weakness
+    skill: knowledge
+    difficulty: 60
+    text: "Last year there were a dozen papers on LLM explanations for clinicians. How is yours different?"
+
+  - id: qa_data_access
+    stages: [proposal]
+    kind: weakness
+    skill: taste
+    difficulty: 55
+    text: "Your plan depends on hospital data you don't have yet. What's plan B?"
+
+  - id: qa_theory_contribution
+    stages: [proposal, defense]
+    kind: big_picture
+    skill: taste
+    difficulty: 70
+    text: "What is the theoretical contribution here, beyond \"we built it and people liked it\"?"
+
+  - id: qa_annotator_agreement
+    stages: [proposal]
+    kind: knowledge
+    skill: knowledge
+    difficulty: 50
+    text: "Who annotates your data, and how will you know they agree for the right reasons?"
+
+  # -------------------------------------------------------------------------
+  # Defense
+  # -------------------------------------------------------------------------
+
+  - id: qa_one_sentence_contribution
+    stages: [defense, job_talk]
+    kind: big_picture
+    skill: presenting
+    difficulty: 55
+    text: "In one sentence: what does the field know now that it didn't before your thesis?"
+
+  - id: qa_start_over
+    stages: [defense, job_talk]
+    kind: big_picture
+    skill: taste
+    difficulty: 50
+    text: "If you started your PhD again today, what would you do differently?"
+
+  - id: qa_hidden_limitation
+    stages: [defense]
+    kind: weakness
+    skill: taste
+    difficulty: 60
+    text: "What is the biggest limitation of your thesis that no reviewer caught?"
+
+  - id: qa_generalize
+    stages: [defense]
+    kind: weakness
+    skill: knowledge
+    difficulty: 60
+    text: "All your studies were in one hospital system. Why should anyone believe this generalizes?"
+
+  - id: qa_multiple_comparisons
+    stages: [defense]
+    kind: gotcha
+    skill: knowledge
+    difficulty: 65
+    text: "In Chapter 3 you ran 14 tests on 20 participants. Did you correct for multiple comparisons?"
+
+  - id: qa_chapter_contradiction
+    stages: [defense]
+    kind: gotcha
+    skill: taste
+    difficulty: 70
+    text: "Chapter 2 says users want more explanation. Chapter 4 says they ignored it. Which is it?"
+
+  - id: qa_llm_judge
+    stages: [defense, job_talk]
+    kind: weakness
+    skill: knowledge
+    difficulty: 60
+    text: "You used an LLM to grade your outputs. Who graded the grader?"
+
+  - id: qa_guideline_history
+    stages: [defense]
+    kind: knowledge
+    skill: writing
+    difficulty: 45
+    text: "Walk us through how your annotation guidelines changed between version 1 and the final version."
+
+  - id: qa_figure_again
+    stages: [defense]
+    kind: knowledge
+    skill: presenting
+    difficulty: 40
+    text: "Could you explain Figure 5 again? Slowly, this time."
+
+  - id: qa_next_paper
+    stages: [defense, job_talk]
+    kind: big_picture
+    skill: taste
+    difficulty: 50
+    text: "What is the first paper someone should write after reading your thesis?"
+
+  - id: qa_surprising_result
+    stages: [defense]
+    kind: knowledge
+    skill: presenting
+    difficulty: 45
+    text: "Which result surprised you most, and did you believe it at first?"
+
+  - id: qa_reproduce
+    stages: [defense]
+    kind: weakness
+    skill: coding
+    difficulty: 55
+    text: "Could a new student reproduce your main result from the code you released?"
+
+  - id: qa_trust_title
+    stages: [defense]
+    kind: gotcha
+    skill: writing
+    difficulty: 65
+    text: "Your title says \"trustworthy\". Did you measure trust, or did you ask people whether they trusted it?"
+
+  - id: qa_api_drift
+    stages: [defense, job_talk]
+    kind: weakness
+    skill: coding
+    difficulty: 60
+    text: "Your main results use a model behind an API that has changed since. Are your numbers still valid?"
+
+  - id: qa_nlp_or_hci
+    stages: [defense, job_talk]
+    kind: gotcha
+    skill: presenting
+    difficulty: 60
+    text: "Is this an NLP thesis or an HCI thesis? Pick one."
+
+  # -------------------------------------------------------------------------
+  # Job talk
+  # -------------------------------------------------------------------------
+
+  - id: qa_lab_in_five_years
+    stages: [job_talk]
+    kind: big_picture
+    skill: taste
+    difficulty: 55
+    text: "What will your lab be working on five years from now?"
+
+  - id: qa_first_grant
+    stages: [job_talk]
+    kind: knowledge
+    skill: writing
+    difficulty: 60
+    text: "Who would fund this work, and what is your first grant proposal about?"
+
+  - id: qa_new_course
+    stages: [job_talk]
+    kind: big_picture
+    skill: presenting
+    difficulty: 45
+    text: "What course would you teach here that we don't already offer?"
+
+  - id: qa_compute_gap
+    stages: [job_talk]
+    kind: gotcha
+    skill: taste
+    difficulty: 70
+    text: "Industry labs have a thousand times your compute. Why do this research at a university?"
+
+  - id: qa_advisor_shadow
+    stages: [job_talk]
+    kind: weakness
+    skill: taste
+    difficulty: 60
+    text: "How is your research agenda different from your advisor's?"
+
+  - id: qa_collaborators_here
+    stages: [job_talk]
+    kind: knowledge
+    skill: presenting
+    difficulty: 45
+    text: "Who in this department would you collaborate with first, and on what?"
+
+  - id: qa_mentor_outside_area
+    stages: [job_talk]
+    kind: big_picture
+    skill: presenting
+    difficulty: 50
+    text: "How would you mentor a student who wants to work on something you don't know well?"
+
+  - id: qa_one_hit
+    stages: [job_talk]
+    kind: weakness
+    skill: taste
+    difficulty: 60
+    text: "Most of your citations come from one paper. What is your second act?"
+
+  - id: qa_real_users
+    stages: [job_talk]
+    kind: weakness
+    skill: presenting
+    difficulty: 55
+    text: "Has anyone actually used your system outside a study?"
+
+  - id: qa_evaluate_feature
+    stages: [job_talk]
+    kind: knowledge
+    skill: knowledge
+    difficulty: 50
+    text: "How would you evaluate an AI feature before it ships to millions of users?"
+
+  - id: qa_hype_cools
+    stages: [job_talk]
+    kind: gotcha
+    skill: taste
+    difficulty: 65
+    text: "Your topic is hot right now. What happens to your agenda when it cools down?"
+
+  - id: qa_why_here
+    stages: [job_talk]
+    kind: gotcha
+    skill: presenting
+    difficulty: 50
+    text: "Why do you want to be here, specifically?"
+
+  - id: qa_prompts_contribution
+    stages: [job_talk]
+    kind: weakness
+    skill: coding
+    difficulty: 60
+    text: "Your system is mostly prompts. What is the engineering contribution?"
+
+  - id: qa_industry_or_academia
+    stages: [job_talk]
+    kind: gotcha
+    skill: presenting
+    difficulty: 55
+    text: "If we made you an offer and so did a big tech company, which would you take? Be honest."
+
+  - id: qa_teaching_philosophy
+    stages: [job_talk]
+    kind: weakness
+    skill: presenting
+    difficulty: 40
+    text: "Tell us about a time a class you taught went badly. What did you change?"
+
+members:
+  - id: stats_hawk
+    label: "asks about statistics"
+    prefers: [weakness, knowledge]
+
+  - id: industry_external
+    label: "the industry external member who asks about scalability"
+    prefers: [gotcha, big_picture]
+
+  - id: always_late
+    label: "always 20 minutes late"
+    prefers: [knowledge]
+
+  - id: secret_fan
+    label: "secretly your biggest fan"
+    prefers: [big_picture]
+
+  - id: theory_person
+    label: "the theory person"
+    prefers: [knowledge, gotcha]
+
+  - id: clinician_collaborator
+    label: "the clinician collaborator"
+    prefers: [weakness, big_picture]
+
+  - id: qual_methods
+    label: "asks how you coded your interviews"
+    prefers: [knowledge, weakness]
+
+  - id: old_guard
+    label: "remembers when all of this was n-grams"
+    prefers: [knowledge, big_picture]
+
+  - id: devils_advocate
+    label: "plays devil's advocate on purpose"
+    prefers: [gotcha]
+
+  - id: citation_checker
+    label: "has read every paper you cite, and one you didn't"
+    prefers: [weakness, knowledge]
+
+  - id: quiet_one
+    label: "silent for an hour, then asks the hardest question"
+    prefers: [gotcha, weakness]
+
+  - id: visionary_member
+    label: "asks what it all means"
+    prefers: [big_picture, gotcha]

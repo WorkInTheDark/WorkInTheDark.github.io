@@ -1,0 +1,190 @@
+# Light wellbeing (event-ideas.md, section O). Burnout stays light and recoverable.
+# Arc "week_off": wel_week_off -> wel_back_inbox and/or wel_back_fresh_eyes.
+
+- id: wel_no_day_off
+  title: "Six Weeks"
+  category: wellbeing
+  rarity: uncommon
+  repeatable: true
+  cooldown: 10
+  when:
+    telemetry: { days_off_streak: ">=3" }
+  text:
+    - "You try to remember your last real day off. You count back. It was six weeks ago, and you spent it doing laundry."
+  choices:
+    - label: "Take tomorrow off. Really off."
+      text: "No laptop, no email, a long walk and a long nap. The work is still there on Monday, and so are you."
+      effects: { days: -1, energy: "+8±2", sanity: "+6±2" }
+      tip: "When and How to Rest"
+    - label: "Plan a long weekend next turn"
+      text: "You block it on your calendar and tell three people, so you can't back out."
+      effects: { days_next: -2, sanity: "+3±1" }
+    - label: "Keep going, it's almost done"
+      text: "It is not almost done. It never is. But the week does get a lot done."
+      effects: { energy: "-3±1", sanity: "-4±1", health: "-1" }
+
+- id: wel_week_off
+  title: "The Cabin"
+  category: wellbeing
+  rarity: uncommon
+  arc: week_off
+  when:
+    status_none: [on_internship, defense_prep]
+  text:
+    - "Your friends rent a cabin by a lake for a week. No Wi-Fi, no signal, and one spare bed with your name on it."
+  choices:
+    - label: "Go, and leave the laptop home"
+      text: "Seven days of lake, card games and no notifications. By day four, you forget your own password."
+      effects: { days: -4, energy: "+14±4", sanity: "+12±4", friends_rel: "+5±2" }
+      flag_set: [offline_week]
+      tip: "Sustain Through the Journey"
+      schedule:
+        - { event: wel_back_inbox, in: [1, 1], chance: 0.8 }
+        - { event: wel_back_fresh_eyes, in: [1, 2], chance: 0.7 }
+    - label: "Go, but bring the laptop"
+      text: "You work mornings on the porch and swim in the afternoons. Half a vacation is still something."
+      effects: { days: -2, energy: "+5±2", sanity: "+5±2", friends_rel: "+2±1" }
+    - label: "Stay and work"
+      text: "The photos in the group chat look wonderful."
+      effects: { sanity: "-3±1", friends_rel: "-3±1" }
+
+- id: wel_back_inbox
+  title: "The Inbox"
+  category: wellbeing
+  rarity: common
+  trigger: scheduled
+  arc: week_off
+  when:
+    flags_all: [offline_week]
+    has_advisor: true
+  text:
+    - "You open your laptop after the lake: {roll:100-140} unread emails and nine messages from {advisor.nick}. The last one says \"Never mind, figured it out.\""
+  choices:
+    - label: "Answer every single one today"
+      text: "By midnight, inbox zero. The lake already feels like a dream."
+      effects: { days: -1, energy: "-6±2", advisor_rel: "+2±1" }
+      achievement: inbox_zero
+    - label: "Read only your advisor's"
+      text: "Most of them answered each other. You reply to the last one with a thumbs-up."
+      effects: { sanity: "+2±1", advisor_rel: "+1" }
+    - label: "Mark all as read"
+      text: "Bold. Freeing. One of them was an invitation to give a talk."
+      effects: { sanity: "+5±2", network: "-2±1", advisor_rel: "-2±1" }
+
+- id: wel_back_fresh_eyes
+  title: "Fresh Eyes"
+  category: wellbeing
+  rarity: common
+  trigger: scheduled
+  arc: week_off
+  when:
+    flags_all: [offline_week]
+    project: { stage_kind: work }
+  text:
+    - "Back from a week with no laptop, you open {project}. The problem you were stuck on for a month is obvious in ten minutes."
+  choices:
+    - label: "Fix it right now"
+      text: "Two hours of work and it's solved. You wonder what else a week off could fix."
+      effects: { project.progress: "+12±4", project.quality.S: "+4±1", energy: "-3±1" }
+    - label: "Write down why it was hard to see"
+      text: "One page on what you missed and why. You'll recognize the pattern next time."
+      effects: { taste: "+3±1", project.quality.C: "+3±1", sanity: "+3±1" }
+
+- id: wel_lab_cold
+  title: "It's Going Around"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 10
+  when:
+    turn: [8, 14]
+  text:
+    - "A cold is going around the lab. {labmate} sneezes, apologizes, and sneezes again. By Thursday, it's your turn."
+  choices:
+    - label: "Stay home and rest"
+      text: "Two days of soup and sleep. You come back mostly human."
+      effects: { days: -2, energy: "+4±1", sanity: "+1" }
+    - label: "Work from home in a blanket"
+      text: "You answer emails under a blanket. Productivity is low, and so is the risk to everyone else."
+      effects: { energy: "-4±1", labmates_rel: "+1" }
+    - label: "Come in anyway"
+      check: { stat: health, vs: 55, spread: 20 }
+      success:
+        text: "You shake it off in a day. Nobody else catches it."
+        effects: { energy: "-3±1" }
+      failure:
+        text: "It hits harder than expected. Also, {labmate2} now has it."
+        effects: { energy: "-5±2", labmates_rel: "-3±1" }
+        status: { add: sick, turns: 1 }
+
+- id: wel_nocturnal
+  title: "Fully Nocturnal"
+  category: wellbeing
+  rarity: uncommon
+  repeatable: true
+  cooldown: 13
+  when:
+    any:
+      - { traits_any: [night_owl] }
+      - { telemetry: { overtime_streak: ">=2" } }
+  text:
+    - "Your sleep schedule is now fully nocturnal. You eat breakfast at 3 pm and do your best work at 2 am."
+  choices:
+    - label: "Reset with a 7 am alarm"
+      text: "Three groggy days later, you see the sun on purpose."
+      effects: { energy: "-5±2", health: "+3±1", sanity: "+2±1" }
+    - label: "Shift an hour earlier each day"
+      text: "Slow and steady. By next week, you're having breakfast at a normal breakfast time."
+      effects: { energy: "-2±1", health: "+2±1", sanity: "+1" }
+      tip: "How to Spend a Day"
+    - label: "Keep the night shift"
+      text: "The cluster is empty at 2 am and your jobs fly. Your labmates forget what you look like."
+      effects: { coding: "+2±1", health: "-3±1", labmates_rel: "-2±1" }
+    - label: "Own it"
+      requires: { traits_any: [night_owl] }
+      tag: "Night Owl"
+      text: "This is your natural habitat. You do the best work of your month by moonlight."
+      effects: { coding: "+2±1", sanity: "+4±1" }
+
+- id: wel_good_meeting
+  title: "A Good Meeting"
+  category: wellbeing
+  rarity: uncommon
+  repeatable: true
+  cooldown: 13
+  when:
+    has_advisor: true
+    project: { stage_kind: work }
+    stat: { sanity: "<60" }
+  text:
+    - "Your meeting with {advisor.nick} about {project} goes unexpectedly well. Thirty minutes in, you remember why you wanted to do this project."
+  choices:
+    - label: "Ride the momentum all weekend"
+      text: "Two long days of focused work. Tired, but the project is moving again."
+      effects: { energy: "-6±2", project.progress: "+12±4", sanity: "+3±1" }
+    - label: "Write down the next three steps"
+      text: "Three clear steps on a sticky note on your monitor. Monday-you will be grateful."
+      effects: { project.progress: "+5±2", sanity: "+5±1" }
+      tip: "Project Meeting"
+    - label: "Celebrate with bubble tea"
+      text: "{labmate} joins you. You both agree it's been a good day."
+      effects: { sanity: "+7±2", energy: "+2±1", labmates_rel: "+1" }
+
+- id: wel_fourth_side_project
+  title: "Just a Small One"
+  category: wellbeing
+  rarity: uncommon
+  text:
+    - "{labmate} asks you to join a side project. It would be your fourth. \"It's small,\" they say. They always say that."
+  choices:
+    - label: "Say no, kindly"
+      text: "They understand right away. You feel lighter than you expected."
+      effects: { sanity: "+4±1", labmates_rel: "-1" }
+      tip: "Know Your Limits"
+    - label: "Say yes"
+      text: "Your calendar now has a color for each project. It looks like a rainbow, and it feels like one too."
+      effects: { labmates_rel: "+4±1", network: "+2±1", sanity: "-4±1", days_next: -2 }
+      flag_set: [fourth_side_project]
+    - label: "Offer an hour of feedback instead"
+      text: "You give one hour of careful comments. It turns out that's exactly what they needed."
+      effects: { labmates_rel: "+2±1", taste: "+1", days: -1 }

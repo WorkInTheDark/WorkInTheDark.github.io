@@ -1,0 +1,365 @@
+# Conferences and travel (event-ideas.md, section L).
+# Most events use hook: conference, which binds {city}, {paper} and {venue}.
+
+- id: tra_visa_late
+  title: "After the Conference"
+  category: travel
+  rarity: uncommon
+  hook: turn
+  repeatable: true
+  cooldown: 20
+  when:
+    origin: international
+    has_advisor: true
+    flags_all: [trip_planned]
+    flags_none: [visa_failed]
+  text:
+    - "You finally get a visa appointment for your conference trip. It's nine days after the conference ends."
+    - "The consulate's earliest open slot is the week after your conference. The booking site suggests you \"plan ahead\"."
+  choices:
+    - label: "Refresh the booking site every hour"
+      check: { stat: energy, vs: 45, spread: 25 }
+      success:
+        text: "At 2:47 am a cancellation appears. You book it before anyone else wakes up."
+        effects: { energy: "-5±2", sanity: "+4±2" }
+      failure:
+        text: "No earlier slot opens in time. You'll give your talk over video, from your desk."
+        effects: { energy: "-5±2", sanity: "-5±2" }
+        flag_set: [visa_failed]
+        achievement: remote_presenter
+    - label: "Ask {advisor.nick} for a support letter"
+      check: { stat: advisor_rel, vs: 50, spread: 20 }
+      success:
+        text: "The letter works. The consulate moves your appointment up by three weeks."
+        effects: { sanity: "+4±2", advisor_rel: "+2±1" }
+      failure:
+        text: "The consulate thanks your advisor for the letter and changes nothing. The talk goes remote."
+        effects: { sanity: "-4±2" }
+        flag_set: [visa_failed]
+        achievement: remote_presenter
+    - label: "Plan a remote talk now"
+      text: "You record a clean talk and keep your week. The hallway chats will have to wait."
+      effects: { sanity: "+2±1", network: "-3±1" }
+      flag_set: [visa_failed]
+      achievement: remote_presenter
+
+- id: tra_lost_luggage
+  title: "Lost Luggage"
+  category: travel
+  rarity: uncommon
+  hook: conference
+  text:
+    - "Your suitcase is somewhere between two airports. Your talk at {venue} is tomorrow morning, and you're wearing the hoodie you slept in on the plane."
+  choices:
+    - label: "Present in the hoodie"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "Nobody looks at your clothes. They look at your results, and two people ask for your slides."
+        effects: { network: "+4±2", sanity: "+2±1" }
+        achievement: lost_luggage
+      failure:
+        text: "You spend the first minute apologizing for the hoodie. The talk recovers, mostly."
+        effects: { sanity: "-3±1", presenting: "+1" }
+        achievement: lost_luggage
+    - label: "Buy an outfit in {city} tonight"
+      text: "The only open store sells souvenir shirts. You present in one that says I LOVE {city}. People remember you."
+      effects: { energy: "-5±2", network: "+3±1" }
+      achievement: lost_luggage
+    - label: "Wait at the airport for the bag"
+      text: "The bag arrives at 11 pm. You get four hours of sleep and a clean shirt."
+      effects: { energy: "-7±2", sanity: "+2±1" }
+      achievement: lost_luggage
+
+- id: tra_keynote_nap
+  title: "The Keynote Nap"
+  category: travel
+  rarity: common
+  hook: conference
+  repeatable: true
+  cooldown: 13
+  text:
+    - "Jet lag hits during the keynote. You wake up to applause and a slide that just says \"Thank you!\""
+    - "You close your eyes for one second during the keynote. When you open them, it's the Q&A."
+  choices:
+    - label: "Ask your neighbor for a summary"
+      text: "They sum it up in two sentences. You trade emails, and it turns out you only needed the two sentences."
+      effects: { network: "+3±1", knowledge: "+1" }
+    - label: "Go back to the hotel and sleep"
+      text: "You sleep 14 hours. You miss the afternoon sessions and wake up a person again."
+      effects: { energy: "+9±3", network: "-3±1" }
+      status_remove: [jet_lagged]
+    - label: "Drink a third coffee"
+      text: "You make it through the poster session wide awake. At 3 am you are still wide awake."
+      effects: { network: "+3±1", energy: "-3±1", health: "-2±1" }
+
+- id: tra_poster_pillar
+  title: "Behind the Pillar"
+  category: travel
+  rarity: common
+  hook: conference
+  repeatable: true
+  cooldown: 13
+  text:
+    - "Your poster board for {paper} is behind a concrete pillar. In the first half hour, one person stops by, and they are looking for the restroom."
+  choices:
+    - label: "Stand in the aisle and wave people in"
+      check: { stat: presenting, vs: 45, spread: 20 }
+      success:
+        text: "You pull in a steady stream. Someone says it's the best poster they've ever seen behind a pillar."
+        effects: { network: "+5±2", presenting: "+2±1", energy: "-3±1" }
+      failure:
+        text: "People nod politely and keep walking. Your arm gets a good workout."
+        effects: { energy: "-4±1", sanity: "-2±1" }
+    - label: "Ask the organizers to move you"
+      check: { stat: network, vs: 50, spread: 20 }
+      success:
+        text: "They move you next to the coffee urn. Best spot in the hall."
+        effects: { network: "+6±2", sanity: "+3±1" }
+      failure:
+        text: "\"All boards are final.\" The pillar and you will spend the afternoon together."
+        effects: { sanity: "-3±1" }
+    - label: "Tape a QR code to the pillar"
+      text: "Almost nobody visits, but your paper gets a few dozen downloads that afternoon."
+      effects: { citations: "+2±1", network: "-1" }
+
+- id: tra_hero_at_poster
+  title: "Your Hero, at Your Poster"
+  category: travel
+  rarity: rare
+  hook: conference
+  text:
+    - "Your research hero walks up to your poster for {paper}, reads it for a full minute, and asks the one question you hoped nobody would ask."
+  choices:
+    - label: "Admit the limitation, say what's next"
+      text: "They nod. \"That's the right next step.\" You will replay this moment for years."
+      effects: { network: "+6±2", taste: "+3±1", sanity: "+6±2" }
+      achievement: met_your_hero
+      tip: "Critique-Centric Feedback"
+    - label: "Defend the result with confidence"
+      check: { stat: presenting, vs: 60, spread: 20 }
+      success:
+        text: "They smile. \"Fair point. Send me the paper.\" You send it before they reach the next poster."
+        effects: { network: "+8±2", presenting: "+2±1", sanity: "+5±2" }
+        achievement: met_your_hero
+      failure:
+        text: "They say \"Hm,\" and move on. You're still glad they stopped."
+        effects: { network: "+2±1", sanity: "-4±2" }
+        achievement: met_your_hero
+    - label: "Freeze, then ask for a selfie"
+      text: "The question goes unanswered. The selfie is excellent."
+      effects: { sanity: "+4±2", network: "+1" }
+      achievement: met_your_hero
+
+- id: tra_poster_explained
+  title: "Your Poster, Explained"
+  category: travel
+  rarity: uncommon
+  hook: conference
+  text:
+    - "A visitor stops at your poster and explains {paper} to you, confidently and incorrectly, for six minutes."
+  choices:
+    - label: "Correct them politely"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "They pause, then say, \"Oh, that's even better.\" You trade emails."
+        effects: { network: "+4±2", presenting: "+1" }
+      failure:
+        text: "They nod, then repeat their version a little louder."
+        effects: { sanity: "-3±1" }
+    - label: "Nod and take notes"
+      text: "Half of what they said is wrong. The other half is a decent idea for future work."
+      effects: { sanity: "-2±1", taste: "+2±1" }
+    - label: "Hand them a printed copy"
+      text: "They take the paper and keep explaining it, now while pointing at it."
+      effects: { sanity: "+1", network: "+1" }
+
+- id: tra_dinner_seat
+  title: "The Seat Next to Yours"
+  category: travel
+  rarity: uncommon
+  hook: conference
+  text:
+    - "At the networking dinner in {city}, the name card next to yours belongs to the author of your favorite paper."
+  choices:
+    - label: "Ask about their paper"
+      text: "They light up. Nobody has asked about that paper in years, and you get the story behind Table 3."
+      effects: { network: "+5±2", knowledge: "+2±1", sanity: "+3±1" }
+    - label: "Talk about anything but work"
+      check: { stat: network, vs: 45, spread: 20 }
+      success:
+        text: "You bond over terrible hotel coffee. They invite you to their lab's reading group."
+        effects: { network: "+7±2", sanity: "+4±1" }
+      failure:
+        text: "The small talk runs out after the bread basket. Still, they know your face now."
+        effects: { network: "+2±1", sanity: "-1" }
+    - label: "Pitch your next project"
+      check: { stat: taste, vs: 55, spread: 20 }
+      success:
+        text: "They push back hard on one detail, and they're right. You leave with a better project."
+        effects: { network: "+5±2", taste: "+3±1" }
+      failure:
+        text: "They politely turn to the person on their other side for dessert."
+        effects: { network: "-2±1", sanity: "-3±1" }
+
+- id: tra_last_talk
+  title: "Last Talk, Last Day"
+  category: travel
+  rarity: uncommon
+  hook: conference
+  text:
+    - "Your talk on {paper} is the last one on the last day of {venue}. The room seats 300. Eleven people came, and four are packing their bags."
+  choices:
+    - label: "Give it everything anyway"
+      text: "The eleven ask great questions. One of them turns out to be next year's program chair."
+      effects: { presenting: "+3±1", network: "+3±1", energy: "-4±1" }
+    - label: "Cut it to ten minutes"
+      text: "Short and sharp. Everyone makes their flight, and they like you for it."
+      effects: { energy: "+3±1", sanity: "+2±1", presenting: "+1" }
+    - label: "Pull the chairs into a circle"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "The talk turns into a discussion. Half an hour later, nobody has left."
+        effects: { network: "+6±2", sanity: "+3±1" }
+      failure:
+        text: "Two more people leave while you move chairs. The remaining nine have a lovely chat."
+        effects: { network: "+2±1", sanity: "-2±1" }
+
+- id: tra_cut_off
+  title: "Minute Twelve"
+  category: travel
+  rarity: uncommon
+  hook: conference
+  text:
+    - "Your talk on {paper} is at minute 12 of 15 when the session chair stands up and starts thanking you. Your two best slides are still ahead."
+  choices:
+    - label: "Jump to the conclusion"
+      text: "You land the last slide in twenty seconds. It's the cleanest summary you've ever given."
+      effects: { presenting: "+2±1", sanity: "-1" }
+    - label: "Talk faster"
+      check: { stat: presenting, vs: 55, spread: 15 }
+      success:
+        text: "You fit both slides in at double speed. Someone in the front row claps."
+        effects: { presenting: "+1", network: "+2±1", sanity: "+2±1" }
+      failure:
+        text: "Nobody follows the last two slides, including you."
+        effects: { sanity: "-4±1" }
+    - label: "Say \"Find me at the break\""
+      text: "Three people do. The coffee break goes better than the talk."
+      effects: { network: "+4±2", sanity: "+1" }
+
+- id: tra_industry_booth
+  title: "Free Socks, One Interview"
+  category: travel
+  rarity: common
+  hook: conference
+  repeatable: true
+  cooldown: 13
+  text:
+    - "An industry booth is giving away very nice socks. The recruiter behind it asks if you'd like a quick interview while you're there."
+  choices:
+    - label: "Do the interview right there"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "Twenty minutes later you have socks and a second-round slot."
+        effects: { career_prep: "+3", network: "+3±1", energy: "-3±1" }
+      failure:
+        text: "You blank on a coding question you'd solve in your sleep. You keep the socks."
+        effects: { career_prep: "+1", sanity: "-3±1" }
+    - label: "Take the socks and a business card"
+      text: "Good socks. A card for later. No questions asked."
+      effects: { career_prep: "+1", network: "+1", sanity: "+2±1" }
+    - label: "Skip the booth for a talk"
+      text: "The talk is about evaluation design, and it's exactly what you needed."
+      effects: { knowledge: "+2±1", taste: "+1" }
+
+- id: tra_convention_center
+  title: "Seeing the City"
+  category: travel
+  rarity: common
+  hook: conference
+  repeatable: true
+  cooldown: 13
+  text:
+    - "You always wanted to see {city}. So far, you have seen the convention center, the hotel, and the hallway between them."
+  choices:
+    - label: "Skip a session to explore"
+      text: "You find a market and eat something wonderful. The talk you missed is online anyway."
+      effects: { sanity: "+6±2", energy: "-2±1", network: "-2±1" }
+    - label: "Stay for every session"
+      text: "You see every talk and meet a lot of people. {city} remains a view from the hotel window."
+      effects: { knowledge: "+3±1", network: "+2±1", sanity: "-3±1" }
+    - label: "Stay one extra day"
+      text: "On the last day, {city} is all yours. Your inbox can wait one more day."
+      effects: { sanity: "+9±3", energy: "+2±1", days_next: -2 }
+
+- id: tra_reception_food
+  title: "Four Minutes"
+  category: travel
+  rarity: common
+  hook: conference
+  repeatable: true
+  cooldown: 13
+  text:
+    - "The welcome reception opens at 7 pm. By 7:04, the food is gone. You were in line for the coat check."
+  choices:
+    - label: "Network on an empty stomach"
+      text: "You meet five people and remember two of their names. You are very hungry."
+      effects: { network: "+4±2", energy: "-4±1" }
+    - label: "Find food with other hungry students"
+      text: "Six hungry PhD students find a noodle place nearby. You now have a group chat for the rest of the week."
+      effects: { network: "+2±1", sanity: "+4±1", energy: "+2±1" }
+    - label: "Go back to the hotel"
+      text: "Room service, an early night, and no small talk at all."
+      effects: { energy: "+5±2", network: "-2±1" }
+
+- id: tra_keynote_idea
+  title: "The Keynote Spark"
+  category: travel
+  rarity: uncommon
+  hook: conference
+  text:
+    - "A keynote at {venue} reframes a problem you've been stuck on. By the end, you have a page of notes and a new project idea."
+  choices:
+    - label: "Find the speaker afterward"
+      check: { stat: network, vs: 50, spread: 20 }
+      success:
+        text: "They like the idea and suggest a dataset. You promise to follow up, and you mean it."
+        effects: { network: "+5±2", taste: "+3±1" }
+        flag_set: [keynote_idea]
+      failure:
+        text: "The line to talk to them is forty people deep. You keep your notes."
+        effects: { taste: "+2±1", sanity: "-1" }
+        flag_set: [keynote_idea]
+    - label: "Write it up on the flight home"
+      text: "Four pages by landing. Your seatmate now knows more about your research than your family does."
+      effects: { taste: "+4±1", writing: "+1", energy: "-4±1" }
+      flag_set: [keynote_idea]
+    - label: "Let it sit in your notes app"
+      text: "It joins 140 other ideas in your notes app. Some of them are good. You'll find out someday."
+      effects: { sanity: "+2±1", taste: "+1" }
+
+- id: tra_flight_cold
+  title: "The Flight Home"
+  category: travel
+  rarity: common
+  hook: conference
+  repeatable: true
+  cooldown: 13
+  text:
+    - "On the flight home, the passenger next to you coughs for six hours straight. By landing, your throat feels like sandpaper."
+  choices:
+    - label: "Take two days off to recover"
+      text: "Soup, sleep and two quiet days. You're back by Wednesday, mostly human."
+      effects: { days_next: -2, energy: "+4±2", sanity: "+2±1" }
+    - label: "Push through the week"
+      check: { stat: health, vs: 60, spread: 20 }
+      success:
+        text: "The cold never quite arrives. Lucky."
+        effects: { energy: "-4±2" }
+      failure:
+        text: "It arrives in full. You spend the week on the couch with tissues and a stack of papers you don't read."
+        effects: { energy: "-6±2", sanity: "-3±1" }
+        status: { add: sick, turns: 1 }
+    - label: "Work from home in a blanket"
+      text: "Your labmates thank you for not bringing it to the lab."
+      effects: { energy: "-2±1", labmates_rel: "+2±1" }

@@ -1,0 +1,62 @@
+# Achievements persist across runs. Those with `when` are checked each turn; the rest are
+# granted by events or the engine. `secret: true` hides the name until earned.
+# --- Research
+- { id: first_blood, name: "First Blood", desc: "Your first accepted first-author paper.", when: { telemetry: { first_author_pubs: ">=1" } } }
+- { id: hat_trick, name: "Hat Trick", desc: "Three first-author papers: enough to defend.", when: { telemetry: { first_author_pubs: ">=3" } } }
+- { id: top_tier, name: "Main Conference", desc: "A paper at a top venue.", when: { telemetry: { top_pubs: ">=1" } } }
+- { id: four_tops, name: "Four Tops", desc: "Four top-venue papers.", when: { telemetry: { top_pubs: ">=4" } } }
+- { id: hundred_club, name: "The Hundred Club", desc: "100 citations.", when: { telemetry: { citations: ">=100" } } }
+- { id: thousand_club, name: "The Thousand Club", desc: "1,000 citations.", when: { telemetry: { citations: ">=1000" } } }
+- { id: h_five, name: "h = 5", desc: "An h-index of 5.", when: { telemetry: { h_index: ">=5" } } }
+- { id: h_ten, name: "h = 10", desc: "An h-index of 10.", when: { telemetry: { h_index: ">=10" } } }
+- { id: best_paper, name: "Best Paper", desc: "An outstanding paper award." }
+- { id: workshop_regular, name: "Workshop Regular", desc: "Three workshop papers.", when: { telemetry: { workshop_pubs: ">=3" } } }
+- { id: collaborator, name: "Team Player", desc: "A co-authored paper accepted.", when: { telemetry: { coauthor_pubs: ">=1" } } }
+- { id: idea_machine, name: "Idea Machine", desc: "Five ideas while reading.", when: { telemetry: { ideas: ">=5" } } }
+# --- Reviewer 2
+- { id: first_rejection, name: "Welcome to Academia", desc: "Your first rejection.", when: { telemetry: { rejections: ">=1" } } }
+- { id: reviewer2_nemesis, name: "Reviewer 2's Nemesis", desc: "Six rejections, then three acceptances.", when: { telemetry: { rejections: ">=6", acceptances: ">=3" } } }
+- { id: rebuttal_veteran, name: "Rebuttal Veteran", desc: "Wrote five author responses.", when: { telemetry: { rebuttals: ">=5" } } }
+- { id: legendary_passive_aggressive, name: "Legendarily Passive-Aggressive", desc: "The passive-aggressive reply worked. Somehow.", secret: true }
+- { id: desk_rejected, name: "Desk Rejected", desc: "It never even reached the reviewers." }
+- { id: saw_it_coming, name: "Saw It Coming", desc: "A reviewer raised the flaw you'd already fixed." }
+- { id: persistence, name: "Fourth Time's the Charm", desc: "Resubmitted three times.", when: { telemetry: { resubmissions: ">=3" } } }
+# --- Pain
+- { id: all_nighter_streak, name: "All-Nighter Streak", desc: "Overtime four turns in a row.", when: { telemetry: { overtime_streak: ">=4" } } }
+- { id: overleaf_survivor, name: "Overleaf Is Down", desc: "Survived an outage on deadline day." }
+- { id: gpu_queue, name: "The GPU Queue", desc: "Survived a brutal queue." }
+- { id: irb_purgatory, name: "IRB Purgatory", desc: "Survived a very long IRB review." }
+- { id: burnout, name: "Running on Empty", desc: "Burned out. It happens; it passes.", when: { telemetry: { burnouts: ">=1" } } }
+- { id: phoenix, name: "Phoenix", desc: "Graduated after burning out twice.", when: { telemetry: { burnouts: ">=2" }, milestone: { graduated: true } } }
+# --- Life
+- { id: touched_grass, name: "Touched Grass", desc: "40 exercise days.", when: { telemetry: { exercise_days: ">=40" } } }
+- { id: cat_person, name: "Cat Person", desc: "Adopted a cat." }
+- { id: social_life, name: "Has a Social Life", desc: "60 days with friends.", when: { telemetry: { social_days: ">=60" } } }
+- { id: inbox_zero, name: "Inbox Zero (Eventually)", desc: "Survived the post-vacation inbox." }
+- { id: well_rested, name: "Well Rested", desc: "Took 50 real rest days.", when: { telemetry: { rest_days: ">=50" } } }
+- { id: bookworm, name: "Bookworm", desc: "100 days of reading.", when: { telemetry: { reading_days: ">=100" } } }
+# --- Travel
+- { id: first_conference, name: "Name Badge", desc: "Your first conference in person.", when: { telemetry: { conferences: ">=1" } } }
+- { id: globetrotter, name: "Globetrotter", desc: "Six conferences in person.", when: { telemetry: { conferences: ">=6" } } }
+- { id: lost_luggage, name: "Lost Luggage", desc: "Presented in the clothes you flew in." }
+- { id: met_your_hero, name: "Met Your Hero", desc: "They stopped by your poster." }
+- { id: remote_presenter, name: "Remote Presenter", desc: "Visa trouble forced a remote talk." }
+# --- Advisor
+- { id: found_the_dark_angel, name: "Found the Unicorn", desc: "Chose the Kind and Funded advisor." }
+- { id: the_one_that_got_away, name: "The One That Got Away", desc: "Were offered the Kind and Funded advisor, and chose someone else.", secret: true }
+- { id: bubble_tea_regular, name: "Bubble Tea Regular", desc: "20 in-person lab meetings with the Dark Angel.", when: { advisor: [kind_funded], telemetry: { lab_meetings_in_person: ">=20" } } }
+- { id: no_orphans, name: "No Orphans", desc: "A paper the Dark Angel couldn't find a single orphan word in." }
+- { id: ten_questions, name: "Ten Questions, Ten Answers", desc: "Aced Judy Olson's ten questions.", secret: true }
+- { id: advisor_whisperer, name: "Advisor Whisperer", desc: "Your advisor relationship reached 90.", when: { stat: { advisor_rel: ">=90" } } }
+# --- Milestones
+- { id: quals_passed, name: "Qualified", desc: "Passed quals.", when: { milestone: { quals: passed } } }
+- { id: candidate, name: "Candidate", desc: "Passed the thesis proposal.", when: { milestone: { proposal: passed } } }
+- { id: doctor, name: "Doctor", desc: "Passed the defense.", when: { milestone: { graduated: true } } }
+- { id: hood_backwards, name: "Hood Backwards", desc: "Wore the doctoral hood backwards at commencement.", secret: true }
+- { id: on_time, name: "On Time", desc: "Graduated in five years." }
+- { id: speedrun, name: "Speedrun", desc: "Graduated in four years or less." }
+- { id: the_long_way, name: "The Long Way", desc: "Graduated in year seven or later." }
+- { id: fellow, name: "Fellow", desc: "Won a fellowship.", when: { flags_all: [fellowship_won] } }
+- { id: intern, name: "Summer Intern", desc: "Finished an internship.", when: { telemetry: { internships: ">=1" } } }
+- { id: return_ticket, name: "Return Ticket", desc: "Got an internship return offer.", when: { flags_all: [return_offer] } }
+- { id: every_door, name: "Every Door", desc: "Saw all 26 endings across runs.", secret: true }

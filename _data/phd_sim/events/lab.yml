@@ -1,0 +1,332 @@
+# PhD Simulator: lab and labmate events (event-ideas.md, section H).
+# Schema: docs/phd-simulator/content-spec.md.
+
+- id: lab_senior_codebase
+  title: "The Codebase Inheritance"
+  category: lab
+  rarity: common
+  when: { year: [1, 5] }
+  text:
+    - "{senior} is graduating and leaves you their entire codebase. No README, 40 scripts called run.py, and a folder named DO_NOT_DELETE."
+  choices:
+    - label: "Document it as you go"
+      text: "By the end you understand every script, and you've written the README they never did."
+      effects: { days: -2, coding: "+4±1", labmates_rel: "+2±1" }
+    - label: "Book an hour with {senior} first"
+      check: { stat: labmates_rel, vs: 45, spread: 15 }
+      success:
+        text: "{senior} walks you through all of it and records the call. Priceless."
+        effects: { coding: "+3±1", knowledge: "+2±1", labmates_rel: "+2±1" }
+      failure:
+        text: "{senior} is already packing. You get a four-minute voice memo."
+        effects: { sanity: "-2±1", coding: "+1" }
+    - label: "Rewrite it from scratch"
+      text: "Your version is cleaner and half as long. It also takes a week and a half."
+      effects: { days: -3, energy: "-4±2", coding: "+3±1" }
+
+- id: lab_proofread
+  title: "Better Than the Reviewers"
+  category: lab
+  rarity: common
+  when: { project: { stage: writing } }
+  text:
+    - "You ask {labmate} for a quick read of {project}. Their comments are sharper than any review you've ever received, and much nicer."
+  choices:
+    - label: "Fix everything they found"
+      text: "The paper gets clearer. You owe them a coffee, or several."
+      effects: { days: -2, project.quality.C: "+6±2", project.quality.S: "+3±1" }
+    - label: "Offer to read theirs in return"
+      text: "You trade drafts. Both papers improve, and you learn how they write."
+      effects: { days: -1, writing: "+2±1", labmates_rel: "+4±1", project.quality.C: "+4±2" }
+    - label: "Ask them to join as co-author"
+      check: { stat: labmates_rel, vs: 50, spread: 15 }
+      success:
+        text: "\"Sure!\" Their name goes on, and their care goes in."
+        effects: { labmates_rel: "+3±1", project.quality.S: "+5±2", project.quality.C: "+4±2" }
+      failure:
+        text: "\"It was just comments, really.\" They mean it kindly."
+        effects: { labmates_rel: "+1", project.quality.C: "+3±1" }
+
+- id: lab_retreat
+  title: "Lab Retreat"
+  category: lab
+  rarity: uncommon
+  when: { semester: [summer, fall] }
+  text:
+    - "Lab retreat: a morning hike, an afternoon at a whiteboard, and by dinner, {roll:23-41} new project ideas."
+  choices:
+    - label: "Pick one and actually start it"
+      text: "You pick one with {labmate}. It survives the drive home, which is rare."
+      effects: { sanity: "+3±1", taste: "+3±1", labmates_rel: "+2±1" }
+    - label: "Lead the hike, skip the whiteboard"
+      text: "You find the best view. Half the good ideas happen on the trail anyway."
+      effects: { sanity: "+5±2", health: "+3±1", labmates_rel: "+3±1" }
+    - label: "Photograph the whiteboard"
+      text: "Every few months you look at the photo, and one more idea makes sense."
+      effects: { sanity: "+2±1", knowledge: "+2±1" }
+
+- id: lab_new_student_questions
+  title: "Why, Though?"
+  category: lab
+  rarity: common
+  when: { year: [2, 8] }
+  text:
+    - "{mentee}, a new student, asks why the lab uses this method, why this metric, and why the field cares. You realize you don't actually know."
+  choices:
+    - label: "Look it up together"
+      text: "The answer is in a 2016 paper. Now you both know, and you remember why you started."
+      effects: { knowledge: "+3±1", taste: "+1", labmates_rel: "+2±1" }
+    - label: "Give a confident answer"
+      text: "You check later. You were half right, and {mentee} believes the wrong half."
+      effects: { sanity: "-2±1", presenting: "+1" }
+    - label: "Send them to {senior}"
+      text: "{senior} doesn't know either. A lab tradition is born."
+      effects: { sanity: "+1", labmates_rel: "+1" }
+
+- id: lab_mentee_first_try
+  title: "It Worked on the First Try"
+  category: lab
+  rarity: common
+  when: { year: [3, 8] }
+  text:
+    - "{mentee}'s code runs on the first try, and the numbers look great. You have never been more suspicious in your life."
+  choices:
+    - label: "Check the data split"
+      check: { stat: coding, vs: 50, spread: 15 }
+      success:
+        text: "Test data in the training set. You catch it before any reviewer could."
+        effects: { coding: "+2±1", labmates_rel: "+2±1" }
+      failure:
+        text: "You find nothing. A week later {mentee} finds the leak and is very proud."
+        effects: { sanity: "-2±1", labmates_rel: "+1" }
+    - label: "Walk through it line by line"
+      text: "Line 48 explains everything. {mentee} learns more from this than from any paper."
+      effects: { days: -1, knowledge: "+1", labmates_rel: "+3±1" }
+    - label: "Trust them and celebrate"
+      text: "It really did work. {mentee} is very good, and you are a little jealous."
+      effects: { sanity: "+4±2", labmates_rel: "+2±1" }
+
+- id: lab_meme_channel
+  title: "#paper-discussion"
+  category: lab
+  rarity: common
+  when: { year: [1, 8] }
+  text:
+    - "The lab Slack's paper-discussion channel is now only memes. The last real message is from {roll:3-9} months ago."
+  choices:
+    - label: "Post a better meme"
+      check: { stat: taste, vs: 50, spread: 20 }
+      success:
+        text: "Forty reactions. For one afternoon, you are the most important person in the lab."
+        effects: { sanity: "+4±1", labmates_rel: "+4±1" }
+      failure:
+        text: "Silence. Then {labmate} reacts with a single skull."
+        effects: { sanity: "-1", labmates_rel: "+1" }
+    - label: "Post an actual paper"
+      text: "Three meme replies and one thoughtful one, from {senior}. You'll take it."
+      effects: { knowledge: "+2±1", labmates_rel: "+1" }
+    - label: "Start a new channel for papers"
+      text: "Within a month it's half memes too. But the other half is good."
+      effects: { knowledge: "+2±1", labmates_rel: "+2±1" }
+
+- id: lab_same_project
+  title: "Great Minds"
+  category: lab
+  rarity: uncommon
+  when: { project: { stage: [idea, lit] } }
+  text:
+    - "At lab meeting, {labmate} presents their new project. It's {project}. You started it two weeks ago."
+  choices:
+    - label: "Merge into one joint project"
+      text: "Two people, one project. You argue about the title for a week, happily."
+      effects: { labmates_rel: "+4±1", project.progress: "+8±3", project.quality.S: "+4±2" }
+    - label: "Split it into two angles"
+      check: { stat: taste, vs: 50, spread: 15 }
+      success:
+        text: "You take the modeling, they take the user study. Two papers, no overlap."
+        effects: { labmates_rel: "+2±1", project.quality.N: "+4±2" }
+      failure:
+        text: "The angles keep overlapping. Lab meeting gets a little awkward."
+        effects: { sanity: "-3±1", labmates_rel: "-3±1" }
+    - label: "Let them have it"
+      text: "You hand over your notes. {labmate} thanks you in the acknowledgments, in bold."
+      effects: { project.abandon: true, sanity: "-2±1", labmates_rel: "+5±2" }
+
+- id: lab_visiting_student
+  title: "The Summer Visitor"
+  category: lab
+  rarity: uncommon
+  when: { semester: [summer] }
+  text:
+    - "The visiting summer student finishes in six weeks what the lab planned for the whole summer. They also fixed the printer."
+  choices:
+    - label: "Ask how they work"
+      text: "Their secret: one task at a time, and no open tabs. You try it. It works, annoyingly."
+      effects: { coding: "+2±1", knowledge: "+2±1" }
+    - label: "Invite them to collaborate"
+      check: { stat: labmates_rel, vs: 45, spread: 15 }
+      success:
+        text: "They agree to keep working with you after they go home. You now have a collaborator abroad."
+        effects: { sanity: "+2±1", network: "+3±1", labmates_rel: "+2±1" }
+      failure:
+        text: "Three labmates got there first."
+        effects: { sanity: "-1" }
+    - label: "Take them to lunch instead"
+      text: "They're as nice as they are fast. You trade emails and promise to stay in touch."
+      effects: { sanity: "+3±1", network: "+2±1" }
+
+- id: lab_reading_unread
+  title: "You're Presenting Today"
+  category: lab
+  rarity: common
+  when: { semester: [fall, spring] }
+  text:
+    - "Reading group starts in ten minutes. You're presenting today. You've read the abstract, probably."
+  choices:
+    - label: "Read it in ten minutes"
+      check: { stat: knowledge, vs: 55, spread: 15 }
+      success:
+        text: "You present the key idea clearly. Nobody can tell."
+        effects: { knowledge: "+2±1", presenting: "+2±1" }
+      failure:
+        text: "Someone asks about Table 3. You all learn about Table 3 together."
+        effects: { sanity: "-3±1", labmates_rel: "-1" }
+    - label: "Admit it and lead a discussion"
+      text: "\"Let's read section 3 together.\" It's the best reading group in months."
+      effects: { sanity: "-1", presenting: "+2±1", labmates_rel: "+2±1" }
+    - label: "Swap weeks with {labmate}"
+      check: { stat: labmates_rel, vs: 50, spread: 15 }
+      success:
+        text: "{labmate} presents today, you present next week. You owe them."
+        effects: { sanity: "+3±1", labmates_rel: "-1" }
+      failure:
+        text: "{labmate} hasn't read theirs either. You bond over it."
+        effects: { sanity: "-2±1", labmates_rel: "+2±1" }
+
+- id: lab_now_senior
+  title: "Now You're the Senior One"
+  category: lab
+  rarity: uncommon
+  when: { year: [3, 6], turn: [22, 26] }
+  text:
+    - "{senior}, who gave you all your best advice in Year 1, is graduating. Looking around lab meeting, you realize the senior student is now you."
+  choices:
+    - label: "Write down what they taught you"
+      text: "One page, ten rules. You pin it above your desk and send it to the new students."
+      effects: { sanity: "+3±1", writing: "+1", knowledge: "+2±1" }
+    - label: "Take the new students to lunch"
+      text: "Three new students, eleven questions, one very long lunch. You answer most of them."
+      effects: { sanity: "+2±1", labmates_rel: "+4±1" }
+    - label: "Ask {senior} for one last tip"
+      text: "\"Take your weekends.\" Then they hand you the lab's spare monitor."
+      effects: { sanity: "+3±1", labmates_rel: "+1" }
+      tip: "Sustain Through the Journey"
+
+# ---------------------------------------------------------------------------
+# Arc: best_collaborator. A labmate becomes your best collaborator: three papers
+# together over a long span. Later steps say "your co-author" because a token
+# like {labmate} is bound per event and may name a different person.
+
+- id: lab_best_collab_start
+  title: "Same Bug, Same Whiteboard"
+  category: lab
+  rarity: uncommon
+  arc: best_collaborator
+  when: { year: [1, 4], project: { stage_kind: work }, stat: { labmates_rel: ">=40" } }
+  text:
+    - "{labmate} stops by with the same bug you've been fighting all week. Two hours later you've fixed both, and the whiteboard has a joint paper on it."
+  choices:
+    - label: "Start the joint paper"
+      text: "You open a shared doc called \"paper (real)\". {labmate} has already made the figure template."
+      effects: { days_next: -2, coding: "+2±1", labmates_rel: "+4±1", project.quality.S: "+3±1" }
+      flag_set: [best_collab]
+      schedule: { event: lab_best_collab_paper1, in: [6, 12], chance: 1.0 }
+    - label: "Pair up on {project} instead"
+      check: { stat: labmates_rel, vs: 50, spread: 15 }
+      success:
+        text: "{labmate} takes the evaluation off your hands. You work well together, suspiciously well."
+        effects: { labmates_rel: "+3±1", project.progress: "+10±3", project.quality.S: "+4±2" }
+        flag_set: [best_collab]
+        schedule: { event: lab_best_collab_paper1, in: [6, 12], chance: 1.0 }
+      failure:
+        text: "{labmate} is swamped this month. \"Next project, for sure.\""
+        effects: { sanity: "-1", labmates_rel: "+1" }
+    - label: "Keep it to lunch chats"
+      text: "Good lunches, good bugs, no paper. Sometimes that's the right amount."
+      effects: { sanity: "+2±1", labmates_rel: "+2±1" }
+
+- id: lab_best_collab_paper1
+  title: "Paper One, Together"
+  category: lab
+  trigger: scheduled
+  arc: best_collaborator
+  when: { flags_all: [best_collab] }
+  text:
+    - "The joint paper with your favorite co-author is accepted. The shared doc for the next one is already called \"paper 2 (real)\"."
+  choices:
+    - label: "Start paper two right away"
+      text: "You celebrate with dumplings and a new outline."
+      effects: { energy: "-3±1", citations: "+3±2", labmates_rel: "+3±1" }
+      counter: { best_collab_papers: +1 }
+      schedule: { event: lab_best_collab_paper2, in: [6, 12], chance: 1.0 }
+    - label: "Swap roles for paper two"
+      text: "This time you write and they code. You both get better at the other half."
+      effects: { citations: "+3±2", writing: "+2±1", coding: "+1", labmates_rel: "+4±1" }
+      counter: { best_collab_papers: +1 }
+      schedule: { event: lab_best_collab_paper2, in: [6, 12], chance: 1.0 }
+    - label: "Take a break after this one"
+      text: "One great paper together. You stay lunch friends and promise each other \"someday\"."
+      effects: { sanity: "+4±1", citations: "+3±2", labmates_rel: "+1" }
+      counter: { best_collab_papers: +1 }
+      flag_clear: [best_collab]
+
+- id: lab_best_collab_paper2
+  title: "Paper Two, Together"
+  category: lab
+  trigger: scheduled
+  arc: best_collaborator
+  when: { flags_all: [best_collab] }
+  text:
+    - "Paper two with your co-author is accepted. One reviewer notes that the two halves of the paper \"fit unusually well\"."
+  choices:
+    - label: "Go for the trilogy"
+      text: "Paper three has an outline before the camera-ready is even done."
+      effects: { citations: "+4±2", labmates_rel: "+3±1" }
+      counter: { best_collab_papers: +1 }
+      schedule: { event: lab_best_collab_paper3, in: [6, 12], chance: 1.0 }
+    - label: "Ask them to read your thesis plan"
+      text: "Their notes on your thesis plan are better than your committee's will be. Paper three can wait a little."
+      effects: { citations: "+4±2", taste: "+3±1", labmates_rel: "+2±1" }
+      counter: { best_collab_papers: +1 }
+      schedule: { event: lab_best_collab_paper3, in: [6, 12], chance: 1.0 }
+    - label: "Call it a perfect pair"
+      text: "Two papers, zero arguments about author order. You quit while you're ahead."
+      effects: { sanity: "+3±1", citations: "+4±2", labmates_rel: "+2±1" }
+      counter: { best_collab_papers: +1 }
+      flag_clear: [best_collab]
+
+- id: lab_best_collab_paper3
+  title: "That Duo"
+  category: lab
+  trigger: scheduled
+  arc: best_collaborator
+  when: { flags_all: [best_collab] }
+  text:
+    - "Your third paper together comes out. At a conference, someone points at the two of you and says \"Oh, that duo.\""
+  choices:
+    - label: "Lean into being that duo"
+      text: "You give the talk together, finishing each other's slides."
+      effects: { citations: "+8±3", network: "+4±1", labmates_rel: "+4±1" }
+      counter: { best_collab_papers: +1 }
+      flag_clear: [best_collab]
+    - label: "Make a pact for after graduation"
+      text: "\"If I ever start a company, you're employee number four.\" It sounds like a joke. It isn't."
+      effects: { citations: "+6±3", labmates_rel: "+5±1" }
+      counter: { best_collab_papers: +1 }
+      flag_set: [labmate_startup_offer]
+      flag_clear: [best_collab]
+    - label: "Thank them in your thesis draft"
+      text: "You write the acknowledgments page years early, just to write this one paragraph."
+      effects: { sanity: "+5±2", citations: "+6±3", labmates_rel: "+3±1" }
+      counter: { best_collab_papers: +1 }
+      flag_clear: [best_collab]

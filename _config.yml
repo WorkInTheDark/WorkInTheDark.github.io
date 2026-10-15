@@ -211,6 +211,8 @@ exclude:
   - Gemfile.lock
   - vendor
   - worker   # Cloudflare Worker source, deployed separately — not part of the site
+  - docs     # design docs (e.g. the PhD Simulator spec), not part of the site
+  - tools    # local dev scripts (e.g. the PhD Simulator validator/simulator)
 keep_files:
   - CNAME
   - .nojekyll
@@ -251,7 +253,7 @@ defaults:
 # -----------------------------------------------------------------------------
 
 jekyll-minifier:
-  exclude: ['robots.txt']
+  exclude: ['robots.txt', 'assets/js/phd-sim/*', 'assets/phd-sim/*']   # the PhD Simulator's modules and data are served as written
   uglifier_args:
     harmony: true
 

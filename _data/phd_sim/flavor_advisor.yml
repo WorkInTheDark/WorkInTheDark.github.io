@@ -1,0 +1,58 @@
+# PhD Simulator: advisor-specific flavor lines for the turn log.
+# Same schema as flavor.yml (content-spec.md, section 13).
+
+# Famous but Absent
+- text: "Your advisor's out-of-office reply has its own out-of-office reply."
+  when: { advisor: [famous_absent] }
+- text: "You catch your advisor on a conference livestream. It's the longest you've seen them this month."
+  when: { advisor: [famous_absent] }
+
+# Micromanager
+- text: "A calendar invite arrives: \"Sync about the sync.\""
+  when: { advisor: [micromanager] }
+- text: "Your advisor leaves a comment on your comment."
+  when: { advisor: [micromanager] }
+
+# Hungry Assistant Prof
+- text: "Your advisor's whiteboard says \"Papers this year: 9\". It's October."
+  when: { advisor: [hungry_ap] }
+
+# Kind but Unfunded
+- text: "The lab's one GPU has a sign-up sheet taped to it. Your advisor always signs up last."
+  when: { advisor: [kind_unfunded] }
+
+# Grant Machine
+- text: "Every slide at lab meeting now has an Aim number in the corner."
+  when: { advisor: [grant_machine] }
+
+# The Visionary
+- text: "Your advisor's new idea arrived at 2 am. By 9 am it had a sequel."
+  when: { advisor: [visionary] }
+
+# Industry Joint
+- text: "Your advisor joins lab meeting from a company building, in front of a ping-pong table."
+  when: { advisor: [industry_joint] }
+
+# Near Retirement
+- text: "Your advisor starts a sentence with \"Back in 1994\". You take notes."
+  when: { advisor: [near_retirement] }
+
+# Serial Founder
+- text: "Your advisor's email signature lists four companies. One is new this week."
+  when: { advisor: [serial_founder] }
+
+# Methods Purist
+- text: "Your advisor writes \"n = ?\" in the margin of your vacation request."
+  when: { advisor: [methods_purist] }
+
+# Kind and Funded
+- text: "Your advisor replies at 1:12 am: \"Great figure.\""
+  when: { advisor: [kind_funded] }
+- text: "You now notice orphan words in other people's papers."
+  when: { advisor: [kind_funded] }
+- text: "Lab meeting bubble tea arrives. Yours is already labeled."
+  when: { advisor: [kind_funded] }
+- text: "Your advisor fixes the capitalization in your email's subject line."
+  when: { advisor: [kind_funded] }
+- text: "A comment on your draft asks \"Who cares?\", followed by a small smiley face."
+  when: { advisor: [kind_funded] }

@@ -1,0 +1,128 @@
+# Advisor archetypes. Parameters are 1–5: fund(ing), avail(ability), kind(ness), stds (standards), fame, stab(ility).
+# The nickname and tagline are what players see; the label is used in the Codex.
+archetypes:
+  - id: famous_absent
+    label: Famous but Absent
+    nick: the White Scar
+    legion: V
+    tagline: "Brilliant, famous, and always somewhere else."
+    params: { fund: 4, avail: 1, kind: 3, stds: 4, fame: 5, stab: 3 }
+    lab_size: 6
+    weight: 1
+  - id: micromanager
+    label: Micromanager
+    nick: the Imperial Fist
+    legion: VII
+    tagline: "Checks every detail. Every. Single. One."
+    params: { fund: 3, avail: 5, kind: 2, stds: 4, fame: 3, stab: 4 }
+    lab_size: 4
+    weight: 1
+  - id: hungry_ap
+    label: Hungry Assistant Prof
+    nick: the Blood Angel
+    legion: IX
+    tagline: "New, ambitious, and hungry for papers."
+    params: { fund: 3, avail: 4, kind: 4, stds: 4, fame: 2, stab: 2 }
+    lab_size: 2
+    weight: 1
+  - id: kind_unfunded
+    label: Kind but Unfunded
+    nick: the Raven Guard
+    legion: XIX
+    tagline: "Fights for their students on almost no budget."
+    params: { fund: 1, avail: 4, kind: 5, stds: 3, fame: 2, stab: 4 }
+    lab_size: 3
+    weight: 1
+  - id: grant_machine
+    label: Grant Machine
+    nick: the Ultramarine
+    legion: XIII
+    tagline: "Always funded. Always writing grant reports."
+    params: { fund: 5, avail: 2, kind: 3, stds: 3, fame: 4, stab: 4 }
+    lab_size: 8
+    weight: 1
+  - id: visionary
+    label: The Visionary
+    nick: the Thousand Son
+    legion: XV
+    tagline: "Big ideas, and a new one every week."
+    params: { fund: 3, avail: 3, kind: 3, stds: 2, fame: 4, stab: 3 }
+    lab_size: 5
+    weight: 1
+  - id: industry_joint
+    label: Industry Joint
+    nick: the Iron Hand
+    legion: X
+    tagline: "Half professor, half tech company."
+    params: { fund: 4, avail: 2, kind: 3, stds: 3, fame: 4, stab: 2 }
+    lab_size: 4
+    weight: 1
+  - id: near_retirement
+    label: Near Retirement
+    nick: the Space Wolf
+    legion: VI
+    tagline: "A legend of the field, counting down to retirement."
+    params: { fund: 2, avail: 3, kind: 4, stds: 2, fame: 4, stab: 1 }
+    lab_size: 2
+    weight: 1
+  - id: serial_founder
+    label: Serial Founder
+    nick: the Alpha Legionnaire
+    legion: XX
+    tagline: "Three startups, and nobody is sure which one is real."
+    params: { fund: 3, avail: 2, kind: 3, stds: 2, fame: 3, stab: 2 }
+    lab_size: 3
+    weight: 1
+  - id: methods_purist
+    label: Methods Purist
+    nick: the Iron Warrior
+    legion: IV
+    tagline: "No result survives without ten seeds and a significance test."
+    params: { fund: 3, avail: 3, kind: 3, stds: 5, fame: 3, stab: 5 }
+    lab_size: 4
+    weight: 1
+  - id: kind_funded
+    label: Kind and Funded
+    nick: the Dark Angel
+    legion: I
+    tagline: "Kind, well funded, and never satisfied with borderline work."
+    params: { fund: 5, avail: 4, kind: 5, stds: 5, fame: 3, stab: 4 }
+    lab_size: 5
+    weight: 0.3          # appears among the three candidates in about 1 run in 12
+    rare: true
+    fixed_quirks:
+      - "Meticulous about layout and visual detail: orphan words, consistent capitalization, figure fonts."
+      - "Always finds the major flaw, and asks the hard but critical question."
+      - "Replies at strange hours, midnight included, always adding \"no need to reply until Monday\"."
+      - "Buys bubble tea for everyone who comes to lab meeting in person."
+
+# Two of these are drawn for every advisor except the Dark Angel.
+quirks:
+  - "Replies to email at 3 am."
+  - "Loves Gantt charts."
+  - "Always wants \"just one more experiment\"."
+  - "Draws everything on a whiteboard."
+  - "Forgets meetings, then remembers them better than you do."
+  - "Sends papers with no message, only the PDF."
+  - "Writes \"great!!\" on everything and means it 40% of the time."
+  - "Insists on tables over figures."
+  - "Only meets while walking."
+  - "Seems to know every reviewer personally."
+  - "Has a favorite font and enforces it."
+  - "Plays devil's advocate even when agreeing with you."
+  - "Answers questions with questions."
+  - "Remembers every student's birthday."
+  - "Brings snacks to lab meeting."
+  - "Says \"let's write a grant about it\" about everything."
+  - "Keeps a list of every idea anyone has ever had in lab meeting."
+  - "Takes calls from the car, always slightly out of signal."
+  - "Prefers a 2-hour meeting to a 2-line email."
+  - "Has strong opinions about the Oxford comma."
+  - "Quotes papers from the 1990s from memory."
+  - "Reads drafts on paper, with a red pen."
+  - "Schedules meetings in 25-minute blocks."
+  - "Responds to long emails with a single emoji."
+  - "Keeps a plant in the lab that nobody else may water."
+  - "Always asks \"what's the one-sentence version?\""
+  - "Starts every meeting with \"so, what did we learn this week?\""
+  - "Has a standing Friday-afternoon reading group nobody can escape."

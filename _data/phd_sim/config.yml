@@ -1,0 +1,96 @@
+# PhD Simulator tuning numbers. Every number the engine balances on lives here.
+# Ranges use the same "+7±3" notation as events (a triangular roll in [4, 10]).
+version: 1
+turns_per_year: 26
+max_year: 8
+start:
+  energy: 80
+  sanity: 70
+  health: "80±10"
+  advisor_rel: 50
+  labmates_rel: 50
+  family_rel: 60
+  friends_rel: 40
+
+energy:
+  workday: "-3±1"
+  overtime: "-5±2"
+  rest: "+8±2"
+  light: "+5±2"          # exercise, social, hobby, family
+  weekend_off: "+6±2"
+  baseline: 6            # sleep, per turn
+  efficiency_floor: 0.4  # efficiency = clamp(floor + slope * energy, floor, 1)
+  efficiency_slope: 0.012
+
+sanity:
+  self_day: "+3±1"       # social, hobby, family
+  exercise_day: "+1"
+  weekend_off: "+1"
+  pressure: 7            # the background weight of being a PhD student, every turn
+  overtime_day: -1
+  isolation_turns: 3
+  isolation_hit: "-4±2"
+  low: 25
+  low_efficiency: 0.8
+  burnout_turns: 3
+
+health:
+  overtime_day: -1.5
+  exercise_day: 2
+  calm_turn: 1
+  sick_base: 0.02
+  sick_per_point: 0.004
+  flu_season: [8, 14]
+
+skills:
+  growth: 0.25           # per relevant day: growth * (1 - skill / 100)
+
+progress:
+  rate: 5.5              # points per day before multipliers; a stage needs ~100
+  roll: 0.2              # ±20% per day
+  switch_penalty: 0.1    # per project beyond the second in one turn
+  max_active_projects: 4
+
+quality:
+  base: 22               # day quality = base + per_skill * skill
+  per_skill: 0.7
+  writing_floor: 0.6     # clarity × (floor + (1 - floor) × writing completion)
+  hype_weight: 0.1       # novelty += (hype - 50) × weight
+
+events:
+  random_count: [0.5, 0.42, 0.08]   # P(0), P(1), P(2) random draws per turn
+  rarity: { common: 10, uncommon: 4, rare: 1.2, legendary: 0.3 }
+  novelty: { never: 2.5, last_run: 0.25, two_runs: 0.5, this_run: 0.25 }
+  balance_window: 6
+  default_cooldown: 6
+  flavor_chance: 0.6
+
+reviews:
+  reviewer_sigma: 15
+  ac_sigma: 8
+  findings_band: 7
+  rr_band: 10
+  rebuttal_slots: 5
+
+citations:
+  venue_base: { top: 55, journal: 40, mid: 32, findings: 25, workshop: 10 }
+  preprint_factor: 0.5
+  breakout_chance: 0.03
+
+fixed_days:
+  courses_y1: 3
+  courses_y2: 2
+  ta: 2
+  ta_peak: 3             # T8 and T18 (grading)
+  meetings: 1
+  defense_prep: 5
+  conference: 4
+
+ta_chance_by_funding: [0.8, 0.6, 0.35, 0.15, 0.05]
+graduation_pubs: 3
+defense_prep_turns: 6
+quals_turn: 18           # quals at T18 of year 1 or 2 (rolled per run)
+proposal_prep_turns: 4
+proposal_min_pubs: 2
+proposal_min_year: 3
+tip_spacing: 6

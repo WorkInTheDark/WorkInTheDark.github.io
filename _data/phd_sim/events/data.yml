@@ -1,0 +1,124 @@
+# PhD Simulator: data and annotation events.
+# Source ideas: docs/phd-simulator/event-ideas.md, section C (ticked only).
+# Schema: docs/phd-simulator/content-spec.md.
+#
+# Flags set here for careful dataset work (dat_gold_standard,
+# dat_guidelines_solid) are what earn dat_standard_benchmark later.
+
+- id: dat_night_annotators
+  title: "The 11 pm Shift"
+  category: data
+  when:
+    project: { type: dataset, stage: annotation }
+  text:
+    - "Your clinician annotators are brilliant, careful, and free only after their shifts, around 11 pm. The questions start arriving at midnight."
+  choices:
+    - label: "Be online at 11 pm"
+      text: "You answer questions until 1 am, all week. Annotation finishes early, and so does your sleep."
+      effects: { energy: "-7±2", health: "-2±1", project.delay: -1, project.quality.S: "+3±1" }
+    - label: "This is your hour anyway"
+      requires: { traits_any: [night_owl] }
+      tag: "Night Owl"
+      text: "Midnight is your best hour. The annotators start calling you \"the night desk\"."
+      effects: { sanity: "+2±1", project.delay: -1, project.quality.S: "+4±2" }
+    - label: "Write a FAQ, answer mornings"
+      text: "The FAQ covers most questions. The rest wait until morning, and so does the annotation."
+      effects: { writing: "+2±1", project.delay: 1, project.quality.S: "+2±1" }
+    - label: "Host a Saturday labeling brunch"
+      check: { stat: network, vs: 45, spread: 20 }
+      success:
+        text: "Bagels work. Six annotators, one table, four hours, 400 labels, and nobody up past ten."
+        effects: { days: -1, network: "+2±1", project.delay: -1 }
+      failure:
+        text: "Two annotators show up. The bagels are excellent. The labels are few."
+        effects: { days: -1, sanity: "-2±1" }
+
+- id: dat_self_annotate
+  title: "500 Examples"
+  category: data
+  when:
+    project: { type: dataset, stage: [guidelines, annotation] }
+  text:
+    - "You need 500 gold-standard examples to check the annotators against. They start Monday. It's Friday evening."
+  choices:
+    - label: "Annotate all 500 this weekend"
+      text: "By Sunday night you know this data better than anyone alive. Your eyes would like a word."
+      effects: { energy: "-10±3", days: -2, knowledge: "+4±2", project.quality.S: "+6±2" }
+      flag_set: [dat_gold_standard]
+    - label: "Split them with {labmate}"
+      check: { stat: labmates_rel, vs: 50, spread: 15 }
+      success:
+        text: "They label 250 and find two holes in your guidelines. You buy lunch. You'd buy ten lunches."
+        effects: { energy: "-5±2", days: -1, labmates_rel: "+2±1", project.quality.S: "+5±2" }
+        flag_set: [dat_gold_standard]
+      failure:
+        text: "\"I have a deadline too.\" You do 400 of them alone, more slowly than you'd like."
+        effects: { energy: "-8±2", days: -2, sanity: "-3±1", project.quality.S: "+3±1" }
+    - label: "Do 100, call it a pilot"
+      text: "100 careful examples. It's a pilot now. Nobody needs to know it was meant to be 500."
+      effects: { energy: "-3±1", sanity: "+1", project.quality.S: "+2±1" }
+
+- id: dat_guidelines_v15
+  title: "Guidelines v15"
+  category: data
+  when:
+    project: { type: dataset, stage: [guidelines, annotation] }
+  text:
+    - "You open annotation_guidelines_v15.docx. Version 14 fixed one ambiguity and created two new ones. Agreement went from 0.41 to 0.44."
+  choices:
+    - label: "Write version 16, properly"
+      text: "Version 16 has a decision tree and twelve worked examples. Agreement jumps to 0.71."
+      effects: { energy: "-5±2", project.delay: 1, project.quality.S: "+6±2" }
+      flag_set: [dat_guidelines_solid]
+    - label: "Run a calibration session"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "One hour, ten hard cases, everyone on the same page. The guidelines barely change, and agreement still climbs."
+        effects: { knowledge: "+2±1", project.quality.S: "+6±2" }
+        flag_set: [dat_guidelines_solid]
+      failure:
+        text: "The session turns into a debate about a single example. As far as you know, it's still going."
+        effects: { sanity: "-3±1", project.delay: 1 }
+    - label: "Freeze v15 and annotate"
+      text: "Good enough is a kind of done. The annotators cheer. The agreement score does not."
+      effects: { sanity: "+3±1", project.delay: -1, project.quality.S: "-4±2" }
+
+- id: dat_train_test_dupes
+  title: "Seen It Before"
+  category: data
+  when:
+    project: { stage: [experiments, baselines] }
+  text:
+    - "Your baseline scores suspiciously well. You check: {roll:200-400} test examples also appear in the training set, some with different capitalization."
+  choices:
+    - label: "Deduplicate and rerun everything"
+      text: "Scores drop four points. Now they mean something, and you can say so."
+      effects: { energy: "-6±2", days: -2, coding: "+2±1", project.quality.S: "+7±2" }
+      flag_set: [dat_clean_split]
+    - label: "Report both splits"
+      text: "Two columns in every table: original and deduplicated. It's careful, and it shows."
+      effects: { energy: "-3±1", project.quality.S: "+4±2", project.quality.C: "-1" }
+    - label: "Mention it in a footnote"
+      text: "Footnote 7. Someone will find it eventually, probably in a blog post."
+      effects: { sanity: "+2±1", project.quality.S: "-4±2" }
+
+- id: dat_standard_benchmark
+  title: "A Standard Benchmark"
+  category: data
+  rarity: rare
+  when:
+    year: [2, 8]
+    flags_any: [dat_guidelines_solid, dat_gold_standard]
+    paper: { status: accepted, first_author: true }
+  text:
+    - "Three new papers this month report results on your dataset, and one calls it \"the standard benchmark\". All that care with the labels is paying off."
+  choices:
+    - label: "Host an official leaderboard"
+      text: "Submissions arrive at 3 am from every time zone. You're a maintainer now, and people cite you for it."
+      effects: { energy: "-5±2", days_next: -2, citations: "+10±4", network: "+4±2" }
+    - label: "Start a harder version 2"
+      text: "Your plan for v2 is ready before anyone gets close to beating v1. That's the right order."
+      effects: { energy: "-4±2", taste: "+3±1", citations: "+6±3" }
+    - label: "Just enjoy it"
+      text: "You screenshot the sentence that says \"standard benchmark\". Then you screenshot it again."
+      effects: { sanity: "+8±3", citations: "+5±2" }
