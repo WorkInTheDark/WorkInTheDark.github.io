@@ -1,7 +1,8 @@
 # Venues and their (approximate, game-only) yearly cycles. Offsets count turns after the deadline.
 # tier: top | mid | workshop | journal. Findings is an outcome of ARR, not a venue.
-# field: nlp | hci. A paper only goes to venues of its own field (Arthur, 2026-10-16): empirical and
-# dataset papers are NLP, studies and systems are HCI, and a position paper is one or the other.
+# field: nlp | hci | ml. A paper only goes to venues of its own field (Arthur, 2026-10-16): empirical
+# and dataset papers are NLP, studies and systems are HCI, and a position paper is one or the other.
+# NLP papers can also go to the top machine learning conferences (field: ml).
 - id: arr
   name: ARR
   field: nlp
@@ -24,6 +25,24 @@
   threshold: 76
   cycles:
     - { deadline: 1, name: CHI, reviews_in: 4, rebuttal: false, decision_in: 4, revision_due_in: 7, final_in: 9, conference_in: 16 }
+- id: neurips
+  name: NeurIPS
+  field: ml
+  tier: top
+  types: [empirical, dataset]
+  weights: { N: 0.4, S: 0.45, C: 0.15 }
+  threshold: 77
+  cycles:
+    - { deadline: 19, name: NeurIPS, reviews_in: 6, rebuttal: true, decision_in: 9, conference_in: 15 }
+- id: iclr
+  name: ICLR
+  field: ml
+  tier: top
+  types: [empirical]
+  weights: { N: 0.4, S: 0.45, C: 0.15 }
+  threshold: 77
+  cycles:
+    - { deadline: 3, name: ICLR, reviews_in: 3, rebuttal: true, decision_in: 8, conference_in: 15 }
 - id: iui
   name: IUI
   field: hci

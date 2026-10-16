@@ -51,7 +51,7 @@ export const PROJECT_TYPES = {
 export const REVISE_STAGE = S("revise", "work", "C", "writing", 20);
 
 // Which community a paper is for: NLP papers go to NLP venues, HCI papers to HCI venues.
-export const FIELD_LABELS = { nlp: "NLP", hci: "HCI" };
+export const FIELD_LABELS = { nlp: "NLP", hci: "HCI", ml: "ML" };
 export function fieldOf(p) {
   return p.field || (p.type === "study" || p.type === "system" ? "hci" : "nlp");
 }
@@ -190,12 +190,14 @@ export function activeProjects(G) {
 
 // ---- Deadlines -------------------------------------------------------------
 
-// The venues a project can go to: its own field's venues that take its kind of paper.
+// The venues a project can go to: its own field's venues that take its kind of paper. NLP papers
+// can also go to the top machine learning conferences.
+const FIELD_VENUES = { nlp: ["nlp", "ml"], hci: ["hci"] };
 export function venuesFor(G, p, opts) {
   opts = opts || {};
-  const field = fieldOf(p);
+  const ok = FIELD_VENUES[fieldOf(p)] || [];
   return G.D.venues.filter(function (v) {
-    if (v.types.indexOf(p.type) < 0 || (v.field && v.field !== field)) return false;
+    if (v.types.indexOf(p.type) < 0 || (v.field && ok.indexOf(v.field) < 0)) return false;
     if (!opts.includeJournals && v.journal) return false;
     if (opts.onlyWorkshops) return v.tier === "workshop";
     return true;

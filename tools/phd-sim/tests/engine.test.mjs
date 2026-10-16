@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { parseValue, compare } from "../../../assets/js/phd-sim/engine/util.js";
 import { Rng } from "../../../assets/js/phd-sim/engine/rng.js";
 import { prepareData, newRun, rollTraits, Game } from "../../../assets/js/phd-sim/engine/index.js";
-import { activeProjects, addProgress, rollStages, currentStage, stageNeed, fieldOf, autoTarget, PROJECT_TYPES } from "../../../assets/js/phd-sim/engine/projects.js";
+import { activeProjects, addProgress, rollStages, currentStage, stageNeed, fieldOf, autoTarget, venuesFor, PROJECT_TYPES } from "../../../assets/js/phd-sim/engine/projects.js";
 import { resolveRebuttal } from "../../../assets/js/phd-sim/engine/reviews.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -188,7 +188,7 @@ test("two papers due in the same turn can both be submitted", () => {
   ps.forEach((p) => assert.ok(g.state.papers.some((pp) => pp.projectId === p.id), "submitted: " + p.short));
 });
 
-test("NLP papers only go to NLP venues, HCI papers only to HCI venues", () => {
+test("NLP papers go to NLP or ML venues, HCI papers only to HCI venues", () => {
   const g = gameWithProject("field-1");
   const p = activeProjects(g)[0];
   ["empirical", "dataset", "study", "system", "position"].forEach((type) => {
@@ -196,9 +196,14 @@ test("NLP papers only go to NLP venues, HCI papers only to HCI venues", () => {
       p.type = type; p.field = type === "position" ? (i % 2 ? "nlp" : "hci") : undefined; p.target = null;
       autoTarget(g, p);
       assert.ok(p.target, type + " gets a target");
-      assert.equal(D.venueById[p.target.venueId].field, fieldOf(p), type + " -> " + p.target.venueId);
+      const vf = D.venueById[p.target.venueId].field;
+      assert.ok(fieldOf(p) === "nlp" ? vf === "nlp" || vf === "ml" : vf === "hci", type + " -> " + p.target.venueId);
     }
   });
+  p.type = "study"; p.field = undefined;
+  assert.ok(venuesFor(g, p, { includeJournals: true }).every((v) => v.field === "hci"), "no ML venues for HCI studies");
+  p.type = "empirical";
+  assert.ok(venuesFor(g, p, {}).some((v) => v.id === "neurips") && venuesFor(g, p, {}).some((v) => v.id === "iclr"), "NeurIPS and ICLR take NLP papers");
 });
 
 test("new projects pick their own kind and topic, without a prompt", () => {

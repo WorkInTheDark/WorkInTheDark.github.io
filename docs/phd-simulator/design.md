@@ -16,7 +16,7 @@ A browser game on the site, inspired by 《读博模拟器》, in which the play
 | Turn length | **Two weeks: one focus click, then what comes up.** You pick the turn's focus (a project, Read and learn, Recharge, or an "only this turn" option), then answer the turn's updates and events, and sometimes a side activity. No multi-pick, no confirm button (section 4). History, all 2026-10-16: a repeating two-week routine, then a two-week planner with several picks, then one click per week, then this, after Arthur replayed the original 读博模拟器 (a month per turn: one to-do pick, then several event screens) |
 | Visible stats | Three bars to balance: **Energy**, **Stress** and **Health**, plus Citations (+ h-index) and Papers. Stress is the engine's `sanity` shown as 100 − sanity. New tasks (reviews, grading, a rebuttal) and bad news (rejections) raise Stress; many events now cost Health. "Get healthy" was dropped as a duplicate of Recharge |
 | Hidden stats | Skills (hidden again: the bars felt useless), relationships, network |
-| Projects | **Named stages, like the original game** (2026-10-16): each turn of work either completes the current stage or doesn't. About 4 months when you push, 6–8 when you alternate. Kind and topic are assigned automatically. Waits (IRB, recruiting, annotation) are 2–4 weeks. **NLP papers go only to NLP venues, HCI papers only to HCI venues.** Each paper due gets its own deadline card, so two papers can be submitted in one turn |
+| Projects | **Named stages, like the original game** (2026-10-16): each turn of work either completes the current stage or doesn't. About 4 months when you push, 6–8 when you alternate. Kind and topic are assigned automatically. Waits (IRB, recruiting, annotation) are 2–4 weeks. **NLP papers go only to NLP venues (plus NeurIPS and ICLR), HCI papers only to HCI venues.** Each paper due gets its own deadline card, so two papers can be submitted in one turn |
 | Character | Three traits rolled at random. No background or origin choice; those became traits (Industry Veteran, Career Switcher, Master's Head Start, International Student) (2026-10-16) |
 | Event frequency | **Usually one event a turn, sometimes two or none** (two more often than none: 15% / 60% / 25%). Updates that need an answer (reviews, decisions, milestones) count toward it. A side-activity card comes up in about a third of turns. Routine news goes into the report |
 | Not stats | Money and funding (funding becomes a hidden trait of the advisor) |
@@ -121,7 +121,7 @@ Real venue names, approximate dates. These are game timings, not authoritative d
 | Workshops | rolling | short | 3–4 turns after | with their main venue |
 | Journals (TACL, TOCHI) | any time | 6–12 turns, revision rounds | | presentation optional |
 
-**Venues by field (2026-10-16):** a paper only goes to its own field's venues. NLP (empirical, dataset, NLP position papers): ARR (NAACL, ACL, EMNLP), COLING, NLP workshops, TACL. HCI (studies, systems, HCI position papers): CHI, IUI, HCI workshops, TOCHI. NeurIPS, ICLR and AMIA were removed, since they're neither. Project titles come from the matching field too (`topics.yml` has `titles: { nlp: [...], hci: [...] }`).
+**Venues by field (2026-10-16):** a paper only goes to its own field's venues. NLP (empirical, dataset, NLP position papers): ARR (NAACL, ACL, EMNLP), COLING, NLP workshops, TACL, and the top machine learning conferences NeurIPS (empirical, dataset) and ICLR (empirical). HCI (studies, systems, HCI position papers): CHI, IUI, HCI workshops, TOCHI. AMIA was removed as neither NLP nor HCI; NeurIPS and ICLR were removed and then brought back for NLP papers at Arthur's request. Project titles come from the matching field too (`topics.yml` has `titles: { nlp: [...], hci: [...] }`).
 
 ARR rejections can be resubmitted to a later cycle with previous reviews attached, as in reality.
 
@@ -477,7 +477,7 @@ Overall paper quality for reviewing: `Q = wN·N + wS·S + wC·C`, with venue-spe
 - Authorship order can be negotiated in events (with consequences for labmate relationships).
 
 ### 8.6 Venues and decisions
-- **Tiers:** Top (ACL, EMNLP, NAACL, CHI), Mid (COLING, IUI), Findings, Workshops, Journals (TACL, TOCHI).
+- **Tiers:** Top (ACL, EMNLP, NAACL, CHI, NeurIPS, ICLR), Mid (COLING, IUI), Findings, Workshops, Journals (TACL, TOCHI).
 - **Review model:**
   - Each of 3 reviewers scores `Q + persona_bias + noise(σ = 12)`, mapped to the venue's scale.
   - An area chair or meta-reviewer combines the scores, the rebuttal effects and some noise, and compares against the venue threshold.

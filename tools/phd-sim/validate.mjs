@@ -172,7 +172,8 @@ for (const tp of D.topics) {
   for (const f of ["nlp", "hci"]) if (!Array.isArray(tt[f]) || tt[f].length < 2) err("topics/" + tp.id, "needs at least two " + f + " titles");
 }
 for (const v of D.venues) {
-  if (!["nlp", "hci"].includes(v.field)) err("venues/" + v.id, "field must be nlp or hci");
+  if (!["nlp", "hci", "ml"].includes(v.field)) err("venues/" + v.id, "field must be nlp, hci or ml");
+  if (v.field === "ml" && (v.types || []).some((ty) => ty === "study" || ty === "system")) err("venues/" + v.id, "ML venues take NLP papers only");
   for (const ty of v.types || []) if (!["empirical", "dataset", "position", "study", "system"].includes(ty)) err("venues/" + v.id, "unknown type '" + ty + "'");
   if (v.field === "nlp" && (v.types || []).some((ty) => ty === "study" || ty === "system")) err("venues/" + v.id, "NLP venues don't take HCI studies or systems");
   if (v.field === "hci" && (v.types || []).some((ty) => ty === "empirical" || ty === "dataset")) err("venues/" + v.id, "HCI venues don't take empirical NLP or dataset papers");
