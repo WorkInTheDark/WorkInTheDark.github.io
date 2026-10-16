@@ -43,6 +43,7 @@ The exact contract between the YAML content in `_data/phd_sim/` and the game eng
 | `events/life.yml` | Life outside the lab | `lif_` |
 | `events/wellbeing.yml` | Light wellbeing | `wel_` |
 | `events/exits.yml` | Ways out of the PhD (engine-owned) | `exi_` |
+| `events/tasks.yml` | New work landing on your plate; raises Stress. Each event's `category` is whatever fits (teaching, reviews, lab...) | `tsk_` |
 | `flavor.yml` | One-line turn-log flavor | none |
 | `opportunities.yml` | "Only this turn" focus choices (section 3.3) | `opp_` |
 | `side.yml` | Side activities for an evening or a weekend (section 3.4) | `side_` |

@@ -122,3 +122,179 @@
     - label: "Just enjoy it"
       text: "You screenshot the sentence that says \"standard benchmark\". Then you screenshot it again."
       effects: { sanity: "+8±3", citations: "+5±2" }
+
+# ---------------------------------------------------------------------------
+# Ideas accepted 2026-10-16. The released-dataset events below use the same
+# gate as dat_standard_benchmark: careful dataset work (dat_guidelines_solid
+# or dat_gold_standard) plus an accepted first-author paper.
+# ---------------------------------------------------------------------------
+
+- id: dat_worse_than_chance
+  title: "Worse Than Coin Flips"
+  category: data
+  when:
+    project: { type: dataset, stage: [guidelines, annotation] }
+  text:
+    - "Agreement is fine on every label except \"sarcastic\", where kappa is -0.08. On that one, your annotators agree less often than if they flipped coins."
+  choices:
+    - label: "Drop the label"
+      text: "Six labels instead of seven. Cleaner data, and one less argument at lab meeting."
+      effects: { sanity: "+2±1", project.quality.S: "+3±1", project.quality.N: "-3±1" }
+    - label: "Redefine it, with examples"
+      text: "Twelve examples and one decision rule. Agreement climbs to 0.52, which in sarcasm counts as a party."
+      effects: { energy: "-4±2", sanity: "-2±1", project.delay: 1, project.quality.S: "+5±2" }
+      flag_set: [dat_guidelines_solid]
+    - label: "Study the disagreement itself"
+      check: { stat: taste, vs: 55, spread: 20 }
+      success:
+        text: "The annotators disagree in patterns, by background. The label is subjective, and now you can show it."
+        effects: { days: -1, taste: "+2±1", project.quality.N: "+6±2" }
+      failure:
+        text: "The disagreement has no pattern at all. Some things are just noise."
+        effects: { days: -1, sanity: "-3±1" }
+
+- id: dat_crowd_shortcut
+  title: "The Shortcut"
+  category: data
+  when:
+    project: { type: dataset, stage: [annotation, baselines] }
+  text:
+    - "Your crowdworkers found a shortcut: almost every \"false\" statement they wrote contains the word \"not\". A model that only looks for \"not\" scores {roll:84-92}%."
+  choices:
+    - label: "Filter out the easy examples"
+      text: "You remove everything the shortcut can solve. The dataset shrinks by a third and gets much harder."
+      effects: { sanity: "-2±1", project.progress: "-5±2", project.quality.S: "+6±2", project.quality.N: "+2±1" }
+    - label: "Re-collect with new instructions"
+      text: "\"Please avoid the word not.\" Round two uses \"never\" instead. It's better, slowly."
+      effects: { energy: "-2±1", sanity: "-3±1", project.delay: 2, project.quality.S: "+4±2" }
+    - label: "Publish the shortcut as analysis"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success:
+        text: "A section on how the shortcut happened, and how to avoid it. A reviewer calls it \"refreshingly honest\"."
+        effects: { writing: "+2±1", project.quality.S: "+3±1", project.quality.N: "+3±1" }
+      failure:
+        text: "It reads as \"the dataset is broken\". Honestly, it reads that way to you too."
+        effects: { sanity: "-4±2", project.quality.N: "-3±1" }
+
+- id: dat_annotator_email
+  title: "Three Pages, Numbered"
+  category: data
+  when:
+    project: { type: dataset, stage: [guidelines, annotation] }
+  text:
+    - "An annotator sends you a three-page email, with numbered sections, about the ambiguities in your guidelines. You read it twice. They're right about all of it."
+  choices:
+    - label: "Rewrite the guidelines with their notes"
+      text: "The new version owes everything to that email. Agreement jumps, and they get a line in the acknowledgments."
+      effects: { energy: "-4±2", sanity: "-2±1", project.delay: 1, project.quality.S: "+6±2" }
+      flag_set: [dat_guidelines_solid]
+      tip: "Critique-Centric Feedback"
+    - label: "Invite them to co-design the guidelines"
+      check: { stat: network, vs: 45, spread: 20 }
+      success:
+        text: "They say yes, and they're brilliant. You gain a collaborator who reads more carefully than you do."
+        effects: { days: -1, network: "+3±1", project.quality.S: "+5±2" }
+        flag_set: [dat_guidelines_solid]
+      failure:
+        text: "They're flattered but busy. You do get a fourth page, though."
+        effects: { sanity: "-1", project.quality.S: "+2±1" }
+    - label: "Fix only the top three issues"
+      text: "The worst ambiguities are gone. The email stays starred in your inbox, quietly judging you."
+      effects: { energy: "-1", project.quality.S: "+3±1" }
+
+- id: dat_dataset_outcites
+  title: "The Data Wins"
+  category: data
+  rarity: rare
+  when:
+    year: [3, 8]
+    flags_any: [dat_guidelines_solid, dat_gold_standard]
+    telemetry: { first_author_pubs: ">=2" }
+  text:
+    - "Your citation page tells an honest story: your dataset paper has {roll:3-6} times the citations of your method paper. People love your data. Your method, less so."
+  choices:
+    - label: "Lean in: plan the next dataset"
+      text: "If the field wants data, you'll give it data. You sketch version 2 on the bus home."
+      effects: { energy: "-2±1", taste: "+2±1", citations: "+3±2" }
+    - label: "Give the method paper a push"
+      text: "A thread, a talk and a demo. The method paper gets a small bump, and you get a small headache."
+      effects: { energy: "-4±2", sanity: "-1", presenting: "+1", network: "+2±1", citations: "+3±2" }
+    - label: "Be happy either way"
+      text: "A citation is a citation. You update your CV and buy a fancy coffee."
+      effects: { sanity: "+5±2", energy: "+2±1" }
+
+- id: dat_biglab_no_cite
+  title: "Table 7"
+  category: data
+  rarity: uncommon
+  hook: model_release
+  when:
+    year: [2, 8]
+    flags_any: [dat_guidelines_solid, dat_gold_standard]
+    paper: { status: accepted, first_author: true }
+  text:
+    - "The technical report for {model} uses your dataset, by name, in Table 7. Your paper is not in the references. The report has 400 authors and room for 1,200 citations."
+  choices:
+    - label: "Email the report's authors"
+      check: { stat: network, vs: 50, spread: 20 }
+      success:
+        text: "A reply within a day: \"Our mistake, fixed in v2.\" Version 2 cites you, and so do the people who read it."
+        effects: { sanity: "+3±1", network: "+2±1", citations: "+6±3" }
+      failure:
+        text: "An auto-reply from a shared inbox. Version 2 comes out, still without you."
+        effects: { sanity: "-4±2" }
+    - label: "Post about it, politely"
+      text: "A short, gracious post with a screenshot. It travels far, and a lot of people learn your dataset's name."
+      effects: { energy: "-2±1", sanity: "-2±1", network: "+2±1", citations: "+4±2" }
+    - label: "Let it go"
+      text: "Your dataset is in a famous report. That's a kind of citation, if you squint."
+      effects: { sanity: "+3±1" }
+
+- id: dat_github_issue
+  title: "Issue: Mislabeled"
+  category: data
+  repeatable: true
+  cooldown: 20
+  when:
+    flags_any: [dat_guidelines_solid, dat_gold_standard]
+    paper: { status: accepted, first_author: true }
+  text:
+    - "A new GitHub issue on your dataset's repo: \"Example 3,412 is mislabeled.\" It has a screenshot, a polite explanation and {roll:6-15} thumbs-up."
+  choices:
+    - label: "Fix it and release v1.1"
+      text: "A fix, a changelog and a thank-you to whoever reported it. Your dataset looks more trustworthy, not less."
+      effects: { energy: "-3±1", sanity: "-1", network: "+1", citations: "+2±1" }
+    - label: "Audit the whole label"
+      text: "You find 40 more. Version 1.1 becomes version 2, and a careful one."
+      effects: { energy: "-7±2", days: -2, health: "-1", sanity: "-2±1", knowledge: "+2±1", citations: "+4±2" }
+    - label: "Reply \"Thanks, will fix soon\""
+      text: "True, technically. The issue gains three more thumbs-up while you get around to it."
+      effects: { sanity: "+2±1", network: "-1" }
+
+- id: dat_license_rebuild
+  title: "No Redistribution"
+  category: data
+  when:
+    project: { type: dataset, stage: [guidelines, annotation, baselines] }
+  text:
+    - "A careful read of your source data's license, rather late: no redistribution. Your dataset, built on top of it, can't be released as it is."
+  choices:
+    - label: "Rebuild it from open sources"
+      text: "Weeks of re-collecting and re-annotating. The new dataset is fully releasable, and slightly better."
+      effects: { energy: "-6±2", health: "-2±1", sanity: "-4±2", project.progress: "-10±3", project.quality.S: "+3±1" }
+    - label: "Release a script that rebuilds it"
+      check: { stat: coding, vs: 55, spread: 20 }
+      success:
+        text: "Users download the source themselves and your script does the rest. Legal, clever and slightly fragile."
+        effects: { coding: "+3±1", project.quality.S: "+2±1" }
+      failure:
+        text: "The script works on your machine. The first three issues on your repo say it doesn't work on theirs."
+        effects: { sanity: "-3±1", coding: "+2±1", project.quality.S: "-2±1" }
+    - label: "Ask the source for permission"
+      check: { stat: network, vs: 50, spread: 20 }
+      success:
+        text: "The maintainers say yes in a day, delighted that anyone read the license. You frame the email."
+        effects: { sanity: "+5±2", network: "+2±1" }
+      failure:
+        text: "Their lawyer replies six weeks later: no."
+        effects: { sanity: "-4±2", project.delay: 1 }

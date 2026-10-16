@@ -467,3 +467,108 @@
     - label: "Ask for until next Wednesday"
       text: "\"Sure, Wednesday works.\" You could have just asked all along."
       effects: { sanity: "-1", advisor_rel: "-1" }
+
+# ---------------------------------------------------------------------------
+# Arc: advisor_offer. Another university makes your advisor an offer, and they ask
+# whether you'd move with them. Start -> counteroffer -> (they stay | you move
+# with them | they advise you from afar). Every path ends, and the advisor stays
+# your advisor throughout.
+
+- id: adv_offer_start
+  title: "Would You Come With Me?"
+  category: advisor
+  rarity: uncommon
+  arc: advisor_offer
+  when: { has_advisor: true, year: [2, 5], advisor_not: [near_retirement] }
+  text:
+    - "{advisor} closes the office door. Another university has made them an offer, a big one. \"Nothing is decided. But if I go, would you come with me?\""
+  choices:
+    - label: "Say you'd come with them"
+      text: "{advisor} looks relieved. That night you look up rents in a city you've never visited."
+      effects: { sanity: "-3±1", advisor_rel: "+4±1" }
+      flag_set: [adv_offer_follow]
+      schedule: { event: adv_offer_decision, in: [3, 5], chance: 1.0 }
+    - label: "Say you'd rather stay here"
+      text: "\"That's fair. We'd make it work either way.\" You tell your roommate you're not going anywhere."
+      effects: { sanity: "-1", advisor_rel: "-1", friends_rel: "+2±1" }
+      schedule: { event: adv_offer_decision, in: [3, 5], chance: 1.0 }
+    - label: "Ask for a few weeks to think"
+      text: "\"Of course.\" You think about it in the shower, on the bus, and through two entire seminars."
+      effects: { sanity: "-3±1", advisor_rel: "+1" }
+      schedule: { event: adv_offer_decision, in: [3, 5], chance: 1.0 }
+
+- id: adv_offer_decision
+  title: "The Counteroffer"
+  category: advisor
+  trigger: scheduled
+  arc: advisor_offer
+  when: { has_advisor: true }
+  text:
+    - "The department makes {advisor} a counteroffer. For two weeks the lab reads every closed door like tea leaves. Then {advisor} asks what you honestly think."
+  choices:
+    - label: "Tell them to take the offer"
+      text: "\"Thank you. That helps more than you know.\" They accept the new job the next morning."
+      effects: { sanity: "-2±1", advisor_rel: "+4±1" }
+      schedule:
+        - { event: adv_offer_move, in: [3, 5], chance: 1.0 }
+        - { event: adv_offer_remote, in: [3, 5], chance: 1.0 }
+    - label: "Say you hope they stay"
+      check: { stat: advisor_rel, vs: 55, spread: 15 }
+      success:
+        text: "They stay. The counteroffer comes with a bigger lab, and they say your answer tipped it."
+        effects: { sanity: "+6±2", advisor_rel: "+2±1" }
+        flag_clear: [adv_offer_follow]
+      failure:
+        text: "\"I hear you. I still think I have to go.\" They take the offer, and promise you won't be left behind."
+        effects: { sanity: "-4±1" }
+        schedule:
+          - { event: adv_offer_move, in: [3, 5], chance: 1.0 }
+          - { event: adv_offer_remote, in: [3, 5], chance: 1.0 }
+
+# Exactly one of the next two fires: the flag decides which.
+- id: adv_offer_move
+  title: "Moving Week"
+  category: advisor
+  trigger: scheduled
+  arc: advisor_offer
+  when: { has_advisor: true, flags_all: [adv_offer_follow] }
+  text:
+    - "Moving week. You follow {advisor} to their new university: a new badge, a new cluster login, and an empty lab that echoes."
+  choices:
+    - label: "Set up the new lab yourself"
+      text: "Every machine labeled, every login working. {advisor} introduces you as the lab's co-founder."
+      effects: { days: -3, energy: "-5±2", health: "-2±1", coding: "+3±1", advisor_rel: "+5±2" }
+      flag_clear: [adv_offer_follow]
+    - label: "Meet the new department"
+      text: "Twelve coffees in five days. You now know who has the good GPUs, and who has the good snacks."
+      effects: { days: -2, sanity: "-2±1", network: "+5±2" }
+      flag_clear: [adv_offer_follow]
+    - label: "Live out of boxes and keep working"
+      text: "Your desk is a box, and so is your chair. Your experiments never notice the move. Your back does."
+      effects: { sanity: "-3±1", health: "-3±1" }
+      flag_clear: [adv_offer_follow]
+
+- id: adv_offer_remote
+  title: "Advising From Afar"
+  category: advisor
+  trigger: scheduled
+  arc: advisor_offer
+  when: { has_advisor: true, flags_none: [adv_offer_follow] }
+  text:
+    - "{advisor} moves to their new university, and you stay. Your meetings are on video now, and a professor down the hall agrees to sign your forms."
+  choices:
+    - label: "Set a fixed weekly video call"
+      text: "Thursdays at 10, cameras on, agenda sent the night before. It works better than the hallway chats ever did."
+      effects: { days_next: -1, writing: "+1", advisor_rel: "+4±1" }
+    - label: "Ask the local professor to co-advise"
+      check: { stat: network, vs: 45, spread: 15 }
+      success:
+        text: "They say yes. Two advisors means two opinions, twice the comments, and a real safety net."
+        effects: { sanity: "+3±1", knowledge: "+2±1", network: "+3±1" }
+        flag_set: [has_coadvisor]
+      failure:
+        text: "They're happy to sign forms, and only forms. You'll make the video calls work."
+        effects: { sanity: "-2±1" }
+    - label: "Enjoy the quiet"
+      text: "Nobody drops by your desk unannounced anymore. You get a lot done, and you and {advisor} drift a little."
+      effects: { sanity: "+3±1", advisor_rel: "-3±1" }

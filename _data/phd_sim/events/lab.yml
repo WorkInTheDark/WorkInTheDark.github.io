@@ -351,3 +351,281 @@
     - label: "Point them to the README"
       text: "The README was last updated in 2021. They figure it out, eventually, and remember who pointed."
       effects: { labmates_rel: "-2±1" }
+
+# More lab and labmate events (event-ideas.md section H, accepted 2026-10-16).
+
+- id: lab_helpful_discussions
+  title: "Helpful Discussions"
+  category: lab
+  rarity: common
+  when: { project: { stage: [writing, revise] } }
+  text:
+    - "{labmate} asks to be an author on {project}. Their contribution, in their words: \"helpful discussions\". You remember one discussion. It was about lunch."
+  choices:
+    - label: "Add them anyway"
+      text: "Their name goes on near the end. To earn it, they proofread the whole paper, carefully."
+      effects: { sanity: "-2±1", labmates_rel: "+4±1", project.quality.C: "+2±1" }
+    - label: "Offer an acknowledgment instead"
+      check: { stat: labmates_rel, vs: 50, spread: 15 }
+      success:
+        text: "\"Totally fair.\" They seem relieved, honestly. The acknowledgment is warm and specific."
+        effects: { sanity: "+2±1", labmates_rel: "+1" }
+      failure:
+        text: "\"Sure. No problem.\" Lab lunch is a little quiet this week."
+        effects: { sanity: "-2±1", labmates_rel: "-4±1" }
+    - label: "Give them a real task to earn it"
+      text: "They run the error analysis you'd been avoiding. Now it's a real authorship, and a better paper."
+      effects: { days: -1, project.quality.S: "+4±2", labmates_rel: "+2±1" }
+
+# ---------------------------------------------------------------------------
+# Arc: author_order. Two co-authors on your paper both want to be second author.
+# Start -> contribution lists -> (sometimes) the favor returned. Every path ends.
+# Later steps say "your co-authors" because {labmate} is bound per event.
+
+- id: lab_author_order_start
+  title: "Second-Author Standoff"
+  category: lab
+  rarity: uncommon
+  arc: author_order
+  when: { year: [2, 7], project: { stage: [writing, revise] } }
+  text:
+    - "{labmate} and {labmate2} both worked on {project}, and both expect to be second author. The author line in the draft has changed eleven times today. You haven't touched it once."
+  choices:
+    - label: "Ask each for a contribution list"
+      text: "Two lists are due Friday. By Wednesday, both are color-coded."
+      effects: { sanity: "-2±1" }
+      flag_set: [author_feud]
+      schedule: { event: lab_author_order_lists, in: [1, 2], chance: 1.0 }
+    - label: "Go alphabetical and move on"
+      check: { stat: labmates_rel, vs: 50, spread: 15 }
+      success:
+        text: "Alphabetical it is. Both grumble, equally, which is the point."
+        effects: { sanity: "+2±1", labmates_rel: "-1" }
+      failure:
+        text: "The one who comes second in the alphabet has opinions about the alphabet."
+        effects: { sanity: "-3±1", labmates_rel: "-3±1" }
+        flag_set: [author_feud]
+        schedule: { event: lab_author_order_lists, in: [1, 2], chance: 1.0 }
+    - label: "Ask {advisor} to rule on it"
+      requires: { has_advisor: true }
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "{advisor} settles it in one sentence and thanks both of them in the same breath. Done."
+        effects: { sanity: "+3±1", labmates_rel: "-1", advisor_rel: "+1" }
+      failure:
+        text: "{advisor} says it's your paper, so it's your call. A compliment, and a problem."
+        effects: { sanity: "-2±1" }
+        flag_set: [author_feud]
+        schedule: { event: lab_author_order_lists, in: [1, 2], chance: 1.0 }
+
+- id: lab_author_order_lists
+  title: "140 Percent"
+  category: lab
+  trigger: scheduled
+  arc: author_order
+  when: { flags_all: [author_feud] }
+  text:
+    - "Both contribution lists arrive. Added together, your two co-authors did 140% of the work on your paper. Both lists include \"moral support\"."
+  choices:
+    - label: "Make them equal, with a footnote"
+      text: "A day of diplomacy later, both get a small dagger and a footnote. Both CVs say \"co-second author\" by evening."
+      effects: { days: -1, sanity: "+2±1", labmates_rel: "+3±1" }
+      flag_clear: [author_feud]
+    - label: "Go by who ran the experiments"
+      text: "You decide. One is thrilled. The other is gracious in public and very quiet at lunch."
+      effects: { sanity: "-1", labmates_rel: "-3±1" }
+      flag_clear: [author_feud]
+      flag_set: [author_owed]
+      schedule: { event: lab_author_order_favor, in: [6, 10], chance: 1.0 }
+    - label: "Settle it at board game night"
+      check: { stat: labmates_rel, vs: 45, spread: 15 }
+      success:
+        text: "Four hours of a strategy game. The winner gets second author; the loser gets to name the next lab snack."
+        effects: { energy: "-2±1", sanity: "+4±1", labmates_rel: "+4±1" }
+        flag_clear: [author_feud]
+      failure:
+        text: "The game ends in a dispute about the rules. You go alphabetical, out of sheer exhaustion."
+        effects: { energy: "-2±1", sanity: "-3±1", labmates_rel: "-2±1" }
+        flag_clear: [author_feud]
+
+- id: lab_author_order_favor
+  title: "The Favor Returned"
+  category: lab
+  trigger: scheduled
+  arc: author_order
+  when: { flags_all: [author_owed] }
+  text:
+    - "The co-author who ended up third on your paper starts a new project and asks you to join. \"You owe me a second-author slot,\" they say, smiling. Mostly smiling."
+  choices:
+    - label: "Join and do real work"
+      text: "You run their baselines and fix their plots. By the end, the second-author slot is earned twice over."
+      effects: { days_next: -2, sanity: "-2±1", coding: "+2±1", labmates_rel: "+5±1" }
+      flag_clear: [author_owed]
+    - label: "Offer a careful proofread instead"
+      text: "Your comments are sharp and kind. They call it even, and it mostly is."
+      effects: { writing: "+2±1", labmates_rel: "+2±1" }
+      flag_clear: [author_owed]
+
+# ---------------------------------------------------------------------------
+
+- id: lab_viral_acceptance
+  title: "2,000 Likes"
+  category: lab
+  rarity: uncommon
+  hook: after_reject
+  text:
+    - "{paper} was rejected from {venue} this morning. By lunch, {labmate}'s acceptance post has 2,000 likes, and the lab chat is nothing but party emojis."
+  choices:
+    - label: "Congratulate them, sincerely"
+      text: "You mean it, mostly. Later {labmate} messages you: \"Yours is next. I read it. It's good.\""
+      effects: { sanity: "-2±1", labmates_rel: "+4±1" }
+    - label: "Log off for a week"
+      text: "A quiet week offline. You come back to 2,400 likes and a much calmer head."
+      effects: { sanity: "+4±1", network: "-1", labmates_rel: "-1" }
+    - label: "Ask {labmate} to read your reviews"
+      check: { stat: labmates_rel, vs: 50, spread: 15 }
+      success:
+        text: "They spot the two fixes that matter. It turns out their paper was rejected twice before this."
+        effects: { sanity: "+3±1", taste: "+2±1", labmates_rel: "+2±1" }
+      failure:
+        text: "They're swamped with messages from strangers. You understand. You do."
+        effects: { sanity: "-3±1" }
+
+- id: lab_meeting_overtime
+  title: "Minute 100"
+  category: lab
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when: { has_advisor: true, semester: [fall, spring] }
+  text:
+    - "Lab meeting was booked for an hour. It's now minute 100. The agenda had one item, and nobody can remember what it was."
+    - "Lab meeting is in its second hour. The discussion has drifted from your results to whether a hot dog is a sandwich, and {advisor} has strong views."
+  choices:
+    - label: "Stay to the end"
+      text: "It ends with a decision nobody will remember. But you were there for it, and so was everyone."
+      effects: { energy: "-3±1", labmates_rel: "+2±1" }
+    - label: "Slip out quietly"
+      text: "You get an hour of real work done. Later you learn you were volunteered for something while you were gone."
+      effects: { energy: "+2±1", sanity: "-2±1", labmates_rel: "-1" }
+    - label: "Propose a hard stop"
+      check: { stat: presenting, vs: 50, spread: 15 }
+      success:
+        text: "Everyone agrees at once. Next week ends on time, and someone brings a kitchen timer."
+        effects: { sanity: "+3±1", labmates_rel: "+3±1" }
+      failure:
+        text: "The discussion about having a hard stop runs another 20 minutes."
+        effects: { energy: "-2±1", sanity: "-2±1" }
+
+- id: lab_startup_departure
+  title: "Come With Me?"
+  category: lab
+  rarity: uncommon
+  when: { year: [2, 6] }
+  text:
+    - "{labmate} is leaving the PhD to join a startup. Their farewell message ends: \"We're hiring, by the way. Come with me?\" Their desk plant also needs a new home."
+  choices:
+    - label: "Say \"Ask me again after I graduate\""
+      text: "\"Deal. I'll hold you to it.\" They actually write it down."
+      effects: { labmates_rel: "+2±1", network: "+2±1" }
+      flag_set: [labmate_startup_offer]
+    - label: "Interview for a summer role there"
+      text: "Three hours of interviews and a take-home task. They like you, and you learn what industry interviews feel like."
+      effects: { days: -1, sanity: "-3±1", coding: "+2±1", career_prep: "+3±1" }
+    - label: "Adopt the plant"
+      text: "The plant thrives on your desk. {labmate} asks for a photo of it every month."
+      effects: { sanity: "+4±1", labmates_rel: "+2±1" }
+
+- id: lab_gpu_borrow
+  title: "Just for an Hour"
+  category: lab
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when: { project: { type: [empirical, system, dataset], stage_kind: work } }
+  text:
+    - "{labmate} asks to borrow your GPU reservation \"just for an hour\". That was Tuesday. It is now Thursday."
+  choices:
+    - label: "Ask for it back, nicely"
+      check: { stat: labmates_rel, vs: 45, spread: 15 }
+      success:
+        text: "It's back in ten minutes, with an apology and a cookie."
+        effects: { sanity: "+1", project.progress: "+3±1" }
+      failure:
+        text: "\"Just one more hour?\" Your run starts on Saturday."
+        effects: { sanity: "-3±1", project.progress: "-4±2" }
+    - label: "Let them finish"
+      text: "Their paper makes the deadline. The acknowledgments thank you for \"heroic GPU generosity\"."
+      effects: { project.progress: "-5±2", labmates_rel: "+5±1" }
+    - label: "Learn the booking system's secrets"
+      text: "You find an overflow queue nobody uses. Your run starts tonight, and now everyone asks you about it."
+      effects: { days: -1, coding: "+2±1", labmates_rel: "+2±1" }
+
+- id: lab_potluck
+  title: "The Only Empty Dish"
+  category: lab
+  rarity: common
+  when: { semester: [fall, spring] }
+  text:
+    - "Lab potluck: eleven dishes. By 9 pm, yours is the only one scraped clean, and three people have asked for the recipe."
+  choices:
+    - label: "Share the recipe with everyone"
+      text: "At the next potluck there are four versions of your dish. Yours is still the best, quietly."
+      effects: { sanity: "+2±1", labmates_rel: "+4±1" }
+    - label: "Keep it a family secret"
+      text: "The mystery does wonders for your reputation. Friends start inviting you to dinners, hopefully."
+      effects: { sanity: "+3±1", friends_rel: "+2±1", labmates_rel: "+1" }
+    - label: "Volunteer to cook next time too"
+      text: "Next time you cook for fourteen. It takes a whole Saturday, and everyone loves you a little more."
+      effects: { days_next: -1, energy: "-3±1", sanity: "+2±1", labmates_rel: "+6±2" }
+    - label: "Admit it took two days"
+      requires: { traits_any: [foodie] }
+      tag: "Foodie"
+      text: "Two days, three markets, one secret ingredient. The lab looks at you with new respect."
+      effects: { sanity: "+5±1", labmates_rel: "+4±1" }
+
+- id: lab_template_breaks
+  title: "Nothing Compiles"
+  category: lab
+  rarity: common
+  when: { project: { stage: [writing, revise] } }
+  text:
+    - "Someone updated one package in the lab's shared paper template. Now nobody's paper compiles, and three labmates have deadlines next week."
+  choices:
+    - label: "Fix it for everyone"
+      check: { stat: coding, vs: 55, spread: 15 }
+      success:
+        text: "You find the one-line culprit in an hour. You are a hero in the lab chat for a whole day."
+        effects: { days: -1, coding: "+3±1", labmates_rel: "+5±1" }
+      failure:
+        text: "You fix it for yourself. Everyone else now gets a different error."
+        effects: { days: -2, sanity: "-3±1", coding: "+1", labmates_rel: "+1" }
+    - label: "Roll back to last month's copy"
+      text: "Your paper compiles again, minus this month's fixes. Two figures land on the wrong page, and you leave them."
+      effects: { sanity: "+1", project.quality.C: "-3±1", labmates_rel: "-1" }
+    - label: "Wait for {senior} to fix it"
+      text: "{senior} fixes it at 1 am and posts \"DO NOT TOUCH THE TEMPLATE\" in every channel."
+      effects: { project.progress: "-4±1", sanity: "-2±1", labmates_rel: "+1" }
+
+- id: lab_defense_clicker
+  title: "Holding the Clicker"
+  category: lab
+  rarity: uncommon
+  when: { year: [1, 6], status_none: [defense_prep] }
+  text:
+    - "At {senior}'s defense, you're in charge of the clicker, the backup laptop, and the bag of adapters. {senior} is nervous. Now you're nervous too."
+  choices:
+    - label: "Rehearse the handoff the night before"
+      text: "Every slide on cue, every adapter tested. {senior} thanks you on the acknowledgments slide."
+      effects: { energy: "-3±1", presenting: "+2±1", labmates_rel: "+4±1" }
+    - label: "Wing it"
+      check: { stat: presenting, vs: 50, spread: 15 }
+      success:
+        text: "Flawless. Nobody notices you at all, which is exactly the job."
+        effects: { sanity: "+2±1", labmates_rel: "+2±1" }
+      failure:
+        text: "You skip slide 31. {senior} improvises beautifully. Neither of you will ever mention it."
+        effects: { sanity: "-4±1", labmates_rel: "-2±1" }
+    - label: "Note every question between clicks"
+      text: "Your notes become {senior}'s revision list, and the start of your own defense prep."
+      effects: { energy: "-1", knowledge: "+3±1", labmates_rel: "+2±1" }

@@ -339,3 +339,200 @@
     - label: "Decline, but offer to advise"
       text: "You'll review their model evaluations for free. {labmate} is a little disappointed, but grateful."
       effects: { network: "+3±1", labmates_rel: "+1", days_next: -1 }
+
+# ---------------------------------------------------------------------------
+# Round 5 additions
+# ---------------------------------------------------------------------------
+
+- id: car_internship_compute
+  title: "A Starter Allocation"
+  category: career
+  rarity: common
+  hook: internship
+  when:
+    turn: [20, 22]
+  text:
+    - "On day one at {company}, you get a GPU quota bigger than everything your lab has used in five years. The onboarding doc calls it \"a starter allocation\"."
+  choices:
+    - label: "Run every ablation you ever dreamed of"
+      text: "Two hundred runs by Friday. You learn more about scaling in a week than in two years of queueing."
+      effects: { coding: "+3±1", knowledge: "+2±1", energy: "-5±2" }
+    - label: "Plan runs as if GPUs were scarce"
+      text: "Old habits. Your mentor is impressed by how little you waste, and slightly confused by it."
+      effects: { taste: "+2±1", network: "+2±1" }
+    - label: "Send the lab a screenshot"
+      text: "The lab chat goes quiet for a long minute. Then {labmate} replies with one crying emoji."
+      effects: { sanity: "+3±1", labmates_rel: "-1" }
+
+- id: car_legal_review
+  title: "Pending Legal Review"
+  category: career
+  rarity: uncommon
+  hook: internship
+  when:
+    turn: [23, 25]
+  text:
+    - "Your internship paper at {company} is written, polished and blocked. Legal review flagged \"possible product implications\", and the next review slot is in eleven weeks."
+  choices:
+    - label: "Cut anything that sounds like a product"
+      text: "Every product name becomes \"a deployed system\". Legal approves a thinner, vaguer paper, and it's out."
+      effects: { writing: "+2±1", career_prep: "+1", sanity: "-2±1", days: -1 }
+    - label: "Ask your manager to escalate"
+      check: { stat: network, vs: 55, spread: 15 }
+      success:
+        text: "Your manager knows someone in legal. The paper clears in a week, untouched."
+        effects: { network: "+3±1", career_prep: "+2", sanity: "+4±1" }
+      failure:
+        text: "The escalation lands in the same queue, one slot lower."
+        effects: { sanity: "-4±1" }
+    - label: "Let it wait and enjoy the summer"
+      text: "The paper goes into a folder called \"someday\". Your weekends come back for the rest of the internship."
+      effects: { energy: "+4±1", sanity: "+2±1" }
+
+- id: car_return_offer_proposal
+  title: "Perfect Timing"
+  category: career
+  rarity: uncommon
+  when:
+    status_any: [proposal_prep]
+    flags_all: [interned]
+    flags_none: [return_offer]
+  text:
+    - "Days before your proposal, the company you interned at emails a full-time offer, with a deadline. Your slides are 60% done. The salary section is 100% done."
+  choices:
+    - label: "Ask them to wait until after"
+      check: { stat: presenting, vs: 50, spread: 15 }
+      success:
+        text: "They give you a month. You go back to slide 23 calmer than you expected."
+        effects: { sanity: "+3±1", network: "+1" }
+        flag_set: [return_offer]
+      failure:
+        text: "\"We can do one week.\" Two big decisions now share the same week."
+        effects: { sanity: "-4±1" }
+        flag_set: [return_offer]
+    - label: "Tell {advisor} about it"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "{advisor} says congratulations, then \"slides first\". You keep the offer and your focus."
+        effects: { advisor_rel: "+2±1", sanity: "+2±1" }
+        flag_set: [return_offer]
+      failure:
+        text: "{advisor} goes quiet, then asks how the slides are going. They seem a little worried."
+        effects: { advisor_rel: "-2±1", sanity: "-3±1" }
+        flag_set: [return_offer]
+    - label: "Decline: you're finishing the PhD"
+      text: "You say not yet. They say the door stays open, which might even be true. The slides get your full attention."
+      effects: { sanity: "+4±1", presenting: "+1" }
+
+- id: car_fellowship_vs_deadline
+  title: "Two Things Due Friday"
+  category: career
+  rarity: uncommon
+  when:
+    year: [1, 3]
+    turn: [3, 7]
+    flags_none: [fellowship_won]
+    project: { turns_to_deadline: "<=1" }
+  text:
+    - "A university fellowship wants a two-page research statement by Friday. Friday is also the deadline for {project}. Both want your best writing, and you have enough for one."
+  choices:
+    - label: "Statement first, paper second"
+      check: { stat: writing, vs: 55, spread: 15 }
+      success:
+        text: "The statement is the clearest thing you've written all year. A month later: you got it. A small award, and a line on your CV."
+        effects: { career_prep: "+2", sanity: "+4±1", project.progress: "-5±2" }
+      failure:
+        text: "A good statement, a rushed paper, and a month later, a polite no from the fellowship."
+        effects: { project.progress: "-5±2", sanity: "-4±1", writing: "+1" }
+    - label: "Paper first, statement overnight"
+      text: "The paper goes in strong. The statement, written at 3 am, says \"robust\" seven times. No award."
+      effects: { project.progress: "+3±1", energy: "-6±2", health: "-2±1", sanity: "-2±1" }
+    - label: "Skip the fellowship this year"
+      text: "One deadline instead of two. There will be another fellowship. There is always another fellowship."
+      effects: { project.progress: "+5±2", sanity: "+2±1" }
+
+- id: car_recruiter_wrong_field
+  title: "Perfect for Your Background"
+  category: career
+  rarity: common
+  when:
+    year: [2, 7]
+    has_advisor: true
+  text:
+    - "A recruiter writes: \"Your background in transformers is a perfect fit!\" The role maintains electrical transformers for a power company. The pay is honestly not bad."
+    - "A recruiter says your NLP experience is perfect for their role. They mean Neuro-Linguistic Programming, as a life coach. There is a webinar."
+  choices:
+    - label: "Take the call, just to see"
+      text: "Twenty minutes of friendly confusion. You learn something about a whole other field, and so do they."
+      effects: { network: "+2±1", knowledge: "+1", energy: "-2±1" }
+    - label: "Reply with a polite correction"
+      check: { stat: writing, vs: 45, spread: 15 }
+      success:
+        text: "They thank you and pass your profile to a colleague who hires for actual machine learning roles."
+        effects: { career_prep: "+2", network: "+1" }
+      failure:
+        text: "They reply: \"Even better! Are you free Tuesday?\""
+        effects: { sanity: "-2±1" }
+    - label: "Forward it to the lab chat"
+      text: "The lab chat loses it. {labmate} makes it the channel topic for a month."
+      effects: { labmates_rel: "+3±1", sanity: "+3±1" }
+
+- id: car_job_talk_pet_topic
+  title: "The Pet Topic"
+  category: career
+  rarity: common
+  hook: job_market
+  when:
+    turn: [8, 16]
+  text:
+    - "Your job talk lands. Then one professor asks how it connects to their favorite topic, and the next twenty minutes of Q&A are about that topic. Other hands slowly go down."
+  choices:
+    - label: "Engage with their topic seriously"
+      check: { stat: knowledge, vs: 55, spread: 15 }
+      success:
+        text: "You find a real link. The professor beams, and you now have one very loud supporter in the hiring meeting."
+        effects: { career_prep: "+2", network: "+3±1", sanity: "+2±1" }
+      failure:
+        text: "You improvise a connection. They correct it, for ten minutes, with diagrams."
+        effects: { sanity: "-4±1", knowledge: "+1" }
+    - label: "\"Great point, let's talk at dinner\""
+      check: { stat: presenting, vs: 55, spread: 15 }
+      success:
+        text: "Three more people get to ask questions. The search chair notices how you handled the room."
+        effects: { presenting: "+2±1", career_prep: "+2" }
+      failure:
+        text: "They follow up anyway. Two hands stay down for good."
+        effects: { sanity: "-3±1", career_prep: "+1" }
+    - label: "Promise to read their paper"
+      text: "They email you the PDF before you leave the room. You read it at the hotel. At dinner, they ask what you thought."
+      effects: { network: "+3±1", knowledge: "+1", energy: "-3±1" }
+
+- id: car_thesis_interview
+  title: "That's My Thesis"
+  category: career
+  rarity: uncommon
+  hook: job_market
+  when:
+    turn: [3, 16]
+  text:
+    - "An industry interviewer asks: \"How would you evaluate our AI features with real users?\" You have spent five years on exactly this question. You have four minutes."
+  choices:
+    - label: "Give the four-minute version"
+      check: { stat: presenting, vs: 50, spread: 15 }
+      success:
+        text: "Clear, concrete and on time. The interviewer stops taking notes and starts nodding."
+        effects: { career_prep: "+3", presenting: "+1", sanity: "+3±1" }
+      failure:
+        text: "You reach minute four of a forty-minute answer. They thank you for the overview."
+        effects: { career_prep: "+1", sanity: "-3±1" }
+    - label: "Ask what their features do first"
+      check: { stat: taste, vs: 50, spread: 15 }
+      success:
+        text: "The question turns into a design session. At the end they ask, \"Can you start in June?\" They're joking. Mostly."
+        effects: { career_prep: "+3", network: "+2±1" }
+      failure:
+        text: "Everything they could tell you is under NDA. You both stare at the question."
+        effects: { sanity: "-2±1" }
+    - label: "Pull up your thesis framework slide"
+      text: "One slide, five years. They ask for a copy for their team, which is either flattering or worrying."
+      effects: { career_prep: "+2", network: "+1" }

@@ -151,6 +151,8 @@ export function applyOutcome(G, out, ctx) {
     if (key.indexOf("project.") === 0) return projectEffect(G, key, raw, ctx, res, hiddenDeltas);
     if (key.indexOf("paper.") === 0) return paperEffect(G, key, raw, ctx, res, hiddenDeltas);
     const n = rollRange(G, raw);
+    // Days lost after the turn's days are spent (deadline and conference events) come out of next turn.
+    if (key === "days" && s.stage === "end_items") { s.dayAdjNext += n; res.visible.push({ stat: "days_next", amount: n }); return; }
     if (key === "days") { s.dayAdj += n; res.visible.push({ stat: "days", amount: n }); return; }
     if (key === "days_next") { s.dayAdjNext += n; res.visible.push({ stat: "days_next", amount: n }); return; }
     if (key === "career_prep") { s.careerPrep += n; return; }

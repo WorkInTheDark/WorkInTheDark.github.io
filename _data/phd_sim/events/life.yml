@@ -501,3 +501,260 @@
       failure:
         text: "Your question was answered on slide 4. You eat a third slice in silence."
         effects: { sanity: "-2±1", energy: "+3±1" }
+
+# --- Round 5 additions ---------------------------------------------------------
+# Arc "half_marathon": lif_running_start -> lif_running_long_run -> lif_running_race.
+# Arc "party": lif_party_kitchen -> lif_party_dinner.
+
+- id: lif_houseplant
+  title: "Still Alive"
+  category: life
+  rarity: uncommon
+  when:
+    year: [2, 2]
+    turn: [1, 4]
+  text:
+    - "The desk plant you bought during orientation has survived a whole year: three deadlines, one heat wave and your idea of a watering schedule."
+  choices:
+    - label: "Repot it into something bigger"
+      text: "New pot, fresh soil. It grows a new leaf the next week, as if it's proud of you too."
+      effects: { sanity: "+4±1", energy: "-1" }
+    - label: "Buy it some friends"
+      text: "Three more plants. The windowsill is a small jungle now, and the lab starts calling your desk the greenhouse."
+      effects: { sanity: "+3±1", labmates_rel: "+2±1", energy: "-2±1" }
+    - label: "Add it to your acknowledgments draft"
+      text: "It goes on the list, between your parents and the GPU cluster."
+      effects: { sanity: "+2±1", writing: "+1" }
+
+- id: lif_running_start
+  title: "Just a Short Run"
+  category: life
+  rarity: uncommon
+  arc: half_marathon
+  when:
+    has_advisor: true
+  text:
+    - "A run to clear your head works better than any meeting this month. {labmate} mentions a half-marathon in three months, with a beginner training plan that is \"very gentle\"."
+  choices:
+    - label: "Sign up for the half-marathon"
+      text: "You pay the entry fee before you can change your mind. The plan says Tuesday is \"easy 5k\"."
+      effects: { health: "+3±1", sanity: "+2±1", energy: "-2±1" }
+      flag_set: [half_marathon]
+      schedule: { event: lif_running_long_run, in: [3, 4], chance: 1.0 }
+    - label: "Run when you feel like it"
+      text: "No race, no plan, just a loop by the river when the week gets loud."
+      effects: { health: "+2±1", sanity: "+2±1" }
+    - label: "One run was plenty"
+      text: "Your shoes go back in the closet. Your legs thank you, and so does your calendar."
+      effects: { energy: "+2±1" }
+
+- id: lif_running_long_run
+  title: "The Long Run"
+  category: life
+  rarity: common
+  trigger: scheduled
+  arc: half_marathon
+  when:
+    flags_all: [half_marathon]
+  text:
+    - "Week six of the training plan says \"long run, 16 km, Sunday morning\". Your legs have opinions about this, and so does your inbox."
+  choices:
+    - label: "Do the long run"
+      text: "Sixteen kilometers. You think through a whole paper on the way and forget it by the shower."
+      effects: { health: "+4±1", sanity: "+3±1", energy: "-4±1" }
+      schedule: { event: lif_running_race, in: [2, 3], chance: 1.0 }
+    - label: "Swap it for two short runs"
+      text: "Less heroic, still on plan, more or less."
+      effects: { health: "+2±1", sanity: "+1" }
+      schedule: { event: lif_running_race, in: [2, 3], chance: 1.0 }
+    - label: "Defer the race to next year"
+      text: "You email the organizers. The training plan goes in a drawer, and your Sundays come back."
+      effects: { energy: "+3±1", sanity: "-1" }
+      flag_clear: [half_marathon]
+
+- id: lif_running_race
+  title: "Race Day"
+  category: life
+  rarity: common
+  trigger: scheduled
+  arc: half_marathon
+  when:
+    flags_all: [half_marathon]
+  text:
+    - "Race day: 21 kilometers and a crowd with handmade signs. At kilometer 15, {labmate} holds one up: \"REVIEWER 2 IS RIGHT BEHIND YOU.\""
+  choices:
+    - label: "Go for a fast time"
+      check: { stat: health, vs: 60, spread: 20 }
+      success:
+        text: "You finish strong and a little teary. The medal goes on your monitor, where visitors can't miss it."
+        effects: { health: "+4±1", sanity: "+8±2", energy: "-4±1" }
+        flag_clear: [half_marathon]
+      failure:
+        text: "You start too fast and walk kilometers 17 to 19. You still finish, and you still get the medal."
+        effects: { sanity: "+3±1", energy: "-7±2" }
+        flag_clear: [half_marathon]
+    - label: "Run easy and enjoy it"
+      text: "You high-five every kid on the course. Slowest time, best day."
+      effects: { health: "+3±1", sanity: "+6±2", energy: "-4±1" }
+      flag_clear: [half_marathon]
+    - label: "Run the last 5 km with {labmate}"
+      text: "{labmate} jumps in at kilometer 16, in jeans. You cross the line together, and the photo goes in the lab chat."
+      effects: { health: "+2±1", sanity: "+5±1", labmates_rel: "+3±1", energy: "-5±1" }
+      flag_clear: [half_marathon]
+
+- id: lif_party_kitchen
+  title: "The Kitchen at the Party"
+  category: life
+  rarity: uncommon
+  arc: party
+  text:
+    - "At a friend's party, you end up talking to someone in the kitchen for an hour. They ask good questions about your research and don't flinch at the word \"PhD\"."
+  choices:
+    - label: "Ask for their number"
+      text: "They type it into your phone themselves, with a dinosaur emoji. You walk home slower than usual."
+      effects: { sanity: "+3±1", friends_rel: "+1" }
+      flag_set: [party_crush]
+      schedule: { event: lif_party_dinner, in: [1, 2], chance: 1.0 }
+    - label: "Keep talking about your research"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "At midnight they're still interested, so you swap numbers on the way out."
+        effects: { sanity: "+3±1", presenting: "+1" }
+        flag_set: [party_crush]
+        schedule: { event: lif_party_dinner, in: [1, 2], chance: 1.0 }
+      failure:
+        text: "Somewhere around inter-annotator agreement, they spot a friend across the room."
+        effects: { sanity: "-2±1" }
+    - label: "Head home early, deadline tomorrow"
+      text: "You say goodbye and go write. The draft gets better. You think about the kitchen conversation all week."
+      effects: { energy: "+2±1", sanity: "-1" }
+
+- id: lif_party_dinner
+  title: "Saturday Dinner?"
+  category: life
+  rarity: common
+  trigger: scheduled
+  arc: party
+  when:
+    flags_all: [party_crush]
+  text:
+    - "The person from the party texts: dinner on Saturday? Saturday is also when you'd planned to finish your related-work section."
+  choices:
+    - label: "Say yes to dinner"
+      text: "Dinner turns into a long walk, then a second date. Related work can wait, and it does."
+      effects: { sanity: "+6±2", days: -1 }
+      status: { add: in_love, turns: 4 }
+      flag_clear: [party_crush]
+    - label: "Suggest coffee on Sunday instead"
+      text: "Coffee turns into lunch. You're taking it slow, and that suits you both."
+      effects: { sanity: "+4±1", friends_rel: "+2±1" }
+      status: { add: in_love, turns: 2 }
+      flag_clear: [party_crush]
+    - label: "Say you're swamped this month"
+      text: "They say \"good luck with it\" and mean it. You finish related work on Saturday, alone with a citation manager."
+      effects: { writing: "+2±1", sanity: "-2±1" }
+      flag_clear: [party_crush]
+
+- id: lif_cooking_phase
+  title: "Meal Prep Era"
+  category: life
+  rarity: common
+  when:
+    has_advisor: true
+  text:
+    - "You're in a cooking phase. Sunday is meal-prep day now: 14 identical containers, a labeled fridge and a spreadsheet of macros you'll never open."
+  choices:
+    - label: "Keep the streak going"
+      text: "Lentils on Monday, lentils on Friday. You've never had more energy, or more lentils."
+      effects: { health: "+4±1", energy: "+3±1", days: -1 }
+    - label: "Cook for the lab on Wednesdays"
+      text: "Your curry becomes a lab tradition. {labmate} starts bringing a fork from home."
+      effects: { labmates_rel: "+4±1", health: "+2±1", energy: "-2±1", days: -1 }
+    - label: "Let the phase end gracefully"
+      text: "Sunday is yours again. By Thursday, dinner is cereal, eaten standing up."
+      effects: { health: "-2±1", days: 1 }
+    - label: "Go full chef"
+      requires: { traits_any: [foodie] }
+      tag: "Foodie"
+      text: "Your containers have garnishes. People from other labs ask whether you take orders."
+      effects: { sanity: "+5±1", labmates_rel: "+3±1", health: "+3±1", days: -1 }
+
+- id: lif_hike_idea
+  title: "An Idea and a Sunburn"
+  category: life
+  rarity: common
+  when:
+    any:
+      - { turn: [1, 6] }
+      - { turn: [15, 24] }
+    project: { stage_kind: work }
+  text:
+    - "A weekend hike with friends: no laptop, one bar of signal, huge views. Near the top, the fix for {project} arrives fully formed. So does a sunburn."
+  choices:
+    - label: "Type it into your phone right there"
+      text: "You write it at the summit with one bar of signal and a red nose. On Monday, it still makes sense."
+      effects: { project.quality.N: "+5±2", sanity: "+2±1", health: "+1" }
+    - label: "Call {labmate} from the trail"
+      text: "{labmate} picks up on the third try and tests half of it by Monday. Your friends roll their eyes all the way down."
+      effects: { project.progress: "+6±2", labmates_rel: "+2±1", friends_rel: "-2±1", health: "+1" }
+    - label: "Trust it to keep. Enjoy the view"
+      check: { stat: taste, vs: 50, spread: 20 }
+      success:
+        text: "On Monday the idea is still there, and better. Rested brains are good at this."
+        effects: { project.quality.N: "+6±2", sanity: "+5±1", health: "+2±1" }
+        tip: "When and How to Rest"
+      failure:
+        text: "On Monday you remember the view, the sandwich and the sunburn. The idea is gone."
+        effects: { sanity: "-3±1", health: "+2±1" }
+
+- id: lif_rec_league
+  title: "The PhD League"
+  category: life
+  rarity: common
+  when:
+    semester: [fall, spring]
+  text:
+    - "You join an intramural soccer team. Every single player is a PhD student. Half-time talk is about p-values, and the captain picks the lineup with a script."
+  choices:
+    - label: "Play every Thursday"
+      check: { stat: health, vs: 45, spread: 20 }
+      success:
+        text: "You lose every game by at least four goals. It's the best part of your week."
+        effects: { health: "+5±1", friends_rel: "+3±1", energy: "-3±1" }
+      failure:
+        text: "In the second game, you sprain an ankle chasing a ball you were never going to reach. The team signs your brace."
+        effects: { health: "-3±1", friends_rel: "+2±1", sanity: "-1" }
+        status: { add: injured, turns: 2 }
+    - label: "Cheer from the sideline"
+      text: "You hold the snacks and shout encouragement. The team votes you most valuable non-player."
+      effects: { sanity: "+3±1", friends_rel: "+2±1" }
+    - label: "Model the team's win probability"
+      requires: { traits_any: [stats_nerd] }
+      tag: "Stats Nerd"
+      text: "Your model gives the team a 2% chance. They win anyway, and you update your priors in front of everyone."
+      effects: { sanity: "+4±1", friends_rel: "+3±1", knowledge: "+1" }
+
+- id: lif_halloween_reviewer2
+  title: "Reviewer 2, Times Six"
+  category: life
+  rarity: common
+  when:
+    has_advisor: true
+    turn: [5, 5]
+  text:
+    - "Halloween at the lab. Six people show up as Reviewer 2: gray hoodie, red pen, and a sign that says \"The novelty is limited.\" Nobody coordinated."
+  choices:
+    - label: "Go as Reviewer 2 as well"
+      text: "Seven Reviewer 2s. The group photo looks like a very harsh program committee."
+      effects: { labmates_rel: "+3±1", sanity: "+3±1" }
+    - label: "Go as the area chair"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "You overrule all six of them with one sticky note. Best costume is yours."
+        effects: { labmates_rel: "+4±1", sanity: "+5±1" }
+      failure:
+        text: "Nobody knows what an area chair looks like. Several people think you're a delivery driver."
+        effects: { labmates_rel: "+1", sanity: "+1" }
+    - label: "Skip the party, finish a draft"
+      text: "You hear the laughter through the wall. The draft gets a page longer and a little grumpier."
+      effects: { writing: "+2±1", labmates_rel: "-2±1", sanity: "-2±1" }

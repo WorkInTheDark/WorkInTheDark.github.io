@@ -923,3 +923,600 @@
     - label: "Skim your list of hard questions"
       text: "You kept a list of every tough lab-meeting question. Most of today's are on it."
       effects: { energy: "-2±1", presenting: "+4±1" }
+
+# ===========================================================================
+# More signature events (event-ideas.md section G, accepted 2026-10-16).
+# Same plain-language rule: no lore, only everyday academic behavior.
+
+# --- Famous but Absent ------------------------------------------------------
+
+- id: leg_fa_time_zones
+  title: "Three Time Zones"
+  category: legion
+  rarity: common
+  when: { advisor: [famous_absent] }
+  text:
+    - "This week {advisor} answered your emails from three time zones: at breakfast in one, at lunch in another, and somewhere over an ocean. Each reply is one line long."
+  choices:
+    - label: "Batch everything into one email"
+      check: { stat: writing, vs: 50, spread: 15 }
+      success:
+        text: "Five numbered questions, yes or no each. Five answers come back from an airport lounge."
+        effects: { writing: "+2±1", taste: "+2±1", advisor_rel: "+2±1" }
+      failure:
+        text: "They answer question 1 in detail. Questions 2 to 5 get \"let's discuss\"."
+        effects: { sanity: "-3±1", writing: "+1" }
+    - label: "Grab a call in their morning"
+      text: "Their morning is your 5:30 am. Twenty sleepy, genuinely useful minutes."
+      effects: { energy: "-4±1", taste: "+3±1", advisor_rel: "+3±1" }
+    - label: "Ask {senior} instead"
+      text: "{senior} has decoded one-line replies for four years. You get a real answer, plus a translation guide."
+      effects: { knowledge: "+2±1", labmates_rel: "+3±1", advisor_rel: "-1" }
+
+- id: leg_fa_poster_cameo
+  title: "Thirty Seconds at Your Poster"
+  category: legion
+  rarity: uncommon
+  hook: conference
+  when: { advisor: [famous_absent] }
+  text:
+    - "For the first time this conference, {advisor} appears at your poster for {paper}, with a very famous friend in tow. \"You have thirty seconds. Go.\""
+  choices:
+    - label: "Give the 30-second pitch"
+      check: { stat: presenting, vs: 55, spread: 15 }
+      success:
+        text: "You finish at second 29. The famous friend asks for your email, then for your paper."
+        effects: { sanity: "+3±1", presenting: "+2±1", network: "+6±2" }
+      failure:
+        text: "You're still on the motivation when they're pulled away to a reception."
+        effects: { sanity: "-3±1", network: "+2±1" }
+    - label: "Ask the friend about their work"
+      text: "They talk for ten minutes while {advisor} waves from across the hall. You learn a lot, and they remember you."
+      effects: { knowledge: "+3±1", network: "+3±1", advisor_rel: "-1" }
+    - label: "Hand them each a printout"
+      text: "Two printouts vanish into two bags. Months later, one of them turns up as a citation."
+      effects: { sanity: "+1", citations: "+2±1" }
+
+# --- Micromanager -----------------------------------------------------------
+
+- id: leg_mm_edit_history
+  title: "To Understand How You Work"
+  category: legion
+  rarity: common
+  when: { advisor: [micromanager], project: { stage: [writing, revise] } }
+  text:
+    - "{advisor} asks for the full edit history of your draft of {project}, \"just to understand how you work\". It shows every 2 am session, and every hour of nothing."
+  choices:
+    - label: "Share all of it"
+      text: "They study it closely, then suggest you write in the mornings. Annoyingly, it helps."
+      effects: { sanity: "-4±1", writing: "+2±1", advisor_rel: "+4±1" }
+    - label: "Offer a weekly summary instead"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "\"Fine. Fridays.\" Your 2 am sessions stay between you and the draft."
+        effects: { days_next: -1, sanity: "+2±1", writing: "+1" }
+      failure:
+        text: "They'd like the summary and the history. Now you write about your writing every Friday."
+        effects: { days_next: -1, sanity: "-4±1" }
+    - label: "Draft in a private file first"
+      text: "Your real writing moves to a file called notes_old.tex. {advisor} notices the history has gone very quiet."
+      effects: { sanity: "+3±1", project.quality.C: "+2±1", advisor_rel: "-3±1" }
+
+- id: leg_mm_every_sentence
+  title: "A Comment on Every Sentence"
+  category: legion
+  rarity: common
+  when: { advisor: [micromanager], project: { stage: writing } }
+  text:
+    - "Your draft of {project} comes back with a comment on every sentence. The references have comments too. Reference 14 has three."
+  choices:
+    - label: "Address every single one"
+      text: "Four days and 212 replies later, the draft is unmistakably better. {advisor} is pleased."
+      effects: { days: -3, energy: "-4±2", sanity: "-5±2", project.quality.C: "+7±2", advisor_rel: "+4±1" }
+    - label: "Fix what matters, resolve the rest"
+      check: { stat: writing, vs: 50, spread: 15 }
+      success:
+        text: "You fix forty, explain ten, and resolve the rest. {advisor} reopens only two."
+        effects: { days: -1, writing: "+2±1", project.quality.C: "+4±2" }
+      failure:
+        text: "{advisor} reopens every resolved comment, each with a new comment attached."
+        effects: { days: -1, sanity: "-5±2", advisor_rel: "-2±1", project.quality.C: "+2±1" }
+    - label: "Go through them together"
+      text: "Three hours in their office. Half the comments turn out to mean \"ok\"."
+      effects: { energy: "-4±1", sanity: "+2±1", project.quality.C: "+4±2", advisor_rel: "+2±1" }
+
+# --- Hungry Assistant Prof --------------------------------------------------
+
+- id: leg_ha_tenure_paper
+  title: "The Paper the Case Needs"
+  category: legion
+  rarity: uncommon
+  when: { advisor: [hungry_ap], year: [2, 6], project: { stage_kind: work } }
+  text:
+    - "{advisor}'s tenure case goes out this year, and they've done the math: {project} is the paper the case needs. \"No pressure. Well. Some pressure.\""
+  choices:
+    - label: "Go all in on {project}"
+      text: "Nights, weekends, and a lot of progress. {advisor} starts bringing you coffee without being asked."
+      effects: { project.progress: "+12±4", energy: "-7±2", sanity: "-5±2", health: "-3±1", advisor_rel: "+5±2" }
+    - label: "Promise strong, not fast"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "\"You're right. A strong paper helps the case more than a quick one.\" They mean it."
+        effects: { sanity: "+2±1", project.quality.S: "+5±2", advisor_rel: "+1" }
+      failure:
+        text: "They agree, then check in on {project} every morning at 9."
+        effects: { sanity: "-5±2", project.progress: "+5±2" }
+    - label: "Bring {labmate} onto the project"
+      text: "Two people, twice the speed, and a second name on the paper. {advisor} likes the plan."
+      effects: { project.progress: "+7±2", labmates_rel: "+3±1", sanity: "-2±1" }
+
+- id: leg_ha_four_projects
+  title: "Four New Projects"
+  category: legion
+  rarity: common
+  when: { advisor: [hungry_ap], semester: [fall, spring] }
+  text:
+    - "{advisor} kicks off four new projects this semester. You open the planning doc. Your name is on all four, in bold."
+  choices:
+    - label: "Stay on all four"
+      text: "Four literatures, four meetings a week, four sets of co-authors. You learn a lot, very quickly."
+      effects: { days_next: -3, sanity: "-6±2", knowledge: "+4±1", network: "+2±1", advisor_rel: "+4±1" }
+    - label: "Pick the one nearest your thesis"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "\"Smart. Focus.\" Your name comes off three projects, and your week comes back."
+        effects: { sanity: "+2±1", taste: "+2±1" }
+      failure:
+        text: "You negotiate down to two. Negotiating, it turns out, is a skill you're still building."
+        effects: { days_next: -1, sanity: "-3±1", taste: "+1" }
+    - label: "Hand one to {mentee}, with support"
+      text: "{mentee} is thrilled. You spend an hour a week guiding them, and they do the rest."
+      effects: { days_next: -1, sanity: "-2±1", presenting: "+1", labmates_rel: "+3±1" }
+
+- id: leg_ha_same_deadline
+  title: "Same Deadline, Two Papers"
+  category: legion
+  rarity: common
+  when: { advisor: [hungry_ap], project: { stage: writing, turns_to_deadline: "<=2" } }
+  text:
+    - "{advisor} is submitting their own paper to the same deadline as {project}. \"Could you run a few experiments on mine too? You're so fast.\""
+  choices:
+    - label: "Help with both papers"
+      text: "Two papers, one of you. Both get submitted. You sleep through most of the following weekend."
+      effects: { energy: "-8±2", sanity: "-5±2", health: "-3±1", coding: "+2±1", advisor_rel: "+5±2" }
+    - label: "Trade experiments for writing help"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "They rewrite your introduction in one evening. It's much better. A fair trade."
+        effects: { energy: "-4±1", project.quality.C: "+5±2", advisor_rel: "+2±1" }
+      failure:
+        text: "You run their experiments. Their notes on your intro arrive an hour after the deadline."
+        effects: { energy: "-4±1", sanity: "-4±1", advisor_rel: "+1" }
+    - label: "Protect your own paper"
+      text: "You say no, kindly. Your paper gets your full attention. {advisor} pulls an all-nighter and is a little cool all week."
+      effects: { project.progress: "+6±2", sanity: "-1", advisor_rel: "-4±1" }
+
+# --- Kind but Unfunded ------------------------------------------------------
+
+- id: leg_ku_one_gpu
+  title: "The Sign-Up Sheet"
+  category: legion
+  rarity: common
+  when: { advisor: [kind_unfunded], project: { type: [empirical, system, dataset], stage_kind: work } }
+  text:
+    - "The lab shares one GPU, booked through a sheet taped to the server room door. Your three-day run for {project} would take every slot until Thursday."
+  choices:
+    - label: "Book the whole week"
+      text: "Your run finishes. Next to your name on the sheet, someone has drawn a very small frowning face."
+      effects: { project.progress: "+8±3", labmates_rel: "-4±1" }
+    - label: "Take the night slots nobody wants"
+      text: "Midnight to 6 am, five nights running. The run finishes, and you learn every sound the server makes."
+      effects: { project.progress: "+7±2", energy: "-5±2", health: "-2±1", labmates_rel: "+2±1" }
+    - label: "Shrink the experiment to fit"
+      check: { stat: coding, vs: 50, spread: 15 }
+      success:
+        text: "A smaller model and a smarter sample. It runs in one afternoon and still answers your question."
+        effects: { project.progress: "+6±2", coding: "+3±1" }
+      failure:
+        text: "Too small to tell you anything. You add your name to the bottom of the sheet."
+        effects: { project.progress: "+2±1", sanity: "-3±1", coding: "+1" }
+
+- id: leg_ku_warm_letter
+  title: "The Warmest Letter"
+  category: legion
+  rarity: uncommon
+  when: { advisor: [kind_unfunded], year: [2, 8], stat: { advisor_rel: ">=40" } }
+  text:
+    - "{advisor} sends you a copy of the recommendation letter they wrote for you. It's two pages long and specific about everything. You read it twice."
+  choices:
+    - label: "Thank them in person"
+      text: "They wave it off: \"I only wrote down what's true.\" You both pretend not to be moved."
+      effects: { sanity: "+5±2", advisor_rel: "+4±1" }
+    - label: "Use it for three more applications"
+      text: "A fellowship, a summer school, and a travel grant. A long evening of forms, with a great letter behind each one."
+      effects: { days: -1, sanity: "-2±1", career_prep: "+3±1", network: "+2±1" }
+    - label: "Save it for the hard weeks"
+      text: "You put it in a folder called \"read this\". You'll open it more often than you expect."
+      effects: { sanity: "+7±2" }
+
+# --- Grant Machine ----------------------------------------------------------
+
+- id: leg_gm_aim_two
+  title: "How Does This Fit Aim 2?"
+  category: legion
+  rarity: common
+  when: { advisor: [grant_machine], project: { stage_kind: work } }
+  text:
+    - "Your meeting opens the way every meeting opens: \"Before we start, how does this fit Aim 2?\" Today, honestly, {project} doesn't."
+  choices:
+    - label: "Reframe {project} around Aim 2"
+      text: "Two slides later, your project fits Aim 2 perfectly. It is also slightly less interesting."
+      effects: { project.quality.N: "-3±1", writing: "+2±1", advisor_rel: "+4±1" }
+    - label: "Pitch it as a future Aim 4"
+      check: { stat: presenting, vs: 55, spread: 15 }
+      success:
+        text: "\"Aim 4. For the renewal. I like it.\" Your project is now in next year's grant."
+        effects: { sanity: "+3±1", taste: "+2±1", advisor_rel: "+3±1" }
+      failure:
+        text: "There is no Aim 4. There are three aims, and by the end of the meeting you know all of them by heart."
+        effects: { sanity: "-3±1", knowledge: "+2±1" }
+    - label: "Keep going and hope it passes"
+      text: "It doesn't pass. The same question opens next week's meeting, and the one after that."
+      effects: { sanity: "-2±1", project.quality.N: "+2±1", advisor_rel: "-2±1" }
+
+- id: leg_gm_renewal_week
+  title: "Renewal Week"
+  category: legion
+  rarity: common
+  when: { advisor: [grant_machine], year: [2, 8] }
+  text:
+    - "Grant renewal week. The whole lab pauses research to write progress summaries. The shared document is 61 pages long and has a table of contents for its table of contents."
+  choices:
+    - label: "Write your summary carefully"
+      text: "Two pages on your year. Written down, it was a better year than it felt."
+      effects: { days: -2, sanity: "-2±1", writing: "+2±1", advisor_rel: "+3±1" }
+    - label: "Volunteer to edit the whole thing"
+      text: "Sixty-one pages become forty. {advisor} calls it the cleanest renewal in years, and remembers who did it."
+      effects: { days: -3, energy: "-5±2", sanity: "-4±1", writing: "+4±1", advisor_rel: "+6±2", labmates_rel: "+2±1" }
+    - label: "Write yours in an hour"
+      check: { stat: writing, vs: 50, spread: 15 }
+      success:
+        text: "One tight page, done before lunch. Back to research by 1 pm."
+        effects: { writing: "+1", advisor_rel: "+1" }
+      failure:
+        text: "It comes back with one note: \"More on Aim 2, please.\" The hour becomes two days."
+        effects: { days: -2, sanity: "-3±1", advisor_rel: "-1" }
+
+# --- The Visionary ----------------------------------------------------------
+
+- id: leg_vi_fourteen_papers
+  title: "\"thoughts?\""
+  category: legion
+  rarity: common
+  when: { advisor: [visionary] }
+  text:
+    - "Over the weekend, {advisor} sends you 14 papers, one email each. Every subject line says \"thoughts?\". Your meeting is Monday at 10."
+  choices:
+    - label: "Read all 14 by Monday"
+      text: "You arrive with notes on every paper. {advisor} has moved on to a 15th, but is clearly impressed."
+      effects: { energy: "-6±2", sanity: "-3±1", health: "-2±1", knowledge: "+5±1", advisor_rel: "+3±1" }
+    - label: "Skim for the common thread"
+      check: { stat: taste, vs: 55, spread: 15 }
+      success:
+        text: "It's one idea in 14 disguises. You name it in one sentence, and {advisor} lights up."
+        effects: { taste: "+4±1", advisor_rel: "+3±1" }
+      failure:
+        text: "You find a thread. It's not the one they meant, but it's an interesting one."
+        effects: { sanity: "-2±1", knowledge: "+2±1" }
+    - label: "Read two properly, ask about the rest"
+      text: "\"Oh, those were just for fun.\" Luckily, your two were the important ones."
+      effects: { sanity: "+2±1", knowledge: "+2±1" }
+
+- id: leg_vi_award_elsewhere
+  title: "Best Paper, Other Lab"
+  category: legion
+  rarity: uncommon
+  when: { advisor: [visionary], year: [2, 8] }
+  text:
+    - "A best paper award goes to another lab, for the idea {advisor} emailed you at 2 am eight months ago. You still have the email. It was three lines long."
+  choices:
+    - label: "Forward the email to {advisor}"
+      text: "\"Ha! Told you.\" They're delighted, not bitter, and already have a newer idea. It arrives at 2 am."
+      effects: { sanity: "+3±1", advisor_rel: "+3±1" }
+    - label: "Build on their result, fast"
+      check: { stat: taste, vs: 55, spread: 15 }
+      success:
+        text: "You spot the follow-up the winners missed. Your short paper is online within two weeks, and people read it."
+        effects: { energy: "-5±2", taste: "+3±1", citations: "+4±2" }
+      failure:
+        text: "Eleven other labs had the same follow-up idea that week."
+        effects: { energy: "-4±1", sanity: "-3±1", knowledge: "+2±1" }
+    - label: "Start a folder for 2 am ideas"
+      text: "Every late-night idea now gets a real read the next morning. Most are wild. One of them might not be."
+      effects: { days_next: -1, taste: "+3±1", advisor_rel: "+2±1" }
+
+# --- Industry Joint ---------------------------------------------------------
+
+- id: leg_ij_legal_review
+  title: "Unlimited Compute, Limited Lawyers"
+  category: legion
+  rarity: common
+  when: { advisor: [industry_joint], project: { stage: writing } }
+  text:
+    - "Thanks to {advisor}'s company, your compute for {project} was unlimited. Now every result needs legal review before you can submit. Legal estimates six to eight weeks."
+  choices:
+    - label: "Submit it for review and wait"
+      text: "Legal approves, with one change: \"outperforms\" becomes \"compares favorably to\", everywhere."
+      effects: { project.delay: 3, sanity: "-3±1" }
+    - label: "Ask {advisor} to fast-track it"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "{advisor} sends one email to the right person. Approval arrives in three days."
+        effects: { sanity: "+2±1", advisor_rel: "+1" }
+      failure:
+        text: "They try. Legal now has two questions instead of one."
+        effects: { project.delay: 2, sanity: "-4±1" }
+    - label: "Rerun the key results on campus"
+      text: "The university cluster is slow, but its results need no lawyer. Your paper is a little smaller now."
+      effects: { days: -3, energy: "-4±2", coding: "+2±1", project.quality.S: "-2±1" }
+
+- id: leg_ij_product_manager
+  title: "A Product Manager Joins"
+  category: legion
+  rarity: common
+  when: { advisor: [industry_joint], project: { stage_kind: work } }
+  text:
+    - "{advisor} brings a product manager from the company to your research meeting. Ten minutes in, they ask about the roadmap for {project}, and its \"go-to-market\"."
+  choices:
+    - label: "Pitch {project} as a product"
+      check: { stat: presenting, vs: 50, spread: 15 }
+      success:
+        text: "They love it and ask for a demo next month. You've never had a customer before."
+        effects: { days_next: -1, presenting: "+2±1", network: "+4±1", career_prep: "+2±1" }
+      failure:
+        text: "They ask about daily active users. You have twelve participants and a consent form."
+        effects: { sanity: "-3±1", presenting: "+1" }
+    - label: "Ask what their users struggle with"
+      text: "They talk for 40 minutes. It's the best user research you've done all year, and the meeting runs long."
+      effects: { energy: "-3±1", taste: "+3±1", project.quality.N: "+3±1" }
+    - label: "Steer back to the research"
+      text: "The product manager checks their phone. Your meeting stays a research meeting, and {advisor} looks a little disappointed."
+      effects: { sanity: "+2±1", project.quality.S: "+2±1", advisor_rel: "-2±1" }
+
+- id: leg_ij_internship_arranged
+  title: "Already Arranged"
+  category: legion
+  rarity: uncommon
+  when: { advisor: [industry_joint], flags_all: [internship_applied], turn: [10, 13] }
+  text:
+    - "You've barely sent out your internship applications when {advisor} mentions, between meetings, that they've \"already talked to the team\" at {company}. \"You'll probably start in May.\""
+  choices:
+    - label: "Thank them and stop worrying"
+      text: "You cancel two interviews and relax. {advisor} seems pleased that you trust them."
+      effects: { sanity: "+4±1", career_prep: "+3±1", advisor_rel: "+3±1" }
+    - label: "Keep your other options going"
+      text: "You keep interviewing anyway. More work, and more doors."
+      effects: { days: -1, sanity: "-2±1", career_prep: "+5±1", network: "+2±1" }
+    - label: "Ask for the research team instead"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "\"Good call.\" One more email, and you're down for the research team. More papers, fewer product launches."
+        effects: { career_prep: "+3±1", taste: "+2±1" }
+      failure:
+        text: "\"Research is full this year. The product team is great, though.\""
+        effects: { sanity: "-2±1", career_prep: "+2±1" }
+
+# --- Near Retirement --------------------------------------------------------
+
+- id: leg_nr_old_classmates
+  title: "Old Classmates"
+  category: legion
+  rarity: uncommon
+  when: { advisor: [near_retirement], status_any: [quals_prep, proposal_prep, defense_prep] }
+  text:
+    - "Your committee meeting opens with {advisor} and {committee} remembering grad school together, decades ago. Two more committee members were there too. Your slides wait patiently."
+  choices:
+    - label: "Let the stories run"
+      text: "Forty minutes of stories, five minutes of questions, all easy. Everyone leaves in a great mood."
+      effects: { sanity: "+5±2", network: "+3±1" }
+    - label: "Ask them to settle an old debate"
+      check: { stat: taste, vs: 50, spread: 15 }
+      success:
+        text: "The old debate turns out to be about your topic. They argue happily, and your thesis comes out sharper."
+        effects: { taste: "+4±1", knowledge: "+2±1", network: "+2±1" }
+      failure:
+        text: "They argue happily for the full hour. Your slides go unshown."
+        effects: { energy: "-2±1", sanity: "-3±1" }
+    - label: "Steer them to your slides"
+      text: "You get real, tough feedback. {advisor} looks mildly sorry to miss the end of the story."
+      effects: { sanity: "-2±1", presenting: "+2±1", knowledge: "+3±1", advisor_rel: "-1" }
+
+# --- Serial Founder ---------------------------------------------------------
+
+- id: leg_sf_term_sheet
+  title: "Back, With a Term Sheet"
+  category: legion
+  rarity: common
+  when: { advisor: [serial_founder] }
+  text:
+    - "{advisor} has been unreachable for two weeks. Today they walk into lab meeting, tanned, holding a term sheet. \"Big news! Also, how's everyone's research?\""
+  choices:
+    - label: "Ask about the startup"
+      text: "Forty minutes on funding rounds. You understand about a third of it. It's a fascinating third."
+      effects: { network: "+2±1", career_prep: "+1", advisor_rel: "+2±1" }
+      flag_set: [startup_idea]
+    - label: "Ask for two weeks of feedback, now"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "They read everything you sent while they were gone, in one sitting. The feedback is excellent."
+        effects: { taste: "+3±1", advisor_rel: "+2±1" }
+      failure:
+        text: "\"Can you resend those? My inbox is a disaster.\" You resend all six."
+        effects: { sanity: "-3±1" }
+    - label: "Report the calls you made alone"
+      text: "You made three decisions while they were gone. {advisor} approves two and quietly reverses the third."
+      effects: { sanity: "+1", taste: "+3±1", advisor_rel: "-1" }
+
+- id: leg_sf_labmate_cto
+  title: "The CTO Down the Hall"
+  category: legion
+  rarity: uncommon
+  when: { advisor: [serial_founder], year: [2, 8] }
+  text:
+    - "A launch announcement reveals that {labmate} is the CTO of {advisor}'s newest startup. That explains the second laptop, and all the 4 pm \"dentist appointments\"."
+  choices:
+    - label: "Ask {labmate} how it all works"
+      text: "Over coffee they explain everything: equity, investors, and why they never sleep. You learn a lot."
+      effects: { knowledge: "+2±1", labmates_rel: "+3±1" }
+      flag_set: [startup_idea]
+    - label: "Ask if they're hiring"
+      check: { stat: labmates_rel, vs: 55, spread: 15 }
+      success:
+        text: "\"After you graduate? Absolutely. Employee number four is yours.\""
+        effects: { network: "+2±1", labmates_rel: "+2±1" }
+        flag_set: [labmate_startup_offer]
+      failure:
+        text: "\"Not yet. Maybe after the next round.\" They say it nicely."
+        effects: { sanity: "-2±1" }
+    - label: "Keep your head down"
+      text: "One founder per lab is plenty. You inherit the whiteboard they no longer have time for."
+      effects: { sanity: "+3±1" }
+
+# --- Methods Purist ---------------------------------------------------------
+
+- id: leg_mp_stats_appendix
+  title: "Page 13 of the Appendix"
+  category: legion
+  rarity: common
+  when: { advisor: [methods_purist], project: { stage: writing } }
+  text:
+    - "The four-page short paper on {project} now has a twelve-page statistics appendix. {advisor} is drafting page 13."
+  choices:
+    - label: "Keep every page"
+      text: "No reviewer will read all twelve pages. No reviewer will find anything to complain about, either."
+      effects: { days: -2, sanity: "-3±1", project.quality.S: "+7±2", project.quality.C: "-2±1" }
+    - label: "Cut it to the two tests that matter"
+      check: { stat: knowledge, vs: 55, spread: 15 }
+      success:
+        text: "Two tests, one page, and a rare nod from {advisor}: \"Fine. These are the right two.\""
+        effects: { knowledge: "+2±1", project.quality.S: "+4±2", project.quality.C: "+3±1", advisor_rel: "+2±1" }
+      failure:
+        text: "{advisor} restores the other ten pages, with tracked changes and a reading list."
+        effects: { sanity: "-4±1", project.quality.S: "+4±2" }
+    - label: "Turn it into a lab stats guide"
+      text: "The appendix becomes the lab's statistics handbook. Everyone uses it, and {advisor} proudly adds page 14."
+      effects: { days: -1, knowledge: "+2±1", labmates_rel: "+4±1", advisor_rel: "+2±1" }
+
+- id: leg_mp_significant
+  title: "Significant, or Just Exciting?"
+  category: legion
+  rarity: common
+  when: { advisor: [methods_purist], project: { stage: [experiments, analysis, writing] } }
+  text:
+    - "You show a 2.1-point gain on {project}, and lab meeting cheers. {advisor} waits for the cheering to stop. \"Is it significant, or just exciting?\""
+  choices:
+    - label: "Run the test right there"
+      check: { stat: knowledge, vs: 50, spread: 15 }
+      success:
+        text: "p = 0.003. {advisor} allows themselves a very small smile. The lab cheers again, carefully."
+        effects: { sanity: "+4±1", project.quality.S: "+5±2", advisor_rel: "+3±1" }
+      failure:
+        text: "p = 0.21. It was exciting. Now you know what to fix."
+        effects: { sanity: "-4±1", knowledge: "+1", project.quality.S: "+3±1" }
+    - label: "Say \"Both, I hope\""
+      text: "{advisor} laughs, once, which is rare. Then asks for the test by Friday."
+      effects: { days_next: -1, sanity: "+2±1", advisor_rel: "+1", project.quality.S: "+2±1" }
+    - label: "Admit it's just exciting so far"
+      text: "\"Good. Now make it significant.\" Your honesty earns a week of goodwill, and a list of seeds to run."
+      effects: { sanity: "-1", project.progress: "-3±1", project.quality.S: "+3±1", advisor_rel: "+4±1" }
+
+# --- Kind and Funded --------------------------------------------------------
+# Ideas already covered elsewhere: the orphan word, heading case, axis labels,
+# camera-ready, practice talk, Reviewer 2's question, defense, 12:07 am, midnight
+# thread and the three bubble tea moments are above; "Great figure" and noticing
+# orphan words are flavor lines (flavor_advisor.yml); naming the biggest weakness
+# before submitting is the engine's "The Question" card.
+
+- id: leg_kf_idea_folder
+  title: "The Folder"
+  category: legion
+  rarity: rare
+  when: { advisor: [kind_funded], year: [2, 8], stat: { advisor_rel: ">=55" } }
+  text:
+    - "A year in, {advisor} opens a folder on their laptop: ideas collected over many years and never shared. \"Take one, if any of them speak to you. Or tell me why they're wrong.\""
+  choices:
+    - label: "Pick the one that excites you"
+      text: "You pick the fourth one. {advisor} smiles: it was their favorite too, and they never found the time."
+      effects: { sanity: "+5±2", taste: "+4±1", advisor_rel: "+3±1" }
+    - label: "Find the flaw in one"
+      check: { stat: taste, vs: 60, spread: 15 }
+      success:
+        text: "You find the problem with idea three. {advisor} nods: \"Good. That's why it's still in the folder.\""
+        effects: { taste: "+6±2", advisor_rel: "+4±1" }
+      failure:
+        text: "Your \"flaw\" is answered in a note they wrote years ago. They show you, kindly, and the note teaches you a lot."
+        effects: { sanity: "-2±1", taste: "+3±1", knowledge: "+2±1" }
+    - label: "Say you'd rather follow your own"
+      text: "\"Even better.\" They close the folder, looking pleased, and ask to hear yours instead."
+      effects: { sanity: "+3±1", taste: "+2±1", advisor_rel: "+2±1" }
+      tip: "Find Out What You Are Devoted To"
+
+- id: leg_kf_arrive_with_answers
+  title: "Arrive With Answers"
+  category: legion
+  rarity: common
+  when: { advisor: [kind_funded], project: { stage_kind: work } }
+  text:
+    - "You bring {advisor} three questions about {project}. They listen, then say kindly: \"Next time, bring your best guess for each. It's easier to improve an answer than to start from a question.\""
+  choices:
+    - label: "Guess now, out loud"
+      check: { stat: taste, vs: 50, spread: 15 }
+      success:
+        text: "Two of your three guesses are right. You realize you didn't need the meeting for those two."
+        effects: { sanity: "+2±1", taste: "+3±1", advisor_rel: "+2±1" }
+      failure:
+        text: "All three guesses are wrong, but now you both know exactly why. That's progress."
+        effects: { sanity: "-2±1", knowledge: "+3±1" }
+    - label: "Come back tomorrow with answers"
+      text: "You return with three answers and one better question. The meeting takes ten minutes."
+      effects: { days: -1, taste: "+3±1", project.quality.S: "+3±1", advisor_rel: "+3±1" }
+      tip: "Project Meeting"
+    - label: "Ask how they would find out"
+      text: "They walk you through how they'd look into each one. Halfway through, you see you could have done it yourself."
+      effects: { sanity: "-1", knowledge: "+3±1" }
+
+- id: leg_kf_tea_visitor
+  title: "The Regular Visitor"
+  category: legion
+  rarity: common
+  when: { advisor: [kind_funded], semester: [fall, spring] }
+  text:
+    - "A student from another department has come to the last four lab meetings. Nobody remembers inviting them. They always order taro, and they never miss the bubble tea."
+  choices:
+    - label: "Ask what they work on"
+      text: "They study crowds in train stations. Over taro, you find an idea that belongs to neither field, and to both."
+      effects: { energy: "-1", taste: "+2±1", network: "+4±1" }
+    - label: "Add them to the order sheet"
+      text: "{advisor} adds a fifteenth drink without a word. The visitor looks deeply grateful."
+      effects: { sanity: "+3±1", labmates_rel: "+2±1" }
+    - label: "Ask them to present, as the price of tea"
+      text: "Their talk on soil chemistry is the best of the semester. Lab meeting runs 30 minutes over, happily."
+      effects: { energy: "-2±1", knowledge: "+3±1", labmates_rel: "+2±1" }
+
+- id: leg_kf_perfect_attendance
+  title: "Perfect Attendance"
+  category: legion
+  rarity: uncommon
+  when: { advisor: [kind_funded], telemetry: { lab_meetings_in_person: ">=10" } }
+  text:
+    - "{advisor} notes that you haven't missed an in-person lab meeting in months. \"That's real dedication.\" The bubble tea in your hand may be a factor."
+  choices:
+    - label: "Credit your dedication"
+      text: "{advisor} nods solemnly. Every labmate in the room looks at your cup."
+      effects: { sanity: "+2±1", advisor_rel: "+2±1", labmates_rel: "-1" }
+    - label: "Confess it's the bubble tea"
+      text: "\"I know. That's why I buy it.\" The whole lab laughs, and someone raises a cup."
+      effects: { sanity: "+5±2", labmates_rel: "+3±1" }
+    - label: "Volunteer to present next week"
+      text: "To earn your perfect record, you present. Your drink that week comes with extra pudding."
+      effects: { energy: "-3±1", presenting: "+3±1", advisor_rel: "+3±1" }

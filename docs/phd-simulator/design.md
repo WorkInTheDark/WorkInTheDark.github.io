@@ -215,7 +215,7 @@ From `simulate.mjs` (900 runs) and a one-project probe:
 - A project you push on takes about **18 weeks** after Year 1 and about 22 in Year 1.
 - A sensible bot graduates about 93% of the time, with a median of about 4.4 years; a slacker around year 5.8. A bot that never rests ends Year 1 near Energy 10, Stress 100, Health 0.
 - About 1.1 events per turn, plus about 0.35 side cards; about 1.6 cards per turn in all.
-- Known cost: with about four times as many events per run, the overlap of random events between consecutive runs rose to about 60%. More event content is the fix.
+- Event variety: there are 510 events (475 in the random pool). A run sees about 116 different random events, and two consecutive runs share about 33% of them. Before Arthur accepted every remaining idea in `event-ideas.md`, the pool was about 250 events and the overlap was about 60%.
 
 ## 5. Stats
 

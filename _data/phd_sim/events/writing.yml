@@ -581,3 +581,136 @@
     - label: "Start version eight"
       text: "Version eight is slightly better than version one. It took another week."
       effects: { project.quality.C: "+2±1", project.progress: "-5±2", sanity: "-3±1" }
+
+# ===========================================================================
+# Round 5 (2026-10-16): the rest of section D.
+# ===========================================================================
+
+- id: wri_placeholder_abstract
+  title: "Abstract Due First"
+  category: writing
+  rarity: common
+  repeatable: true
+  cooldown: 26
+  when:
+    project: { stage: [experiments, analysis, baselines, writing], turns_to_deadline: "<=1" }
+  text:
+    - "Surprise: the abstract for {project} is due a week before the paper. The experiments aren't finished, so neither is the story."
+    - "The submission site wants a title and abstract for {project} by Friday, a week before the full paper. You have a title."
+  choices:
+    - label: "Submit a placeholder abstract"
+      text: "\"We study an important problem and find interesting results.\" Everyone does it. Deadline-night you can rewrite it."
+      effects: { sanity: "+2±1", project.quality.C: "-2±1" }
+    - label: "Write the real abstract now"
+      text: "Two hundred words take a whole day and force you to say what's actually new. Now you know what the paper is about."
+      effects: { days: -1, energy: "-3±1", project.quality.N: "+2±1", project.quality.C: "+3±1" }
+      tip: "Paper Writing 101"
+    - label: "Write the abstract you hope is true"
+      check: { stat: taste, vs: 50, spread: 20 }
+      success:
+        text: "The results come in and match it almost word for word. Your hunch was a plan all along."
+        effects: { project.quality.N: "+3±1", sanity: "+2±1" }
+      failure:
+        text: "The results come in and disagree with paragraph two. You rewrite the abstract, then the paper around it."
+        effects: { project.quality.C: "-3±1", energy: "-2±1", sanity: "-3±1" }
+
+- id: wri_related_work_sprawl
+  title: "Related Work, Page Two"
+  category: writing
+  rarity: common
+  repeatable: true
+  cooldown: 26
+  when:
+    project: { stage: writing }
+  text:
+    - "The related work section of {project} is now two pages long. It cites {roll:80-110} papers, including one you've only read the title of."
+    - "You meant to write one paragraph of related work for {project}. It's two pages now, with subsections."
+  choices:
+    - label: "Cut it to half a page"
+      check: { stat: writing, vs: 50, spread: 20 }
+      success:
+        text: "Three themes, one paragraph each, and a last sentence on what nobody has done yet. The gap is suddenly obvious."
+        effects: { project.quality.C: "+4±1", project.quality.N: "+1", energy: "-3±1" }
+        tip: "Stakeholders and Gap"
+      failure:
+        text: "Half a page, and you cut the one paper most likely to be your reviewer's."
+        effects: { project.quality.C: "+1", project.quality.N: "-2±1", energy: "-3±1", sanity: "-2±1" }
+    - label: "Keep all two pages"
+      text: "Every reviewer will find their own paper in there. The method now starts on page five."
+      effects: { project.quality.C: "-3±1", knowledge: "+1", sanity: "+2±1" }
+    - label: "Turn it into a comparison table"
+      text: "Twelve prior papers, five columns, and yours as the only row with every checkmark. It takes a day."
+      effects: { days: -1, energy: "-2±1", project.quality.C: "+3±1", project.quality.N: "+2±1" }
+
+- id: wri_anywhere_on_earth
+  title: "Anywhere on Earth"
+  category: writing
+  rarity: uncommon
+  hook: deadline
+  text:
+    - "At 11:40 pm, {labmate} reminds you that the {venue} deadline is Anywhere on Earth, which you had converted wrong. You have four more hours than you thought."
+  choices:
+    - label: "Use all four hours"
+      text: "A fixed table, a sharper introduction, and a 4 am sunrise you didn't ask for."
+      effects: { project.quality.S: "+2±1", project.quality.C: "+3±1", energy: "-6±2", health: "-2±1" }
+    - label: "Submit now and go to bed"
+      text: "You submit at 11:45 pm, as planned, and sleep while the rest of your lab finds new typos."
+      effects: { energy: "+4±1", sanity: "+3±1" }
+    - label: "Fix Figure 1, then stop"
+      text: "One hour on the figure everyone looks at first. Then you submit, and stop while you're ahead."
+      effects: { project.quality.C: "+2±1", energy: "-2±1", sanity: "+1" }
+
+- id: wri_checklist_question
+  title: "Question 14"
+  category: writing
+  rarity: common
+  hook: deadline
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Question 14 of the {venue} responsible-research checklist: \"Did you report the total compute used, in GPU hours?\" You did not. You have no idea."
+    - "The {venue} checklist asks how many hours of annotation went into your data. You did most of it yourself, at night, without a stopwatch."
+  choices:
+    - label: "Dig through the logs and find out"
+      check: { stat: coding, vs: 45, spread: 20 }
+      success:
+        text: "An hour of digging gives you a real number and a new appendix table. Reviewers love a real number."
+        effects: { project.quality.S: "+2±1", energy: "-3±1" }
+      failure:
+        text: "Half the logs were deleted to save disk space. You report an estimate, with a footnote that apologizes."
+        effects: { energy: "-3±1", sanity: "-2±1" }
+    - label: "Answer \"No\" and explain why"
+      text: "\"No, but here is roughly what it would be.\" An honest no costs one paragraph and fools nobody, which is the point."
+      effects: { project.quality.S: "+1", sanity: "-1" }
+    - label: "Answer \"N/A\""
+      text: "It is applicable. You both know it is applicable. You click Submit anyway."
+      effects: { project.quality.S: "-2±1", sanity: "+2±1" }
+
+- id: wri_template_changed
+  title: "New Template, New Errors"
+  category: writing
+  rarity: uncommon
+  when:
+    project: { stage: writing }
+  text:
+    - "This year's conference template is out. You paste in the draft of {project}, and nothing compiles: {roll:40-90} errors, all about a package you've never heard of."
+  choices:
+    - label: "Debug it line by line"
+      check: { stat: coding, vs: 50, spread: 20 }
+      success:
+        text: "Two hours and one deleted package later, it compiles. You post the fix in the lab chat and are briefly famous."
+        effects: { energy: "-2±1", coding: "+1", labmates_rel: "+2±1" }
+      failure:
+        text: "It compiles by evening. Every table is now in a slightly different font, and you can't unsee it."
+        effects: { days: -1, sanity: "-4±1", project.quality.C: "-1" }
+    - label: "Ask {senior}, who fixed it last year"
+      check: { stat: labmates_rel, vs: 45, spread: 20 }
+      success:
+        text: "{senior} replies in two minutes with a one-line fix and a sigh you can hear through the chat."
+        effects: { sanity: "+1", labmates_rel: "+1" }
+      failure:
+        text: "{senior} is away, and the auto-reply points to the lab wiki. The wiki page was last edited four templates ago."
+        effects: { days: -1, sanity: "-3±1" }
+    - label: "Stay on last year's template for now"
+      text: "Everything compiles today. The switch will happen later, at the least convenient moment possible."
+      effects: { sanity: "+2±1", days_next: -1 }

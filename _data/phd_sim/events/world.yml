@@ -250,3 +250,131 @@
     - label: "Close the tab"
       text: "The important ones will find you. They always do."
       effects: { sanity: "+2±1" }
+
+# --- Round 5 additions ---------------------------------------------------------
+# Arc "new_venue": wor_new_venue -> wor_new_venue_later (scheduled, about two years on).
+
+- id: wor_topic_cold
+  title: "Is This Still Relevant?"
+  category: world
+  rarity: uncommon
+  when:
+    project: { stage_kind: work }
+    world: { hype: "<=30" }
+  text:
+    - "Your topic, {project.topic}, has gone quiet. After your seminar talk on {project}, someone asks, kindly: \"Is this still relevant?\""
+  choices:
+    - label: "Reframe it around today's questions"
+      check: { stat: taste, vs: 55, spread: 20 }
+      success:
+        text: "You connect it to the question everyone is asking now. Suddenly it's the angle nobody else has."
+        effects: { project.quality.N: "+6±2", sanity: "+3±1" }
+      failure:
+        text: "The new framing confuses everyone, including your own abstract."
+        effects: { project.quality.C: "-4±2", sanity: "-3±1" }
+    - label: "Show who still needs it"
+      text: "You find three real deployments with exactly this problem. Your introduction gets a new first paragraph."
+      effects: { project.quality.C: "+4±1", knowledge: "+2±1", days: -1 }
+      tip: "Stakeholders and Gap"
+    - label: "Keep going: less hype, less competition"
+      text: "Fewer papers to compete with and fewer people to impress. Steady progress, and a few doubts at night."
+      effects: { project.progress: "+6±2", sanity: "-2±1" }
+
+- id: wor_submissions_double
+  title: "Twice the Papers"
+  category: world
+  rarity: uncommon
+  when:
+    has_advisor: true
+    project: { stage_kind: work }
+  text:
+    - "The flagship conference got {roll:18000-24000} submissions this cycle, double last year. The reviewer pool did not double. An email asks if you can take \"a few\" extra reviews."
+  choices:
+    - label: "Volunteer for six extra reviews"
+      text: "Six papers in a week. You now know exactly what everyone else is working on, and you're tired."
+      effects: { knowledge: "+3±1", network: "+3±1", energy: "-6±2", sanity: "-3±1" }
+    - label: "Make {project} readable in five minutes"
+      text: "Busy reviewers skim. You rewrite the abstract, Figure 1 and every first sentence for a skimmer."
+      effects: { project.quality.C: "+5±2", writing: "+1", days: -1 }
+      tip: "Paper Writing 101"
+    - label: "Decline. It's a lottery anyway"
+      text: "You turn down the extra reviews and keep your week. The lottery feeling stays."
+      effects: { sanity: "+2±1", energy: "+2±1" }
+
+- id: wor_new_venue
+  title: "A Brand-New Venue"
+  category: world
+  rarity: rare
+  arc: new_venue
+  when:
+    has_advisor: true
+    year: [1, 4]
+  text:
+    - "A new conference launches: a bold call for papers, no track record and a very nice logo. {advisor} calls submitting there \"a gamble, but a fun one\"."
+  choices:
+    - label: "Volunteer to review for it"
+      text: "You review four papers for the first edition. The organizers remember who showed up early."
+      effects: { network: "+3±1", knowledge: "+1", energy: "-3±1" }
+      flag_set: [new_venue_early]
+      schedule: { event: wor_new_venue_later, in: [40, 52], chance: 1.0 }
+    - label: "Put its deadline in your calendar"
+      text: "It goes next to the big ones, in a slightly smaller font. You read the call twice and like it."
+      effects: { taste: "+1", network: "+1" }
+      flag_set: [new_venue_early]
+      schedule: { event: wor_new_venue_later, in: [40, 52], chance: 1.0 }
+    - label: "Wait and see if it lasts"
+      text: "Most new venues fade. You'll keep an eye on it from a safe distance."
+      effects: { sanity: "+2±1" }
+      schedule: { event: wor_new_venue_later, in: [40, 52], chance: 1.0 }
+
+- id: wor_new_venue_later
+  title: "The Gamble Paid Off"
+  category: world
+  rarity: common
+  trigger: scheduled
+  arc: new_venue
+  when:
+    milestone: { graduated: false }
+  text:
+    - "The brand-new conference from two years ago is now where everyone wants to publish. Its acceptance rate is 19%, and people call it \"basically top-tier\" in hushed voices."
+  choices:
+    - label: "Mention you were there at the start"
+      requires: { flags_all: [new_venue_early] }
+      tag: "Early"
+      text: "The first-edition crowd has a group chat now. You're in it, and so are two of this year's program chairs."
+      effects: { network: "+5±2", sanity: "+3±1" }
+      flag_clear: [new_venue_early]
+    - label: "Read its best papers"
+      text: "The bar is high and the papers are good. Its deadline goes in your calendar, in full-size font."
+      effects: { knowledge: "+2±1", taste: "+2±1", sanity: "-1" }
+      flag_clear: [new_venue_early]
+    - label: "Remember everyone calling it a gamble"
+      text: "You keep that memory to yourself, mostly. Prestige, it turns out, takes about two years."
+      effects: { sanity: "+2±1" }
+      flag_clear: [new_venue_early]
+
+- id: wor_repro_checklist
+  title: "The New Checklist"
+  category: world
+  rarity: common
+  when:
+    has_advisor: true
+    project: { stage: [experiments, analysis, writing] }
+  text:
+    - "Your target venues adopt a new reproducibility checklist: random seeds, compute hours, code links and the exact prompts you used. For {project}, you can answer about half."
+  choices:
+    - label: "Answer honestly, gaps and all"
+      text: "Half the answers say \"not recorded\". It stings, but reviewers tend to respect honesty more than polish."
+      effects: { project.quality.S: "+3±1", sanity: "-2±1" }
+      tip: "Hold Yourself to a High Standard"
+    - label: "Rerun things until every answer is yes"
+      text: "A week of reruns with every seed logged. Every box is now a confident yes. You are slightly less confident in general."
+      effects: { project.quality.S: "+7±2", energy: "-5±2", sanity: "-3±1", days: -3 }
+    - label: "Write a logging script for the future"
+      check: { stat: coding, vs: 50, spread: 15 }
+      success:
+        text: "Your script records every seed and GPU hour automatically. Half the lab asks for a copy."
+        effects: { coding: "+3±1", labmates_rel: "+2±1", project.quality.S: "+2±1" }
+      failure:
+        text: "The script logs everything, including 40 GB of things nobody needs."
+        effects: { coding: "+1", sanity: "-2±1", days: -1 }

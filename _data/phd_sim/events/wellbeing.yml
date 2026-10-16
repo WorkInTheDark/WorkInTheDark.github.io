@@ -401,3 +401,784 @@
     - label: "Clean out the lab fridge, for everyone's sake"
       text: "You find things that predate your advisor. The lab is grateful, and slightly scared."
       effects: { health: "-3±1", labmates_rel: "+3±1" }
+
+# ===========================================================================
+# Section O, the rest (2026-10-16).
+# ===========================================================================
+
+- id: wel_dragged_to_dinner
+  title: "Dragged to Dinner"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when:
+    any:
+      - { telemetry: { overtime_streak: ">=2" } }
+      - { telemetry: { days_off_streak: ">=2" } }
+  text:
+    - "At 8 pm, a friend from outside the lab appears at your desk holding your coat. \"You said 'next week' three weeks ago. It's next week.\""
+  choices:
+    - label: "Go, and leave the laptop behind"
+      text: "Three hours of dumplings and stories that have nothing to do with research. You sleep in the next morning and don't regret it."
+      effects: { sanity: "+6±2", energy: "+3±1", friends_rel: "+4±1", days: -1 }
+      tip: "When and How to Rest"
+    - label: "Go, but only for an hour"
+      text: "One quick bowl of noodles, then back to the lab. Not the full cure, but a dose."
+      effects: { sanity: "+3±1", friends_rel: "+1", energy: "-1" }
+    - label: "\"Ten more minutes\""
+      text: "You finish the section. They leave a takeout box on your desk with a sticky note: \"Next week. Really.\""
+      effects: { writing: "+1", friends_rel: "-3±1", sanity: "-2±1", health: "-1" }
+
+- id: wel_labmate_best_paper
+  title: "Somebody Else's Best Paper"
+  category: wellbeing
+  rarity: rare
+  when: { has_advisor: true }
+  text:
+    - "{labmate} wins a best-paper award. You're truly happy for them. Then, around 11 pm, a small voice asks what exactly you've been doing all year."
+  choices:
+    - label: "Ask {labmate} how they did it"
+      text: "Over coffee, {labmate} admits the project failed twice before it worked, and their first draft was worse than yours."
+      effects: { labmates_rel: "+3±1", taste: "+2±1", sanity: "+2±1", energy: "-2±1" }
+    - label: "Work twice as hard this month"
+      text: "You out-work the small voice for two weeks. It's still there, just tired. So are you."
+      effects: { days: 2, energy: "-6±2", health: "-3±1", sanity: "-3±1" }
+    - label: "List three things you did this year"
+      text: "The list runs well past three. You read it twice, then go to bed."
+      effects: { sanity: "+5±2", energy: "-1" }
+      tip: "Toxicity of Peer Pressure"
+    - label: "Read their paper to find the trick"
+      requires: { traits_any: [imposter_syndrome] }
+      tag: "Imposter Syndrome"
+      text: "There is no trick. It's just a careful, good paper. Somehow, that helps."
+      effects: { taste: "+3±1", sanity: "+2±1", days: -1 }
+
+- id: wel_gym_streak
+  title: "Ten in a Row"
+  category: wellbeing
+  rarity: uncommon
+  repeatable: true
+  cooldown: 26
+  when:
+    any:
+      - { traits_any: [gym_rat] }
+      - { stat: { health: ">=65" } }
+  text:
+    - "Ten gym sessions in a row. The front desk nods at you now, and you've started saying \"leg day\" without irony."
+  choices:
+    - label: "Keep the streak going"
+      text: "Eleven, twelve, thirteen. Your back stops complaining about the chair. Your calendar starts complaining instead."
+      effects: { health: "+5±1", energy: "+2±1", days: -1 }
+    - label: "Bring {labmate} next time"
+      requires: { has_advisor: true }
+      text: "{labmate} lasts twenty minutes and is sore for three days. They want to go again, which surprises you both."
+      effects: { health: "+3±1", labmates_rel: "+3±1", energy: "-2±1" }
+    - label: "Reward yourself with a week off"
+      text: "A well-earned week on the couch. The streak ends at ten, which is still ten."
+      effects: { energy: "+4±1", sanity: "+3±1", health: "-2±1" }
+    - label: "Go for twenty"
+      requires: { traits_any: [gym_rat] }
+      tag: "Gym Rat"
+      text: "Twenty sessions. You feel unstoppable, and mostly you are, except around 3 pm."
+      effects: { health: "+7±2", sanity: "+3±1", energy: "-2±1", days: -1 }
+
+- id: wel_acceptance_posts
+  title: "Thrilled to Share"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when:
+    telemetry: { submissions: ">=1" }
+  text:
+    - "Decisions are out for a big conference, and your feed is a wall of \"Thrilled to share...\" posts. You've been scrolling for forty minutes. You stopped reading the titles a while ago."
+  choices:
+    - label: "Close the app and go for a walk"
+      text: "The trees outside haven't had a paper accepted either. They seem fine."
+      effects: { sanity: "+4±1", health: "+1", network: "-1" }
+      tip: "Toxicity of Peer Pressure"
+    - label: "Like every single one"
+      text: "Two hundred likes later, you're a supportive member of the community, and slightly hollow."
+      effects: { network: "+2±1", sanity: "-3±1", energy: "-2±1" }
+    - label: "Mute the word \"thrilled\""
+      text: "Your feed goes quiet and slightly confusing. You miss a friend's real news and hear about it a week late."
+      effects: { sanity: "+3±1", friends_rel: "-2±1" }
+
+# ===========================================================================
+# Round 5: health, light and recoverable (event-ideas.md, R5.1; 2026-10-16).
+# Most of these move the Health bar: the situation costs a little, and the
+# choices that win it back cost Energy, days or Stress.
+# ===========================================================================
+
+# --- Sleep ---
+
+- id: wel_extra_hour
+  title: "The Extra Hour"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 26
+  when: { turn: [5, 6], has_advisor: true }
+  text:
+    - "Daylight saving ends. The clocks go back an hour, and your body doesn't notice. You've been handed one free hour, no strings attached."
+  choices:
+    - label: "Spend the hour asleep"
+      text: "The best hour of sleep you've had all semester. You wake up almost rested."
+      effects: { health: "+3±1", energy: "+3±1" }
+    - label: "Spend it on one more experiment"
+      text: "The extra hour goes to one more run. The run takes three hours. You end up two hours behind."
+      effects: { coding: "+2±1", energy: "-3±1", health: "-1" }
+    - label: "Book a 7 am meeting; it \"feels like 8\""
+      text: "It does feel like 8, for about a week. Then it feels like 7 again, and the meeting is now recurring."
+      effects: { advisor_rel: "+2±1", energy: "-3±1", sanity: "-2±1" }
+
+- id: wel_sleep_tracker
+  title: "5 Hours 12 Minutes"
+  category: wellbeing
+  rarity: common
+  when: { has_advisor: true }
+  text:
+    - "{labmate} lends you their sleep tracker. After a week, it reports your average: 5 hours 12 minutes. It has also awarded you a badge called \"Night Explorer\"."
+  choices:
+    - label: "Set a bedtime alarm and obey it"
+      text: "Lights out at 11:30. You lose your late-night hours and find your mornings."
+      effects: { health: "+4±1", energy: "+3±1", days: -1 }
+      tip: "Know Your Limits"
+    - label: "Keep wearing it, stop looking at it"
+      text: "The data is still collected. It just isn't anyone's problem now."
+      effects: { sanity: "+2±1", health: "-2±1" }
+    - label: "Return it with a note: \"broken\""
+      text: "{labmate} checks it and finds nothing wrong. They know. You know they know."
+      effects: { sanity: "+3±1", labmates_rel: "-2±1", health: "-1" }
+
+- id: wel_lab_couch
+  title: "The Lab Couch"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 20
+  when: { has_advisor: true }
+  text:
+    - "You nap on the lab couch between runs. Forty minutes later you wake up with your neck stuck at a jaunty angle."
+  choices:
+    - label: "Heat pack and slow stretches"
+      text: "A slow, careful afternoon. By evening you can check your blind spot again."
+      effects: { health: "+2±1", energy: "-3±1" }
+    - label: "Work with your head tilted"
+      text: "Your monitor looks a bit crooked all day. {labmate} tilts their head in solidarity."
+      effects: { health: "-3±1", labmates_rel: "+1" }
+    - label: "Go home and sleep in a real bed"
+      text: "Twelve hours later your neck is straight, and your runs have finished without you."
+      effects: { health: "+4±1", energy: "+4±1", days: -1 }
+
+- id: wel_radiator
+  title: "The Radiator"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 26
+  when: { turn: [7, 13] }
+  text:
+    - "The radiator in your apartment clanks from 2 to 4 am, every night, like someone is trapped inside with a wrench."
+  choices:
+    - label: "Buy earplugs"
+      text: "Silence at last. You also sleep through your alarm, twice."
+      effects: { health: "+3±1", energy: "+3±1", days: -1 }
+    - label: "Write a polite note to the landlord"
+      check: { stat: writing, vs: 50, spread: 20 }
+      success:
+        text: "Your note is so well argued that someone comes out the same week. The radiator now hums, gently."
+        effects: { health: "+3±1", sanity: "+2±1" }
+      failure:
+        text: "The landlord replies, \"That's normal for an old building.\" It is. It's also loud."
+        effects: { health: "-2±1", sanity: "-2±1" }
+    - label: "Use the hours to write"
+      text: "Two hours a night, typing in time with the clanks. Your draft grows. Your eyes stop fully opening."
+      effects: { writing: "+2±1", days: 1, health: "-4±1", energy: "-3±1" }
+
+- id: wel_arxiv_tabs
+  title: "Forty Tabs"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  text:
+    - "It's 1 am. You're in bed, and your phone has forty arXiv tabs open. Each one is \"just the abstract\"."
+  choices:
+    - label: "Leave the phone outside the bedroom"
+      text: "You buy an old-school alarm clock. The first three nights feel strange. Then you sleep like you used to."
+      effects: { health: "+3±1", energy: "+3±1", sanity: "-1" }
+    - label: "Save them for the morning"
+      text: "You bookmark all forty. In the morning you read two, properly. The other 38 join the folder of good intentions."
+      effects: { knowledge: "+1", health: "+1" }
+      tip: "Paper Reading"
+    - label: "Just one more abstract"
+      text: "By 2:40 am you understand a whole new subfield. Not yours."
+      effects: { knowledge: "+3±1", health: "-3±1", energy: "-3±1" }
+
+- id: wel_fourteen_hours
+  title: "Fourteen Hours"
+  category: wellbeing
+  rarity: common
+  hook: after_submit
+  repeatable: true
+  cooldown: 8
+  text:
+    - "The weekend after you submit {paper}, you go to bed at 9 pm and wake up at 11 am. Fourteen hours. Your body was keeping a tab."
+  choices:
+    - label: "Do it again on Sunday"
+      text: "Another long night. On Monday you feel like someone just back from vacation."
+      effects: { health: "+4±1", energy: "+6±2", days: -1 }
+    - label: "Get up and clean the apartment"
+      text: "You find three mugs you thought you'd lost and one you wish you hadn't. The apartment is clean; you are tired."
+      effects: { sanity: "+4±1", health: "+1", energy: "-2±1" }
+    - label: "Start planning the next paper"
+      text: "By Sunday night you have an outline and a mild headache. Momentum is a choice."
+      effects: { taste: "+2±1", knowledge: "+1", energy: "-3±1", health: "-2±1" }
+
+# --- Posture, eyes and moving around ---
+
+- id: wel_ergonomics
+  title: "For Training Purposes"
+  category: wellbeing
+  rarity: uncommon
+  text:
+    - "The university offers free ergonomic assessments. The assessor measures your desk, frowns, and photographs your setup \"for training purposes\"."
+  choices:
+    - label: "Follow every recommendation"
+      text: "Chair height, monitor arm, footrest, and a lumbar pillow shaped like a burrito. It takes a day. Your back notices."
+      effects: { health: "+5±1", days: -1 }
+    - label: "Fix only the monitor height"
+      text: "You raise the monitor on the conference proceedings you never read. Finally, a use for them."
+      effects: { health: "+2±1" }
+    - label: "Ask them to blur your face"
+      text: "They agree. Your posture becomes an anonymous warning in next year's training slides. You change nothing."
+      effects: { sanity: "+2±1", health: "-2±1" }
+
+- id: wel_standing_desk
+  title: "The Standing Desk"
+  category: wellbeing
+  rarity: common
+  when: { has_advisor: true }
+  text:
+    - "Your standing desk arrives. On day one you stand for two hours. On day two it becomes a regular desk, slightly taller."
+  choices:
+    - label: "Alternate on a timer"
+      text: "Thirty minutes up, thirty down. Your legs complain for a week, then stop."
+      effects: { health: "+4±1", energy: "-2±1" }
+    - label: "Use it as a shelf for printed papers"
+      text: "It holds 300 pages you'll read someday. It's the most useful furniture you own."
+      effects: { sanity: "+2±1", health: "-1" }
+    - label: "Stand through lab meeting to make a point"
+      text: "Nobody is sure what the point is. Then {labmate} stands too, and by spring lab meeting is twenty minutes shorter."
+      effects: { health: "+2±1", labmates_rel: "+2±1", energy: "-3±1" }
+
+- id: wel_elevator_out
+  title: "Sixth Floor"
+  category: wellbeing
+  rarity: uncommon
+  when: { has_advisor: true }
+  text:
+    - "The elevator is out for a month. The sign says \"We apologize for the inconvenience.\" The lab is on the sixth floor."
+  choices:
+    - label: "Take the stairs, every time"
+      text: "Six floors, four times a day. By week three you arrive only slightly out of breath."
+      effects: { health: "+5±1", energy: "-4±1" }
+    - label: "Work from the ground-floor library"
+      text: "Quiet, warm, and five floors from the lab. You get a lot done and miss all the gossip."
+      effects: { knowledge: "+2±1", labmates_rel: "-2±1" }
+    - label: "Wait for the freight elevator"
+      text: "It comes every twenty minutes. You get to know the custodians, and a lot of podcasts."
+      effects: { sanity: "+2±1", days: -1, health: "-1" }
+
+- id: wel_no_daylight
+  title: "Daylight"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 26
+  when: { turn: [8, 13], has_advisor: true }
+  text:
+    - "You realize you haven't seen daylight on a weekday in two weeks. You arrive in the dark, leave in the dark, and the lab has no windows."
+  choices:
+    - label: "Hold your next one-on-one outside"
+      check: { stat: advisor_rel, vs: 50, spread: 20 }
+      success:
+        text: "{advisor} agrees to a walking meeting. It's cold and short, and the best meeting you've had this month."
+        effects: { health: "+3±1", sanity: "+2±1", advisor_rel: "+1" }
+      failure:
+        text: "{advisor} agrees, and then it rains sideways. You take notes on a wet napkin."
+        effects: { health: "+1", sanity: "-2±1" }
+    - label: "Trade desks with {labmate} for the window"
+      text: "{labmate} agrees, for a week of coffee and a little sighing. The window faces a parking lot, but it's daylight."
+      effects: { health: "+2±1", sanity: "+3±1", labmates_rel: "-1" }
+    - label: "Buy a daylight lamp"
+      text: "It is very bright and very blue. Your desk looks like a dentist's office, and you feel noticeably more awake."
+      effects: { energy: "+3±1", health: "+1", sanity: "-1" }
+
+- id: wel_stretch_timer
+  title: "The Stretch Timer"
+  category: wellbeing
+  rarity: uncommon
+  when: { has_advisor: true }
+  text:
+    - "{labmate} sets up an hourly stretch timer for the whole lab. It goes off in the middle of your practice talk, right on the slide with the main result."
+  choices:
+    - label: "Stretch with everyone"
+      text: "The whole room stretches. You lose your place and never quite find it again, but everyone's shoulders thank you."
+      effects: { health: "+2±1", sanity: "+2±1", presenting: "-1" }
+    - label: "Mute it"
+      text: "You finish the talk on time. The timer stays muted for the rest of the month, for everyone."
+      effects: { presenting: "+1", labmates_rel: "-2±1", health: "-1" }
+    - label: "Lead the stretches from now on"
+      text: "You become the lab's stretch captain. It costs five minutes an hour and earns you a lot of goodwill."
+      effects: { health: "+3±1", labmates_rel: "+3±1", energy: "-2±1" }
+
+- id: wel_new_glasses
+  title: "New Glasses"
+  category: wellbeing
+  rarity: uncommon
+  text:
+    - "Your new glasses arrive. It turns out the slides at department talks were never blurry, and trees have individual leaves."
+  choices:
+    - label: "Wear them everywhere"
+      text: "Two days of headaches, then a sharper world. You can now read the fine print on the reimbursement form. You wish you couldn't."
+      effects: { health: "+3±1", energy: "-2±1" }
+    - label: "Keep them for screens only"
+      text: "A compromise. You still squint at the whiteboard, but your eyes stop aching by 6 pm."
+      effects: { health: "+2±1", sanity: "-1" }
+    - label: "Reread your favorite paper, properly"
+      text: "Figure 3 had error bars all along. The paper is even better than you remembered."
+      effects: { knowledge: "+2±1", taste: "+1", health: "+1", days: -1 }
+
+# --- Food and coffee ---
+
+- id: wel_quit_coffee
+  title: "Day Two Without Coffee"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 26
+  text:
+    - "You try quitting coffee for a week. Day two brings a headache with opinions and a personal grudge against the coffee machine."
+  choices:
+    - label: "Push through to day seven"
+      text: "A rough week, then a surprise: you sleep through the night and wake up before the alarm."
+      effects: { health: "+5±1", energy: "-5±2", sanity: "-2±1" }
+    - label: "Switch to tea"
+      text: "Three cups of green tea a day. Gentler. You've started describing it as \"grassy\"."
+      effects: { health: "+2±1", energy: "-2±1" }
+    - label: "Give up at 10:02 am"
+      text: "The coffee tastes like victory and defeat at the same time."
+      effects: { energy: "+3±1", sanity: "+2±1", health: "-1" }
+
+- id: wel_delivery_driver
+  title: "Regular Customer"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  text:
+    - "The late-night delivery driver now greets you by name, knows your building's door code, and asked last week how the paper is going."
+  choices:
+    - label: "Order the salad this time"
+      text: "The driver looks worried about you. The salad is fine. You're still a little hungry at midnight."
+      effects: { health: "+2±1", sanity: "-1" }
+    - label: "Order the usual, extra fries"
+      text: "It's 11 pm, the fries are perfect, and for ten minutes nothing else matters."
+      effects: { sanity: "+4±1", health: "-3±1" }
+    - label: "Make it your last delivery this month"
+      text: "You cook rice in bulk and eat it with whatever's in the fridge. The driver probably misses you."
+      effects: { health: "+3±1", energy: "-3±1" }
+
+- id: wel_lunch_rotation
+  title: "Lunch Rotation"
+  category: wellbeing
+  rarity: common
+  when: { has_advisor: true }
+  text:
+    - "{labmate} starts a lab lunch rotation: each week, one person cooks for everyone. Your week is coming up."
+  choices:
+    - label: "Cook something real"
+      text: "A big pot of curry for nine people. It takes a whole day, and everyone has seconds."
+      effects: { health: "+3±1", labmates_rel: "+4±1", days: -1 }
+    - label: "Bring store-bought dumplings"
+      text: "Nobody minds. Two people ask where they're from. You let them believe it took effort."
+      effects: { health: "+2±1", labmates_rel: "+1" }
+    - label: "Keep eating at your desk"
+      text: "You opt out and get a quiet hour every day. Through the door, you hear the lab laughing over lunch."
+      effects: { sanity: "+2±1", labmates_rel: "-3±1", health: "-1" }
+
+- id: wel_leftovers_list
+  title: "Leftovers in the Kitchen"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 20
+  text:
+    - "The department's \"leftovers in the kitchen\" emails have fed you for a week: pizza, cookies, and one mysterious tray of wraps."
+  choices:
+    - label: "Keep it up"
+      text: "Free food is a research skill. Your wallet is grateful. Your body has notes."
+      effects: { sanity: "+2±1", health: "-3±1" }
+    - label: "Buy actual groceries"
+      text: "Vegetables! You'd forgotten how they crunch."
+      effects: { health: "+3±1", energy: "-1" }
+    - label: "Turn on notifications for the list"
+      text: "You can now reach any kitchen in the building in 90 seconds, and you've met half the department over cold pizza."
+      effects: { network: "+2±1", health: "-3±1", energy: "-1" }
+
+# --- Colds, flu and checkups ---
+
+- id: wel_checkup
+  title: "The Checkup"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Your student health plan includes a free checkup. The nurse asks how many hours a day you sit. You do the math out loud, which is a mistake."
+  choices:
+    - label: "Answer honestly and take the advice"
+      text: "Walk after lunch, stand up every hour, sleep seven hours. The first two turn out to be easy."
+      effects: { health: "+5±1", sanity: "-1", days: -1 }
+      tip: "Know Your Limits"
+    - label: "Round down"
+      text: "\"About six,\" you say. The nurse writes down \"twelve\" and hands you a pamphlet anyway."
+      effects: { health: "+2±1", sanity: "+1" }
+    - label: "Laugh nervously"
+      text: "The nurse laughs too, then books you a follow-up. You'll go. Probably."
+      effects: { health: "+3±1", sanity: "-2±1" }
+
+- id: wel_fever_committee
+  title: "Fever on the Big Day"
+  category: wellbeing
+  rarity: rare
+  when: { year: [2, 7], turn: [10, 14], has_advisor: true }
+  text:
+    - "You wake up with a fever on the morning of your committee meeting. {committee} moved a flight to be there."
+  choices:
+    - label: "Reschedule"
+      text: "Everyone is kind about it. The next time all four of you are free is five weeks away. You spend two days in bed."
+      effects: { health: "+4±1", days: -2, sanity: "-2±1" }
+    - label: "Join by video from bed"
+      text: "You present in a hoodie with a blanket on your shoulders. {committee} calls it the most relaxed meeting they've had all year."
+      effects: { presenting: "+1", advisor_rel: "+1", health: "-2±1", energy: "-3±1" }
+    - label: "Go in person, sit far from everyone"
+      check: { stat: health, vs: 55, spread: 20 }
+      success:
+        text: "You present from the far end of the table. It goes well, and nobody catches anything."
+        effects: { advisor_rel: "+2±1", presenting: "+2±1", health: "-3±1", energy: "-4±1" }
+      failure:
+        text: "Halfway through, you sneeze on the projector remote. {committee} is very gracious. You go straight to bed."
+        effects: { health: "-5±2", energy: "-5±2" }
+        status: { add: sick, turns: 1 }
+
+- id: wel_cold_before_sessions
+  title: "No Colds in the Clinic"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when:
+    has_advisor: true
+    project: { stage: [sessions, study] }
+  text:
+    - "You wake up with a cold the day before your {project} sessions with clinicians. Nobody brings a cold into a hospital."
+  choices:
+    - label: "Reschedule the sessions"
+      text: "The clinicians are understanding. Their next free slots are two weeks out. You spend the wait in bed with tea."
+      effects: { project.delay: 1, health: "+3±1", sanity: "-2±1" }
+    - label: "Ask {labmate} to run them from your script"
+      check: { stat: labmates_rel, vs: 50, spread: 20 }
+      success:
+        text: "{labmate} follows your script to the letter and adds one great follow-up question. You owe them dinner."
+        effects: { project.progress: "+6±2", health: "+2±1", labmates_rel: "-1" }
+      failure:
+        text: "{labmate} is glad to help but skips the warm-up questions. The sessions happen; the data is thinner."
+        effects: { project.progress: "+4±2", project.quality.S: "-2±1", health: "+1" }
+    - label: "Switch to video sessions"
+      text: "Most of the clinicians prefer it anyway. You run them from your couch, muted between coughs."
+      effects: { project.progress: "+5±2", project.quality.S: "-2±1", health: "-2±1", energy: "-3±1" }
+
+- id: wel_voice_gone
+  title: "No Voice"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when: { status_any: [ta] }
+  text:
+    - "It's the morning you teach section, and your voice is gone. What comes out is a small, hopeful squeak."
+  choices:
+    - label: "Teach from slides and the whiteboard"
+      text: "You write everything down. It's the clearest section you've ever taught."
+      effects: { presenting: "+2±1", energy: "-4±1" }
+    - label: "Swap with another TA"
+      text: "They cover for you and say you owe them one. They will collect, during finals."
+      effects: { health: "+3±1", days_next: -1 }
+    - label: "Whisper; the students lean in"
+      text: "Thirty students lean in and go very quiet. It's the most attentive section all semester. Your throat files a complaint."
+      effects: { presenting: "+1", sanity: "+2±1", health: "-3±1" }
+
+- id: wel_soup_at_door
+  title: "Soup at the Door"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 20
+  when: { status_any: [sick], has_advisor: true }
+  text:
+    - "You're home with a cold. There's a knock, and outside your door is a container of soup and a sticky note from {labmate}: \"Get well. Don't answer the lab chat.\""
+  choices:
+    - label: "Rest properly, like the note says"
+      text: "Soup, sleep, more soup. By Friday you're back, and so is your sense of smell."
+      effects: { health: "+5±1", energy: "+3±1", days: -1 }
+    - label: "Thank them, then work from bed"
+      text: "You send a heart emoji and a pull request. The soup goes cold next to your laptop."
+      effects: { coding: "+1", labmates_rel: "+1", health: "-2±1", energy: "-2±1" }
+    - label: "Return the favor next week"
+      text: "Once you're better, you bring {labmate} homemade dumplings. The lab now runs on a soup-and-dumplings economy."
+      effects: { labmates_rel: "+4±1", health: "+2±1", days_next: -1 }
+
+# --- Weather and sports ---
+
+- id: wel_snow_day
+  title: "Snow Day"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 26
+  when: { turn: [10, 14], has_advisor: true }
+  text:
+    - "Snow day: the university closes campus. Classes are canceled, the building is locked, and the whole city is quiet."
+  choices:
+    - label: "Actually rest"
+      text: "A blanket, a pot of tea, and a novel with no citations. It feels illegal."
+      effects: { sanity: "+5±2", health: "+3±1", energy: "+3±1" }
+    - label: "Write from home all day"
+      text: "No meetings, no seminar, no excuses. You write more than you have all month."
+      effects: { days: 1, writing: "+1", sanity: "-1" }
+    - label: "Have a snowball fight, then write"
+      text: "A fierce battle in the quad, then hot chocolate and a slow afternoon of writing. {labmate} has a terrifying arm."
+      effects: { labmates_rel: "+3±1", sanity: "+3±1", health: "+1", energy: "-3±1" }
+
+- id: wel_black_ice
+  title: "Black Ice"
+  category: wellbeing
+  rarity: uncommon
+  repeatable: true
+  cooldown: 26
+  when: { turn: [10, 14], has_advisor: true }
+  text:
+    - "You slip on the ice outside the building and land on your hand. A sprained wrist: one-handed typing for a week."
+  choices:
+    - label: "Rest it and dictate your writing"
+      text: "Your laptop hears \"in this paper\" as \"in this pepper\" all week. Your wrist heals. Your draft is now well seasoned."
+      effects: { health: "-2±1", energy: "-3±1", sanity: "+1" }
+      status: { add: injured, turns: 1 }
+    - label: "Type one-handed, grimly"
+      text: "Forty words a minute becomes nine. You discover how many of your sentences were optional."
+      effects: { health: "-5±1", writing: "+2±1", sanity: "-1" }
+      status: { add: injured, turns: 2 }
+    - label: "Pair-program with {labmate} at the keyboard"
+      text: "You talk, they type. They fix two of your bugs out of pure impatience."
+      effects: { health: "-2±1", coding: "+1", labmates_rel: "+2±1", days: -1 }
+      status: { add: injured, turns: 1 }
+
+- id: wel_sneeze_back
+  title: "The Sneeze"
+  category: wellbeing
+  rarity: common
+  repeatable: true
+  cooldown: 26
+  text:
+    - "You sneeze, hard, and something in your lower back says \"no\". You now walk like someone twice your age."
+  choices:
+    - label: "Ice it and spend a day on the floor"
+      text: "A whole day on the living-room floor with an ice pack and a podcast. There's a crack in the ceiling you'd never noticed."
+      effects: { health: "-1", days: -1, sanity: "+1" }
+    - label: "Work standing very still"
+      text: "You stand at your desk like a heron for three days. It mostly works, until you drop a pen."
+      effects: { health: "-4±1", energy: "-2±1" }
+      status: { add: injured, turns: 1 }
+    - label: "Tell everyone it was a sports injury"
+      text: "Nobody believes you. Everyone respects the commitment to the story."
+      effects: { health: "-3±1", sanity: "+2±1" }
+      status: { add: injured, turns: 1 }
+
+- id: wel_faculty_soccer
+  title: "Faculty vs. Students"
+  category: wellbeing
+  rarity: uncommon
+  repeatable: true
+  cooldown: 26
+  when: { turn: [17, 23], has_advisor: true }
+  text:
+    - "The annual faculty-vs-students soccer match. {advisor} is on the other team, wearing shin guards and the look they usually save for deadlines."
+  choices:
+    - label: "Play hard"
+      check: { stat: health, vs: 55, spread: 20 }
+      success:
+        text: "You score past {advisor}, who shakes your hand and brings it up at lab meeting for a month. You're sore all week."
+        effects: { health: "+3±1", sanity: "+3±1", energy: "-4±1", advisor_rel: "+1" }
+      failure:
+        text: "One big tackle and a pulled hamstring. The students win anyway, and you watch the second half with an ice pack."
+        effects: { health: "-4±1", energy: "-3±1", sanity: "+1" }
+        status: { add: injured, turns: 1 }
+    - label: "Go easy whenever your advisor has the ball"
+      text: "{advisor} scores twice and is in a wonderful mood all week. Your teammates have noticed."
+      effects: { advisor_rel: "+3±1", health: "+2±1", labmates_rel: "-2±1" }
+    - label: "Cheer from the sideline with snacks"
+      text: "Orange slices and the loudest voice on the field. The students lose by one, but the snacks are a hit."
+      effects: { labmates_rel: "+2±1", sanity: "+2±1" }
+
+- id: wel_climbing_gym
+  title: "The Climbing Gym"
+  category: wellbeing
+  rarity: common
+  when: { has_advisor: true }
+  text:
+    - "{labmate} drags you to the climbing gym. You make it up two walls. The next morning, your forearms are too sore to hold a coffee, let alone type."
+  choices:
+    - label: "Go again next week"
+      text: "Week two: three walls, less shaking. {labmate} has a climbing buddy now."
+      effects: { health: "+4±1", labmates_rel: "+3±1", energy: "-3±1", days: -1 }
+    - label: "Stick to the easy wall"
+      text: "The beginner wall is full of eight-year-olds who are better than you. Humbling, and good exercise."
+      effects: { health: "+2±1", sanity: "+1", energy: "-1" }
+    - label: "Rest your hands and read papers instead"
+      text: "Two days of reading with your arms propped on pillows. Your forearms recover. Your reading list shrinks."
+      effects: { knowledge: "+2±1", health: "+1", labmates_rel: "-1" }
+
+# --- Conference travel (hook: conference binds {city}, {paper} and {venue}) ---
+
+- id: wel_long_flight
+  title: "Last Row"
+  category: wellbeing
+  rarity: common
+  hook: conference
+  repeatable: true
+  cooldown: 13
+  text:
+    - "Fourteen hours on the plane to {city}: last row, next to the restroom, in a seat that reclines one inch, in theory."
+  choices:
+    - label: "Walk the aisle every hour"
+      text: "You do laps with a retired dentist and land with working legs."
+      effects: { health: "+3±1", energy: "-2±1" }
+    - label: "Put on an eye mask and sleep"
+      text: "You sleep six of the fourteen hours, in eleven pieces."
+      effects: { energy: "+3±1", health: "-1" }
+    - label: "Finish your slides on the tray table"
+      text: "The slides are done by landing. Your neck stays at tray-table angle for two days."
+      effects: { presenting: "+2±1", health: "-3±1", energy: "-3±1" }
+
+- id: wel_jetlag_4am
+  title: "Wide Awake at 4 am"
+  category: wellbeing
+  rarity: common
+  hook: conference
+  repeatable: true
+  cooldown: 13
+  text:
+    - "Jet lag wakes you at 4 am in {city}, wide awake and starving. The hotel gym opens at 5."
+  choices:
+    - label: "Work out the minute it opens"
+      text: "Forty minutes on a treadmill facing a mirror. By breakfast, your body has picked a time zone."
+      effects: { health: "+3±1", energy: "-2±1" }
+      status_remove: [jet_lagged]
+    - label: "Rehearse your talk in the empty lobby"
+      text: "The night clerk hears your talk four times and has one very good question."
+      effects: { presenting: "+2±1", energy: "-3±1", health: "-1" }
+    - label: "Lie in the dark reading arXiv"
+      text: "By sunrise you've read nine abstracts and remember none. You fall asleep at 7:50, ten minutes before your alarm."
+      effects: { knowledge: "+1", energy: "-3±1", health: "-2±1" }
+
+- id: wel_conference_steps
+  title: "23,000 Steps"
+  category: wellbeing
+  rarity: common
+  hook: conference
+  repeatable: true
+  cooldown: 13
+  text:
+    - "Your phone says you're walking 23,000 steps a day at {venue}. Your feet say more. Your conference shoes were chosen for looks."
+  choices:
+    - label: "Buy comfortable shoes in {city}"
+      text: "The ugliest, softest shoes in {city}. You miss a morning session finding them, then walk the rest of the week in bliss."
+      effects: { health: "+3±1", sanity: "+2±1", network: "-1" }
+    - label: "Sit through the afternoon sessions"
+      text: "Three hours in a dark room with your feet up on your bag. You learn a lot and meet nobody."
+      effects: { knowledge: "+2±1", health: "+1", network: "-1" }
+    - label: "Keep walking the poster hall"
+      text: "Forty posters, twelve good conversations, two blisters."
+      effects: { network: "+4±1", health: "-3±1", energy: "-2±1" }
+
+- id: wel_conference_pastries
+  title: "Forty Percent Croissant"
+  category: wellbeing
+  rarity: common
+  hook: conference
+  repeatable: true
+  cooldown: 13
+  text:
+    - "Day three at {venue}. Since landing, you've eaten nothing but coffee-break pastries. You are now about 40% croissant."
+  choices:
+    - label: "Find a grocery store"
+      text: "Fruit, yogurt and a bag of carrots, eaten on a bench in {city}. You miss a session and don't regret it."
+      effects: { health: "+3±1", energy: "+1", network: "-1" }
+    - label: "Embrace it"
+      text: "There's a cinnamon one today. Life is good, and slightly sticky."
+      effects: { sanity: "+3±1", health: "-3±1" }
+    - label: "Save room for the reception"
+      text: "You skip lunch to save room. The reception food is gone in four minutes. You eat a breadstick and talk to everyone."
+      effects: { network: "+2±1", energy: "-3±1", health: "-1" }
+    - label: "Find the bakery the locals line up for"
+      requires: { traits_any: [foodie] }
+      tag: "Foodie"
+      text: "A tiny bakery with a line around the block. You bring a box back to your session and become very popular."
+      effects: { sanity: "+5±1", network: "+2±1", health: "-1" }
+
+- id: wel_fun_run
+  title: "The Fun Run"
+  category: wellbeing
+  rarity: uncommon
+  hook: conference
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The {venue} fun run starts at 6:30 am. Two authors whose papers you've cited many times have signed up."
+  choices:
+    - label: "Run it"
+      check: { stat: health, vs: 50, spread: 20 }
+      success:
+        text: "You keep pace with them for five kilometers and talk the whole way. One of them asks for your paper."
+        effects: { health: "+3±1", network: "+5±2", energy: "-4±1" }
+      failure:
+        text: "You last two kilometers, then walk. They wave as they pass. At the finish you say hi, very red in the face."
+        effects: { health: "+2±1", network: "+2±1", energy: "-5±2" }
+    - label: "Sleep in"
+      text: "You sleep until 8 and see the finish-line photos at breakfast. Everyone looks happy and very sweaty."
+      effects: { energy: "+4±1", health: "+1" }
+    - label: "Walk it with a coffee, meet them at the end"
+      text: "You arrive last, with coffee. They are delighted, mostly by the coffee. Twenty minutes of great conversation."
+      effects: { network: "+3±1", health: "+1", energy: "-2±1" }
+
+- id: wel_flight_canceled
+  title: "Canceled"
+  category: wellbeing
+  rarity: rare
+  hook: conference
+  text:
+    - "Your flight home from {city} is canceled overnight. The line for hotel vouchers is two hours long and not moving."
+  choices:
+    - label: "Wait for the voucher"
+      text: "Two hours, one voucher, and a hotel by the highway. You sleep five hours and fly home grumpy but rested-ish."
+      effects: { energy: "-5±2", sanity: "-3±1" }
+    - label: "Sleep on the floor by the gate"
+      text: "You build a bed out of a conference tote and your poster tube. You wake up first in line, with a crick in your neck."
+      effects: { health: "-4±1", energy: "-2±1", sanity: "+1" }
+    - label: "Work through the night on revisions"
+      text: "At an empty gate at 3 am, you revise more than you have all month. You land looking like a ghost."
+      effects: { writing: "+2±1", health: "-3±1", energy: "-6±2" }

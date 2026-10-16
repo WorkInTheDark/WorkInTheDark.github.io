@@ -1,0 +1,864 @@
+# New work landing on your plate (event-ideas.md, R5.2). These raise Stress.
+# Most choices cost Stress; at least one keeps it low, at a price somewhere else.
+# Not here: "Final project reports, 45 groups" is already tea_grading_pile (teaching.yml).
+
+# --- Reviewing --------------------------------------------------------------
+
+- id: tsk_reciprocal_reviewing
+  title: "Every Author Reviews"
+  category: reviews
+  rarity: common
+  hook: after_submit
+  repeatable: true
+  cooldown: 8
+  text:
+    - "This cycle, {venue} asks every author to review too. Right after you submit {paper}, five papers land in your queue, due in three weeks."
+  choices:
+    - label: "Do all five properly"
+      text: "Five careful reviews. You learn more about what makes a paper land than your own last three submissions taught you."
+      effects: { days: -2, sanity: "-5±1", energy: "-2±1", knowledge: "+3±1", taste: "+1" }
+    - label: "Do them fast"
+      text: "Five short reviews, on time. One is three sentences long. Somewhere, an area chair makes a note."
+      effects: { days: -1, sanity: "-2±1", network: "-2±1" }
+    - label: "Ask the chairs for a lighter load"
+      check: { stat: network, vs: 45, spread: 20 }
+      success:
+        text: "The chairs cut you to two, since you're a student. You do both properly and keep your evenings."
+        effects: { days: -1, sanity: "-1", knowledge: "+1" }
+      failure:
+        text: "\"Every author reviews five.\" Now you have five reviews and one slightly awkward email thread."
+        effects: { days: -2, sanity: "-4±1", knowledge: "+2±1" }
+
+- id: tsk_advisor_first_pass
+  title: "Could You Take a First Pass?"
+  category: reviews
+  rarity: common
+  repeatable: true
+  cooldown: 12
+  when: { year: [2, 8], has_advisor: true }
+  text:
+    - "{advisor} forwards their own review assignment: \"Could you take a first pass on these four?\" The reviews are due in nine days."
+  choices:
+    - label: "Write careful drafts"
+      text: "Four careful drafts. {advisor} submits them almost unchanged and says you have a good eye."
+      effects: { days: -2, sanity: "-5±1", knowledge: "+2±1", taste: "+2±1", advisor_rel: "+3±1" }
+    - label: "Send short notes"
+      text: "Four sets of bullet points, done in an evening. {advisor} writes the reviews from them, with a small sigh."
+      effects: { sanity: "-1", advisor_rel: "-2±1" }
+    - label: "Ask to be listed as a sub-reviewer"
+      text: "{advisor} adds your name. The conference thanks you by email, and two area chairs now know who you are."
+      effects: { days: -2, sanity: "-4±1", knowledge: "+1", network: "+3±1" }
+
+- id: tsk_reviewer_bidding
+  title: "Bidding Season"
+  category: reviews
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when: { year: [2, 8] }
+  text:
+    - "Reviewer bidding is open: {roll:1600-2000} abstracts, bids due Thursday. The site shows 25 at a time and logs you out every hour."
+  choices:
+    - label: "Read titles for an evening"
+      text: "An evening of titles. You bid on eight papers you'd actually like to read, and spot two suspiciously close to yours."
+      effects: { sanity: "-3±1", energy: "-2±1", taste: "+2±1", knowledge: "+1" }
+    - label: "Bid \"eager\" on everything in your topic"
+      text: "Ten minutes of clicking. The system takes you at your word: you get your topic, and plenty of it."
+      effects: { sanity: "-1", days_next: -2, knowledge: "+2±1" }
+    - label: "Skip bidding and accept your fate"
+      text: "Your evening is free. Fate assigns you a 40-page theory paper and one about crop yields."
+      effects: { sanity: "-3±1", days_next: -1 }
+
+- id: tsk_review_too_short
+  title: "Too Short"
+  category: reviews
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when: { year: [2, 8] }
+  text:
+    - "The area chair writes: your review is \"too short to help the authors\". Could you expand it by Friday? It is four sentences. One is \"The paper is fine.\""
+  choices:
+    - label: "Rewrite it properly"
+      text: "You reread the paper and write a real review. The area chair thanks you by name in the discussion."
+      effects: { days: -1, sanity: "-4±1", knowledge: "+2±1", network: "+2±1" }
+    - label: "Add two paragraphs"
+      text: "Two paragraphs of \"the authors may wish to consider\". It meets the length. The area chair replies \"Thanks.\" with a period."
+      effects: { sanity: "-2±1", network: "-1" }
+    - label: "Point out that the paper was short too"
+      text: "The area chair does not find this funny. You are quietly left off next year's reviewer list, which is, in a way, a win."
+      effects: { sanity: "+1", network: "-3±1" }
+
+- id: tsk_discussion_pings
+  title: "Three Pings"
+  category: reviews
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when: { year: [2, 8] }
+  text:
+    - "Discussion period. The area chair has pinged you three times about the authors' response. It is 2,400 words long and has its own table of contents."
+  choices:
+    - label: "Read it and engage"
+      text: "The response is good. You drop two concerns, keep one, and the discussion actually goes somewhere."
+      effects: { days: -1, sanity: "-4±1", taste: "+2±1", network: "+2±1" }
+    - label: "Raise your score"
+      text: "One click and the pings stop. You hope the response was as good as it was long."
+      effects: { sanity: "-1", taste: "-1" }
+    - label: "Reply \"I maintain my score\""
+      text: "Four words, sent. The area chair's next message to you is noticeably shorter than the first three."
+      effects: { sanity: "+1", network: "-2±1" }
+
+- id: tsk_journal_revision
+  title: "Eight Months Later"
+  category: reviews
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when: { year: [2, 8] }
+  text:
+    - "A journal sends the revised version of a paper you reviewed eight months ago, with a 30-page response to reviewers. You remember none of it."
+  choices:
+    - label: "Reread both versions"
+      text: "A full day with both PDFs side by side. The revision is much better, and your second review says so in detail."
+      effects: { days: -1, sanity: "-4±1", knowledge: "+2±1", network: "+1" }
+    - label: "Check only your old points"
+      text: "All six of your points are answered, more or less. You recommend acceptance in an evening and feel only slightly guilty."
+      effects: { sanity: "-2±1", knowledge: "+1" }
+    - label: "Decline politely"
+      text: "The editor replies within a minute. They'll find someone new, who will ask for everything you already asked for."
+      effects: { sanity: "+1", network: "-2±1" }
+
+# --- Teaching and grading ---------------------------------------------------
+
+- id: tsk_answer_key
+  title: "Question 3"
+  category: teaching
+  rarity: common
+  repeatable: true
+  cooldown: 10
+  when: { status_any: [ta] }
+  text:
+    - "Halfway through grading, you notice the answer key is wrong on question 3. You have already graded {roll:50-70} exams with it."
+  choices:
+    - label: "Regrade everything"
+      text: "Every exam, again. Every grade is right, not one regrade request arrives, and the professor asks for you as TA next year."
+      effects: { days: -2, sanity: "-5±1", energy: "-2±1", network: "+2±1" }
+    - label: "Accept both answers"
+      text: "Everyone gets the points. The class average goes up, and so do the regrade requests on question 4."
+      effects: { sanity: "-2±1", days_next: -1 }
+    - label: "Tell the professor and let them decide"
+      text: "The professor thanks you and drops question 3 entirely. You spend a long evening redoing every total."
+      effects: { sanity: "-1", energy: "-3±1" }
+
+- id: tsk_peer_evals
+  title: "Everyone Did 40%"
+  category: teaching
+  rarity: common
+  repeatable: true
+  cooldown: 8
+  when:
+    status_any: [ta]
+    any: [ { turn: [7, 8] }, { turn: [17, 18] } ]
+  text:
+    - "Group peer evaluations are in. Every member of every group says they did 40% of the work. One group of four adds up to 160%."
+  choices:
+    - label: "Read the commit histories"
+      text: "A day in the git logs. They tell a clearer story, including one 3 am commit titled \"fixed everyone's stuff\"."
+      effects: { days: -1, sanity: "-4±1", coding: "+1" }
+    - label: "Give each group one grade"
+      text: "Fast and simple. Three students email to say it's unfair, and each of them is a little bit right."
+      effects: { sanity: "-1", days_next: -1 }
+    - label: "Meet the three most confusing groups"
+      text: "Three meetings, three versions of every story. By the third, you could referee anything."
+      effects: { days: -1, sanity: "-3±1", presenting: "+2±1" }
+
+- id: tsk_write_midterm
+  title: "Hard but Fair"
+  category: teaching
+  rarity: common
+  repeatable: true
+  cooldown: 8
+  when:
+    status_any: [ta]
+    any: [ { turn: [2, 5] }, { turn: [11, 14] } ]
+  text:
+    - "The professor asks you to write the midterm. \"Just two questions. Hard but fair.\" The exam is in nine days."
+  choices:
+    - label: "Write new questions"
+      text: "Two new questions, each solved three ways. You understand the material better than when you took the course."
+      effects: { days: -1, sanity: "-4±1", knowledge: "+3±1" }
+    - label: "Adapt last year's"
+      text: "New numbers, new variable names. One student finishes in twelve minutes. Their roommate took the course last year."
+      effects: { sanity: "-2±1", knowledge: "+1" }
+    - label: "Borrow from the textbook"
+      text: "Done in an hour. Eleven students recognize problem 4.7, the average is 96%, and the professor asks you to write a makeup."
+      effects: { sanity: "-1", days_next: -1 }
+
+- id: tsk_saturday_proctor
+  title: "8 am, Saturday"
+  category: teaching
+  rarity: common
+  repeatable: true
+  cooldown: 8
+  when:
+    status_any: [ta]
+    any: [ { turn: [8, 8] }, { turn: [18, 18] } ]
+  text:
+    - "You're proctoring the 8 am Saturday final: three hours in a silent gym, 140 students, and one wall clock that runs four minutes fast."
+  choices:
+    - label: "Proctor and grade in the room"
+      text: "You grade forty exams between whispered questions about question 2. That's a day of grading you won't have to do later."
+      effects: { energy: "-4±1", sanity: "-3±1", days: 1 }
+    - label: "Swap with another TA"
+      text: "They take your Saturday. You take their Monday review session, and they've already told the students you're great."
+      effects: { sanity: "+1", days_next: -1 }
+    - label: "Bring coffee for the whole room"
+      text: "A cart, 140 coffees, and the calmest final you've ever seen. Several students write \"thanks for the coffee\" on their exams."
+      effects: { energy: "-2±1", sanity: "-2±1", presenting: "+1" }
+
+- id: tsk_course_website
+  title: "Moving Day"
+  category: teaching
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when: { status_any: [ta] }
+  text:
+    - "The course moves to a new course website mid-semester. Someone has to move fourteen weeks of slides, quizzes and due dates. You are someone."
+  choices:
+    - label: "Do it carefully"
+      text: "A full day of copy, paste and check. Every due date is right, which no student will ever notice."
+      effects: { days: -1, sanity: "-4±1" }
+    - label: "Move only what's due this month"
+      text: "Done by dinner. Next month you'll do it again, with less memory of how."
+      effects: { sanity: "-1", days_next: -1 }
+    - label: "Write a script for it"
+      check: { stat: coding, vs: 50, spread: 20 }
+      success:
+        text: "Your script moves everything in eleven minutes. You spend the rest of the day showing it to people."
+        effects: { sanity: "-2±1", coding: "+3±1" }
+      failure:
+        text: "The script moves everything and sets every due date to January 1, 1970. You fix them by hand."
+        effects: { days: -1, sanity: "-5±1", coding: "+2±1" }
+
+- id: tsk_ai_essay
+  title: "As an AI Language Model"
+  category: teaching
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when: { status_any: [ta] }
+  text:
+    - "A student's essay begins with the words \"As an AI language model\". The rest is confident, polished, and about a different book."
+  choices:
+    - label: "Fill in the six-page integrity form"
+      text: "Six pages, two signatures and a flowchart. The professor is impressed. The office asks for it again on a newer template."
+      effects: { days: -1, sanity: "-4±1", network: "+2±1" }
+    - label: "Talk to the student first"
+      text: "They turn red and rewrite it by Friday. The new essay is shorter, messier, and clearly theirs."
+      effects: { sanity: "-2±1", energy: "-2±1", presenting: "+1" }
+    - label: "Forward it to the professor"
+      text: "The professor takes it from here, with a sigh you can hear through email."
+      effects: { sanity: "-1", network: "-1" }
+
+- id: tsk_student_letter
+  title: "A Letter From Their TA"
+  category: teaching
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when: { status_any: [ta], semester: [spring] }
+  text:
+    - "A student from your section asks you for a recommendation letter for a summer research program. It's due in a week. You remember their name, and that they sat by the window."
+  choices:
+    - label: "Write a warm, specific letter"
+      text: "You dig up their assignments and office-hours questions. The letter is specific and kind, and in April they get in."
+      effects: { days: -1, sanity: "-3±1", writing: "+2±1" }
+    - label: "Offer a short one"
+      text: "Three honest sentences. They thank you politely and ask the professor too, just in case."
+      effects: { sanity: "-1" }
+    - label: "Suggest they ask the professor"
+      text: "They do. The professor agrees, then asks you for \"a few notes on the student\". You write the notes."
+      effects: { sanity: "-2±1", writing: "+1" }
+
+# --- Sudden slides and demos ------------------------------------------------
+
+- id: tsk_lab_meeting_fill_in
+  title: "You're Up in an Hour"
+  category: lab
+  rarity: common
+  repeatable: true
+  cooldown: 10
+  when: { has_advisor: true }
+  text:
+    - "Today's lab meeting presenter cancels. {advisor} messages: \"{player}, could you present instead?\" Lab meeting is in an hour."
+  choices:
+    - label: "Show your messy results honestly"
+      text: "Half the plots have no axis labels. The lab spots a bug you'd have found in three weeks, and {advisor} likes the honesty."
+      effects: { sanity: "-4±1", taste: "+2±1", advisor_rel: "+2±1" }
+      tip: "Critique-Centric Feedback"
+    - label: "Present a paper you read last week"
+      text: "You remember most of it. For the parts you don't, {labmate} jumps in, kindly."
+      effects: { sanity: "-3±1", knowledge: "+2±1", labmates_rel: "+1" }
+    - label: "Run a brainstorm instead"
+      text: "Sticky notes, a whiteboard, one good idea. Nobody notices you prepared nothing, except {advisor}."
+      effects: { sanity: "-1", presenting: "+1", advisor_rel: "-2±1" }
+
+- id: tsk_open_house_slide
+  title: "One Slide, Two Hours"
+  category: career
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { has_advisor: true, turn: [11, 15] }
+  text:
+    - "The department open house for admitted students needs one slide about your research, in two hours. The required template is purple."
+  choices:
+    - label: "Make one clean slide"
+      text: "One figure, one sentence, a lot of white space. It's the best slide you've ever made, and it took the whole afternoon."
+      effects: { days: -1, sanity: "-3±1", presenting: "+2±1" }
+    - label: "Reuse your last title slide"
+      text: "Your name, your paper's title, last year's date. An admitted student asks what your research is. The slide does not say."
+      effects: { sanity: "-1", network: "-1" }
+    - label: "Use one striking figure, no words"
+      check: { stat: presenting, vs: 45, spread: 20 }
+      success:
+        text: "Admitted students crowd around it, asking what it means. You explain it eleven times, happily."
+        effects: { sanity: "-2±1", presenting: "+1", network: "+2±1" }
+      failure:
+        text: "Admitted students crowd around it, asking what it means. So does {advisor}."
+        effects: { sanity: "-3±1", advisor_rel: "-1" }
+
+- id: tsk_dean_demo
+  title: "The Dean's Tour"
+  category: research
+  rarity: uncommon
+  repeatable: true
+  cooldown: 16
+  when:
+    has_advisor: true
+    project: { type: system, stage: [build, irb, study, analysis, writing] }
+  text:
+    - "The dean tours the building tomorrow, and {advisor} has promised a live demo of {project}. It has not run since Tuesday."
+  choices:
+    - label: "Polish it tonight"
+      text: "It runs, it's fast, and the dean says \"fascinating\" twice. You slept three hours."
+      effects: { energy: "-5±2", health: "-3±1", sanity: "-4±1", coding: "+2±1", project.progress: "+3±1", advisor_rel: "+3±1" }
+    - label: "Record a backup video"
+      text: "The live demo crashes in the first minute. The video plays perfectly, and the dean never knows."
+      effects: { days: -1, sanity: "-3±1", presenting: "+1", advisor_rel: "+1" }
+    - label: "Show slides instead"
+      text: "Clear slides, zero risk. The dean nods politely and asks to see \"the real thing\" next time. {advisor} winces."
+      effects: { sanity: "-1", advisor_rel: "-2±1" }
+
+# --- Onboarding -------------------------------------------------------------
+
+- id: tsk_first_year_buddies
+  title: "Your Two Buddies"
+  category: lab
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { year: [2, 8], has_advisor: true, turn: [1, 5] }
+  text:
+    - "The department assigns you two first-year \"buddies\". They message you about the cluster every day, often at the same time, about different errors."
+  choices:
+    - label: "Hold a weekly Q&A"
+      text: "Thursdays at 4, with snacks. By week three, first-years you've never met start showing up."
+      effects: { days: -1, sanity: "-2±1", labmates_rel: "+3±1", presenting: "+1" }
+    - label: "Answer every message"
+      text: "You reply within minutes, every time. They adore you. Your own jobs sit in the queue, untouched."
+      effects: { sanity: "-5±1", energy: "-2±1", labmates_rel: "+2±1" }
+    - label: "Point them to the docs"
+      text: "There are no docs. They find this out on their own, and stop asking you anything, including to lunch."
+      effects: { sanity: "+1", labmates_rel: "-2±1" }
+
+- id: tsk_cluster_faq
+  title: "The Eleventh Time"
+  category: lab
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { year: [2, 8], has_advisor: true }
+  text:
+    - "Eleven people asked you the same cluster question this month. Three of them were the same person."
+  choices:
+    - label: "Write the onboarding doc"
+      text: "A full day, twelve screenshots and a troubleshooting section. The questions stop, and the lab treats you like a hero."
+      effects: { days: -1, sanity: "-3±1", labmates_rel: "+4±1", writing: "+1" }
+    - label: "Record a ten-minute video"
+      text: "Four takes. People watch it at double speed and still ask you, but less often."
+      effects: { sanity: "-2±1", presenting: "+1", labmates_rel: "+1" }
+    - label: "Pin your best Slack answer"
+      text: "Pinned. Nobody reads pinned messages. Questions twelve through fifteen arrive by Friday."
+      effects: { sanity: "-1", energy: "-3±1" }
+
+- id: tsk_postdoc_access
+  title: "Only You Know"
+  category: lab
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { year: [2, 8], has_advisor: true }
+  text:
+    - "A new postdoc needs access to the data server, and only you know how the permissions work. You set them up two years ago, at night, and wrote nothing down."
+  choices:
+    - label: "Walk them through it"
+      text: "A day of user groups and one mysterious file called keys_old. They're in, and they owe you lunch."
+      effects: { days: -1, sanity: "-4±1", labmates_rel: "+2±1", coding: "+1" }
+    - label: "Write it down this time"
+      text: "It takes longer than just doing it. But the next person won't need you, and neither will future you."
+      effects: { days: -2, sanity: "-2±1", writing: "+2±1", labmates_rel: "+3±1" }
+    - label: "Send them to IT"
+      text: "IT opens a ticket. The ticket opens another ticket. The postdoc gets access in three weeks and remembers who sent them."
+      effects: { sanity: "+1", labmates_rel: "-3±1" }
+
+- id: tsk_summer_outreach
+  title: "Three High Schoolers"
+  category: lab
+  rarity: uncommon
+  repeatable: true
+  cooldown: 16
+  when: { has_advisor: true, semester: [summer] }
+  text:
+    - "A summer outreach program sends you three high schoolers for a week. They're thrilled to be here, and one of them has already read your paper."
+  choices:
+    - label: "Give them a mini project"
+      text: "By Friday they've built a tiny classifier and a slide deck with spinning transitions. You're prouder than you expected."
+      effects: { days: -2, sanity: "-4±1", presenting: "+2±1", network: "+1" }
+    - label: "Let them test your prototype"
+      text: "They break it four new ways in one afternoon. That's real user testing, and it was free."
+      effects: { days: -1, sanity: "-3±1", coding: "+1", taste: "+1" }
+    - label: "Show them lab life, snacks included"
+      text: "A tour, a whiteboard and a lot of snacks. One of them says grad school looks \"chill\". You don't correct them."
+      effects: { sanity: "-1", energy: "-3±1", labmates_rel: "+1" }
+
+# --- Admin and forms --------------------------------------------------------
+
+- id: tsk_receipt_photo
+  title: "A Photo of a Receipt"
+  category: travel
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { telemetry: { conferences: ">=1" } }
+  text:
+    - "Your travel reimbursement is rejected. The receipt is a photo of a receipt, in another currency, partly covered by your thumb."
+  choices:
+    - label: "Find the original"
+      text: "An evening of emptying every bag you own. It's folded inside your boarding pass. Approved in a week."
+      effects: { sanity: "-3±1", energy: "-2±1" }
+    - label: "Fill in the \"missing receipt\" form"
+      text: "Four pages, a signed statement about a sandwich, and a currency table. Approved in six weeks."
+      effects: { days: -1, sanity: "-3±1" }
+    - label: "Let the $43 go"
+      text: "Peace, at a price. It's instant noodles for the rest of the week."
+      effects: { sanity: "+1", health: "-2±1" }
+
+- id: tsk_ethics_refresher
+  title: "Eight Modules by Friday"
+  category: research
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when:
+    has_advisor: true
+    project: { type: [study, system] }
+  text:
+    - "The annual research-ethics refresher is due Friday: eight modules with quizzes, or your study approval is paused."
+  choices:
+    - label: "Do it properly"
+      text: "Eight modules, eight quizzes, one certificate. You learn two things you probably should have known."
+      effects: { days: -1, sanity: "-3±1", knowledge: "+2±1" }
+    - label: "Click through at double speed"
+      check: { stat: knowledge, vs: 45, spread: 20 }
+      success:
+        text: "All eight quizzes passed at double speed. The narrator sounded like a chipmunk, but a well-informed one."
+        effects: { sanity: "-1" }
+      failure:
+        text: "You fail the module 6 quiz three times and have to rewatch it at normal speed. Twice."
+        effects: { sanity: "-4±1", energy: "-2±1" }
+    - label: "Do it during lab meeting"
+      text: "You pass all eight modules. {advisor} asks you a question twice and gets no answer either time."
+      effects: { sanity: "-1", advisor_rel: "-3±1" }
+
+- id: tsk_ink_signature
+  title: "In Ink"
+  category: milestone
+  rarity: common
+  when: { has_advisor: true, year: [1, 2] }
+  text:
+    - "Your plan-of-study form needs {advisor}'s signature, in ink, by the 15th. {advisor} is traveling for the next two weeks."
+  choices:
+    - label: "Mail it to their hotel"
+      text: "It comes back signed, with a coffee ring and a doodle of the hotel pool. You refreshed the tracking page forty times."
+      effects: { sanity: "-3±1", advisor_rel: "+1" }
+    - label: "Ask the grad office about e-signatures"
+      check: { stat: network, vs: 40, spread: 20 }
+      success:
+        text: "E-signatures have been fine for years, the office says. Nobody told the form. Done in an hour."
+        effects: { sanity: "-1" }
+      failure:
+        text: "Three emails later: e-signatures are accepted on every form except this one."
+        effects: { sanity: "-4±1" }
+    - label: "Wait for them to come back"
+      text: "You file it two weeks late. The grad office sends a reminder with three exclamation marks and puts a hold on your registration."
+      effects: { sanity: "-1", days_next: -1 }
+
+- id: tsk_inventory
+  title: "Nobody's Monitors"
+  category: lab
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { has_advisor: true }
+  text:
+    - "Equipment inventory: every monitor in the lab needs a tag. You find three that belong to nobody, according to every list you check."
+  choices:
+    - label: "Report them"
+      text: "Two forms and a call with Facilities. The department thanks {advisor} for the lab's \"exemplary\" inventory."
+      effects: { days: -1, sanity: "-3±1", advisor_rel: "+2±1" }
+    - label: "Adopt one as your second screen"
+      text: "Papers on the left, code on the right. {labmate} had been eyeing that monitor for a year."
+      effects: { sanity: "-2±1", coding: "+1", writing: "+1", labmates_rel: "-2±1" }
+    - label: "Tag them to the lab and move on"
+      text: "Twenty minutes, three stickers. The lab now officially owns three monitors nobody can explain."
+      effects: { sanity: "-1" }
+
+- id: tsk_survey_subscription
+  title: "Your Plan Expires Friday"
+  category: research
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when:
+    project: { type: study, stage: [recruiting, sessions] }
+  text:
+    - "Your survey tool's subscription ends on Friday, in the middle of the study for {project}. The renewal email says \"Act now!\" in three colors."
+  choices:
+    - label: "Pay out of pocket"
+      text: "$240, and the study runs on. You file for reimbursement and try not to think about how that will go."
+      effects: { sanity: "-3±1" }
+    - label: "Move to the university's free tool"
+      text: "A day rebuilding every question in an interface from another decade. The data comes out in a slightly different format."
+      effects: { days: -1, sanity: "-3±1", coding: "+1", project.quality.S: "-2±1" }
+    - label: "Ask the department for funds"
+      check: { stat: network, vs: 45, spread: 20 }
+      success:
+        text: "The department covers it from a fund nobody knew existed. You make a note of the fund."
+        effects: { sanity: "-1" }
+      failure:
+        text: "The reply arrives after the subscription ends. The study pauses for two weeks."
+        effects: { sanity: "-2±1", project.delay: 1 }
+
+- id: tsk_gift_card_receipts
+  title: "Forty Signatures"
+  category: research
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when:
+    has_advisor: true
+    project: { type: [study, system], stage: [sessions, study, analysis, writing] }
+  text:
+    - "Finance needs a signed receipt for each of the 40 gift cards you gave participants in {project}. The participants are now all over the country."
+  choices:
+    - label: "Email all 40"
+      text: "Forty emails, then forty reminders. By Friday you have 34 signatures and six people who think it's a scam."
+      effects: { days: -1, sanity: "-4±1" }
+    - label: "Build a sign-off form"
+      check: { stat: coding, vs: 45, spread: 20 }
+      success:
+        text: "A two-minute form with a signature box. 38 people sign within a day. You will reuse this forever."
+        effects: { sanity: "-2±1", coding: "+2±1" }
+      failure:
+        text: "The form works, but its emails go straight to spam. You find out a week later."
+        effects: { days: -1, sanity: "-4±1", coding: "+1" }
+    - label: "Ask for an exception"
+      text: "Finance approves it, after a two-page memo and a meeting {advisor} has to attend. {advisor} is not thrilled."
+      effects: { sanity: "-1", advisor_rel: "-3±1" }
+
+- id: tsk_irb_checkin
+  title: "Numbers You Never Tracked"
+  category: research
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when:
+    project: { type: [study, system], stage: [recruiting, sessions, study, analysis] }
+  text:
+    - "The IRB's annual check-in for {project} is due in a week. It asks how many people you enrolled each month. You never tracked that."
+  choices:
+    - label: "Rebuild them from your calendar"
+      text: "A day with your calendar and old emails. The numbers are exact, and you find two sessions you forgot to analyze."
+      effects: { days: -1, sanity: "-4±1", project.quality.S: "+2±1" }
+    - label: "Estimate honestly and say so"
+      text: "\"About 30, exact months unclear.\" The IRB accepts it, with a polite request to keep a log from now on."
+      effects: { sanity: "-2±1" }
+    - label: "Ask for a week's extension"
+      text: "Granted. The new due date lands in your busiest week, and the numbers are still untracked."
+      effects: { sanity: "-1", days_next: -1 }
+
+- id: tsk_data_policy
+  title: "Approved Servers Only"
+  category: data
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { year: [2, 8], has_advisor: true }
+  text:
+    - "A new data policy: all study data must move to the approved server by Friday. Yours lives on four machines, two drives and a laptop you stopped using."
+  choices:
+    - label: "Move it carefully"
+      text: "A day of copying and checking. For the first time since Year 1, all your data is in one place."
+      effects: { days: -1, sanity: "-3±1", coding: "+1" }
+    - label: "Move it and hope the paths still work"
+      check: { stat: coding, vs: 50, spread: 20 }
+      success:
+        text: "Moved by noon, and every path still works. You don't trust it, but it works."
+        effects: { sanity: "-1" }
+      failure:
+        text: "Moved by noon. By Wednesday, every script you own fails with \"file not found\"."
+        effects: { sanity: "-4±1", days_next: -1 }
+    - label: "Ask for an extension"
+      text: "Granted, until the end of the month. The data office copies {advisor} on its reply."
+      effects: { sanity: "+1", advisor_rel: "-2±1" }
+
+# --- Letters and reports ----------------------------------------------------
+
+- id: tsk_draft_own_letter
+  title: "You Know Your Work Best"
+  category: advisor
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { has_advisor: true, year: [2, 8] }
+  text:
+    - "{advisor} asks you to draft your own recommendation letter. \"You know your work best.\" You have never once called yourself \"exceptional\"."
+  choices:
+    - label: "Write it honestly"
+      text: "Clear, accurate and a bit modest. {advisor} adds two sentences that make you blush."
+      effects: { days: -1, sanity: "-3±1", writing: "+1", advisor_rel: "+2±1", career_prep: "+1" }
+    - label: "Write it boldly"
+      text: "\"Among the top 1% of students I have known.\" {advisor} tones it down to 5%, still the nicest thing anyone has said about you."
+      effects: { days: -1, sanity: "-5±1", writing: "+1", career_prep: "+2±1" }
+    - label: "Swap drafting duty with {labmate}"
+      text: "You write theirs; they write yours. Both letters glow, and {advisor} notices they share every adjective."
+      effects: { days: -1, sanity: "-1", labmates_rel: "+2±1", advisor_rel: "-1", career_prep: "+1" }
+
+- id: tsk_mentee_note
+  title: "A Supporting Note"
+  category: lab
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { has_advisor: true, year: [3, 8], turn: [3, 8] }
+  text:
+    - "{mentee} is applying to grad school and asks you for a \"supporting note\" that {advisor} can use in their letter. It's due in five days."
+  choices:
+    - label: "Write a detailed note"
+      text: "Two pages on everything {mentee} did. {advisor} uses half of it word for word."
+      effects: { days: -1, sanity: "-3±1", writing: "+1", labmates_rel: "+2±1", advisor_rel: "+1" }
+    - label: "Send bullet points"
+      text: "Five bullet points. {advisor} follows up with three questions, each in its own email."
+      effects: { sanity: "-2±1", advisor_rel: "-1" }
+    - label: "Help them ask {advisor} directly"
+      text: "{mentee} asks {advisor} themselves, nervously. It's good practice, and you can tell they hoped you'd do it."
+      effects: { sanity: "+1", labmates_rel: "-2±1" }
+
+- id: tsk_progress_report
+  title: "Three Signatures"
+  category: milestone
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { has_advisor: true, year: [2, 8], semester: [spring] }
+  text:
+    - "The annual progress report needs a committee meeting and three signatures by the end of the month. Your committee has three calendars and no overlap."
+  choices:
+    - label: "Get everyone in one room"
+      text: "Eleven emails and a 7:30 am slot. The meeting is actually useful, and {committee} has a great idea for your next project."
+      effects: { days: -1, sanity: "-4±1", taste: "+2±1", advisor_rel: "+1" }
+    - label: "Collect signatures by email"
+      text: "Three signatures in three weeks, plus one reply that just says \"signed (where?)\"."
+      effects: { sanity: "-2±1", energy: "-2±1" }
+    - label: "Ask the grad office for more time"
+      text: "They give you another month. The report moves onto next month's to-do list, and so does the dread."
+      effects: { sanity: "-1", days_next: -1 }
+
+- id: tsk_goals_report
+  title: "Nine Goals"
+  category: milestone
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { has_advisor: true, year: [2, 8], semester: [spring] }
+  text:
+    - "The progress report asks you to compare last year's goals with what happened. You set nine goals. You met two, and did seven other things."
+  choices:
+    - label: "Report it straight"
+      text: "Two met, seven changed, each with a reason. {advisor} appreciates the honesty and suggests fewer goals, chosen better."
+      effects: { sanity: "-3±1", taste: "+2±1", advisor_rel: "+2±1" }
+      tip: "Deliver Your Commitments"
+    - label: "Turn the seven into a story"
+      check: { stat: writing, vs: 50, spread: 20 }
+      success:
+        text: "Read in order, the seven other things look like a plan. You almost believe it yourself."
+        effects: { sanity: "-2±1", writing: "+2±1" }
+      failure:
+        text: "{committee} asks how goal 4 led to project 7. It didn't, and now everyone knows."
+        effects: { sanity: "-4±1", advisor_rel: "-1" }
+    - label: "Quietly reword last year's goals"
+      text: "Last year's goals now describe this year perfectly. {advisor} still has the original. {advisor} says nothing."
+      effects: { sanity: "-1", advisor_rel: "-3±1" }
+
+- id: tsk_graduation_date
+  title: "Expected Graduation"
+  category: advisor
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { has_advisor: true, year: [3, 8] }
+  text:
+    - "A form asks for your expected graduation date. You and {advisor} fill in your parts separately, and write different years."
+  choices:
+    - label: "Talk it through"
+      text: "An hour about the next two years. You leave with a plan, a date, and a slightly faster heartbeat."
+      effects: { days: -1, sanity: "-3±1", advisor_rel: "+3±1", taste: "+1" }
+    - label: "Use your advisor's year"
+      text: "The later one. It's on an official form now, which makes it feel very real."
+      effects: { sanity: "-4±1", advisor_rel: "+1" }
+    - label: "Write a range"
+      text: "\"Spring or fall, this year or next.\" The grad office accepts it. {advisor} raises an eyebrow."
+      effects: { sanity: "-1", advisor_rel: "-2±1" }
+
+# --- Service and extras -----------------------------------------------------
+
+- id: tsk_co_organize
+  title: "Just a Few Calls"
+  category: career
+  rarity: uncommon
+  repeatable: true
+  cooldown: 16
+  when: { year: [3, 8] }
+  text:
+    - "A friend from another lab asks you to co-organize a workshop at next year's conference. \"It'll be fun! Just a few calls.\""
+  choices:
+    - label: "Say yes"
+      text: "It is not a few calls. It's a call for papers, a reviewer pool and a keynote who replies monthly. Everyone learns your name."
+      effects: { days: -1, sanity: "-5±1", network: "+5±1", career_prep: "+1" }
+    - label: "Offer to run just the website"
+      text: "A tidy site in an evening, two updates, and your name on the organizer list anyway."
+      effects: { sanity: "-2±1", coding: "+1", network: "+2±1" }
+    - label: "Decline kindly"
+      text: "Your friend understands and asks someone else. Next year you see the workshop on the program, a little wistfully."
+      effects: { sanity: "+1", network: "-1" }
+      tip: "Know Your Limits"
+
+- id: tsk_press_quote
+  title: "By 5 pm"
+  category: career
+  rarity: uncommon
+  repeatable: true
+  cooldown: 16
+  when: { has_advisor: true, year: [2, 8] }
+  text:
+    - "The university press office needs a quote about chatbots in hospitals by 5 pm. It's 3:40. They found you by searching the website for \"chatbot\"."
+  choices:
+    - label: "Write a careful two-sentence quote"
+      text: "Forty minutes for two sentences. They print it with your name spelled right, and your aunt shares it with everyone."
+      effects: { sanity: "-4±1", writing: "+2±1", network: "+2±1", family_rel: "+1" }
+    - label: "Pass it to {advisor}"
+      text: "{advisor} gives the quote from a hallway at 4:55, slightly out of breath, and mentions \"my student's work\"."
+      effects: { sanity: "-1", advisor_rel: "-1" }
+    - label: "Send them your abstract"
+      text: "They print one sentence of it: \"We leverage a novel multi-stage framework.\" Nobody learns what you do."
+      effects: { sanity: "-1", network: "-2±1" }
+
+- id: tsk_stranger_pr
+  title: "For Readability"
+  category: research
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { year: [2, 8], telemetry: { submissions: ">=1" } }
+  text:
+    - "A stranger opens a pull request on your paper's code. It rewrites everything \"for readability\": 212 files changed, every variable renamed."
+  choices:
+    - label: "Review it line by line"
+      text: "A day of diffs. Two of their changes really are better, so you keep those. They star the repo anyway."
+      effects: { days: -1, sanity: "-3±1", coding: "+2±1", network: "+1" }
+    - label: "Merge it and hope"
+      check: { stat: coding, vs: 55, spread: 20 }
+      success:
+        text: "Everything still runs, a little faster. You feel lucky and slightly uneasy."
+        effects: { sanity: "+1", coding: "+1" }
+      failure:
+        text: "Everything breaks. Three issues titled \"nothing works\" arrive before lunch."
+        effects: { days: -1, sanity: "-5±1" }
+    - label: "Thank them and close it"
+      text: "A polite note and one click. They reply with a long essay on code style. You don't read it."
+      effects: { sanity: "-1", network: "-1" }
+
+- id: tsk_repro_badge
+  title: "The Reproducibility Badge"
+  category: writing
+  rarity: common
+  hook: after_accept
+  repeatable: true
+  cooldown: 8
+  when: { has_advisor: true }
+  text:
+    - "{venue} offers a reproducibility badge for {paper} if its code runs in a container by next week. Right now it runs on your laptop, on a good day."
+  choices:
+    - label: "Containerize it"
+      text: "Three days of dependency fights, then it builds. The badge is small, orange and deeply satisfying."
+      effects: { days: -2, sanity: "-5±1", coding: "+3±1", paper.citations: "+2±1" }
+    - label: "Skip the badge"
+      text: "No badge, and the week is yours. Months later, someone emails to ask whether the code runs. It does not."
+      effects: { sanity: "+1", network: "-1" }
+    - label: "Ask {labmate} for help"
+      text: "{labmate} knows containers and has it working in an afternoon. You owe them, and they've already named the favor."
+      effects: { days: -1, sanity: "-2±1", coding: "+1", labmates_rel: "-1", paper.citations: "+1" }
+
+- id: tsk_plain_summary
+  title: "In Plain Words"
+  category: writing
+  rarity: common
+  hook: after_accept
+  repeatable: true
+  cooldown: 8
+  text:
+    - "The proceedings want a 150-word plain-language summary of {paper}. Your first draft says \"leverage\" four times and \"novel\" twice."
+  choices:
+    - label: "Write it properly"
+      text: "Three drafts later, it says what you did and why it matters, with no leveraging at all. Your best paragraph this year."
+      effects: { days: -1, sanity: "-3±1", writing: "+3±1", paper.citations: "+2±1" }
+    - label: "Ask a non-academic friend to read it"
+      text: "Your friend reads it twice and asks, \"So it's a chatbot?\" You rewrite it around that question. It's much better."
+      effects: { sanity: "-2±1", writing: "+2±1", friends_rel: "+1" }
+      tip: "How to Communicate"
+    - label: "Simplify the abstract and send it"
+      text: "You delete every third word of the abstract. It's 150 words, and still only your reviewers could follow it."
+      effects: { sanity: "-1" }
+
+- id: tsk_video_figure
+  title: "Take 14"
+  category: writing
+  rarity: common
+  hook: deadline
+  repeatable: true
+  cooldown: 8
+  text:
+    - "{venue} accepts an optional video figure for {project}. Your narration is on take 14. On take 13, the radiator joined in."
+  choices:
+    - label: "Finish it properly"
+      text: "Take 22 is the one: calm, clear and under three minutes. Your work has never sounded this good."
+      effects: { days_next: -1, sanity: "-4±1", presenting: "+3±1" }
+    - label: "Record the screen, add captions"
+      text: "No voice, just captions and a slow, confident cursor. Clear, quick, and only slightly eerie."
+      effects: { sanity: "-2±1", presenting: "+1" }
+    - label: "Skip it"
+      text: "It's optional. You close the recorder and go to sleep. Most papers don't have one either."
+      effects: { sanity: "+2±1" }

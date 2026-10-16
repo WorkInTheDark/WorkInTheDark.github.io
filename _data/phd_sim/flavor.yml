@@ -171,3 +171,13 @@
   when: { flags_all: [cat_adopted] }
 - text: "Your cat knocks your coffee off the desk, then looks at you."
   when: { flags_all: [cat_adopted] }
+
+# More lines from event-ideas.md, section P (2026-10-16)
+- text: "The lab whiteboard still has equations from 2019. Nobody dares erase them."
+  when: { has_advisor: true }
+- text: "Your citation profile gets merged with someone who has a similar name. You now have three papers on dairy cattle."
+- text: "A squirrel outside the window becomes the lab mascot. It has a name, a birthday and its own channel in the lab chat."
+  when: { has_advisor: true }
+- text: "The vending machine eats your last dollar. The granola bar hangs there, just out of reach."
+- text: "You name your model after a faction from your favorite sci-fi novel. The reviewers don't get the reference."
+  when: { telemetry: { submissions: ">=1" } }

@@ -363,3 +363,171 @@
     - label: "Work from home in a blanket"
       text: "Your labmates thank you for not bringing it to the lab."
       effects: { energy: "-2±1", labmates_rel: "+2±1" }
+
+# --- Round 5 additions -------------------------------------------------------
+# Arc "parallel_work": tra_parallel_work -> tra_parallel_paper (scheduled).
+
+- id: tra_demo_wifi
+  title: "The Live Demo"
+  category: travel
+  rarity: uncommon
+  hook: conference
+  text:
+    - "Your live demo for {paper} begins. The conference Wi-Fi does not. Forty people watch a loading spinner on the big screen."
+  choices:
+    - label: "Run it off your phone's hotspot"
+      check: { stat: coding, vs: 50, spread: 20 }
+      success:
+        text: "Two bars of signal, one working demo. The audience applauds, mostly for the hotspot."
+        effects: { network: "+4±2", presenting: "+1", sanity: "+2±1" }
+      failure:
+        text: "Your phone connects, then dies at 4%. You finish with screenshots."
+        effects: { sanity: "-4±1" }
+    - label: "Narrate screenshots like a cooking show"
+      text: "\"Here's one I prepared earlier.\" People laugh, then ask good questions."
+      effects: { presenting: "+2±1", network: "+2±1", sanity: "-2±1" }
+    - label: "Invite people to try it later"
+      text: "Six people find you at the break, on a wired connection. A small crowd, and good conversations."
+      effects: { network: "+3±1", energy: "-3±1" }
+
+- id: tra_student_volunteer
+  title: "Student Volunteer"
+  category: travel
+  rarity: common
+  hook: conference
+  repeatable: true
+  cooldown: 13
+  text:
+    - "Volunteering got you free registration at {venue}. It also got you a STAFF lanyard and a week of carrying microphones to people whose question is \"more of a comment\"."
+  choices:
+    - label: "Run microphones in the main hall"
+      text: "You hand the mic to three famous people. One of them thanks you by name, reading it off your badge."
+      effects: { network: "+4±1", energy: "-5±2", health: "-1" }
+    - label: "Swap for the registration desk"
+      text: "Everyone passes through. You meet 400 people for eight seconds each, and point 300 of them to the restroom."
+      effects: { network: "+3±1", sanity: "-3±1" }
+    - label: "Skip a shift to see a talk"
+      check: { stat: network, vs: 45, spread: 20 }
+      success:
+        text: "Another volunteer covers for you. The talk is great, and you owe them a coffee."
+        effects: { knowledge: "+2±1", sanity: "+2±1" }
+      failure:
+        text: "The coordinator notices. Your next shift is the 7 am coffee setup."
+        effects: { energy: "-4±1", sanity: "-2±1" }
+
+- id: tra_parallel_work
+  title: "Almost the Same Paper"
+  category: travel
+  rarity: uncommon
+  hook: conference
+  arc: parallel_work
+  text:
+    - "At the poster session, you meet a student from another lab working on almost exactly your problem. Same data, a different method, and the same look of mild panic."
+  choices:
+    - label: "Propose working together"
+      text: "You swap emails and sketch a plan on a napkin. It's either the start of something or a very nice napkin."
+      effects: { network: "+3±1", sanity: "+2±1" }
+      flag_set: [parallel_collab]
+      schedule: { event: tra_parallel_paper, in: [4, 8], chance: 1.0 }
+    - label: "Race them to the next deadline"
+      text: "You both smile and walk away fast. You learned a lot about their method, and your next month got more urgent."
+      effects: { knowledge: "+2±1", sanity: "-4±1" }
+    - label: "Compare notes and stay friendly"
+      text: "Two of your dead ends were theirs too. You both save a month and stay in touch, loosely."
+      effects: { knowledge: "+3±1", network: "+2±1" }
+
+- id: tra_parallel_paper
+  title: "The Joint Paper"
+  category: travel
+  rarity: common
+  trigger: scheduled
+  arc: parallel_work
+  when:
+    flags_all: [parallel_collab]
+  text:
+    - "Your collaborator from the conference sends a shared draft: their method, your data, and a results table better than either of yours alone. Now, whose name goes first?"
+  choices:
+    - label: "Offer them first author"
+      text: "They're delighted. The paper goes out, and their lab invites you to visit next spring."
+      effects: { network: "+5±2", citations: "+3±1", sanity: "+2±1" }
+      flag_clear: [parallel_collab]
+    - label: "Propose co-first authorship"
+      check: { stat: network, vs: 50, spread: 15 }
+      success:
+        text: "Co-first, with a footnote. Both advisors sign off, and the paper is better than anything you'd have written alone."
+        effects: { citations: "+4±2", network: "+3±1", writing: "+1" }
+        flag_clear: [parallel_collab]
+      failure:
+        text: "Three weeks of polite emails go into one footnote. The paper still goes out, a little late."
+        effects: { citations: "+2±1", sanity: "-4±1" }
+        flag_clear: [parallel_collab]
+    - label: "Take first author, write most of it"
+      text: "You write it over two weekends. It's your best draft yet, and you are very tired."
+      effects: { writing: "+3±1", citations: "+3±1", energy: "-8±2", health: "-2±1" }
+      flag_clear: [parallel_collab]
+
+- id: tra_silent_talk
+  title: "Silent Film"
+  category: travel
+  rarity: uncommon
+  hook: conference
+  text:
+    - "{venue} plays pre-recorded talks in your session. Yours, for {paper}, starts with no audio. You're in the third row, and every head slowly turns toward you."
+  choices:
+    - label: "Narrate it live from your seat"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "You talk over your own silent video, perfectly in sync. It's the most memorable talk of the session."
+        effects: { presenting: "+3±1", network: "+4±2", sanity: "+2±1" }
+      failure:
+        text: "You fall two slides behind your own video and never catch up."
+        effects: { presenting: "+1", sanity: "-4±1" }
+    - label: "Ask the AV team to fix it"
+      text: "Ten minutes later, the sound works. Your talk plays to a smaller, very patient room."
+      effects: { network: "+1", sanity: "-2±1" }
+    - label: "Skip straight to the Q&A"
+      text: "You take questions instead. There are only three, because nobody heard the talk."
+      effects: { sanity: "+2±1", network: "-1" }
+
+- id: tra_wrong_session_chair
+  title: "Chair of Session 7B"
+  category: travel
+  rarity: uncommon
+  hook: conference
+  text:
+    - "The conference app lists you as chair of Session 7B: \"Speech Recognition for Farm Equipment\". You have never chaired a session. You are not in this session."
+  choices:
+    - label: "Chair it anyway"
+      text: "You keep time, ask one question per talk, and learn a lot about tractors. The speakers thank you warmly."
+      effects: { network: "+4±1", knowledge: "+1", energy: "-4±1" }
+    - label: "Email the organizers"
+      check: { stat: network, vs: 45, spread: 20 }
+      success:
+        text: "They fix it within the hour and apologize with a drink voucher."
+        effects: { sanity: "+2±1", energy: "+2±1" }
+      failure:
+        text: "They reply after the session. Nobody chaired it, so the speakers timed each other."
+        effects: { sanity: "-3±1" }
+    - label: "Find the real chair"
+      text: "You find them at the coffee urn. They had no idea either, so you chair it together."
+      effects: { network: "+3±1", energy: "-2±1" }
+
+- id: tra_talk_views
+  title: "300 Views"
+  category: travel
+  rarity: common
+  when:
+    paper: { status: accepted }
+    telemetry: { conferences: ">=1" }
+  text:
+    - "The recording of your talk on {paper} is online. It has 300 views. According to the analytics, about 200 of them come from your parents' town."
+  choices:
+    - label: "Share it more widely"
+      text: "Views climb to 900. A few comments ask good questions, and one asks about your microphone."
+      effects: { citations: "+3±1", network: "+2±1", sanity: "-1" }
+    - label: "Call your parents to say thanks"
+      text: "They have watched it eleven times, and one of them has a question about slide 9."
+      effects: { family_rel: "+5±1", sanity: "+3±1" }
+    - label: "Watch it yourself, once"
+      text: "You count your \"um\"s: 47. Painful, and your next talk will have fewer."
+      effects: { presenting: "+3±1", sanity: "-3±1" }

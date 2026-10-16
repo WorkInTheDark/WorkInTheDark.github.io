@@ -492,3 +492,722 @@
     - label: "Decline politely"
       text: "You suggest a labmate instead. The editor thanks you for the quick reply."
       effects: { sanity: "+1" }
+
+# ===========================================================================
+# Round 5 (2026-10-16): the rest of section E, and R5.3 (bad news around
+# submissions and decisions).
+#
+# "Accepted to Findings: take it or resubmit?" is the engine's own Findings
+# decision (engine/milestones.js). rev_findings_counts is what comes after
+# you take it.
+#
+# rev_rr_new_reviewer stands for "rejected after a Revise and Resubmit": a
+# top-tier rejection at turn 10 is only ever CHI's second round (deadline T1,
+# final decision T10), since no condition reads the review round directly.
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# Reviews arrive (hook: reviews_in)
+# ---------------------------------------------------------------------------
+
+- id: rev_portal_refresh
+  title: "Slight Delay"
+  category: reviews
+  rarity: common
+  hook: reviews_in
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Reviews for {paper} were due Monday. A banner on the portal says \"slight delay\". By Thursday your lab refreshes it in shifts, and at 1 am they appear."
+  choices:
+    - label: "Read them right now"
+      text: "You read every word at 1 am and start the response by 2. A head start, and a headache."
+      effects: { paper.score: "+2±1", energy: "-3±1", sanity: "-3±1" }
+    - label: "Sleep first, read with coffee"
+      text: "Seven more hours of not knowing. The reviews are the same in the morning, and you're kinder to them."
+      effects: { energy: "+3±1", sanity: "+1" }
+    - label: "Let {labmate} read them first"
+      check: { stat: labmates_rel, vs: 45, spread: 20 }
+      success:
+        text: "{labmate} sends a summary: \"Two fair, one weird, all fixable.\" Exactly the dose you needed."
+        effects: { sanity: "+3±1", labmates_rel: "+1" }
+      failure:
+        text: "{labmate}'s summary is one word long: \"oof\"."
+        effects: { sanity: "-4±1" }
+
+- id: rev_same_reviewer
+  title: "Welcome Back, Reviewer"
+  category: reviews
+  rarity: uncommon
+  hook: reviews_in
+  when:
+    paper: { submissions: ">=2" }
+  text:
+    - "Reviewer 2's review of {paper} opens with the same sentence as last cycle's Reviewer 3. Same typo, too. They're back."
+  choices:
+    - label: "Show them you fixed what they asked"
+      check: { stat: writing, vs: 45, spread: 20 }
+      success:
+        text: "Point by point, their old concerns, each one fixed. You can almost hear them nod."
+        effects: { paper.score: "+5±2", energy: "-2±1" }
+      failure:
+        text: "They've moved on. This cycle's concerns are all new, and you spent your response on the old ones."
+        effects: { paper.score: "+1", energy: "-2±1", sanity: "-3±1" }
+    - label: "Treat it as a fresh review"
+      text: "You answer it like any other. They don't need to know that you know."
+      effects: { paper.score: "+2±1" }
+    - label: "Tell the AC it's a repeat reviewer"
+      check: { stat: writing, vs: 60, spread: 20 }
+      success:
+        text: "The area chair reads the old and new reviews side by side and notices how much the paper has changed."
+        effects: { paper.score: "+4±2" }
+      failure:
+        text: "The area chair replies that reviewers are allowed to review a paper twice. They are."
+        effects: { paper.score: "-1", sanity: "-2±1" }
+
+- id: rev_three_sentences
+  title: "Confidence: 5"
+  category: reviews
+  rarity: common
+  hook: reviews_in
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Reviewer 3's review of {paper} is three sentences long. Score: 1. Confidence: 5. The third sentence is \"Not convincing.\""
+  choices:
+    - label: "Ask the AC to weigh it lightly"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success:
+        text: "The area chair agrees that three sentences can't carry a 1, and says so in the meta-review."
+        effects: { paper.score: "+4±2", sanity: "+1" }
+      failure:
+        text: "The area chair replies that confidence 5 means confidence 5."
+        effects: { paper.score: "-1", sanity: "-3±1" }
+    - label: "Answer it like a full review"
+      text: "Three sentences get three careful answers. Nobody will ever read that review as closely as you just did."
+      effects: { paper.score: "+3±1", energy: "-4±1", sanity: "-2±1" }
+    - label: "Spend the rebuttal on the other two"
+      text: "You thank Reviewer 3 in one line and give your best work to the reviewers who gave theirs."
+      effects: { paper.score: "+2±1", energy: "-1" }
+
+- id: rev_more_or_fewer
+  title: "More, Please. Fewer, Please."
+  category: reviews
+  rarity: common
+  hook: reviews_in
+  text:
+    - "Reviewer 1: \"Too many experiments; the main story gets lost.\" Reviewer 3: \"More experiments are needed.\" Both are about Section 5 of {paper}."
+  choices:
+    - label: "Side with one of them"
+      check: { stat: taste, vs: 50, spread: 20 }
+      success:
+        text: "You side with the reviewer the area chair seems to agree with. It shows in the meta-review."
+        effects: { paper.score: "+4±1" }
+      failure:
+        text: "You side with the reviewer the area chair didn't. The other reviewer notices, too."
+        effects: { paper.score: "-2±1", sanity: "-2±1" }
+    - label: "Find the careful middle"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success:
+        text: "Fewer experiments in the main text, more in the appendix. Both reviewers can read it as a win."
+        effects: { paper.score: "+4±1", energy: "-3±1" }
+      failure:
+        text: "Your middle ground pleases neither. Both reply \"partially addressed\"."
+        effects: { paper.score: "+1", energy: "-3±1", sanity: "-2±1" }
+    - label: "Let the area chair sort it out"
+      text: "One neutral line points out the contradiction. Settling it is the area chair's job, and sometimes they do it."
+      effects: { paper.score: "+1", sanity: "+2±1" }
+
+- id: rev_compare_to_yourself
+  title: "Compare With Yourself"
+  category: reviews
+  rarity: uncommon
+  hook: reviews_in
+  when:
+    telemetry: { first_author_pubs: ">=1" }
+  text:
+    - "Reviewer 2 asks why {paper} doesn't compare against a paper from last year. That paper is yours. The review is anonymous, so you can't just say \"that's us\"."
+  choices:
+    - label: "Compare to it, politely"
+      text: "You run your old method as a baseline and describe it in the third person. It loses, gracefully."
+      effects: { paper.score: "+3±1", energy: "-4±1", sanity: "-2±1" }
+    - label: "Flag it confidentially to the AC"
+      check: { stat: writing, vs: 45, spread: 20 }
+      success:
+        text: "The area chair sees the problem at once and tells Reviewer 2 the comparison is already in the paper, in spirit."
+        effects: { paper.score: "+3±1", sanity: "+1" }
+      failure:
+        text: "The area chair writes back: \"Please address the reviewer's concern in your response.\""
+        effects: { sanity: "-3±1" }
+    - label: "Add the citation and sigh"
+      text: "A self-citation, requested by Reviewer 2. Technically, it counts."
+      effects: { paper.score: "+1", citations: "+1", sanity: "-1" }
+
+- id: rev_late_fourth_review
+  title: "The Fourth Review"
+  category: reviews
+  rarity: uncommon
+  hook: reviews_in
+  text:
+    - "Two days into the rebuttal period, a fourth review of {paper} appears, marked \"emergency\". It's the shortest of the four, and the harshest."
+  choices:
+    - label: "Answer it first"
+      text: "It gets your best paragraph, right at the top. The other three get slightly shorter answers."
+      effects: { paper.score: "+3±1", energy: "-2±1", sanity: "-3±1" }
+    - label: "Note that it came late"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success:
+        text: "One neutral sentence about the timing. The area chair weighs the late review accordingly."
+        effects: { paper.score: "+3±1" }
+      failure:
+        text: "The note reads as a complaint. The area chair weighs it accordingly."
+        effects: { paper.score: "-2±1", sanity: "-2±1" }
+    - label: "Treat it like the others"
+      text: "Four reviews, four calm answers. The late one doesn't get to set the tone."
+      effects: { paper.score: "+2±1", energy: "-2±1", sanity: "+1" }
+
+- id: rev_character_limit
+  title: "2,500 Characters"
+  category: reviews
+  rarity: common
+  hook: reviews_in
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The rebuttal limit is 2,500 characters. Your draft reply to Reviewer 2 alone is 6,000."
+  choices:
+    - label: "Cut to your three strongest points"
+      check: { stat: writing, vs: 50, spread: 20 }
+      success:
+        text: "Three points, each a claim and a number. It's the best thing you've written all month."
+        effects: { paper.score: "+4±1", writing: "+2±1", energy: "-3±1" }
+      failure:
+        text: "Three points, but you cut the numbers and kept the adjectives."
+        effects: { paper.score: "+1", writing: "+1", energy: "-3±1", sanity: "-1" }
+    - label: "Write it like a telegram"
+      text: "\"Baseline added STOP Table 3 fixed STOP thank you STOP\". It fits. Whether it charms anyone is another matter."
+      effects: { paper.score: "+1", sanity: "+2±1" }
+    - label: "Answer only Reviewer 2"
+      text: "Reviewer 2 gets 2,500 careful characters. Reviewers 1 and 3 get nothing, and they may notice."
+      effects: { paper.score: "+2±1", sanity: "-1" }
+
+- id: rev_control_condition
+  title: "Where's the Control?"
+  category: reviews
+  rarity: common
+  hook: reviews_in
+  when:
+    any:
+      - { flags_any: [clinical_partner] }
+      - { project: { type: [study, system] } }
+  text:
+    - "Reviewer 1 likes {paper} but wants a control condition. Without one, they can't tell whether your tool helped or your participants were just being nice."
+  choices:
+    - label: "Defend the design"
+      check: { stat: knowledge, vs: 50, spread: 20 }
+      success:
+        text: "You explain why a formative study doesn't need a control, with two citations. Reviewer 1 accepts it."
+        effects: { paper.score: "+3±1" }
+      failure:
+        text: "Your defense is correct and a little defensive. Reviewer 1 is unmoved."
+        effects: { paper.score: "-1", sanity: "-2±1" }
+    - label: "Promise it as future work"
+      text: "A paragraph in the limitations, a promise in the response. Reviewers have heard it before, but it still counts."
+      effects: { paper.score: "+1", sanity: "+1" }
+    - label: "Run a quick online version in five days"
+      text: "Forty online participants, two conditions, five short nights. Your tool beats the control. Your body files a complaint."
+      effects: { paper.score: "+5±2", days: -2, energy: "-5±2", sanity: "-6±2", health: "-3±1" }
+
+- id: rev_consider_llms
+  title: "Have You Considered LLMs?"
+  category: reviews
+  rarity: uncommon
+  hook: reviews_in
+  text:
+    - "Reviewer 3's main suggestion: \"The authors should consider using large language models.\" {paper} is entirely about large language models. It says so in the title."
+  choices:
+    - label: "Point politely to the title"
+      check: { stat: writing, vs: 45, spread: 20 }
+      success:
+        text: "\"As the title suggests, our work uses large language models throughout.\" Gentle, true, and only slightly smug."
+        effects: { paper.score: "+2±1", sanity: "+2±1" }
+      failure:
+        text: "It reads more pointed than you meant. Reviewer 3 does not reply."
+        effects: { paper.score: "-1", sanity: "+1" }
+    - label: "List Sections 1 through 6"
+      text: "Every section that uses one, with page numbers. Very satisfying to write. The area chair may read it in your tone of voice."
+      effects: { paper.score: "-1", sanity: "+4±1" }
+    - label: "Laugh, then answer it as a real question"
+      text: "Maybe they meant a different kind of model. You add a second model family, and the paper is better for it."
+      effects: { paper.score: "+3±1", energy: "-3±1", taste: "+1" }
+
+- id: rev_wrong_summary
+  title: "A Different Paper"
+  category: reviews
+  rarity: uncommon
+  hook: reviews_in
+  text:
+    - "Reviewer 2's summary of {paper} describes a method you didn't propose, tested on a dataset you didn't use. The weaknesses are about that paper, too."
+  choices:
+    - label: "Correct the summary gently"
+      text: "One kind paragraph explains what the paper actually does. Whether Reviewer 2 reads it is up to Reviewer 2."
+      effects: { paper.score: "+2±1", energy: "-1" }
+    - label: "Write to the area chair"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success:
+        text: "The area chair compares the summary to your abstract and sets the review aside."
+        effects: { paper.score: "+5±2", sanity: "+2±1" }
+      failure:
+        text: "The area chair is on vacation. Their backup is also on vacation."
+        effects: { sanity: "-3±1" }
+    - label: "Answer it as if they'd read it"
+      text: "You answer the concerns that could apply to your paper and skip the rest. It's oddly relaxing."
+      effects: { paper.score: "+1", sanity: "+2±1" }
+
+- id: rev_all_borderline
+  title: "Could Go Either Way"
+  category: reviews
+  rarity: common
+  hook: reviews_in
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Three reviews of {paper}, three borderline scores, and the same sentence three times: \"I could go either way.\""
+  choices:
+    - label: "Write your strongest rebuttal"
+      text: "Every concern answered, with numbers. You leave nothing on the table except your sleep."
+      effects: { paper.score: "+5±2", energy: "-5±2", sanity: "-5±2", health: "-2±1" }
+    - label: "Keep it short and polite"
+      text: "Five lines per reviewer. Borderline papers sometimes tip on tone, and yours is pleasant."
+      effects: { paper.score: "+2±1", sanity: "+1" }
+    - label: "Write it off and aim higher next cycle"
+      text: "A minimal response, and a list of what would make the next version undeniable. It's a relief to stop hoping."
+      effects: { paper.score: "-1", sanity: "+4±1", taste: "+2±1" }
+
+- id: rev_rebuttal_at_conference
+  title: "Rebuttal, Room 1214"
+  category: reviews
+  rarity: rare
+  hook: reviews_in
+  when:
+    telemetry: { conferences: ">=1" }
+  text:
+    - "The rebuttal window for {paper} opens on the first morning of a conference you're attending. You have a lanyard, a hotel room, and five days."
+  choices:
+    - label: "Write it in the hotel at night"
+      text: "Talks by day, rebuttal by night, hotel coffee at 2 am. The response is good. You look like the hotel coffee."
+      effects: { paper.score: "+4±1", energy: "-6±2", sanity: "-2±1", health: "-3±1" }
+    - label: "Skip a day of sessions"
+      text: "One day in your room with the rebuttal. You miss the keynote everyone talks about at dinner."
+      effects: { paper.score: "+4±1", network: "-2±1", sanity: "-1" }
+    - label: "Split it with {labmate}"
+      check: { stat: labmates_rel, vs: 50, spread: 20 }
+      success:
+        text: "{labmate}, at home and rested, takes two reviewers. You answer the third between sessions."
+        effects: { paper.score: "+3±1", labmates_rel: "+1", network: "+1" }
+      failure:
+        text: "{labmate} is at the same conference. You write it together in the hotel lobby at midnight."
+        effects: { paper.score: "+3±1", energy: "-4±1", health: "-2±1" }
+
+# ---------------------------------------------------------------------------
+# Right after submitting (hook: after_submit)
+# ---------------------------------------------------------------------------
+
+- id: rev_missing_experiment
+  title: "The Experiment, a Day Late"
+  category: reviews
+  rarity: common
+  hook: after_submit
+  repeatable: true
+  cooldown: 26
+  text:
+    - "At 6 am the morning after you submit {paper}, you wake up with the one experiment that would have made it airtight. Of course you do."
+  choices:
+    - label: "Run it now, for the rebuttal"
+      text: "By the time reviews arrive, the result is in a table, ready to paste. The post-deadline rest never happens."
+      effects: { paper.score: "+4±2", days: -1, energy: "-5±2", sanity: "-4±1" }
+    - label: "Save it for the next paper"
+      text: "It goes in a file called next_paper.md. The file is getting long, which is a good sign."
+      effects: { taste: "+2±1", sanity: "+1" }
+    - label: "Write it down and go back to sleep"
+      text: "One line on a sticky note, then the first full night of sleep since the deadline. Well, morning."
+      effects: { energy: "+4±1", sanity: "+3±1" }
+
+# ---------------------------------------------------------------------------
+# Acceptances (hook: after_accept)
+# ---------------------------------------------------------------------------
+
+- id: rev_findings_counts
+  title: "Findings Counts"
+  category: reviews
+  rarity: common
+  hook: after_accept
+  when:
+    has_advisor: true
+    paper: { tier: findings, first_author: true }
+  text:
+    - "{paper} is in {venue}, not the main conference. {advisor} says Findings is a real publication. {labmate} says so too. Everyone keeps saying it."
+  choices:
+    - label: "Call it a win and mean it"
+      text: "A publication is a publication. You update your CV and sleep well for the first time in a month."
+      effects: { sanity: "+5±2" }
+    - label: "Ask whether Findings gets a poster"
+      check: { stat: network, vs: 40, spread: 20 }
+      success:
+        text: "It does, in a shared session. Three people stop by, and one of them becomes a collaborator."
+        effects: { network: "+3±1", sanity: "+2±1" }
+      failure:
+        text: "Findings is virtual-only this year. You present to a poster board of avatars."
+        effects: { presenting: "+1", sanity: "-2±1" }
+    - label: "Start the main-track follow-up now"
+      text: "Findings was the warm-up. You open a new document called \"main track, for real\"."
+      effects: { taste: "+2±1", energy: "-2±1", sanity: "-2±1" }
+
+# ---------------------------------------------------------------------------
+# Rejections (hook: after_reject)
+# ---------------------------------------------------------------------------
+
+- id: rev_reviewed_paper_accepted
+  title: "The Paper You Reviewed"
+  category: reviews
+  rarity: uncommon
+  hook: after_reject
+  when:
+    year: [2, 8]
+  text:
+    - "Decisions are out. {paper}: rejected. The paper you reviewed for {venue}, the one you gave a 2: accepted."
+  choices:
+    - label: "Read their camera-ready"
+      text: "They fixed everything you asked for. It's a good paper now, partly because of you. A strange comfort."
+      effects: { taste: "+2±1", sanity: "-2±1" }
+    - label: "Tell {labmate}, without saying which"
+      text: "{labmate} guesses the paper in four seconds. You neither confirm nor deny, and you both feel better."
+      effects: { sanity: "+2±1", labmates_rel: "+2±1" }
+    - label: "Close the tab and get ice cream"
+      text: "Peer review is a lottery, and this week you bought a ticket for someone else."
+      effects: { sanity: "+4±1", health: "-1" }
+
+- id: rev_one_line_meta
+  title: "The One-Line Meta-Review"
+  category: reviews
+  rarity: common
+  hook: after_reject
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The meta-review for {paper} is one sentence long: \"The reviewers raised several concerns.\" It does not say which."
+  choices:
+    - label: "Reread the reviews for clues"
+      text: "Two concerns show up in more than one review. That's probably the sentence the area chair meant to write."
+      effects: { taste: "+2±1", energy: "-2±1", sanity: "-2±1" }
+    - label: "Email the area chair"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success:
+        text: "The area chair replies with a real paragraph and an apology. It's the most useful part of the whole review."
+        effects: { taste: "+2±1", sanity: "+3±1" }
+      failure:
+        text: "The reply is one sentence long. Consistent, at least."
+        effects: { sanity: "-3±1" }
+    - label: "Print it and pin it to the wall"
+      text: "It goes up next to {labmate}'s \"Thank you for your submission.\" The wall is becoming a gallery."
+      effects: { sanity: "+3±1", labmates_rel: "+2±1" }
+
+- id: rev_workshop_suggestion
+  title: "A Great Workshop Paper"
+  category: reviews
+  rarity: common
+  hook: after_reject
+  when:
+    project: { stage: revise }
+  text:
+    - "The meta-review for {paper}: \"Not ready for {venue}, but this would make a great workshop paper.\" It's meant kindly. It doesn't feel kind."
+  choices:
+    - label: "Send a short version to a workshop"
+      text: "Four pages, non-archival. A few people hear about the work now, and the full paper stays free for a main venue."
+      effects: { network: "+3±1", sanity: "+2±1", energy: "-3±1", days: -1 }
+    - label: "Hold out for another main venue"
+      text: "You fix the core concerns and aim high again. They said \"not ready\", not \"not good\"."
+      effects: { project.quality.S: "+3±1", sanity: "-2±1" }
+    - label: "Split it into two papers"
+      text: "You cut it in two and keep the stronger half for now. It's clearer than the whole was, and a little smaller."
+      effects: { project.quality.C: "+4±2", project.quality.N: "-3±1", energy: "-3±1" }
+
+- id: rev_three_weeks
+  title: "Next Deadline: Three Weeks"
+  category: reviews
+  rarity: common
+  hook: after_reject
+  when:
+    has_advisor: true
+    project: { stage: revise }
+  text:
+    - "An hour after the rejection, {advisor} writes: \"Let's turn {paper} around for the next deadline. It's in three weeks.\""
+  choices:
+    - label: "Turn it around fast"
+      text: "Three weeks of nothing else. Most concerns get answered. Sunlight becomes a rumor."
+      effects: { project.progress: "+12±3", energy: "-5±2", sanity: "-5±2", health: "-2±1", advisor_rel: "+2±1" }
+    - label: "Ask for one more cycle to fix it"
+      check: { stat: advisor_rel, vs: 50, spread: 20 }
+      success:
+        text: "\"Fair. Better a strong paper later than a tired one now.\" The fixes go deeper than the reviews asked."
+        effects: { project.quality.S: "+4±1", project.quality.C: "+2±1", sanity: "+2±1" }
+      failure:
+        text: "\"Three weeks is plenty.\" It isn't, but now you know the plan."
+        effects: { advisor_rel: "-2±1", sanity: "-3±1" }
+    - label: "Fix only the top two concerns"
+      text: "Two concerns fixed properly, the rest acknowledged. A plan that fits in three weeks."
+      effects: { project.progress: "+6±2", project.quality.S: "+2±1", sanity: "-2±1" }
+
+- id: rev_mostly_fair
+  title: "Mostly Fair"
+  category: reviews
+  rarity: common
+  hook: after_reject
+  repeatable: true
+  cooldown: 26
+  when:
+    project: { stage: revise }
+  text:
+    - "A week later, you reread the reviews of {paper} with fresh eyes. They're... mostly fair. Annoyingly fair."
+  choices:
+    - label: "Turn them into a fix list"
+      text: "Eleven items, sorted by effort. A rejection is hard to live with; a to-do list is much easier."
+      effects: { project.quality.S: "+2±1", energy: "-2±1", sanity: "+3±1" }
+      tip: "Critique-Centric Feedback"
+    - label: "Stay a little mad"
+      text: "A little anger is good fuel. You get a lot done this week, loudly."
+      effects: { project.progress: "+7±2", energy: "-3±1", sanity: "-2±1", labmates_rel: "-1" }
+    - label: "Write one thank-you line in your notes"
+      text: "\"Thanks, Reviewer 1, for the error analysis idea.\" Nobody will read it. You feel more like a colleague than a defendant."
+      effects: { sanity: "+3±1", taste: "+1" }
+
+- id: rev_tell_clinicians
+  title: "Was It Wasted?"
+  category: reviews
+  rarity: uncommon
+  hook: after_reject
+  when:
+    project: { stage: revise }
+    any:
+      - { flags_any: [clinical_partner] }
+      - { project: { type: study } }
+  text:
+    - "You have to tell your clinical collaborators that {paper} was rejected. Their first question: \"So was the study wasted?\""
+  choices:
+    - label: "Explain peer review honestly"
+      check: { stat: presenting, vs: 45, spread: 20 }
+      success:
+        text: "Three reviewers, one area chair, and some luck. They nod. One says it sounds like grant review, only faster."
+        effects: { network: "+2±1", presenting: "+1", sanity: "+1" }
+      failure:
+        text: "They follow along until \"Reviewer 1 lowered the score after reading Reviewer 2\", then look worried for you."
+        effects: { network: "-1", sanity: "-2±1" }
+    - label: "Share the kind parts of the reviews"
+      text: "Every reviewer praised the clinical setting. You read them those lines and keep the rest for the lab."
+      effects: { network: "+1", sanity: "+2±1" }
+    - label: "Invite them to plan the resubmission"
+      text: "They bring a better scenario and two ideas you'd never have had. It costs a meeting a week, and the next version is stronger."
+      effects: { network: "+4±1", project.quality.S: "+3±1", energy: "-3±1", days: -1 }
+
+- id: rev_arxiv_cited
+  title: "Cited, Rejected"
+  category: reviews
+  rarity: uncommon
+  hook: after_reject
+  text:
+    - "{paper} is rejected from {venue} on Tuesday. On Thursday, its arXiv version is cited twice. One of the citing papers calls it \"seminal\"."
+  choices:
+    - label: "Let it make you feel better"
+      text: "Three reviewers said no. Two papers said yes. You decide to count all five."
+      effects: { sanity: "+5±2" }
+    - label: "Update arXiv with the fixes"
+      text: "Version 2 goes up with the reviewers' fixes in it. It's the one people will cite from now on."
+      effects: { paper.citations: "+3±1", energy: "-3±1", days: -1 }
+    - label: "Screenshot it for {advisor}"
+      requires: { has_advisor: true }
+      text: "{advisor} replies with three exclamation marks, the most you've ever received."
+      effects: { advisor_rel: "+3±1", sanity: "+2±1" }
+
+- id: rev_lottery
+  title: "It's a Lottery Anyway"
+  category: reviews
+  rarity: common
+  hook: after_reject
+  when:
+    project: { stage: revise }
+  text:
+    - "{labmate}, your co-author on {paper}, wants to resubmit it unchanged: \"It's a lottery anyway. New reviewers, new numbers.\""
+  choices:
+    - label: "Agree and buy another ticket"
+      text: "Same paper, new cycle, very little work. It is also exactly the paper three people just rejected."
+      effects: { project.progress: "+15±3", sanity: "+2±1", labmates_rel: "+2±1" }
+    - label: "Insist on fixing the concerns"
+      text: "{labmate} sighs and takes the related work. The new version is better, and you're both a bit tired of each other."
+      effects: { project.quality.S: "+4±1", project.quality.C: "+2±1", energy: "-3±1", labmates_rel: "-3±1" }
+    - label: "Fix the two cheapest things"
+      text: "A clearer Figure 2 and one missing citation. Not a new paper, but not quite a lottery ticket either."
+      effects: { project.progress: "+8±2", project.quality.C: "+2±1" }
+
+- id: rev_mentee_first_paper
+  title: "Their First Rejection"
+  category: reviews
+  rarity: uncommon
+  hook: after_reject
+  when:
+    year: [3, 8]
+  text:
+    - "{paper} was {mentee}'s first paper; their name is second on it. They haven't seen the decision yet. You have to tell them."
+  choices:
+    - label: "Tell them in person, with cookies"
+      text: "{mentee} takes it well, eats three cookies, and asks what to fix first. A very good sign."
+      effects: { labmates_rel: "+4±1", energy: "-2±1", sanity: "-1" }
+    - label: "Forward the reviews with a long note"
+      text: "Your note says which comments matter and which are noise. {mentee} saves it in a folder called \"how this works\"."
+      effects: { labmates_rel: "+2±1", writing: "+1", energy: "-2±1" }
+      tip: "How to Communicate"
+    - label: "Ask {advisor} to tell them"
+      requires: { has_advisor: true }
+      text: "{advisor} handles it kindly. {mentee} wonders, a little, why it wasn't you."
+      effects: { sanity: "+2±1", advisor_rel: "-2±1", labmates_rel: "-1" }
+
+- id: rev_remove_the_section
+  title: "Add It. Now Remove It."
+  category: reviews
+  rarity: uncommon
+  hook: after_reject
+  when:
+    paper: { submissions: ">=2" }
+    project: { stage: revise }
+  text:
+    - "The new reviewers want Section 5 removed from {paper}. Last cycle's reviewers asked you to add Section 5. It took three weeks."
+  choices:
+    - label: "Remove it"
+      text: "Three weeks to write, three seconds to delete. The paper is tighter, and a little less convincing."
+      effects: { project.quality.C: "+3±1", project.quality.S: "-2±1", sanity: "-2±1" }
+    - label: "Keep it and explain why"
+      check: { stat: writing, vs: 50, spread: 20 }
+      success:
+        text: "Two sentences at the top of Section 5 say why it's there. Nobody will ask again, from either side."
+        effects: { project.quality.S: "+2±1", project.quality.C: "+2±1" }
+      failure:
+        text: "Your explanation ends up longer than the section. You trim both and lose an afternoon."
+        effects: { project.quality.C: "-1", energy: "-3±1", sanity: "-2±1" }
+    - label: "Move it to the appendix"
+      text: "Section 5 lives on in Appendix C, where the people who want it can find it and nobody else has to."
+      effects: { project.quality.C: "+1", energy: "-1", sanity: "+1" }
+
+- id: rev_too_hci_too_nlp
+  title: "Too HCI, Too NLP"
+  category: reviews
+  rarity: uncommon
+  hook: after_reject
+  when:
+    paper: { submissions: ">=2" }
+    project: { stage: revise }
+  text:
+    - "Last cycle, reviewers called {paper} \"too HCI for this venue\". This cycle: \"too NLP for this venue\". Same paper, nearly word for word."
+  choices:
+    - label: "Rewrite it for one community"
+      text: "You pick a side, reframe the introduction, and cut what the other side loved. It hurts, and it reads better."
+      effects: { project.quality.C: "+5±2", project.progress: "-4±2", energy: "-4±1" }
+    - label: "Aim for an interdisciplinary venue"
+      text: "You read a year of papers from a venue built for exactly this. Reviewers there might call it a bridge."
+      effects: { knowledge: "+2±1", sanity: "+3±1", days: -1 }
+    - label: "Turn it into a position paper"
+      text: "If nobody can tell which field it belongs to, maybe that's the argument. Bolder, and easier to attack."
+      effects: { project.quality.N: "+4±1", project.quality.S: "-3±1", sanity: "+1" }
+
+- id: rev_birthday_reject
+  title: "Many Happy Returns"
+  category: reviews
+  rarity: rare
+  hook: after_reject
+  text:
+    - "The {venue} decision for {paper} arrives on your birthday, at 9 am, before the cake. It's a no."
+  choices:
+    - label: "Cake first, reviews tomorrow"
+      text: "Candles, friends, no laptop. The reviews will still be there tomorrow, and so will you, a year older."
+      effects: { sanity: "+5±2", friends_rel: "+3±1", energy: "+2±1" }
+    - label: "Read them now"
+      text: "You read all three over breakfast. You know exactly what to fix, and exactly how to ruin a birthday."
+      effects: { taste: "+2±1", sanity: "-3±1" }
+    - label: "Ask the lab never to mention it"
+      text: "Nobody mentions it. {labmate} brings a cake that says \"Happy Birthday\" and, in very small letters, \"R2 is wrong\"."
+      effects: { sanity: "+3±1", labmates_rel: "+2±1" }
+
+- id: rev_rr_new_reviewer
+  title: "The New Reviewer"
+  category: reviews
+  rarity: uncommon
+  weight: 2.0
+  hook: after_reject
+  when:
+    turn: [10, 10]
+    paper: { tier: top }
+    project: { stage: revise }
+  text:
+    - "After a whole Revise and Resubmit, {paper} is rejected. The deciding review comes from someone who wasn't in the first round, with concerns nobody raised before."
+  choices:
+    - label: "Ask the chairs what happened"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success:
+        text: "A first-round reviewer dropped out, the chairs explain, and they're sorry. They mean it, which helps a little."
+        effects: { sanity: "+3±1", network: "+1" }
+      failure:
+        text: "A polite reply: the process was followed. It was. That's the problem."
+        effects: { sanity: "-3±1" }
+    - label: "Take it to a journal"
+      text: "A journal has room for the whole story, and reviewers who stay for every round. The paper gets longer, and calmer."
+      effects: { project.quality.C: "+3±1", energy: "-2±1", sanity: "+2±1" }
+    - label: "Revise once more for the next cycle"
+      text: "The new concerns, answered. The paper has now satisfied three different sets of reviewers, at least on paper."
+      effects: { project.quality.S: "+4±1", energy: "-3±1", sanity: "-3±1" }
+
+# ---------------------------------------------------------------------------
+# Any turn (hook: turn)
+# ---------------------------------------------------------------------------
+
+- id: rev_emergency_review
+  title: "Emergency Reviewer Needed"
+  category: reviews
+  rarity: common
+  repeatable: true
+  cooldown: 13
+  when:
+    year: [2, 8]
+  text:
+    - "9 pm. An area chair writes: a reviewer dropped out, and could you possibly review one paper by noon tomorrow? \"It's short,\" they add. It's 14 pages."
+  choices:
+    - label: "Say yes and do it properly"
+      text: "You finish at 3 am. The area chair thanks you by name, which is the most an area chair can do."
+      effects: { energy: "-6±2", sanity: "-4±1", health: "-2±1", network: "+3±1", knowledge: "+1" }
+    - label: "Say yes, keep it short"
+      text: "A fair, short review, in by 11:58 am. Your best paragraph is about Figure 2."
+      effects: { energy: "-3±1", sanity: "-2±1", network: "+1" }
+    - label: "Decline kindly"
+      text: "Someone else gets the email next. You sleep fine, mostly."
+      effects: { sanity: "+1", network: "-1" }
+
+- id: rev_old_reviewer_follows
+  title: "New Follower"
+  category: reviews
+  rarity: uncommon
+  when:
+    telemetry: { rejections: ">=1" }
+  text:
+    - "A new follower on social media. Their latest post complains about \"papers that ignore obvious baselines\", in the exact words of the review that rejected your last paper."
+  choices:
+    - label: "Follow back"
+      text: "They like your next paper thread within a minute. Peer review is anonymous. The internet, less so."
+      effects: { network: "+2±1", sanity: "-2±1" }
+    - label: "Mute them"
+      text: "Out of sight. Your feed is calmer, and you stop reading their posts for clues."
+      effects: { sanity: "+2±1" }
+    - label: "Post a thread about your baselines"
+      check: { stat: writing, vs: 50, spread: 20 }
+      success:
+        text: "The thread does well, and they like it. You will never know if they noticed."
+        effects: { network: "+3±1", citations: "+2±1", sanity: "+1" }
+      failure:
+        text: "The thread gets four likes. One is from them, which is somehow worse."
+        effects: { sanity: "-3±1" }

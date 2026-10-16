@@ -531,3 +531,117 @@
       text: "\"For the lab chat,\" {labmate} says. It becomes the chat's icon for the next three years."
       effects: { labmates_rel: "+3±1", sanity: "+5±1" }
       achievement: hood_backwards
+
+# ---------------------------------------------------------------------------
+# Round 5 additions: the thesis title, the annual review, new course rules,
+# and the acknowledgments
+# ---------------------------------------------------------------------------
+
+- id: mil_thesis_title
+  title: "The Title Fight"
+  category: milestone
+  rarity: common
+  when:
+    has_advisor: true
+    status_any: [proposal_prep, defense_prep]
+  text:
+    - "You and {advisor} disagree about your thesis title. Yours is accurate and 19 words long. Theirs is four words, and one of them is \"Towards\"."
+  choices:
+    - label: "Argue for your title"
+      check: { stat: taste, vs: 55, spread: 15 }
+      success:
+        text: "You explain what each word is doing. {advisor} reads it twice and concedes. The title is yours, colon and all."
+        effects: { taste: "+2±1", sanity: "+3±1" }
+      failure:
+        text: "Forty minutes on one word. You win nothing except a strong opinion about colons."
+        effects: { sanity: "-3±1", advisor_rel: "-2±1" }
+    - label: "Take theirs: \"Towards\" it is"
+      text: "Short and grand. {advisor} is pleased, and you'll explain what it means at every talk for a year."
+      effects: { advisor_rel: "+3±1", sanity: "-1" }
+    - label: "Poll the lab with both titles"
+      text: "The lab votes for a third title that nobody proposed. Somehow, you and {advisor} both like it."
+      effects: { labmates_rel: "+2±1", sanity: "+2±1", energy: "-2±1" }
+
+- id: mil_annual_review
+  title: "Satisfactory"
+  category: milestone
+  rarity: common
+  repeatable: true
+  cooldown: 22
+  when:
+    has_advisor: true
+    year: [1, 6]
+    turn: [17, 20]
+  text:
+    - "Your annual review letter arrives. Progress: \"Satisfactory.\" Below it is one long paragraph that uses the word \"encourage\" four times."
+    - "The annual review letter is in. The box says \"Satisfactory\". The comment says \"We encourage continued focus on publication\", a sentence with layers."
+  choices:
+    - label: "Decode it with {senior}"
+      check: { stat: labmates_rel, vs: 45, spread: 15 }
+      success:
+        text: "{senior} has read dozens of these. \"Encourage\" means \"submit something this year\". You leave with a plan."
+        effects: { sanity: "+3±1", labmates_rel: "+2±1", taste: "+1" }
+      failure:
+        text: "{senior} reads it, frowns and says \"Huh.\" Now two people are worried."
+        effects: { sanity: "-3±1" }
+    - label: "Ask {advisor} what it really means"
+      text: "\"Keep going, just faster.\" Blunt, fair and a little scary. At least the paragraph has an owner now."
+      effects: { advisor_rel: "+2±1", taste: "+1", sanity: "-2±1" }
+      tip: "Deliver Your Commitments"
+    - label: "Satisfactory is a pass. File it"
+      text: "You file the letter and get back to work. The paragraph stays unread, and so does whatever it meant."
+      effects: { sanity: "+2±1" }
+
+- id: mil_new_requirements
+  title: "New Requirements"
+  category: milestone
+  rarity: uncommon
+  when:
+    has_advisor: true
+    year: [2, 4]
+    semester: [fall, spring]
+  text:
+    - "The program updates its course requirements. Students admitted before the change are \"strongly encouraged\" to take the new methods course. You read that sentence three times, looking for a loophole."
+  choices:
+    - label: "Take the course"
+      text: "Ten weeks of problem sets. Week six exposes a flaw in your analysis that a reviewer would have found first."
+      effects: { knowledge: "+4±1", energy: "-6±2", sanity: "-2±1", days: -2 }
+    - label: "Petition to keep the old rules"
+      check: { stat: writing, vs: 50, spread: 15 }
+      success:
+        text: "Your petition is polite and quotes the handbook's own page numbers. Approved in a week."
+        effects: { sanity: "+4±1", writing: "+1" }
+      failure:
+        text: "The petition goes to a committee that meets once a semester. You take the course while you wait."
+        effects: { knowledge: "+2±1", energy: "-5±2", sanity: "-3±1", days: -1 }
+    - label: "Ask {advisor} for an independent study"
+      check: { stat: advisor_rel, vs: 50, spread: 15 }
+      success:
+        text: "{advisor} sets up an independent study that is mostly your own project. The program accepts it."
+        effects: { knowledge: "+2±1", sanity: "+3±1", advisor_rel: "+1" }
+      failure:
+        text: "{advisor} thinks the course would be good for you. Now the encouragement comes from two directions."
+        effects: { knowledge: "+1", sanity: "-3±1" }
+
+- id: mil_acknowledgments
+  title: "The Acknowledgments"
+  category: milestone
+  rarity: common
+  hook: defense_prep
+  text:
+    - "Chapter 3 took you a week. The acknowledgments have taken two, and you're on draft six. You keep remembering one more person who once fixed your code."
+  choices:
+    - label: "Thank everyone, by name"
+      text: "Three pages. Your labmates find their names and pretend they didn't look. Your parents read it twice."
+      effects: { labmates_rel: "+3±1", family_rel: "+3±1", energy: "-3±1", days: -1 }
+    - label: "Keep it to one honest paragraph"
+      text: "Short, warm and finished by lunch. You probably forgot someone. They'll forgive you."
+      effects: { sanity: "+3±1", days: 1 }
+    - label: "Add one joke for the lab"
+      check: { stat: writing, vs: 50, spread: 15 }
+      success:
+        text: "One line about the coffee machine. Your committee skips it; your labmates will quote it for years."
+        effects: { labmates_rel: "+4±1", sanity: "+3±1" }
+      failure:
+        text: "The joke needs a footnote to explain it. You delete it at 2 am, along with an hour of sleep."
+        effects: { sanity: "-2±1", energy: "-2±1" }
