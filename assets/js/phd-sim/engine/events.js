@@ -7,10 +7,10 @@ import { applyOutcome } from "./effects.js";
 import { statValue, hasTrait } from "./derived.js";
 
 export const HOOK_CHANCE = {
-  turn: 1, deadline: 0.5, after_submit: 0.35, reviews_in: 0.4, after_accept: 0.6, after_reject: 0.5,
-  conference: 1, internship: 0.5, defense_prep: 0.7, defense: 1, job_market: 0.4, model_release: 0.5, graduation: 1
+  turn: 1, deadline: 0.3, after_submit: 0.2, reviews_in: 0.3, after_accept: 0.35, after_reject: 0.3,
+  conference: 1, internship: 0.3, defense_prep: 0.4, defense: 1, job_market: 0.15, model_release: 0.25, graduation: 1
 };
-const HOOK_MAX = { conference: 2, graduation: 2 };
+const HOOK_MAX = { conference: 1, graduation: 2 };
 
 export function eventEligible(G, ev, ctx, scheduled) {
   const s = G.state;
@@ -85,7 +85,7 @@ function boundObjectsExist(G, ctx) {
 export function arrowsFor(choice) {
   const outs = choice.check ? [choice.success || {}, choice.failure || {}] : [choice];
   const out = [];
-  ["energy", "sanity", "citations"].forEach(function (stat) {
+  ["energy", "sanity", "citations", "taste", "coding", "writing", "presenting", "knowledge"].forEach(function (stat) {
     const signs = [];
     let mag = 0;
     outs.forEach(function (o) {

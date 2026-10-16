@@ -44,6 +44,7 @@
   title: "The Family Business"
   category: exit
   rarity: uncommon
+  weight: 3
   when: { year: [1, 6], semester: [break] }
   text:
     - "Over holiday dinner, your uncle asks, again, when you'll come home and help run the family business. This year he has a spreadsheet."
@@ -58,7 +59,8 @@
 - id: exi_med_school_seed
   title: "You'd Make a Good Doctor"
   category: exit
-  rarity: rare
+  rarity: uncommon
+  weight: 2
   when: { year: [2, 6], flags_all: [clinical_partner] }
   text:
     - "After another study session, a clinician you work with says, half-joking: \"You understand our workflow better than our residents. Ever thought about med school?\""

@@ -16,17 +16,29 @@ export const STAT_LABELS = {
   family_rel: "Family", friends_rel: "Friends", network: "Network"
 };
 
+// Things you can choose to do with a turn. Each choice is two weekdays of that activity.
+// `arrows` preview the visible effects (players never see numbers before choosing).
 export const ACTIVITIES = [
-  { id: "read", label: "Read broadly", kind: "work", desc: "Knowledge and taste. Sometimes an idea." },
-  { id: "network", label: "Network", kind: "work", desc: "Talks, emails, reading groups. Network and a few citations." },
-  { id: "help", label: "Help labmates", kind: "work", desc: "Labmates like you more. Sometimes a co-authorship." },
-  { id: "mentor", label: "Mentor", kind: "work", desc: "Help your mentee grow." },
-  { id: "career", label: "Career prep", kind: "work", desc: "Applications and interview practice." },
-  { id: "rest", label: "Rest", kind: "self", desc: "Energy." },
-  { id: "exercise", label: "Exercise", kind: "self", desc: "Energy and health." },
-  { id: "social", label: "Friends", kind: "self", desc: "Sanity and friendships." },
-  { id: "hobby", label: "Hobby", kind: "self", desc: "Sanity." },
-  { id: "family", label: "Family time", kind: "self", desc: "Sanity and family." }
+  { id: "read", label: "Read papers", kind: "work", desc: "Domain knowledge and research taste. Sometimes an idea.",
+    arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "knowledge", dir: "up", strength: 1 }, { stat: "taste", dir: "up", strength: 1 }] },
+  { id: "network", label: "Network", kind: "work", desc: "Talks, emails, reading groups. People start to know your name.",
+    arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "citations", dir: "up", strength: 1 }] },
+  { id: "help", label: "Help labmates", kind: "work", desc: "Your lab likes you more. Sometimes it turns into a co-authorship.",
+    arrows: [{ stat: "energy", dir: "down", strength: 1 }] },
+  { id: "mentor", label: "Mentor your undergrad", kind: "work", desc: "Teaching is learning twice.",
+    arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "presenting", dir: "up", strength: 1 }] },
+  { id: "career", label: "Practice talks and interviews", kind: "work", desc: "Presenting skills, and better odds on applications.",
+    arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "presenting", dir: "up", strength: 1 }] },
+  { id: "rest", label: "Rest", kind: "self", desc: "Sleep in. Do nothing. It counts.",
+    arrows: [{ stat: "energy", dir: "up", strength: 2 }] },
+  { id: "exercise", label: "Exercise", kind: "self", desc: "Good for energy, mood, and the body you'll need in year five.",
+    arrows: [{ stat: "energy", dir: "up", strength: 1 }, { stat: "sanity", dir: "up", strength: 1 }] },
+  { id: "social", label: "See friends", kind: "self", desc: "The best cure for the lab.",
+    arrows: [{ stat: "sanity", dir: "up", strength: 2 }] },
+  { id: "hobby", label: "Hobby", kind: "self", desc: "Something that has nothing to do with research.",
+    arrows: [{ stat: "sanity", dir: "up", strength: 1 }, { stat: "energy", dir: "up", strength: 1 }] },
+  { id: "family", label: "Call family", kind: "self", desc: "They miss you. You miss them.",
+    arrows: [{ stat: "sanity", dir: "up", strength: 1 }, { stat: "energy", dir: "up", strength: 1 }] }
 ];
 export const ACTIVITY_BY_ID = {};
 ACTIVITIES.forEach(function (a) { ACTIVITY_BY_ID[a.id] = a; });
@@ -51,40 +63,54 @@ function rollValue(rng, v) {
   return p ? rng.triangular(p.center, p.spread) : 0;
 }
 
-// Three trait offers plus two random traits; the player keeps one offer.
-export function rollTraits(D, seed, reroll) {
-  const rng = new Rng(seed + ":traits:" + (reroll || 0));
-  const pool = rng.shuffle(D.traits.map(function (t) { return t.id; }));
-  return { offers: pool.slice(0, 3), random: pool.slice(3, 5) };
+const EXCLUSIVE = [["code_wizard", "wordsmith"], ["early_bird", "night_owl"], ["introvert", "social_butterfly"],
+  ["resilient", "anxious"], ["industry_veteran", "career_switcher"], ["optimist", "imposter_syndrome"],
+  ["code_wizard", "industry_veteran"], ["polyglot", "international"]];
+
+// Traits are rolled at random: no choosing, no rerolls.
+export function rollTraits(D, seed) {
+  const rng = new Rng(seed + ":traits");
+  const n = (D.config.turn && D.config.turn.traits) || 3;
+  const out = [];
+  rng.shuffle(D.traits.map(function (t) { return t.id; })).forEach(function (id) {
+    if (out.length >= n) return;
+    const clash = EXCLUSIVE.some(function (pair) { return pair.indexOf(id) >= 0 && out.indexOf(pair[0] === id ? pair[1] : pair[0]) >= 0; });
+    if (!clash) out.push(id);
+  });
+  return out;
 }
 
 export function newRun(D, opts) {
   const cfg = D.config;
   const rng = new Rng(opts.seed);
-  const bg = D.backgroundById[opts.background] || D.backgrounds[0];
-  const traits = opts.traits.slice();
+  const traits = (opts.traits || rollTraits(D, opts.seed)).slice();
+  const has = function (t) { return traits.indexOf(t) >= 0; };
 
   const stats = {
-    energy: clamp((cfg.start.energy || 80) + (bg.energy_bonus || 0), 0, 100),
+    energy: cfg.start.energy || 80,
     sanity: cfg.start.sanity || 70,
     health: clamp(rollValue(rng, cfg.start.health || 80), 0, 100),
     advisor_rel: cfg.start.advisor_rel || 50,
     labmates_rel: cfg.start.labmates_rel || 50,
     family_rel: cfg.start.family_rel || 60,
     friends_rel: cfg.start.friends_rel || 40,
-    network: bg.network || 15
+    network: cfg.start.network || 15
   };
-  Object.keys(bg.skills).forEach(function (k) { stats[k] = bg.skills[k]; });
-  if (traits.indexOf("code_wizard") >= 0) { stats.coding += 20; stats.writing -= 10; }
-  if (traits.indexOf("wordsmith") >= 0) { stats.writing += 20; stats.coding -= 10; }
+  const base = cfg.start.skills || { taste: 26, coding: 32, writing: 28, presenting: 28, knowledge: 26 };
+  Object.keys(base).forEach(function (k) { stats[k] = base[k] + rng.int(-3, 3); });
+  if (has("code_wizard")) { stats.coding += 20; stats.writing -= 10; }
+  if (has("wordsmith")) { stats.writing += 20; stats.coding -= 10; }
+  if (has("industry_veteran")) { stats.coding += 18; stats.network += 15; stats.writing -= 5; }
+  if (has("career_switcher")) { stats.knowledge += 25; stats.coding -= 12; stats.presenting += 5; }
   Object.keys(stats).forEach(function (k) { stats[k] = clamp(stats[k], 0, 100); });
+  const background = has("industry_veteran") ? "industry" : has("career_switcher") ? "switcher" : has("head_start") ? "masters" : "undergrad";
 
   const topics = rng.shuffle(D.topics).slice(0, 7).map(function (t) {
     return { id: t.id, name: t.name, hype: clamp((t.hype || 50) + rng.int(-10, 10), 5, 95), used: [] };
   });
 
   const state = {
-    version: 1,
+    version: 2,
     seed: opts.seed,
     daily: !!opts.daily,
     rng: rng.state(),
@@ -93,7 +119,7 @@ export function newRun(D, opts) {
     phase: "playing",
     prompt: null,
     current: null,
-    player: { name: opts.name || "Alex", background: bg.id, origin: opts.origin || "domestic", traits: traits },
+    player: { name: opts.name || "Alex", background: background, origin: has("international") ? "international" : "domestic", traits: traits },
     stats: stats,
     statuses: [],
     flags: {},
@@ -113,7 +139,10 @@ export function newRun(D, opts) {
     projects: [],
     papers: [],
     nextId: 1,
-    routine: { days: { read: 3, social: 1, exercise: 1 }, overtime: 0, overtimeTarget: "read" },
+    lastPlan: null,
+    plan: null,
+    endItems: [],
+    report: null,
     queue: [],
     pendingHooks: [],
     turnItems: [],

@@ -11,6 +11,8 @@ start:
   labmates_rel: 50
   family_rel: 60
   friends_rel: 40
+  network: 15
+  skills: { taste: 26, coding: 32, writing: 28, presenting: 28, knowledge: 26 }
 
 energy:
   workday: "-3±1"
@@ -57,8 +59,13 @@ quality:
   writing_floor: 0.6     # clarity × (floor + (1 - floor) × writing completion)
   hype_weight: 0.1       # novelty += (hype - 50) × weight
 
+turn:
+  days_per_choice: 2       # each choice in the turn plan is two weekdays of that activity
+  traits: 3                # random traits per new PhD
+
 events:
-  random_count: [0.5, 0.42, 0.08]   # P(0), P(1), P(2) random draws per turn
+  turn_event_chance: 0.25  # chance of one random event per turn (lower when something else already happened)
+  busy_turn_event_chance: 0.05
   rarity: { common: 10, uncommon: 4, rare: 1.2, legendary: 0.3 }
   novelty: { never: 2.5, last_run: 0.25, two_runs: 0.5, this_run: 0.25 }
   balance_window: 6

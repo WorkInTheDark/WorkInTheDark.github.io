@@ -1,12 +1,10 @@
 // The app shell: screens, the play loop, prompts, saving, and input handling.
-import { prepareData, newRun, rollTraits, Game, newSeed, storage, tOf } from "../engine/index.js";
+import { prepareData, newRun, rollTraits, Game, newSeed, storage } from "../engine/index.js";
 import { Rng } from "../engine/rng.js";
 import { prefersReducedMotion, esc } from "./common.js";
 import { gameHtml } from "./gameview.js";
 import { eventHtml, sysHtml, matchingHtml, newProjectHtml, rebuttalHtml, qaHtml, resultHtml, promptClass, slotsUsed } from "./prompts.js";
 import { titleHtml, setupHtml, helpHtml, codexHtml, endHtml, summaryText, drawCard } from "./screens.js";
-
-function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
 export class App {
   constructor(root, rawData) {
@@ -19,10 +17,10 @@ export class App {
     this.screen = "title";
     this.prev = "title";
     this.modal = null;
-    this.busy = false;
-    this.mode = "one";
+    this.plan = null;
+    this.report = null;
+    this.sel = { picks: {}, weekend: "off", extras: {} };
     this.achShown = {};
-    this.loopToken = 0;
     this.reduced = prefersReducedMotion();
     const self = this;
     root.addEventListener("click", function (e) { self.onClick(e); });
@@ -56,9 +54,9 @@ export class App {
       if (p.type === "event") inner = eventHtml(p);
       else if (p.type === "sys") inner = sysHtml(p);
       else if (p.type === "matching") inner = matchingHtml(p);
-      else if (p.type === "new_project") inner = newProjectHtml(p, this.sel);
-      else if (p.type === "rebuttal") inner = rebuttalHtml(p, this.sel);
-      else if (p.type === "qa") inner = qaHtml(p, this.sel);
+      else if (p.type === "new_project") inner = newProjectHtml(p, this.psel);
+      else if (p.type === "rebuttal") inner = rebuttalHtml(p, this.psel);
+      else if (p.type === "qa") inner = qaHtml(p, this.psel);
       if (this.modal.result) {
         // Keep the question visible, replace the choices with the outcome.
         inner = inner.replace(/<div class="ps-choices">[\s\S]*$/, "");
@@ -108,78 +106,85 @@ export class App {
 
   newSetup(daily) {
     const seed = daily ? "daily-" + new Date().toISOString().slice(0, 10) : newSeed();
-    const tr = rollTraits(this.D, seed, 0);
     const rng = new Rng(seed + ":name");
-    this.setup = {
-      seed: seed, daily: !!daily, name: rng.pick(this.D.names.first || ["Alex"]), background: null, origin: null,
-      offers: tr.offers, random: tr.random, trait: null, reroll: 0
-    };
+    this.setup = { seed: seed, daily: !!daily, name: rng.pick(this.D.names.first || ["Alex"]), traits: rollTraits(this.D, seed) };
     this.screen = "setup";
     this.render();
   }
 
   startRun() {
     const st = this.setup;
-    const state = newRun(this.D, { seed: st.seed, daily: st.daily, name: (st.name || "Alex").trim().slice(0, 24) || "Alex", background: st.background, origin: st.origin, traits: [st.trait].concat(st.random) });
+    const state = newRun(this.D, { seed: st.seed, daily: st.daily, name: (st.name || "Alex").trim().slice(0, 24) || "Alex", traits: st.traits });
     this.game = new Game(this.D, this.meta, state);
     this.savedRun = state;
     this.screen = "game";
     this.achShown = {};
+    this.report = null;
     this.persist();
-    this.render();
-    this.run("one");
+    this.advance();
   }
 
   resume() {
     if (!this.game || this.game.state !== this.savedRun) this.game = new Game(this.D, this.meta, this.savedRun);
     this.screen = "game";
     const s = this.game.state;
+    this.report = s.report || null;
     if (s.phase === "ended") { this.finish(); return; }
     if (s.prompt) { this.showPrompt(s.prompt, !!s.prompt.ui); return; }
-    this.render();
+    this.advance();
   }
 
-  stopLoop() {
-    this.loopToken++;
-    this.busy = false;
-  }
-
-  async run(mode) {
+  // Runs the game forward until it needs the player: a prompt, or the next turn's plan.
+  advance() {
     if (!this.game || this.screen !== "game") return;
-    const token = ++this.loopToken;
-    const game = this.game;
-    const self = this;
-    const live = function () { return token === self.loopToken && self.game === game && self.screen === "game"; };
-    this.mode = mode;
-    this.busy = true;
-    this.stopRequested = false;
-    this.keepScroll = true;
-    this.render();
-    let turns = 0;
-    for (;;) {
-      if (!live()) return;
-      const p = game.step();
+    for (let guard = 0; guard < 200; guard++) {
+      const p = this.game.step();
       if (p.type === "turn_end") {
-        turns++;
+        this.report = p.report;
         this.persist();
         this.checkAchievements(true);
-        const t = tOf(game.state.turn);
-        const semesterEnd = this.meta.settings && this.meta.settings.stopAtSemester && (t === 9 || t === 19 || t === 1);
-        if (mode === "one" || this.stopRequested || semesterEnd || turns >= 26) break;
-        this.keepScroll = true;
-        this.render();
-        await sleep(this.reduced ? 20 : 220);
         continue;
       }
-      if (p.type === "ended" || p.type === "error") { this.busy = false; this.finish(); return; }
-      this.busy = false;
+      if (p.type === "plan") {
+        this.setPlan(p);
+        this.persist();
+        this.keepScroll = true;
+        this.render();
+        return;
+      }
+      if (p.type === "ended" || p.type === "error") { this.finish(); return; }
       this.showPrompt(p);
       return;
     }
-    if (!live()) return;
-    this.busy = false;
-    this.keepScroll = true;
-    this.render();
+  }
+
+  setPlan(p) {
+    const keepSel = this.plan && this.plan.turn === p.turn;
+    this.plan = p;
+    const sel = keepSel ? this.sel : { picks: {}, weekend: "off", extras: {} };
+    const valid = {};
+    p.actions.forEach(function (a) { valid[a.id] = a.max; });
+    let left = p.slots;
+    const picks = {};
+    Object.keys(sel.picks).forEach(function (k) {
+      const n = Math.min(sel.picks[k], valid[k] || 0, left);
+      if (n > 0) { picks[k] = n; left -= n; }
+    });
+    const extras = {};
+    p.extras.forEach(function (x) {
+      if (keepSel && sel.extras[x.id]) extras[x.id] = sel.extras[x.id];
+      else if (!keepSel && x.suggested) extras[x.id] = { preprint: true };
+    });
+    const weekend = p.weekend.allowed && p.weekend.targets.some(function (t) { return t.id === sel.weekend; }) ? sel.weekend : "off";
+    this.sel = { picks: picks, weekend: weekend, extras: extras };
+  }
+
+  endTurn() {
+    if (!this.game || !this.plan || this.modal) return;
+    if (!this.game.submitPlan(this.sel)) return;
+    this.plan = null;
+    this.advance();
+    window.scrollTo(0, Math.max(0, this.root.getBoundingClientRect().top + window.scrollY - 70));
   }
 
   checkAchievements(toast) {
@@ -193,10 +198,10 @@ export class App {
 
   showPrompt(p, ui) {
     this.modal = { prompt: p, result: null, fresh: true, ui: !!ui };
-    if (p.type === "rebuttal") this.sel = { responses: {}, flags: [] };
-    else if (p.type === "qa") this.sel = { answers: {} };
-    else if (p.type === "new_project") this.sel = { type: null, topic: null };
-    else this.sel = {};
+    if (p.type === "rebuttal") this.psel = { responses: {}, flags: [] };
+    else if (p.type === "qa") this.psel = { answers: {} };
+    else if (p.type === "new_project") this.psel = { type: null, topic: null };
+    else this.psel = {};
     this.keepScroll = true;
     this.render();
   }
@@ -204,31 +209,35 @@ export class App {
   answer(resp) {
     if (!this.modal || this.modal.result) return;
     const p = this.modal.prompt;
+    const ui = this.modal.ui;
     const res = this.game.answer(resp);
     this.persist();
     const ach = this.checkAchievements(false);
-    if (this.game.state.pendingEnding || this.game.state.phase === "ended") {
-      if (res && (res.text || (res.visible && res.visible.length))) { this.modal = { prompt: p, result: res, achievements: ach, fresh: true }; this.keepScroll = true; this.render(); return; }
-      this.modal = null;
-      this.run(this.mode);
-      return;
-    }
-    const ui = this.modal.ui;
     if (res && (res.text || (res.visible && res.visible.length) || res.reviews || res.qa || (res.notes && res.notes.length) || ach.length)) {
       this.modal = { prompt: p, result: res, achievements: ach, fresh: true, ui: ui };
       this.keepScroll = true;
       this.render();
-    } else {
-      this.modal = null;
-      if (ui) { this.keepScroll = true; this.render(); } else this.run(this.mode);
+      return;
     }
+    this.modal = null;
+    this.afterPrompt(ui);
   }
 
   continueAfterResult() {
     const ui = this.modal && this.modal.ui;
     this.modal = null;
-    if (ui && !this.game.state.pendingEnding && !this.game.state.prompt) { this.keepScroll = true; this.render(); return; }
-    this.run(this.mode);
+    this.afterPrompt(ui);
+  }
+
+  afterPrompt(ui) {
+    const s = this.game.state;
+    if (ui && !s.pendingEnding && !s.prompt && s.stage === "plan") {
+      this.setPlan(this.game.planPrompt());
+      this.keepScroll = true;
+      this.render();
+      return;
+    }
+    this.advance();
   }
 
   finish() {
@@ -246,16 +255,6 @@ export class App {
 
   // ---- Input ----------------------------------------------------------------
 
-  routineChange(fn) {
-    const s = this.game.state;
-    const r = { days: Object.assign({}, s.routine.days), overtime: s.routine.overtime, overtimeTarget: s.routine.overtimeTarget };
-    fn(r);
-    this.game.setRoutine(r);
-    this.persist();
-    this.keepScroll = true;
-    this.render();
-  }
-
   onClick(e) {
     const el = e.target.closest("[data-action]");
     if (!el || !this.root.contains(el)) return;
@@ -269,47 +268,45 @@ export class App {
       case "setup": this.newSetup(false); break;
       case "setup-daily": this.newSetup(true); break;
       case "resume": this.resume(); break;
-      case "title": this.stopLoop(); this.savedRun = this.game && this.game.state.phase !== "ended" ? this.game.state : storage.loadRun(); this.screen = "title"; this.render(); break;
-      case "help": this.stopLoop(); this.prev = this.screen; this.screen = "help"; this.render(); break;
-      case "codex": this.stopLoop(); this.prev = this.screen; this.screen = "codex"; this.render(); break;
+      case "title": this.savedRun = this.game && this.game.state.phase !== "ended" ? this.game.state : storage.loadRun(); this.screen = "title"; this.render(); break;
+      case "help": this.prev = this.screen; this.screen = "help"; this.render(); break;
+      case "codex": this.prev = this.screen; this.screen = "codex"; this.render(); break;
       case "back": this.screen = this.prev || "title"; this.render(); break;
-      case "pick-bg": this.setup.background = id; this.render(); break;
-      case "pick-origin": this.setup.origin = id; this.render(); break;
-      case "pick-trait": this.setup.trait = id; this.render(); break;
-      case "reroll": {
-        const tr = rollTraits(this.D, this.setup.seed, 1);
-        this.setup.offers = tr.offers; this.setup.random = tr.random; this.setup.trait = null; this.setup.reroll = 1;
-        this.render();
+      case "start": this.startRun(); break;
+      case "pick": {
+        const act = this.plan && this.plan.actions.find(function (x) { return x.id === id; });
+        const used = Object.keys(this.sel.picks).reduce(function (n, k) { return n + self.sel.picks[k]; }, 0);
+        if (act && used < this.plan.slots && (this.sel.picks[id] || 0) < act.max) this.sel.picks[id] = (this.sel.picks[id] || 0) + 1;
+        this.focusSel = '[data-action="pick"][data-id="' + id + '"]';
+        this.keepScroll = true; this.render();
         break;
       }
-      case "start": if (this.setup.background && this.setup.origin && this.setup.trait) this.startRun(); break;
-      case "next": this.run("one"); break;
-      case "auto": this.run("auto"); break;
-      case "pause": this.stopRequested = true; break;
-      case "inc": case "dec":
-        this.focusSel = '[data-action="' + a + '"][data-key="' + key + '"]';
-        this.routineChange(function (r) { r.days[key] = Math.max(0, Math.min(10, (r.days[key] || 0) + (a === "inc" ? 1 : -1))); });
+      case "unpick":
+        if (this.sel.picks[id]) { this.sel.picks[id]--; if (!this.sel.picks[id]) delete this.sel.picks[id]; }
+        this.focusSel = '[data-action="pick"][data-id="' + id + '"]';
+        this.keepScroll = true; this.render();
         break;
-      case "ot-inc": case "ot-dec":
-        this.focusSel = '[data-action="' + a + '"]';
-        this.routineChange(function (r) { r.overtime = Math.max(0, Math.min(4, (r.overtime || 0) + (a === "ot-inc" ? 1 : -1))); });
+      case "repeat-last":
+        if (this.plan && this.plan.last) this.sel.picks = Object.assign({}, this.plan.last);
+        this.keepScroll = true; this.render();
         break;
+      case "end-turn": this.endTurn(); break;
       case "shelve":
         if (window.confirm("Shelve this project? You can't bring it back.")) { this.game.shelveProject(id); this.persist(); this.keepScroll = true; this.render(); }
         break;
-      case "new-project": { if (this.busy) break; const p = this.game.requestNewProject(); if (p) this.showPrompt(p, true); break; }
-      case "leave": { this.stopLoop(); const p = this.game.requestLeave(); if (p) this.showPrompt(p, true); else this.render(); break; }
+      case "new-project": { const p = this.game.requestNewProject(); if (p) this.showPrompt(p, true); break; }
+      case "leave": { const p = this.game.requestLeave(); if (p) this.showPrompt(p, true); break; }
       case "choose": this.answer({ choice: i }); break;
       case "join": this.answer({ action: "join", idx: i }); break;
       case "rotate": this.answer({ action: "rotate", idx: i }); break;
       case "later": this.answer({ action: "later" }); break;
-      case "pick-type": this.sel.type = id; this.keepDialogScroll = true; this.render(); break;
-      case "pick-topic": this.sel.topic = id; this.keepDialogScroll = true; this.render(); break;
-      case "cancel-project": this.game.answer({ cancel: true }); this.modal = null; this.persist(); this.render(); break;
-      case "create-project": if (this.sel.type && this.sel.topic) this.answer({ type: this.sel.type, topic: this.sel.topic }); break;
-      case "strat": this.sel.answers[key] = id; this.keepDialogScroll = true; this.focusSel = '[data-action="strat"][data-key="' + key + '"][data-id="' + id + '"]'; this.render(); break;
-      case "submit-qa": this.answer({ answers: this.sel.answers }); break;
-      case "submit-rebuttal": if (slotsUsed(this.modal.prompt, this.sel) <= this.modal.prompt.slots) this.answer({ responses: this.sel.responses, flags: this.sel.flags }); break;
+      case "pick-type": this.psel.type = id; this.keepDialogScroll = true; this.render(); break;
+      case "pick-topic": this.psel.topic = id; this.keepDialogScroll = true; this.render(); break;
+      case "cancel-project": this.game.answer({ cancel: true }); this.modal = null; this.persist(); this.afterPrompt(true); break;
+      case "create-project": if (this.psel.type && this.psel.topic) this.answer({ type: this.psel.type, topic: this.psel.topic }); break;
+      case "strat": this.psel.answers[key] = id; this.keepDialogScroll = true; this.focusSel = '[data-action="strat"][data-key="' + key + '"][data-id="' + id + '"]'; this.render(); break;
+      case "submit-qa": this.answer({ answers: this.psel.answers }); break;
+      case "submit-rebuttal": if (slotsUsed(this.modal.prompt, this.psel) <= this.modal.prompt.slots) this.answer({ responses: this.psel.responses, flags: this.psel.flags }); break;
       case "continue": this.continueAfterResult(); break;
       case "copy-summary": {
         const text = summaryText(this.ending) + " " + location.href;
@@ -337,16 +334,25 @@ export class App {
     const el = e.target;
     const a = el.getAttribute("data-action");
     if (!a) return;
-    if (a === "target") { this.game.setTarget(el.getAttribute("data-id"), el.value); this.persist(); this.keepScroll = true; this.render(); }
-    else if (a === "ot-target") { const v = el.value; this.routineChange(function (r) { r.overtimeTarget = v; }); }
+    if (a === "target") { this.game.setTarget(el.getAttribute("data-id"), el.value); this.persist(); this.setPlan(this.game.planPrompt()); this.keepScroll = true; this.render(); }
+    else if (a === "weekend") { this.sel.weekend = el.value; this.keepScroll = true; this.render(); }
+    else if (a === "extra") {
+      const xid = el.getAttribute("data-id");
+      if (el.checked) this.sel.extras[xid] = { preprint: true }; else delete this.sel.extras[xid];
+      this.focusSel = '[data-action="extra"][data-id="' + xid + '"]'; this.keepScroll = true; this.render();
+    } else if (a === "preprint") {
+      const xid = el.getAttribute("data-id");
+      if (this.sel.extras[xid]) this.sel.extras[xid].preprint = el.checked;
+      this.keepScroll = true; this.render();
+    }
     else if (a === "respond") {
       const k = el.getAttribute("data-key");
-      if (el.value === "skip") delete this.sel.responses[k]; else this.sel.responses[k] = el.value;
+      if (el.value === "skip") delete this.psel.responses[k]; else this.psel.responses[k] = el.value;
       this.keepDialogScroll = true; this.focusSel = '[data-action="respond"][data-key="' + k + '"]'; this.render();
     } else if (a === "flag") {
       const idx = parseInt(el.getAttribute("data-i"), 10);
-      const pos = this.sel.flags.indexOf(idx);
-      if (el.checked && pos < 0) this.sel.flags.push(idx); else if (!el.checked && pos >= 0) this.sel.flags.splice(pos, 1);
+      const pos = this.psel.flags.indexOf(idx);
+      if (el.checked && pos < 0) this.psel.flags.push(idx); else if (!el.checked && pos >= 0) this.psel.flags.splice(pos, 1);
       this.keepDialogScroll = true; this.focusSel = '[data-action="flag"][data-i="' + idx + '"]'; this.render();
     }
   }
@@ -359,7 +365,7 @@ export class App {
       const b = btns[parseInt(e.key, 10) - 1];
       if (b) { e.preventDefault(); b.click(); }
     } else if (e.key === "Escape" && this.modal.prompt.type === "new_project" && this.modal.prompt.cancellable && !this.modal.result) {
-      this.game.answer({ cancel: true }); this.modal = null; this.persist(); this.render();
+      this.game.answer({ cancel: true }); this.modal = null; this.persist(); this.afterPrompt(true);
     }
   }
 }

@@ -1,7 +1,7 @@
-// The main game screen: header, stats bar, projects, routine planner, calendar and log.
-import { esc, bar, plural } from "./common.js";
+// The main game screen: header, stats and skills, the turn planner, last turn's report, projects, calendar and log.
+import { esc, bar, plural, arrowsHtml } from "./common.js";
 import {
-  ACTIVITIES, ACTIVITY_BY_ID, yearOf, tOf, PROJECT_TYPES, STAGE_LABELS, currentStage, stageNeed,
+  ACTIVITIES, ACTIVITY_BY_ID, STAT_LABELS, yearOf, tOf, PROJECT_TYPES, STAGE_LABELS, currentStage, stageNeed,
   writingCompletion, deadlineLabel, venuesForType, absToLabel, totalCitations, hIndex, firstAuthorPubs, hasStatus
 } from "../engine/index.js";
 
@@ -32,6 +32,9 @@ export function hudHtml(G) {
     '<div class="ps-num"><b>' + totalCitations(G) + "</b>citations · h " + hIndex(G) + "</div>" +
     '<div class="ps-num"><b>' + pubs + (pending ? '<small class="ps-muted"> +' + pending + "</small>" : "") + "</b>papers</div>" +
     "</div>" +
+    '<div class="ps-skills" aria-label="Skills">' + ["taste", "coding", "writing", "presenting", "knowledge"].map(function (k) {
+      return '<div class="ps-skill"><div class="ps-meter-label"><span>' + esc(STAT_LABELS[k]) + "</span><b>" + Math.round(s.stats[k]) + "</b></div>" + bar(s.stats[k], "ps-bar-skill") + "</div>";
+    }).join("") + "</div>" +
     '<div class="ps-chips">' + adv + chips + "</div>" +
     "</section>";
 }
@@ -49,7 +52,6 @@ function projectCard(G, p) {
     progressText = STAGE_LABELS[st.id] + " " + pct + "%" + (p.pause > 0 ? " (paused " + plural(p.pause, "turn") + ")" : "");
   }
   const stageNo = p.revise ? "" : " · stage " + (p.stageIdx + 1) + " of " + stages.length;
-  const days = (G.state.routine.days["p:" + p.id] || 0);
   let target = "";
   if (p.target && p.target.rrPaper) target = "Revision due in " + plural(Math.max(0, p.target.turn - G.state.turn), "turn");
   else if (p.target && p.target.journalPaper) target = "Revision goes back when it's done";
@@ -69,7 +71,7 @@ function projectCard(G, p) {
   return '<div class="ps-card ps-project">' +
     '<div class="ps-spread"><h4>' + esc(p.short) + "</h4>" +
     '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="shelve" data-id="' + esc(p.id) + '" aria-label="Shelve this project">Shelve</button></div>' +
-    '<div class="ps-meta">' + esc(PROJECT_TYPES[p.type].label) + stageNo + " · " + plural(days, "day") + "/turn" + ready + "</div>" +
+    '<div class="ps-meta">' + esc(PROJECT_TYPES[p.type].label) + stageNo + ready + "</div>" +
     '<div class="ps-progress" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="Stage progress"><span style="width:' + pct + '%"></span></div>' +
     '<div class="ps-meta">' + esc(progressText) + "</div>" +
     '<div class="ps-row" style="margin-top:.35rem">' + target + "</div>" +
@@ -82,10 +84,9 @@ export function boardHtml(G) {
   const under = s.papers.filter(function (p) { return p.status === "under_review" || p.status === "revise_resubmit"; });
   const pubs = s.papers.filter(function (p) { return p.status === "accepted"; });
   const canNew = !!s.advisor && active.length < (G.D.config.progress.max_active_projects || 4);
-  let html = '<div class="ps-section"><div class="ps-spread"><h3 class="ps-section-title">Projects</h3>' +
-    '<button class="ps-btn ps-btn-sm" data-action="new-project"' + (canNew ? "" : " disabled") + ">+ New project</button></div>";
+  let html = '<div class="ps-section"><h3 class="ps-section-title">Projects</h3>';
   html += active.length ? active.map(function (p) { return projectCard(G, p); }).join("") :
-    '<p class="ps-muted ps-small">' + (s.advisor ? "No active projects. Start one." : "Choose an advisor first.") + "</p>";
+    '<p class="ps-muted ps-small">' + (s.advisor ? "No active projects. Start one from your choices this turn." : "Choose an advisor first.") + "</p>";
   html += "</div>";
   if (under.length) {
     html += '<div class="ps-section"><h3 class="ps-section-title">Under review</h3><div class="ps-card">' + under.map(function (p) {
@@ -104,51 +105,85 @@ export function boardHtml(G) {
   return html;
 }
 
-export function plannerHtml(G) {
-  const s = G.state;
-  const fx = G.fixedDays();
-  const r = s.routine.days;
+function slotsUsed(sel) {
+  return Object.keys(sel.picks).reduce(function (n, k) { return n + sel.picks[k]; }, 0);
+}
+
+export function planHtml(G, plan, sel) {
+  const fx = plan.days;
   const parts = fx.parts;
-  const fixedBits = [];
-  if (parts.courses) fixedBits.push("Courses " + parts.courses);
-  if (parts.ta) fixedBits.push("TA " + parts.ta);
-  if (parts.meetings) fixedBits.push("Meetings " + parts.meetings);
-  if (parts.defense) fixedBits.push("Defense prep " + parts.defense);
-  if (parts.family) fixedBits.push("Family " + parts.family);
-  if (parts.internship) fixedBits.push("Internship 10");
-  const rows = [];
-  s.projects.filter(function (p) { return p.status === "active"; }).forEach(function (p) {
-    rows.push({ key: "p:" + p.id, label: p.short, desc: STAGE_LABELS[currentStage(G, p).id] });
-  });
-  ACTIVITIES.forEach(function (a) {
-    if (a.id === "mentor" && !s.mentee && !s.flags.has_undergrad_mentee) return;
-    rows.push({ key: a.id, label: a.label, desc: a.desc });
-  });
-  const planned = Object.keys(r).reduce(function (n, k) { return n + (G.validKey(k) ? r[k] : 0); }, 0);
-  const over = planned > fx.free;
-  const paused = hasStatus(G, "on_internship") || hasStatus(G, "on_leave");
-  let html = '<div class="ps-section"><h3 class="ps-section-title">Your routine (repeats every turn)</h3><div class="ps-card">';
-  html += '<div class="ps-meta">10 weekdays' + (fixedBits.length ? " − fixed: " + esc(fixedBits.join(", ")) : "") +
-    (fx.adj ? " · " + (fx.adj > 0 ? "+" : "−") + Math.abs(fx.adj) + " from events" : "") + (fx.sick ? " · sick −5" : "") +
-    (fx.burnout ? " · burnout halves the rest" : "") + "</div>";
-  html += '<div class="ps-plan-sum' + (over ? " ps-over" : "") + '" aria-live="polite">' + (paused ? "Your routine is paused this turn." :
-    "Planned <b>" + planned + "</b> of <b>" + fx.free + "</b> free days" + (over ? ": extra days get squeezed out." : planned < fx.free ? ". Unplanned days become rest." : ".")) + "</div>";
-  rows.forEach(function (row) {
-    const n = r[row.key] || 0;
-    html += '<div class="ps-plan-row"><div><b>' + esc(row.label) + '</b><span class="ps-meta">' + esc(row.desc || "") + "</span></div>" +
-      '<div class="ps-stepper"><button class="ps-step" data-action="dec" data-key="' + esc(row.key) + '" aria-label="One day less on ' + esc(row.label) + '">−</button>' +
-      "<output>" + n + '</output><button class="ps-step" data-action="inc" data-key="' + esc(row.key) + '" aria-label="One day more on ' + esc(row.label) + '">+</button></div></div>';
-  });
-  const otOpts = [{ key: "read", label: "Reading" }, { key: "career", label: "Career prep" }]
-    .concat(s.projects.filter(function (p) { return p.status === "active"; }).map(function (p) { return { key: "p:" + p.id, label: p.short }; }));
-  html += '<div class="ps-plan-row"><div><b>Weekend overtime</b><span class="ps-meta">Work days on weekends. Costs Energy, Sanity and Health.</span>' +
-    '<label class="ps-meta">On <select class="ps-select" data-action="ot-target">' + otOpts.map(function (o) {
-      return '<option value="' + esc(o.key) + '"' + (s.routine.overtimeTarget === o.key ? " selected" : "") + ">" + esc(o.label) + "</option>";
-    }).join("") + "</select></label></div>" +
-    '<div class="ps-stepper"><button class="ps-step" data-action="ot-dec" aria-label="Less weekend overtime">−</button><output>' + (s.routine.overtime || 0) +
-    '</output><button class="ps-step" data-action="ot-inc" aria-label="More weekend overtime">+</button></div></div>';
+  const fixed = [];
+  if (parts.courses) fixed.push("classes");
+  if (parts.ta) fixed.push("TA duty");
+  if (parts.defense) fixed.push("defense prep");
+  if (parts.family) fixed.push("family");
+  if (fx.adj < 0) fixed.push("other commitments");
+  const used = slotsUsed(sel);
+  const left = plan.slots - used;
+  let head;
+  if (plan.internship) head = "You're at your internship this turn. Weekdays belong to it; your weekends are still yours.";
+  else head = "Choose <b>" + plan.slots + "</b> thing" + (plan.slots === 1 ? "" : "s") + " to do these two weeks" +
+    (fixed.length ? " (the rest goes to " + esc(fixed.join(", ")) + ")" : "") + "." +
+    (fx.sick ? " You're sick, so you have less time." : "") + (fx.burnout ? " You're burned out: fewer choices, no weekend work." : "") +
+    (plan.onLeave ? " You're on leave: research can wait." : "");
+  let html = '<div class="ps-section ps-plan"><div class="ps-spread"><h3 class="ps-section-title">This turn</h3>' +
+    '<div class="ps-pips" aria-label="' + used + " of " + plan.slots + ' choices made">' +
+    Array.from({ length: plan.slots }).map(function (_, i) { return '<span class="ps-pip' + (i < used ? " ps-pip-on" : "") + '"></span>'; }).join("") + "</div></div>";
+  html += '<div class="ps-card"><p class="ps-small" style="margin-bottom:.6rem">' + head + "</p>";
+  if (plan.slots > 0) {
+    html += '<div class="ps-actions-grid">' + plan.actions.map(function (a) {
+      const n = sel.picks[a.id] || 0;
+      const full = left <= 0 || n >= a.max;
+      return '<div class="ps-act' + (n ? " ps-act-on" : "") + (a.kind === "project" ? " ps-act-project" : "") + (a.kind === "apply" ? " ps-act-apply" : "") + '">' +
+        '<button class="ps-act-main" data-action="pick" data-id="' + esc(a.id) + '"' + (full ? " disabled" : "") + ' aria-label="' + esc(a.label + (n ? ", chosen " + n + " times" : "")) + '">' +
+        '<span class="ps-act-label">' + esc(a.label) + "</span>" +
+        '<span class="ps-act-desc">' + esc(a.desc) + "</span>" + arrowsHtml(a.arrows) + "</button>" +
+        (n ? '<div class="ps-act-count"><button class="ps-step" data-action="unpick" data-id="' + esc(a.id) + '" aria-label="One less: ' + esc(a.label) + '">\u2212</button><b>\u00d7' + n + "</b></div>" : "") +
+        "</div>";
+    }).join("") + "</div>";
+  }
+  if (plan.weekend.allowed) {
+    html += '<label class="ps-weekend">Weekends: <select class="ps-select" data-action="weekend"><option value="off">Off (recover)</option>' +
+      plan.weekend.targets.map(function (t) { return '<option value="' + esc(t.id) + '"' + (sel.weekend === t.id ? " selected" : "") + ">Work: " + esc(t.label.replace(/^Work on /, "")) + "</option>"; }).join("") +
+      "</select> <span class=\"ps-meta\">Weekend work adds progress but costs Energy, Sanity and Health.</span></label>";
+  }
+  if (plan.extras.length || plan.canStartProject) {
+    html += '<div class="ps-extras"><div class="ps-section-title" style="margin-top:.6rem">Also this turn</div>';
+    plan.extras.forEach(function (x) {
+      const on = !!sel.extras[x.id];
+      html += '<div class="ps-extra"><label><input type="checkbox" data-action="extra" data-id="' + esc(x.id) + '"' + (on ? " checked" : "") + "> <b>" + esc(x.label) + "</b></label>" +
+        '<div class="ps-meta">' + esc(x.desc) + "</div>" +
+        (x.kind === "submit" && on ? '<label class="ps-meta"><input type="checkbox" data-action="preprint" data-id="' + esc(x.id) + '"' + (sel.extras[x.id].preprint !== false ? " checked" : "") + "> Post a preprint too (citations start early)</label>" : "") +
+        "</div>";
+    });
+    if (plan.canStartProject) html += '<button class="ps-btn ps-btn-sm" data-action="new-project">+ Start a new project</button>';
+    html += "</div>";
+  }
+  html += '<div class="ps-plan-foot">' +
+    (plan.last ? '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="repeat-last">Same as last turn</button>' : "<span></span>") +
+    '<div class="ps-row">' + (left > 0 && plan.slots > 0 ? '<span class="ps-meta">' + left + " unused \u2192 rest</span>" : "") +
+    '<button class="ps-btn ps-btn-primary" data-action="end-turn">End turn \u25b8</button></div></div>';
   html += "</div></div>";
   return html;
+}
+
+const KIND_CLASS = { good: "ps-news-good", bad: "ps-news-bad", news: "ps-news", tip: "ps-tip", achievement: "ps-ach", flavor: "ps-flavor" };
+
+export function reportHtml(G, report) {
+  if (!report) return "";
+  const deltas = report.deltas.map(function (d) {
+    const diff = d.to - d.from;
+    return '<span class="ps-delta ' + (diff > 0 ? "ps-delta-good" : "ps-delta-bad") + '">' + esc(d.label) + " " + d.from + " \u2192 " + d.to + "</span>";
+  }).join("");
+  const projects = report.projects.map(function (p) {
+    return '<div class="ps-small"><b>' + esc(p.short) + ":</b> " + esc(p.from) + " \u2192 " + esc(p.to) + "</div>";
+  }).join("");
+  const news = report.news.filter(function (e) { return e.kind !== "line" || /\bdone\b|Next:/.test(e.text) === false; }).map(function (e) {
+    if (e.kind === "tip") return '<p class="ps-tip ps-small">' + esc(e.text) + ' <a href="' + esc(e.url) + '" target="_blank" rel="noopener">Read: ' + esc(e.title) + " \u2192</a></p>";
+    return '<p class="ps-small ' + (KIND_CLASS[e.kind] || "") + '">' + esc(e.text) + "</p>";
+  }).join("");
+  return '<div class="ps-section ps-report" aria-live="polite"><h3 class="ps-section-title">Last turn: ' + esc(absToLabel(G, report.turn)) + "</h3>" +
+    '<div class="ps-card">' + (deltas ? '<div class="ps-deltas">' + deltas + "</div>" : "") + projects + news + "</div></div>";
 }
 
 export function calendarHtml(G) {
@@ -193,11 +228,17 @@ export function logHtml(G) {
       if (e.kind === "tip") {
         return '<p class="ps-tip">' + esc(e.text) + ' <a href="' + esc(e.url) + '" target="_blank" rel="noopener">Read: ' + esc(e.title) + " →</a></p>";
       }
-      return '<p class="' + (e.kind === "flavor" ? "ps-flavor" : e.kind === "achievement" ? "ps-ach" : "") + '">' + esc(e.text) + "</p>";
+      return '<p class="' + (KIND_CLASS[e.kind] || "") + '">' + esc(e.text) + "</p>";
     }).join("");
   }).join("");
   return '<div class="ps-section"><h3 class="ps-section-title">Log</h3><div class="ps-card ps-log" aria-live="polite">' +
     (body || '<p class="ps-muted">Your story starts here.</p>') + "</div></div>";
+}
+
+export function introHtml(G) {
+  if (G.state.turn > 1) return "";
+  return '<div class="ps-section"><div class="ps-note"><b>How a turn works.</b> Each turn is two weeks. Pick what to do with it, then end the turn. ' +
+    "Your bars, skills and projects change, and sometimes something happens. Watch Energy (it powers work) and Sanity (at zero you burn out).</div></div>";
 }
 
 export function gameHtml(G, ui) {
@@ -207,8 +248,6 @@ export function gameHtml(G, ui) {
     '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="leave">Leave the PhD</button>' +
     '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="title">Menu</button></div></div>' +
     hudHtml(G) +
-    '<div class="ps-actions"><button class="ps-btn" data-action="next"' + (ui.busy ? " disabled" : "") + '>Next turn</button>' +
-    '<button class="ps-btn ps-btn-primary" data-action="auto"' + (ui.busy ? " disabled" : "") + ">" + (ui.busy && ui.mode === "auto" ? "Playing…" : "Continue ▸▸") + "</button>" +
-    (ui.busy && ui.mode === "auto" ? '<button class="ps-btn" data-action="pause">Pause</button>' : "") + "</div>" +
-    '<div class="ps-layout"><div>' + boardHtml(G) + plannerHtml(G) + "</div><div>" + calendarHtml(G) + logHtml(G) + "</div></div>";
+    '<div class="ps-layout"><div>' + introHtml(G) + reportHtml(G, ui.report) + (ui.plan ? planHtml(G, ui.plan, ui.sel) : "") + boardHtml(G) + "</div>" +
+    "<div>" + calendarHtml(G) + logHtml(G) + "</div></div>";
 }

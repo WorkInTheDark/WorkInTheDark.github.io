@@ -17,7 +17,7 @@ The exact contract between the YAML content in `_data/phd_sim/` and the game eng
    - Allowed: burnout, but only as a light, recoverable game state.
 5. **The system is the joke, never the player** or real people. No real names, companies, labs or model names; use the tokens.
 6. **Every event offers at least one reasonable choice,** not just a least-bad one. Good events have a real trade-off, for example time against quality, or Sanity against the advisor relationship.
-7. **Hidden effects must be implied by the wording** of the choice or result ("Your advisor seems pleased"). The player only sees arrows for Energy, Sanity and Citations (section 5), derived automatically from `effects`.
+7. **Hidden effects must be implied by the wording** of the choice or result ("Your advisor seems pleased"). The player sees arrows for Energy, Sanity, Citations and the five skills (section 5), derived automatically from `effects`; relationships, network and health stay hidden.
 8. Use straight ASCII quotes inside YAML; wrap any string containing `:` or `#` in double quotes.
 
 ---
@@ -118,8 +118,8 @@ All keys are ANDed. Comparison strings are `"<30"`, `"<=1"`, `">=60"`, `">5"`, `
 | `stat` | `{ sanity: "<30", writing: ">=60" }` | Any stat (section 5) |
 | `has_advisor` | `true` | The advisor has been chosen |
 | `advisor` / `advisor_not` | `[kind_funded]` | Advisor archetype ids (section 7.3) |
-| `background` | `[industry]` | `undergrad`, `masters`, `industry`, `switcher` |
-| `origin` | `international` | `domestic` or `international` |
+| `background` | `[industry]` | `undergrad`, `masters`, `industry`, `switcher`. Derived from traits since 2026-10-16: Industry Veteran → `industry`, Career Switcher → `switcher`, Master's Head Start → `masters`, otherwise `undergrad` |
+| `origin` | `international` | `domestic` or `international`. `international` means the player rolled the International Student trait |
 | `traits_any` / `traits_none` | `[night_owl]` | Trait ids (section 7) |
 | `flags_all` / `flags_any` / `flags_none` | `[cat_adopted]` | Run flags |
 | `counter` | `{ resched: ">=2" }` | Run counters (missing = 0) |
@@ -190,7 +190,7 @@ Values are `"+7±3"` (a whole number rolled in [4, 10], peaked at 7), `"-5±2"`,
 | `days` / `days_next` | Free days gained (+) or lost (−) this turn or next. Typical ±1 to ±4 |
 | `career_prep` | Points toward internship and job applications. Typical 1–3 |
 
-Arrows are derived automatically: for each visible target (`energy`, `sanity`, `citations`), the center of the value gives ↑ or ↓, and ↑↑ or ↓↓ when it is 10 or more. A check whose success and failure point opposite ways shows ↕.
+Arrows are derived automatically: for each visible target (`energy`, `sanity`, `citations`, `taste`, `coding`, `writing`, `presenting`, `knowledge`), the center of the value gives ↑ or ↓, and ↑↑ or ↓↓ when it is 10 or more. A check whose success and failure point opposite ways shows ↕.
 
 ---
 
@@ -200,18 +200,18 @@ Arrows are derived automatically: for each visible target (`energy`, `sanity`, `
 
 | Hook | Fires | Chance | Binds |
 |---|---|---|---|
-| `turn` | Every turn, 0–2 draws | — | — |
-| `deadline` | The turn you submit a paper, before submission | 0.5 | `{project}`, `{venue}` |
-| `after_submit` | Right after a submission | 0.35 | `{paper}`, `{venue}` |
-| `reviews_in` | When reviews arrive, before the rebuttal | 0.4 | `{paper}`, `{venue}` |
-| `after_accept` | After an acceptance | 0.6 | `{paper}`, `{venue}` |
-| `after_reject` | After a rejection | 0.5 | `{paper}`, `{venue}` |
-| `conference` | Each conference you attend | 1.0, up to 2 events | `{city}`, `{paper}`, `{venue}` |
-| `internship` | Each internship turn | 0.5 | `{company}` |
-| `defense_prep` | Each defense-prep turn | 0.7 | — |
+| `turn` | After you plan each turn: at most 1 draw (25%, 5% if something else already happened) | — | — |
+| `deadline` | The turn you submit a paper, before submission | 0.3 | `{project}`, `{venue}` |
+| `after_submit` | Right after a submission | 0.2 | `{paper}`, `{venue}` |
+| `reviews_in` | When reviews arrive, before the rebuttal | 0.3 | `{paper}`, `{venue}` |
+| `after_accept` | After an acceptance | 0.35 | `{paper}`, `{venue}` |
+| `after_reject` | After a rejection | 0.3 | `{paper}`, `{venue}` |
+| `conference` | Each conference you attend in person | 1.0, 1 event | `{city}`, `{paper}`, `{venue}` |
+| `internship` | Each internship turn | 0.3 | `{company}` |
+| `defense_prep` | Each defense-prep turn | 0.4 | — |
 | `defense` | Defense day, before the Q&A | 1.0 | — |
-| `job_market` | Each job-market turn | 0.4 | — |
-| `model_release` | When a frontier model is released in the world timeline | 0.5 | `{model}`, `{biglab}` |
+| `job_market` | Each job-market turn | 0.15 | — |
+| `model_release` | When a frontier model is released in the world timeline | 0.25 | `{model}`, `{biglab}` |
 | `graduation` | Commencement | 1.0, up to 2 events | — |
 
 Events with `trigger: scheduled` are never drawn. They fire only through `schedule` from another event, at the start of the scheduled turn, and only if their `when` still holds.
@@ -220,8 +220,8 @@ Events with `trigger: scheduled` are never drawn. They fire only through `schedu
 
 ## 7. Traits
 
-### 7.1 Starting traits
-`night_owl`, `early_bird`, `perfectionist`, `procrastinator`, `resilient`, `anxious`, `social_butterfly`, `introvert`, `code_wizard`, `wordsmith`, `polyglot`, `gym_rat`, `caffeine_powered`, `overcommitter`, `lucky`, `imposter_syndrome`, `extremely_online`, `homebody`, `foodie`, `first_gen`, `parent`, `musician`, `stats_nerd`, `optimist`
+### 7.1 Starting traits (three are rolled at random)
+`international`, `industry_veteran`, `career_switcher`, `head_start`, `night_owl`, `early_bird`, `perfectionist`, `procrastinator`, `resilient`, `anxious`, `social_butterfly`, `introvert`, `code_wizard`, `wordsmith`, `polyglot`, `gym_rat`, `caffeine_powered`, `overcommitter`, `lucky`, `imposter_syndrome`, `extremely_online`, `homebody`, `foodie`, `first_gen`, `parent`, `musician`, `stats_nerd`, `optimist`
 
 ### 7.2 Earned traits (usable with `trait_add`)
 `rejection_hardened`, `burnout_survivor`, `cat_person`, `deadline_junkie`

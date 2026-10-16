@@ -112,7 +112,6 @@ html[data-theme='dark'] .ps-app {
 .ps-date { font-weight: 600; }
 .ps-date small { font-weight: 400; color: var(--ps-muted); }
 .ps-hud {
-  position: sticky; top: 56px; z-index: 5;
   background: var(--ps-bg); border-bottom: 1px solid var(--ps-line);
   padding: 0.55rem 0 0.6rem; margin-bottom: 0.9rem;
 }
@@ -132,6 +131,51 @@ html[data-theme='dark'] .ps-app {
 .ps-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1rem; }
 .ps-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin: 0.4rem 0 1rem; }
 .ps-actions .ps-btn { min-width: 9rem; justify-content: center; }
+
+/* Skills */
+.ps-skills { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.6rem; margin-top: 0.5rem; }
+.ps-skill .ps-meter-label { font-size: 0.74rem; color: var(--ps-muted); }
+.ps-skill .ps-meter-label b { color: var(--ps-text); }
+.ps-bar-skill { height: 5px; }
+.ps-bar-skill > span { background: var(--ps-accent-solid); }
+.ps-bar-skill.ps-bar-low > span { background: var(--ps-accent-solid); opacity: 0.6; }
+
+/* The turn planner */
+.ps-pips { display: inline-flex; gap: 4px; }
+.ps-pip { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ps-accent-solid); background: transparent; }
+.ps-pip-on { background: var(--ps-accent-solid); }
+.ps-actions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.5rem; }
+.ps-act { position: relative; border: 1px solid var(--ps-line); border-radius: 10px; background: var(--ps-bg); display: flex; flex-direction: column; }
+.ps-act-on { border-color: var(--ps-accent); background: var(--ps-tint); box-shadow: inset 0 0 0 1px var(--ps-accent); }
+.ps-act-project { border-left: 3px solid var(--ps-accent-solid); }
+.ps-act-apply { border-style: dashed; }
+.ps-act-main {
+  font: inherit; color: var(--ps-text); background: transparent; border: 0; text-align: left; cursor: pointer;
+  padding: 0.55rem 0.65rem 0.5rem; display: flex; flex-direction: column; gap: 0.2rem; flex: 1; border-radius: 10px;
+}
+.ps-act-main:hover:not([disabled]) { background: var(--ps-wash); }
+.ps-act-main[disabled] { cursor: default; }
+.ps-act:not(.ps-act-on) .ps-act-main[disabled] { opacity: 0.55; }
+.ps-act-main:focus-visible { outline: 2px solid var(--ps-accent); outline-offset: 2px; }
+.ps-act-label { font-weight: 600; font-size: 0.9rem; line-height: 1.25; }
+.ps-act-desc { font-size: 0.78rem; color: var(--ps-muted); line-height: 1.3; }
+.ps-act .ps-arrows { flex-wrap: wrap; margin-top: 0.15rem; }
+.ps-act-count { display: flex; align-items: center; gap: 0.4rem; padding: 0 0.5rem 0.45rem; }
+.ps-act-count .ps-step { width: 30px; height: 30px; border: 1px solid var(--ps-line); border-radius: 8px; }
+.ps-act-count b { color: var(--ps-accent); }
+.ps-weekend { display: block; margin-top: 0.7rem; font-size: 0.88rem; }
+.ps-extras { border-top: 1px dashed var(--ps-line); margin-top: 0.7rem; padding-top: 0.2rem; }
+.ps-extra { margin: 0.4rem 0; font-size: 0.9rem; }
+.ps-extra input { margin-right: 0.3rem; }
+.ps-plan-foot { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.9rem; }
+.ps-plan-foot .ps-btn-primary { min-width: 9rem; justify-content: center; }
+
+/* Turn report and news */
+.ps-report .ps-card { border-left: 3px solid var(--ps-accent-solid); }
+.ps-report p { margin: 0.25rem 0; }
+.ps-news-good { color: var(--ps-good); font-weight: 600; }
+.ps-news-bad { color: var(--ps-bad); }
+.ps-arrow { white-space: nowrap; }
 
 /* Projects */
 .ps-project { margin-bottom: 0.6rem; }
@@ -253,8 +297,11 @@ html[data-theme='dark'] .ps-app {
 
 @media (max-width: 760px) {
   .ps-layout { grid-template-columns: minmax(0, 1fr); }
+  .ps-skills { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ps-actions-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ps-plan-foot { position: sticky; bottom: 0; z-index: 4; background: var(--ps-card); margin: 0.6rem -1rem -0.9rem; padding: 0.6rem 1rem; border-top: 1px solid var(--ps-line); border-radius: 0 0 var(--ps-radius) var(--ps-radius); }
+  .ps-hud { position: static; }
   .ps-stats { grid-template-columns: 1fr 1fr; }
-  .ps-hud { top: 56px; }
   .ps-actions { position: sticky; bottom: 0; background: var(--ps-bg); padding: 0.5rem 0; margin: 0; border-top: 1px solid var(--ps-line); z-index: 5; }
   .ps-actions .ps-btn { flex: 1; min-width: 0; }
   .ps-modal { padding: 0; align-items: flex-end; }

@@ -29,38 +29,25 @@ export function titleHtml(app) {
 export function setupHtml(app) {
   const st = app.setup;
   const D = app.D;
-  const traitCard = function (id, pickable) {
-    const t = D.traitById[id];
-    if (!t) return "";
-    const pressed = st.trait === id;
-    return pickable
-      ? '<button class="ps-pick" data-action="pick-trait" data-id="' + esc(id) + '" aria-pressed="' + pressed + '"><strong>' + esc(t.name) + "</strong><span>+ " + esc(t.up) + "</span><span>− " + esc(t.down) + "</span></button>"
-      : '<div class="ps-pick ps-trait-fixed"><strong>' + esc(t.name) + "</strong><span>+ " + esc(t.up) + "</span><span>− " + esc(t.down) + "</span></div>";
-  };
-  return '<div class="ps-spread"><h2>' + (st.daily ? "Today’s daily PhD" : "A new PhD") + '</h2><button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="title">Back</button></div>' +
-    (st.daily ? '<p class="ps-note">Everyone who plays today gets the same world: the same topics, model releases and luck, until your choices diverge.</p>' : "") +
+  return '<div class="ps-spread"><h2>' + (st.daily ? "Today\u2019s daily PhD" : "A new PhD") + '</h2><button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="title">Back</button></div>' +
+    (st.daily ? '<p class="ps-note">Everyone who plays today gets the same traits and the same world: topics, model releases and luck, until your choices diverge.</p>' : "") +
     '<div class="ps-section"><h3 class="ps-section-title">Your name</h3><input class="ps-input" id="ps-name" maxlength="24" value="' + esc(st.name) + '" aria-label="Your name"></div>' +
-    '<div class="ps-section"><h3 class="ps-section-title">Background</h3><div class="ps-grid">' + D.backgrounds.map(function (b) {
-      return '<button class="ps-pick" data-action="pick-bg" data-id="' + esc(b.id) + '" aria-pressed="' + (st.background === b.id) + '"><strong>' + esc(b.name) + "</strong><span>" + esc(b.desc) + "</span></button>";
+    '<div class="ps-section"><h3 class="ps-section-title">Your traits</h3><p class="ps-small ps-muted">Rolled at random. Everyone arrives with something.</p><div class="ps-grid">' +
+    st.traits.map(function (id) {
+      const t = D.traitById[id];
+      return t ? '<div class="ps-pick ps-trait-fixed"><strong>' + esc(t.name) + "</strong><span>+ " + esc(t.up) + "</span><span>\u2212 " + esc(t.down) + "</span></div>" : "";
     }).join("") + "</div></div>" +
-    '<div class="ps-section"><h3 class="ps-section-title">Origin</h3><div class="ps-grid">' + D.origins.map(function (o) {
-      return '<button class="ps-pick" data-action="pick-origin" data-id="' + esc(o.id) + '" aria-pressed="' + (st.origin === o.id) + '"><strong>' + esc(o.name) + "</strong><span>" + esc(o.desc) + "</span></button>";
-    }).join("") + "</div></div>" +
-    '<div class="ps-section"><div class="ps-spread"><h3 class="ps-section-title">Pick one trait</h3>' +
-    (st.daily ? "" : '<button class="ps-btn ps-btn-sm" data-action="reroll"' + (st.reroll >= 1 ? " disabled" : "") + ">Reroll traits" + (st.reroll >= 1 ? " (used)" : " (1 left)") + "</button>") + "</div>" +
-    '<div class="ps-grid">' + st.offers.map(function (id) { return traitCard(id, true); }).join("") + "</div>" +
-    '<h3 class="ps-section-title" style="margin-top:.8rem">And these come with you</h3><div class="ps-grid">' + st.random.map(function (id) { return traitCard(id, false); }).join("") + "</div></div>" +
-    '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="start"' + (st.background && st.origin && st.trait ? "" : " disabled") + ">Begin your PhD</button></div>";
+    '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="start">Begin your PhD</button></div>';
 }
 
 export function helpHtml() {
   return '<div class="ps-spread"><h2>How to play</h2><button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="back">Back</button></div><div class="ps-card">' +
-    "<p><b>Each turn is two weeks.</b> You have 10 weekdays. Courses, TA duty and meetings take some of them; you plan the rest in your <b>routine</b>, which repeats every turn. Weekends are off unless you choose overtime.</p>" +
-    "<p><b>Next turn</b> plays one turn. <b>Continue</b> keeps playing until something needs you: an event, a deadline, reviews, a milestone.</p>" +
-    "<p><b>Energy</b> fuels work: below 50, every day gets less done. <b>Sanity</b> is your mood and motivation; at zero you burn out for a few turns. Friends, hobbies, exercise and rest bring them back.</p>" +
-    "<p>Your skills, relationships, network and health are <b>hidden</b>, like in real life. Watch for hints: your advisor's replies, what reviewers complain about, your yearly progress review. Everything is revealed at the end.</p>" +
-    "<p>Choices show <b>arrows</b> for Energy, Sanity and Citations (↑ up, ↓ down, doubled when big, ↕ when it depends on how it goes). Everything else you have to judge from the situation.</p>" +
-    "<p><b>Projects</b> move through stages. Some stages just take calendar time (IRB review, recruiting, annotation). Submit when the draft is at least half written; the more finished, the clearer the paper. Reviews are noisy. Rebuttals help.</p>" +
+    "<p><b>Each turn is two weeks.</b> Classes, TA duty and meetings take some of your time; you choose what to do with the rest. Each choice is two days of that activity. Tap a choice again to do more of it. Then press <b>End turn</b>.</p>" +
+    "<p>After each turn, the <b>report</b> shows how your bars, skills and projects changed, and what happened. Sometimes something happens that needs a decision.</p>" +
+    "<p><b>Energy</b> powers work: below 50, everything gets less done. <b>Sanity</b> is your mood and motivation; at zero you burn out for a few turns. Rest, friends, hobbies and exercise bring them back. Weekends are off unless you choose to work them.</p>" +
+    "<p>Your <b>skills</b> grow with what you do: reading builds knowledge and taste, project work builds the skill each stage needs. Relationships, network and health stay <b>hidden</b>, like in real life; watch for hints. Everything is revealed at the end.</p>" +
+    "<p>Choices show <b>arrows</b> (\u2191 up, \u2193 down, doubled when big, \u2195 when it depends on how it goes). Numbers only appear after you choose.</p>" +
+    "<p><b>Projects</b> move through stages. Some stages just take calendar time (IRB review, recruiting, annotation). When a deadline arrives, a <b>Submit</b> option appears in your turn; you need at least half a draft. Reviews are noisy. Rebuttals help.</p>" +
     "<p><b>To graduate</b> you pass quals, propose your thesis, publish at least three first-author papers, spend about three months preparing, and defend. Or don't: leaving is never losing.</p>" +
     "<p>Your progress saves in this browser. The <b>Codex</b> remembers everything you've discovered across runs.</p></div>";
 }

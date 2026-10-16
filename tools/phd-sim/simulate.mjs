@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { prepareData, newRun, rollTraits, Game, firstAuthorPubs, totalCitations, hIndex } from "../../assets/js/phd-sim/engine/index.js";
+import { prepareData, newRun, Game, firstAuthorPubs, totalCitations, hIndex } from "../../assets/js/phd-sim/engine/index.js";
 import { Rng } from "../../assets/js/phd-sim/engine/rng.js";
 import { activeProjects } from "../../assets/js/phd-sim/engine/projects.js";
 
@@ -13,21 +13,37 @@ const RUNS = parseInt(process.argv[2] || "200", 10);
 const POLICY = process.argv[3] || "mixed";
 const POLICIES = ["balanced", "workaholic", "slacker", "random"];
 
-function plan(game, policy, rng) {
-  const s = game.state;
-  const ap = activeProjects(game).filter((p) => p.firstAuthor !== false);
-  const days = {};
-  const projDays = { balanced: 6, workaholic: 8, slacker: 3, random: rng.int(2, 8) }[policy];
-  const use = ap.slice(0, policy === "slacker" ? 1 : 2);
-  use.forEach((p, i) => { days["p:" + p.id] = Math.max(1, Math.round(projDays / use.length) + (i === 0 ? 1 : -1)); });
-  if (!use.length) days.read = 4;
-  days.read = (days.read || 0) + 1;
-  days.social = policy === "slacker" ? 2 : 1;
-  if (policy !== "workaholic") days.exercise = 1;
-  if (policy === "slacker") { days.hobby = 2; days.rest = 1; }
-  if (s.flags.internship_applied || policy === "workaholic") days.career = s.turn % 26 < 10 ? 1 : 0;
-  const overtime = { balanced: 0, workaholic: 4, slacker: 0, random: rng.int(0, 2) }[policy];
-  game.setRoutine({ days, overtime, overtimeTarget: use.length ? "p:" + use[0].id : "read" });
+// Builds a turn plan from the plan prompt, the way each kind of player might.
+function makePlan(p, policy, rng) {
+  const picks = {};
+  let left = p.slots;
+  const add = (id, n) => { if (!id || left <= 0) return; const k = Math.min(n, left); picks[id] = (picks[id] || 0) + k; left -= k; };
+  const projects = p.actions.filter((a) => a.kind === "project").map((a) => a.id);
+  const has = (id) => p.actions.some((a) => a.id === id);
+  p.actions.filter((a) => a.kind === "apply").forEach((a) => { if (policy !== "slacker") add(a.id, 1); });
+  if (policy === "random") {
+    while (left > 0) add(rng.pick(p.actions).id, 1);
+  } else if (policy === "workaholic") {
+    projects.slice(0, 2).forEach((id, i) => add(id, i === 0 ? Math.ceil(left / 2) : left));
+    if (!projects.length) add("read", left);
+  } else if (policy === "slacker") {
+    if (projects.length) add(projects[0], 1);
+    ["social", "hobby", "rest", "exercise", "read"].forEach((id) => add(id, 1));
+  } else {
+    // A reasonable player: mostly research, but reacting to the Energy and Sanity bars.
+    const st = p.stats || {};
+    if (st.energy !== undefined && st.energy < 35) add("rest", 1);
+    if (st.sanity !== undefined && st.sanity < 45) add("social", 1);
+    if (st.sanity !== undefined && st.sanity < 30) add("hobby", 1);
+    if (left >= 4 && rng.chance(0.5)) add(rng.chance(0.5) ? "exercise" : "social", 1);
+    if (!projects.length) add("read", left);
+    projects.slice(0, 2).forEach((id, i) => add(id, i === 0 ? Math.ceil(left / Math.min(2, projects.length)) : left));
+    while (left > 0) add("read", 1);
+  }
+  const extras = {};
+  p.extras.forEach((x) => { extras[x.id] = x.kind === "submit" ? { preprint: true } : true; });
+  const weekend = policy === "workaholic" && p.weekend.allowed && p.weekend.targets.length ? p.weekend.targets[0].id : "off";
+  return { picks, weekend, extras };
 }
 
 function answerPrompt(game, p, policy, rng) {
@@ -73,20 +89,23 @@ for (let r = 0; r < RUNS; r++) {
   const policy = POLICY === "mixed" ? POLICIES[r % POLICIES.length] : POLICY;
   const seed = "sim-" + r;
   const rng = new Rng(seed + ":bot");
-  const tr = rollTraits(D, seed);
-  const state = newRun(D, { seed, name: "Bot", background: rng.pick(D.backgrounds).id, origin: rng.pick(["domestic", "international"]), traits: [tr.offers[0]].concat(tr.random) });
+  const state = newRun(D, { seed, name: "Bot" });
   const game = new Game(D, meta, state);
-  let prompts = 0, guard = 0, sanSum = 0, sanN = 0;
+  let prompts = 0, guard = 0, sanSum = 0, sanN = 0, planTurns = 0;
   try {
-    plan(game, policy, rng);
     while (guard++ < 20000) {
       const p = game.step();
       if (p.type === "ended") break;
       if (p.type === "error") throw new Error("engine error state");
-      if (p.type === "turn_end") {
-        sanSum += game.state.stats.sanity; sanN++;
-        plan(game, policy, rng);
-        if (activeProjects(game).length < (policy === "slacker" ? 1 : 2) && game.state.advisor && rng.chance(0.5)) game.requestNewProject();
+      if (p.type === "turn_end") { sanSum += game.state.stats.sanity; sanN++; continue; }
+      if (p.type === "plan") {
+        p.stats = { energy: game.state.stats.energy, sanity: game.state.stats.sanity };
+        if (p.canStartProject && activeProjects(game).length < (policy === "slacker" ? 1 : 2) && rng.chance(0.6)) {
+          const np = game.requestNewProject();
+          if (np) { prompts++; game.answer({ type: rng.pick(np.types).id, topic: rng.pick(np.topics).id }); continue; }
+        }
+        planTurns++;
+        game.submitPlan(makePlan(p, policy, rng));
         continue;
       }
       prompts++;
@@ -119,7 +138,7 @@ for (let r = 0; r < RUNS; r++) {
     policy, ending: s.ending.id, graduated: s.ending.graduated, years: s.turn / 26, pubs: firstAuthorPubs(game),
     cites: totalCitations(game), h: hIndex(game), burnouts: s.telemetry.burnouts, events: s.telemetry.events_seen,
     prompts, tiers, title: s.ending.title.id, advisor: s.advisor ? s.advisor.archetype : "none", quals: s.milestones.quals,
-    proposal: s.milestones.proposal, uniqueRandom: seenRandom.length, sanity: sanN ? sanSum / sanN : 0,
+    proposal: s.milestones.proposal, uniqueRandom: seenRandom.length, sanity: sanN ? sanSum / sanN : 0, perTurn: prompts / Math.max(1, s.turn),
     qs: s.papers.filter((p) => p.firstAuthor && p.meta !== undefined).map((p) => ({ y: Math.floor(p.submittedTurn / 26) + 1, Q: p.Q, meta: p.meta, bonus: p.scoreBonus || 0, tier: p.tier, st: p.status, round: p.round }))
   });
 }
@@ -136,7 +155,7 @@ for (const pol of POLICY === "mixed" ? POLICIES : [POLICY]) {
     "  median years " + median(grads.map((x) => x.years)).toFixed(1) +
     "  pubs avg " + avg(R.map((x) => x.pubs)) + "  cites median " + median(R.map((x) => x.cites)) +
     "  h median " + median(R.map((x) => x.h)) + "  burnouts avg " + avg(R.map((x) => x.burnouts)) +
-    "  sanity avg " + avg(R.map((x) => x.sanity)) + "  events avg " + avg(R.map((x) => x.events)) + "  prompts avg " + avg(R.map((x) => x.prompts)));
+    "  sanity avg " + avg(R.map((x) => x.sanity)) + "  events avg " + avg(R.map((x) => x.events)) + "  prompts avg " + avg(R.map((x) => x.prompts)) + "  pop-ups per turn " + avg(R.map((x) => Math.round(x.perTurn * 100) / 100)));
 }
 const all = results;
 const count = (key) => { const m = {}; all.forEach((x) => { m[x[key]] = (m[x[key]] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + " " + v).join(", "); };

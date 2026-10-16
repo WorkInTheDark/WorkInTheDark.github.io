@@ -20,6 +20,9 @@ const HIDDEN_LINES = {
   health: ["You feel physically better.", "Your body files a complaint."]
 };
 
+// Stats the player can see: shown as numbers after a choice. Everything else is hinted.
+export const VISIBLE_KEYS = ["energy", "sanity", "citations", "taste", "coding", "writing", "presenting", "knowledge"];
+
 export function rollRange(G, v) {
   const p = parseValue(v);
   if (!p) return 0;
@@ -157,7 +160,7 @@ export function applyOutcome(G, out, ctx) {
     if (key === "days_next") { s.dayAdjNext += n; res.visible.push({ stat: "days_next", amount: n }); return; }
     if (key === "career_prep") { s.careerPrep += n; return; }
     const d = addStat(G, key, n);
-    if (key === "energy" || key === "sanity" || key === "citations") res.visible.push({ stat: key, amount: d });
+    if (VISIBLE_KEYS.indexOf(key) >= 0) { if (d) res.visible.push({ stat: key, amount: d }); }
     else if (HIDDEN_LINES[key] && d !== 0) {
       const threshold = ["taste", "coding", "writing", "presenting", "knowledge"].indexOf(key) >= 0 ? 2 : 3;
       if (Math.abs(d) >= threshold) hiddenDeltas.push({ line: HIDDEN_LINES[key][d > 0 ? 0 : 1], amount: Math.abs(d) });

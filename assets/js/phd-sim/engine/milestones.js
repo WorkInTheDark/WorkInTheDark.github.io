@@ -133,23 +133,6 @@ export function createProject(G, type, topicId, opts) {
   if (opts.bonusN === undefined) s.telemetry.ideas = Math.max(0, (s.telemetry.ideas || 0) - ideas);
   if (opts.progress) p.progress = opts.progress;
   s.projects.push(p);
-  // Give a new project some days so auto-play keeps moving.
-  const r = s.routine.days;
-  const hasProject = Object.keys(r).some(function (k) { return k.indexOf("p:") === 0 && (r[k] || 0) > 0; });
-  if (!hasProject) {
-    const take = Math.min(4, (r.read || 0) + 2);
-    r.read = Math.max(0, (r.read || 0) - take + 2);
-    r["p:" + p.id] = take;
-    // Keep the plan inside this turn's free days: trim reading, then exercise, then friends.
-    if (G.fixedDays) {
-      const free = G.fixedDays().free;
-      const total = function () { return Object.keys(r).reduce(function (n, k) { return n + (r[k] || 0); }, 0); };
-      ["read", "exercise", "social", "hobby", "rest"].forEach(function (k) {
-        while (total() > free && (r[k] || 0) > (k === "social" ? 1 : 0)) r[k]--;
-      });
-    }
-    log(G, "Routine: " + take + " days per turn now go to " + p.short + ".");
-  }
   return p;
 }
 
@@ -157,7 +140,7 @@ export function answerNewProject(G, resp) {
   if (!resp || resp.cancel) return null;
   const p = createProject(G, resp.type, resp.topic, {});
   autoTarget(G, p);
-  return { text: "New project: “" + p.title + "”.", visible: [], hidden: [], notes: ["Give it days in your routine to make progress."] };
+  return { text: "New project: “" + p.title + "”.", visible: [], hidden: [], notes: ["It now shows up in your choices each turn."] };
 }
 
 function firstProjectPrompt(G) {
@@ -304,7 +287,7 @@ function attend(G, pp, city, extraDays) {
   s.dayAdj -= (G.D.config.fixed_days.conference || 4) + (extraDays || 0);
   s.telemetry.conferences++;
   let net = G.rng.triangular(8, 3);
-  if (hasTrait(G, "polyglot")) net += 3;
+  if (hasTrait(G, "polyglot") || hasTrait(G, "international")) net += 3;
   addStat(G, "network", net);
   let san = 3;
   if (hasTrait(G, "foodie")) san += 3;
@@ -312,11 +295,30 @@ function attend(G, pp, city, extraDays) {
   addStat(G, "sanity", san);
   if (G.rng.chance(0.5)) addStatus(G, "jet_lagged", 2);
   s.world.cities[city] = true;
-  const items = fireHook(G, "conference", { city: city, paperId: pp.id, venue: pp.venueName });
-  for (let i = items.length - 1; i >= 0; i--) s.turnItems.unshift(items[i]);
-  return { text: "You fly to " + city + " and present “" + pp.short + "”. People ask good questions, and a few ask for your slides.",
-    visible: [{ stat: "sanity", amount: san }, { stat: "days", amount: -((G.D.config.fixed_days.conference || 4) + (extraDays || 0)) }],
-    hidden: ["More people in the field know your name."], notes: [] };
+  fireHook(G, "conference", { city: city, paperId: pp.id, venue: pp.venueName }).forEach(function (it) { s.endItems.push(it); });
+  log(G, "You fly to " + city + " for " + pp.venueName + " and present \u201c" + pp.short + "\u201d. Four days of talks, posters and too much coffee.", "news");
+}
+
+// Conferences happen on their own: you go if there's money for it, otherwise you present remotely.
+function autoConference(G, pp) {
+  const s = G.state;
+  const city = G.rng.pick(G.D.names.cities || ["Vienna"]);
+  const fund = s.advisor ? s.advisor.params.fund : 3;
+  s.flags.trip_planned = s.papers.some(function (x) { return x !== pp && x.status === "accepted" && x.conferenceTurn && x.conferenceTurn > s.turn; });
+  if (s.flags.visa_failed) {
+    delete s.flags.visa_failed;
+    unlock(G, "remote_presenter");
+    addStat(G, "network", 2);
+    log(G, "Your visa didn't come through, so you present \u201c" + pp.short + "\u201d at " + pp.venueName + " remotely, at 3 am your time.", "news");
+    return;
+  }
+  if (fund >= 3 || G.rng.chance(0.5 + s.stats.network / 400)) {
+    if (fund < 3) log(G, "A student travel grant comes through.", "news");
+    attend(G, pp, city, 0);
+    return;
+  }
+  addStat(G, "network", 2);
+  log(G, "There's no travel money, so you present \u201c" + pp.short + "\u201d at " + pp.venueName + " remotely. Two people ask great questions.", "news");
 }
 
 // ---- Quals, proposal, defense (Committee Q&A) -------------------------------
@@ -462,7 +464,7 @@ export function buildSys(G, item) {
   switch (item.sys) {
     case "welcome":
       return notice("Welcome to your PhD, " + s.player.name,
-        "It's September. You have five years, give or take, to become an expert in something nobody fully understands yet. Each turn is two weeks. Set a routine, keep an eye on Energy and Sanity, and remember: everyone else is also figuring it out.");
+        "It's September. You have five years, give or take, to become an expert in something nobody fully understands yet. Each turn is two weeks: choose what to do with it, keep an eye on Energy and Sanity, and remember: everyone else is also figuring it out.");
     case "matching":
       if (s.advisor) return null;
       return matchingPrompt(G);
@@ -517,7 +519,7 @@ export function buildSys(G, item) {
     case "internship_offer":
       return sys("internship_offer", "Internship offer from " + d.company,
         d.company + " offers you a summer internship: 12 weeks, starting late May.",
-        [{ label: "Accept", desc: "Your routine pauses for the summer." }, { label: "Decline and stay in the lab" }], d);
+        [{ label: "Accept", desc: "Summer weekdays go to the internship; evenings and weekends are still yours." }, { label: "Decline and stay in the lab" }], d);
     case "fellowship_apply":
       return sys("fellowship_apply", "Fellowship applications",
         "A fellowship would pay your way for a year, with no TA duty. The research statement takes a couple of days.",
@@ -630,7 +632,7 @@ export function handleSys(G, prompt, choice) {
       if (o === "findings") {
         if (choice === 0) { acceptPaper(G, pp, true); return empty("Findings it is. A publication is a publication."); }
         rejectPaper(G, pp);
-        if (p) { p.status = "active"; p.revise = true; p.progress = 0; nextResubmitTarget(G, p, false); s.routine.days["p:" + p.id] = Math.max(s.routine.days["p:" + p.id] || 0, 2); }
+        if (p) { p.status = "active"; p.revise = true; p.progress = 0; nextResubmitTarget(G, p, false); }
         return empty("You withdraw and start revising.");
       }
       if (o === "revise" || o === "major_revision") {
@@ -642,11 +644,11 @@ export function handleSys(G, prompt, choice) {
             const c = G.D.venueById[pp.venueId].cycles[pp.cycle];
             p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: pp.submittedTurn + (c.revision_due_in || 7), rrPaper: pp.id };
           }
-          s.routine.days["p:" + p.id] = Math.max(s.routine.days["p:" + p.id] || 0, 3);
+         
           return empty("Revision mode. Every reviewer comment is now a to-do item.");
         }
         rejectPaper(G, pp);
-        if (p) { p.status = "active"; p.revise = true; p.progress = 0; nextResubmitTarget(G, p, false); s.routine.days["p:" + p.id] = Math.max(s.routine.days["p:" + p.id] || 0, 2); }
+        if (p) { p.status = "active"; p.revise = true; p.progress = 0; nextResubmitTarget(G, p, false); }
         return empty("You withdraw it and look for another venue.");
       }
       // Rejected (or desk rejected): sanity hit then a plan.
@@ -658,7 +660,7 @@ export function handleSys(G, prompt, choice) {
         if (choice === 2) { p.status = "shelved"; return { text: "You shelve it. It still taught you something.", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [] }; }
         p.status = "active"; p.revise = true; p.progress = 0;
         nextResubmitTarget(G, p, choice === 1);
-        s.routine.days["p:" + p.id] = Math.max(s.routine.days["p:" + p.id] || 0, 2);
+       
         return { text: "Back to the draft. Next stop: " + (deadlineLabel(G, p) || "the next deadline") + ".", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [], tip: s.telemetry.rejections === 1 ? "Critique-Centric Feedback" : null };
       }
       return { text: "", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [] };
@@ -675,12 +677,12 @@ export function handleSys(G, prompt, choice) {
         return empty("You present to a camera and a small grid of faces. Two of them ask great questions.");
       }
       if (opt === "grant") {
-        if (G.rng.chance(0.5 + s.stats.network / 400)) return attend(G, pp, d.city, 0);
+        if (G.rng.chance(0.5 + s.stats.network / 400)) { attend(G, pp, d.city, 0); return null; }
         addStat(G, "network", 2);
         return empty("No grant this time. You present remotely.");
       }
-      if (opt === "volunteer") return attend(G, pp, d.city, 2);
-      return attend(G, pp, d.city, 0);
+      attend(G, pp, d.city, opt === "volunteer" ? 2 : 0);
+      return null;
     }
     case "proposal_offer":
       if (choice === 0) {
@@ -767,52 +769,29 @@ export function queueMilestones(G) {
   const y = yearOf(s.turn);
   const m = s.milestones;
   const items = [];
-  if (s.turn === 0) items.push({ kind: "sys", sys: "welcome" });
-
-  // Nudge players who have drifted with no active project.
-  const activeFA = activeProjects(G).filter(function (p) { return p.firstAuthor !== false; }).length;
-  if (s.advisor && !m.graduated && !activeFA && !hasStatus(G, "on_internship") && !hasStatus(G, "defense_prep") && !hasStatus(G, "on_leave")) {
-    s.idleTurns = (s.idleTurns || 0) + 1;
-    if (s.idleTurns >= 2 && (!s.lastIdleNudge || s.turn - s.lastIdleNudge >= 4)) {
-      items.push({ kind: "sys", sys: "idle_nudge" });
-      s.lastIdleNudge = s.turn;
-    }
-  } else s.idleTurns = 0;
   if (!s.advisor && y === 1 && t <= 8 && (t <= 2 || t === 8 || t % 2 === 0)) items.push({ kind: "sys", sys: "matching" });
 
   // Quals at T18 of the quals year (retake the following year).
   const qualsYear = m.quals === "failed_once" ? m.qualsYear + 1 : m.qualsYear;
   if (m.quals !== "passed" && y === qualsYear && s.advisor) {
-    if (t === cfg.quals_turn - 6) { addStatus(G, "quals_prep", 6); s.readiness = 0; log(G, "Quals are in six turns. Reading days now count as preparation."); }
+    if (t === cfg.quals_turn - 6) { addStatus(G, "quals_prep", 6); s.readiness = 0; log(G, "Quals are in six turns. Reading papers now counts as preparation.", "news"); }
     if (t === cfg.quals_turn) items.push({ kind: "sys", sys: "qa", data: { stage: "quals" } });
   }
 
-  // Proposal.
-  if (m.proposal === "pending" && m.quals === "passed" && !m.proposalAt) {
-    const eligible = y >= (cfg.proposal_min_year || 3) && firstAuthorPubs(G) >= (cfg.proposal_min_pubs || 2);
-    if (eligible && (!m.proposalNextOffer || s.turn >= m.proposalNextOffer) && t !== 9) items.push({ kind: "sys", sys: "proposal_offer" });
-  }
+  // Proposal day (scheduling it is a plan action).
   if (m.proposalAt && s.turn === m.proposalAt && m.proposal === "pending") {
     items.push({ kind: "sys", sys: "qa", data: { stage: "proposal" } });
   }
 
-  // Defense prep, defense, graduation.
-  if (m.proposal === "passed" && !m.defensePrepStart && !m.graduated) {
-    const acc = firstAuthorPubs(G);
-    const need = cfg.graduation_pubs || 3;
-    const strictNoEarly = s.advisor && s.advisor.archetype === "methods_purist";
-    const eligible = acc >= need || (!strictNoEarly && acc === need - 1 && pendingFirstAuthor(G) >= 1);
-    if (eligible && (!m.defenseNextOffer || s.turn >= m.defenseNextOffer) && t !== 9) items.push({ kind: "sys", sys: "defense_offer" });
-  }
+  // Defense day (starting prep is a plan action), graduation.
   if (m.defenseAt && s.turn >= m.defenseAt && m.defense === "pending") {
     if (firstAuthorPubs(G) >= (cfg.graduation_pubs || 3)) {
-      const hookItems = fireHook(G, "defense", {});
-      hookItems.forEach(function (it) { items.push(it); });
+      fireHook(G, "defense", {}).forEach(function (it) { items.push(it); });
       items.push({ kind: "sys", sys: "qa", data: { stage: "defense" } });
       m.defenseAt = null;
     } else if (s.turn === m.defenseAt) {
       removeStatus(G, "defense_prep");
-      items.push({ kind: "sys", sys: "notice", data: { title: "The defense waits", text: "Your thesis is ready, but you only have " + firstAuthorPubs(G) + " first-author papers accepted. The defense happens as soon as the third one lands." } });
+      log(G, "Your thesis is ready, but you have only " + firstAuthorPubs(G) + " first-author papers accepted. The defense happens as soon as the third one lands.", "news");
     }
   }
   if (m.graduateAt && s.turn >= m.graduateAt && !m.graduated) {
@@ -820,33 +799,30 @@ export function queueMilestones(G) {
     graduate(G);
   }
 
-  // Fellowship: apply at T3 in years 1–3; results at T12.
-  if (y <= 3 && t === 3 && !s.flags.fellowship_won && s.advisor) items.push({ kind: "sys", sys: "fellowship_apply" });
+  // Fellowship results at T12.
   if (t === 12 && s.fellowship && s.fellowship.applied && s.fellowship.year === y && !s.fellowship.decided) {
     s.fellowship.decided = true;
     const p = clamp(0.08 + s.stats.taste / 400 + firstAuthorPubs(G) * 0.08 + (s.advisor ? (s.advisor.params.fame - 3) * 0.03 : 0), 0.03, 0.6);
     if (G.rng.chance(p)) {
       s.flags.fellowship_won = true;
       s.fellowshipYear = y + 1;
-      items.push({ kind: "sys", sys: "notice", data: { title: "You won the fellowship!", text: "Next academic year is yours: no TA duty, and a line on your CV that people notice." } });
+      log(G, "You won the fellowship! Next academic year is yours: no TA duty, and a line on your CV that people notice.", "good");
     } else {
-      items.push({ kind: "sys", sys: "notice", data: { title: "Fellowship results", text: "Not this time. The feedback is polite and mostly about “broader impacts”." } });
+      log(G, "Fellowship results: not this time. The feedback is polite and mostly about \u201cbroader impacts\u201d.", "news");
     }
   }
 
-  // Internships: apply at T2 (years 2–4), offers at T14, summer T20–T25.
-  if (y >= 2 && y <= 5 && t === 2 && !s.flags.on_market && !m.graduated && !hasStatus(G, "defense_prep")) items.push({ kind: "sys", sys: "internship_apply" });
+  // Internship offers at T14, the internship itself T20–T25.
   if (t === 14 && s.internship && s.internship.applied && s.internship.year === y && !s.internship.decided) {
     s.internship.decided = true;
-    const base = s.internship.applied === "broad" ? 0.35 : 0.2;
     const hire = s.world.hiring === "boom" ? 1.3 : s.world.hiring === "freeze" ? 0.5 : 1;
-    const p = clamp((base + s.stats.network * 0.004 + s.stats.coding * 0.003 + s.careerPrep * 0.03) * hire, 0.05, 0.9);
+    const p = clamp((0.3 + s.stats.network * 0.004 + s.stats.coding * 0.003 + s.careerPrep * 0.03) * hire, 0.05, 0.9);
     if (G.rng.chance(p)) items.push({ kind: "sys", sys: "internship_offer", data: { company: G.rng.pick(G.D.names.companies || ["a tech company"]) } });
-    else items.push({ kind: "sys", sys: "notice", data: { title: "Internship season", text: "No offers this year. A few nice rejection emails, and one that called you by someone else's name." } });
+    else log(G, "Internship season: no offers this year. A few nice rejection emails, and one that called you by someone else's name.", "news");
     s.careerPrep = 0;
   }
   if (s.internship && s.internship.accepted && s.internship.accepted.year === y) {
-    if (t === 20) { addStatus(G, "on_internship", 6); log(G, "Your internship at " + s.internship.accepted.company + " starts."); }
+    if (t === 20) { addStatus(G, "on_internship", 6); log(G, "Your internship at " + s.internship.accepted.company + " starts. Evenings are still yours.", "news"); }
     if (t === 26 && !s.internship.accepted.done) {
       s.internship.accepted.done = true;
       s.telemetry.internships++;
@@ -854,18 +830,14 @@ export function queueMilestones(G) {
       const lines = [];
       if (G.rng.chance(0.3 + s.stats.coding / 300)) { s.flags.return_offer = true; lines.push("They offer you a full-time return offer, whenever you're ready."); }
       if (G.rng.chance(0.4)) {
-        lines.push("Your internship project turns into a paper submission.");
+        lines.push("Your internship project turns into a paper you can submit.");
         internshipPaper(G, s.internship.accepted.company);
       }
-      items.push({ kind: "sys", sys: "notice", data: { title: "The internship ends", text: "Twelve weeks at " + s.internship.accepted.company + " go by fast. " + (lines.join(" ") || "You leave with new friends and better code.") } });
+      log(G, "Your internship at " + s.internship.accepted.company + " ends. " + (lines.join(" ") || "You leave with new friends and better code."), "news");
     }
   }
 
-  // Job market: years 4+ after the proposal, at T1.
-  if (m.proposal === "passed" && !m.graduated && t === 1 && y >= 4 && !hasStatus(G, "job_market") && !s.acceptedOffer &&
-    !(s.job && s.job.skipYear === y - 1 && false)) {
-    items.push({ kind: "sys", sys: "job_market_start" });
-  }
+  // Job market (going on it is a plan action).
   if (hasStatus(G, "job_market")) {
     if (t === 8) {
       const job = s.job || {};
@@ -874,6 +846,104 @@ export function queueMilestones(G) {
     if (t === 16) items.push({ kind: "sys", sys: "offers" });
   }
   return items;
+}
+
+// Things you can choose to do this turn beyond the everyday activities.
+// `slot: true` uses one of the turn's choices; the rest are free.
+export function planExtras(G) {
+  const s = G.state;
+  const cfg = G.D.config;
+  const t = tOf(s.turn);
+  const y = yearOf(s.turn);
+  const m = s.milestones;
+  const out = [];
+  if (!s.advisor || m.graduated) return out;
+  activeProjects(G).forEach(function (p) {
+    if (!p.target || p.target.rrPaper || p.target.journalPaper || p.target.turn !== s.turn || !isReadyish(G, p)) return;
+    const pct = Math.round(writingCompletion(G, p) * 100);
+    out.push({ id: "submit:" + p.id, kind: "submit", label: "Submit \u201c" + p.short + "\u201d to " + deadlineLabel(G, p),
+      desc: "The draft is " + pct + "% written. It needs at least half a draft by the end of this turn; the more finished, the clearer the paper.",
+      preprint: true, suggested: pct >= 35 });
+  });
+  if (y >= 2 && y <= 5 && t >= 2 && t <= 7 && !(s.internship && s.internship.year === y) && !s.flags.on_market && !hasStatus(G, "defense_prep")) {
+    out.push({ id: "apply_internship", kind: "apply", slot: true, label: "Apply for summer internships",
+      desc: "Twelve weeks of industry research next summer. Offers arrive in March.",
+      arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "presenting", dir: "up", strength: 1 }] });
+  }
+  if (y <= 3 && t >= 3 && t <= 6 && !s.flags.fellowship_won && !(s.fellowship && s.fellowship.year === y)) {
+    out.push({ id: "apply_fellowship", kind: "apply", slot: true, label: "Apply for a fellowship",
+      desc: "A year without TA duty if you win. Results in February.",
+      arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "writing", dir: "up", strength: 1 }] });
+  }
+  if (m.proposal === "pending" && m.quals === "passed" && !m.proposalAt && t !== 9 &&
+    y >= (cfg.proposal_min_year || 3) && firstAuthorPubs(G) >= (cfg.proposal_min_pubs || 2)) {
+    out.push({ id: "proposal", kind: "milestone", label: "Schedule your thesis proposal",
+      desc: "Present to your committee in " + (cfg.proposal_prep_turns || 4) + " turns. Project work until then counts as preparation." });
+  }
+  if (m.proposal === "passed" && !m.defensePrepStart && t !== 9) {
+    const acc = firstAuthorPubs(G);
+    const need = cfg.graduation_pubs || 3;
+    const strictNoEarly = s.advisor.archetype === "methods_purist";
+    const early = acc < need;
+    if (acc >= need || (!strictNoEarly && acc === need - 1 && pendingFirstAuthor(G) >= 1)) {
+      out.push({ id: "defense", kind: "milestone", label: "Start defense preparation",
+        desc: "About three months of thesis writing and slides (5 fixed days per turn)." + (early ? " Your third paper is still under review: if it's rejected, the defense waits." : "") });
+    }
+  }
+  if (m.proposal === "passed" && y >= 4 && t >= 1 && t <= 4 && !hasStatus(G, "job_market") && !s.acceptedOffer && !(s.job && s.job.year === y)) {
+    out.push({ id: "job_market", kind: "milestone", label: "Go on the job market",
+      desc: "Applications this fall, interviews over the winter, offers in the spring." });
+  }
+  return out;
+}
+
+export function applyPlanExtra(G, id, opts) {
+  const s = G.state;
+  const cfg = G.D.config;
+  const y = yearOf(s.turn);
+  if (id.indexOf("submit:") === 0) {
+    const p = proj(G, id.slice(7));
+    if (!p || p.status !== "active") return;
+    p.submitting = { preprint: !(opts && opts.preprint === false) };
+    addStatus(G, "deadline_mode", 1);
+    fireHook(G, "deadline", { projectId: p.id, venue: deadlineLabel(G, p) }).forEach(function (it) { s.endItems.push(it); });
+    return;
+  }
+  switch (id) {
+    case "apply_internship":
+      s.internship = { applied: "broad", year: y };
+      s.flags.internship_applied = true;
+      log(G, "You send out internship applications: one CV, many small edits.", "news");
+      break;
+    case "apply_fellowship":
+      s.fellowship = { year: y, applied: true };
+      s.flags.fellowship_applied = true;
+      log(G, "Fellowship application submitted. Results come in February.", "news");
+      break;
+    case "proposal":
+      s.milestones.proposalAt = s.turn + (cfg.proposal_prep_turns || 4);
+      addStatus(G, "proposal_prep", cfg.proposal_prep_turns || 4);
+      s.committee = genCommittee(G, 4);
+      s.readiness = 0;
+      log(G, "Proposal scheduled. Your committee: " + s.committee.map(function (c) { return c.name; }).join(", ") + ".", "news");
+      break;
+    case "defense": {
+      const turns = cfg.defense_prep_turns || 6;
+      s.milestones.defensePrepStart = s.turn;
+      s.milestones.defenseAt = s.turn + turns;
+      if (tOf(s.milestones.defenseAt) === 9) s.milestones.defenseAt += 1;
+      addStatus(G, "defense_prep", turns);
+      s.readiness = 0;
+      log(G, "Defense preparation begins: thesis chapters, slides, and a date with your committee in about three months.", "news");
+      break;
+    }
+    case "job_market":
+      s.job = { tracks: ["academia", "industry", "startup", "other"], year: y };
+      s.flags.on_market = true;
+      addStatus(G, "job_market", 16);
+      log(G, "You go on the job market. You polish your CV, your website and your research statement, in that order, several times.", "news");
+      break;
+  }
 }
 
 function internshipPaper(G, company) {
@@ -885,7 +955,8 @@ function internshipPaper(G, company) {
   autoTarget(G, p, { minLead: 1 });
 }
 
-// Deadlines, reviews, decisions and conferences for this turn.
+// Reviews, decisions and conferences for this turn. Only Findings needs a decision from you;
+// everything else lands in the turn report.
 export function queuePapers(G) {
   const s = G.state;
   const items = [];
@@ -893,38 +964,89 @@ export function queuePapers(G) {
     if (pp.deskPending && pp.status === "under_review") {
       pp.deskPending = false;
       pp.deskReject = true;
-      rejectPaper(G, pp);
       unlock(G, "desk_rejected");
-      items.push({ kind: "sys", sys: "decision", data: { paperId: pp.id, outcome: "reject" } });
+      autoReject(G, pp);
       return;
     }
-    if (pp.status === "under_review" && pp.rebuttal && pp.reviewsTurn === s.turn && !pp.reviews) {
+    if (pp.status === "under_review" && pp.rebuttal && pp.reviewsTurn === s.turn && !pp.reviews && pp.firstAuthor) {
       generateReviews(G, pp);
       const hit = sanityFromScores(pp.reviews);
       addStat(G, "sanity", hit);
-      log(G, "Reviews are in for “" + pp.short + "”: " + pp.reviews.map(function (r) { return r.score; }).join(", ") + ".");
+      log(G, "Reviews are in for \u201c" + pp.short + "\u201d: " + pp.reviews.map(function (r) { return r.score; }).join(", ") + " out of 5.", "news");
       fireHook(G, "reviews_in", { paperId: pp.id }).forEach(function (it) { items.push(it); });
       items.push({ kind: "sys", sys: "rebuttal", data: { paperId: pp.id } });
     }
     if (pp.status === "under_review" && pp.decisionTurn === s.turn) {
       const outcome = decide(G, pp);
-      if (outcome === "accept") acceptPaper(G, pp, false);
-      else if (outcome === "reject") rejectPaper(G, pp);
-      items.push({ kind: "sys", sys: "decision", data: { paperId: pp.id, outcome: outcome } });
+      if (!pp.firstAuthor) {
+        const who = pp.coauthor || "Your labmate";
+        if (outcome === "accept" || outcome === "findings") {
+          acceptPaper(G, pp, outcome === "findings");
+          addStat(G, "labmates_rel", 2);
+          log(G, who + "'s paper, with you as a co-author, is accepted at " + pp.venueName + ".", "good");
+        } else {
+          pp.status = "rejected";
+          log(G, who + "'s paper, with you as a co-author, is rejected. " + who + " shrugs and starts revising.", "news");
+        }
+      } else if (outcome === "accept") {
+        acceptPaper(G, pp, false);
+        let san = G.rng.triangular(10, 3);
+        if (hasTrait(G, "imposter_syndrome")) san -= 3;
+        addStat(G, "sanity", san);
+        addStat(G, "advisor_rel", 3);
+        const line = metaLine(G, "accept");
+        log(G, "Accepted at " + pp.venueName + ": \u201c" + pp.title + "\u201d!" + (line ? " Meta-review: \u201c" + line + "\u201d" : ""), "good");
+      } else if (outcome === "findings") {
+        items.push({ kind: "sys", sys: "decision", data: { paperId: pp.id, outcome: outcome } });
+      } else if (outcome === "revise" || outcome === "major_revision") {
+        autoRevise(G, pp);
+      } else {
+        autoReject(G, pp);
+      }
     }
-    if (pp.status === "accepted" && pp.conferenceTurn === s.turn) {
-      items.push({ kind: "sys", sys: "conference", data: { paperId: pp.id } });
-    }
+    if (pp.status === "accepted" && pp.conferenceTurn === s.turn) autoConference(G, pp);
   });
-  // Deadlines this turn for projects with a target.
+  // The Dark Angel's question comes the turn before a deadline.
   activeProjects(G).forEach(function (p) {
-    if (!p.target) return;
-    if (p.target.rrPaper || p.target.journalPaper) return;
+    if (!p.target || p.target.rrPaper || p.target.journalPaper) return;
     const ttd = p.target.turn - s.turn;
     if (ttd === 1 && s.advisor && s.advisor.archetype === "kind_funded" && isReadyish(G, p)) items.push({ kind: "sys", sys: "the_question", data: { projectId: p.id } });
-    if (ttd === 0 && isReadyish(G, p)) items.push({ kind: "sys", sys: "submit", data: { projectId: p.id } });
   });
   return items;
+}
+
+function autoReject(G, pp) {
+  const s = G.state;
+  rejectPaper(G, pp);
+  let hit = G.rng.triangular(-8, 3);
+  if (hasTrait(G, "rejection_hardened")) hit = Math.round(hit / 2);
+  if (hasTrait(G, "perfectionist")) hit = Math.round(hit * 1.3);
+  addStat(G, "sanity", hit);
+  const p = proj(G, pp.projectId);
+  const scores = pp.reviews ? " Scores: " + pp.reviews.map(function (r) { return r.score; }).join(", ") + "." : "";
+  if (p) {
+    p.status = "active"; p.revise = true; p.progress = 0;
+    nextResubmitTarget(G, p, false);
+    log(G, (pp.deskReject ? "Desk rejected at " : "Rejected at ") + pp.venueName + ": \u201c" + pp.short + "\u201d." + scores +
+      " You'll revise it for " + (deadlineLabel(G, p) || "the next deadline") + " (change the target or shelve it in Projects).", "bad");
+  } else {
+    log(G, "Rejected at " + pp.venueName + ": \u201c" + pp.short + "\u201d." + scores, "bad");
+  }
+}
+
+function autoRevise(G, pp) {
+  const s = G.state;
+  const p = proj(G, pp.projectId);
+  if (!p) { rejectPaper(G, pp); return; }
+  pp.status = "revise_resubmit";
+  p.status = "active"; p.revise = true; p.progress = 0;
+  if (pp.journal) p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: null, journalPaper: pp.id };
+  else {
+    const c = G.D.venueById[pp.venueId].cycles[pp.cycle];
+    p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: pp.submittedTurn + (c.revision_due_in || 7), rrPaper: pp.id };
+  }
+  log(G, (pp.journal ? "Major revision" : "Revise and resubmit") + " for \u201c" + pp.short + "\u201d at " + pp.venueName +
+    ". Work on it to address the reviews; it goes back " + (pp.journal ? "when the revision is done." : "when the revision is due."), "news");
 }
 
 function isReadyish(G, p) {

@@ -37,36 +37,70 @@ test("rng is deterministic and triangular rolls stay in range", () => {
   assert.equal(c.next(), a.next());
 });
 
-function bot(game, seed) {
+function planFor(p, rng) {
+  const picks = {};
+  let left = p.slots;
+  const projects = p.actions.filter((a) => a.kind === "project");
+  if (projects.length && left > 0) { picks[projects[0].id] = Math.max(1, left - 1); left -= picks[projects[0].id]; }
+  if (left > 0) picks[rng.pick(["social", "rest", "read"])] = left;
+  const extras = {};
+  p.extras.forEach((x) => { extras[x.id] = true; });
+  return { picks, weekend: "off", extras };
+}
+
+function answerFor(p, rng) {
+  if (p.type === "matching") return { action: "join", idx: rng.int(0, p.candidates.length - 1) };
+  if (p.type === "new_project") return { type: rng.pick(p.types).id, topic: rng.pick(p.topics).id };
+  if (p.type === "rebuttal") return { responses: {}, flags: [] };
+  if (p.type === "qa") return { answers: Object.fromEntries(p.questions.map((q) => [q.key, "direct"])) };
+  if (p.type === "sys" && p.sys === "leave") return { choice: p.choices.length - 1 };
+  return { choice: (p.choices[rng.int(0, p.choices.length - 1)] || {}).i || 0 };
+}
+
+function bot(game, seed, untilTurn) {
   const rng = new Rng(seed + ":bot");
   let steps = 0;
   for (;;) {
     if (steps++ > 30000) throw new Error("run did not end");
+    if (untilTurn !== undefined && game.state.turn >= untilTurn && game.state.stage === "plan") return game.state;
     const p = game.step();
     if (p.type === "ended") return game.state;
-    if (p.type === "turn_end") {
-      const ap = activeProjects(game);
-      const days = { read: 1, social: 1, exercise: 1 };
-      ap.slice(0, 2).forEach((x) => { days["p:" + x.id] = 3; });
-      game.setRoutine({ days, overtime: 0, overtimeTarget: "read" });
-      if (ap.length < 2 && game.state.advisor) game.requestNewProject();
+    if (p.type === "turn_end") continue;
+    if (p.type === "plan") {
+      if (p.canStartProject && p.actions.filter((a) => a.kind === "project").length < 2) {
+        const np = game.requestNewProject();
+        if (np) { game.answer(answerFor(np, rng)); continue; }
+      }
+      game.submitPlan(planFor(p, rng));
       continue;
     }
-    let a = { choice: 0 };
-    if (p.type === "event" || p.type === "sys") a = { choice: (p.choices[rng.int(0, p.choices.length - 1)] || {}).i || 0 };
-    if (p.type === "sys" && p.sys === "leave") a = { choice: p.choices.length - 1 };
-    if (p.type === "matching") a = { action: "join", idx: rng.int(0, p.candidates.length - 1) };
-    if (p.type === "new_project") a = { type: rng.pick(p.types).id, topic: rng.pick(p.topics).id };
-    if (p.type === "rebuttal") a = { responses: {}, flags: [] };
-    if (p.type === "qa") a = { answers: Object.fromEntries(p.questions.map((q) => [q.key, "direct"])) };
-    game.answer(a);
+    game.answer(answerFor(p, rng));
   }
 }
 
 function start(seed) {
-  const tr = rollTraits(D, seed);
-  return newRun(D, { seed, name: "Test", background: "undergrad", origin: "domestic", traits: [tr.offers[0]].concat(tr.random) });
+  return newRun(D, { seed, name: "Test" });
 }
+
+test("traits are rolled at random, without contradictory pairs", () => {
+  for (let i = 0; i < 200; i++) {
+    const t = rollTraits(D, "t" + i);
+    assert.equal(t.length, 3);
+    assert.equal(new Set(t).size, 3);
+    assert.ok(!(t.includes("code_wizard") && t.includes("wordsmith")));
+    assert.ok(!(t.includes("early_bird") && t.includes("night_owl")));
+  }
+});
+
+test("a turn plan cannot use more choices than the turn has", () => {
+  const g = new Game(D, {}, start("plan-1"));
+  let p = g.step();
+  const rng = new Rng("a");
+  while (p.type !== "plan") { g.answer(answerFor(p, rng)); p = g.step(); }
+  assert.ok(g.submitPlan({ picks: { read: 99, social: 99 }, weekend: "off", extras: {} }));
+  const used = Object.values(g.state.plan.picks).reduce((a, b) => a + b, 0);
+  assert.ok(used <= p.slots);
+});
 
 test("the same seed and the same answers give the same PhD", () => {
   const a = bot(new Game(D, {}, start("det-1")), "det-1");
@@ -80,20 +114,11 @@ test("a run survives a save and reload in the middle", () => {
   const meta1 = {}, meta2 = {};
   const g1 = new Game(D, meta1, start("save-1"));
   const g2 = new Game(D, meta2, start("save-1"));
-  // Play both to turn 40, then reload g2 from JSON and finish both.
-  const rngA = new Rng("x"), rngB = new Rng("x");
-  for (const [g, rng] of [[g1, rngA], [g2, rngB]]) {
-    let guard = 0;
-    while (g.state.turn < 40 && guard++ < 5000) {
-      const p = g.step();
-      if (p.type === "turn_end") continue;
-      if (p.type === "ended") break;
-      g.answer(p.type === "matching" ? { action: "join", idx: 0 } : p.type === "new_project" ? { type: "empirical", topic: p.topics[0].id } : p.type === "qa" ? { answers: {} } : p.type === "rebuttal" ? { responses: {} } : { choice: p.choices ? p.choices[0].i : 0 });
-      void rng;
-    }
-  }
+  // Play both to turn 40 with the same bot, reload g2 from JSON, then finish both the same way.
+  bot(g1, "save-1", 40);
+  bot(g2, "save-1", 40);
   const reloaded = new Game(D, meta2, JSON.parse(JSON.stringify(g2.state)));
-  const a = bot(g1, "save-1"), b = bot(reloaded, "save-1");
+  const a = bot(g1, "save-1b"), b = bot(reloaded, "save-1b");
   assert.equal(a.turn, b.turn);
   assert.equal(a.ending.id, b.ending.id);
 });

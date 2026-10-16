@@ -269,6 +269,7 @@ export function workDay(G, p, eff, log) {
   if (hasTrait(G, "perfectionist")) dayQ *= 1.1;
   if (hasTrait(G, "imposter_syndrome")) dayQ *= 1.05;
   if (st.stats && hasTrait(G, "stats_nerd")) dayQ += 5;
+  if ((p.type === "study" || p.type === "system") && hasTrait(G, "career_switcher")) dayQ += 4;
   if (st.comp === "C" && s.advisor && s.advisor.archetype === "kind_funded") dayQ *= 1.1;
   if (p.revise) {
     // Revising addresses the weakest components.

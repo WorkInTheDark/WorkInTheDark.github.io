@@ -13,9 +13,11 @@ A browser game on the site, inspired by 《读博模拟器》, in which the play
 |---|---|
 | Language | English |
 | Field | NLP × HCI (human-centered AI, clinical AI flavor) |
-| Turn length | Two weeks, with a biweekly routine that repeats until something interrupts |
-| Visible stats | Energy, Sanity, Citations (+ h-index), Papers |
-| Hidden stats | Skills, relationships, network, health |
+| Turn length | Two weeks. Each turn you choose what to do (several choices of two days each), then end the turn and read a report. No routine and no auto-play (changed 2026-10-16) |
+| Visible stats | Energy, Sanity, Citations (+ h-index), Papers, and the five skills (made visible again 2026-10-16, since actions now train them directly) |
+| Hidden stats | Relationships, network, health |
+| Character | Three traits rolled at random. No background or origin choice; those became traits (Industry Veteran, Career Switcher, Master's Head Start, International Student) (2026-10-16) |
+| Event frequency | About one random event every four turns, plus events tied to milestones; routine news goes into the turn report instead of pop-ups (2026-10-16) |
 | Not stats | Money and funding (funding becomes a hidden trait of the advisor) |
 | Effects | Rolled within a range, written `+7±3` |
 | Before choosing | Arrows only, never numbers |
@@ -56,7 +58,7 @@ Open questions are collected in section 19.
 
 ## 2. A run at a glance
 
-1. **Create a character:** name, background, origin, traits (section 6).
+1. **Create a character:** a name and three random traits (section 6).
 2. **Year 1, fall:** orientation, coursework, meet three candidate advisors, choose one by the end of the semester (section 7.2).
 3. **Years 1–2:** courses, TA duty, first projects, first submissions, quals, first internship applications.
 4. **Years 3–4:** more papers, internships, conferences, mentoring, the thesis proposal.
@@ -148,65 +150,70 @@ ARR rejections can be resubmitted to a later cycle with previous reviews attache
 
 ---
 
-## 4. The routine
+## 4. The turn plan
 
-### 4.1 Day budget
-Each turn has 10 weekday blocks and 4 weekend blocks, one block per day.
+Changed on 2026-10-16 at Arthur's request: the repeating routine and auto-continue were removed. Every turn is now an explicit choice.
 
-Fixed commitments use weekday blocks first:
+### 4.1 Choices per turn
+- A turn is 10 weekdays plus a weekend.
+- Fixed commitments take weekdays first:
 
-| Commitment | Days per turn | When |
-|---|---|---|
-| Courses | 3 (Year 1), 2 (Year 2 fall) | During coursework |
-| TA duty | 2, or 3 in T8 and T18 | Semesters you are assigned |
-| Meetings (lab + advisor) | 1, or 2 with a Micromanager | Always |
-| Internship | all 10 | Internship turns |
+  | Commitment | Days | When |
+  |---|---|---|
+  | Courses | 3 in Year 1, 2 in Year 2 fall | Coursework terms |
+  | TA duty | 2 (3 at finals) | TA semesters |
+  | Meetings | 1 (2 with a Micromanager) | Always |
+  | Defense prep | 5 | Defense prep |
+  | Family | 2 | Parent trait |
+  | Conference trip | 4 | The turn of a trip |
+  | Internship | all 10 | Internship turns |
 
-The rest are free days. Weekend days are off unless the player assigns work to them (overtime).
+- **Choices:** the remaining days divide into choices of two days each (`turn.days_per_choice`). Typically 3 choices in Year 1 and 4 afterwards.
+- **Fewer choices** when you are sick (5 fewer days) or burned out (half the free days).
+- **Leftover days** (an odd day, or choices you didn't use) become rest.
 
-### 4.2 Activities
+### 4.2 What you can choose
+- **Projects:** "Work on" each active project. This advances the current stage and trains that stage's skill.
+- **Everyday activities:**
+  - Read papers
+  - Network
+  - Help labmates
+  - Mentor (once you have a mentee)
+  - Practice talks and interviews
+  - Rest
+  - Exercise
+  - See friends
+  - Hobby
+  - Call family
+- **Repeats:** you can pick the same thing more than once to focus on it.
+- **Arrows:** every card shows arrows for its visible effects, never numbers.
+- **Time-limited options** that use a choice: "Apply for summer internships" (Years 2–5, T2–T7) and "Apply for a fellowship" (Years 1–3, T3–T6).
+- **Free options**, shown as checkboxes under "Also this turn":
+  - **Submit a project** at its deadline (with an optional preprint).
+  - **Schedule the thesis proposal** once you are eligible.
+  - **Start defense preparation** once you are eligible.
+  - **Go on the job market**, Year 4 and later, T1–T4.
+  - **Start a new project.**
+- **Weekends:** off by default, or you can work them on one thing. That is two overtime days, costing Energy, Sanity and Health.
+- **"Same as last turn"** fills in last turn's picks; nothing is pre-selected otherwise.
 
-| Group | Activity | Main effects |
-|---|---|---|
-| Research | Work on project X | Advances the project's current stage (section 8) |
-| Research | Read broadly | Knowledge, taste; chance of an idea spark |
-| Community | Network | Network; small citation bump for recent papers; chance of a collaboration event |
-| Community | Help labmates | Labmate relationship; chance of a co-authorship |
-| Community | Mentor (Year 3+, if you have a mentee) | Mentee progress, relationships |
-| Career | Career prep | Applications and interview prep (only in application windows) |
-| Self | Rest | Energy |
-| Self | Exercise | Energy, health, a little Sanity |
-| Self | Social | Sanity, friends |
-| Self | Hobby | Sanity |
-| Self | Family / partner | Family relationship, Sanity |
+### 4.3 Turn order
+1. **Start of turn:** the calendar and statuses update, then the things that need you before you plan:
+   - advisor matching
+   - quals, proposal and defense Q&A on their dates
+   - reviews arriving, with the rebuttal
+   - a Findings decision
+   - internship and job offers
+   - the Dark Angel's Question
+2. **The plan:** you choose and press End turn.
+3. **The two weeks play out:** days resolve, passive effects apply, and health and burnout are checked.
+4. **Events:** at most one random event (25%, or 5% if something else already happened this turn). Also arc follow-ups, and events tied to submissions, decisions, conferences, internships, defense prep, the job market and model releases.
+5. **End of turn:** submissions and revisions are finalized, then citations, tips and achievements.
+6. **The turn report:** stat and skill changes, project progress, and news (decisions, conference trips, results, warnings).
 
-Unassigned weekend days count as a weekend off: half Rest, half Social.
-
-### 4.3 Auto-continue
-The player sets the routine once and presses **Continue**. Turns then run on their own until one of these interrupts:
-- an event that needs a choice
-- a deadline within the next turn
-- a milestone (matching, quals, proposal, defense, job market steps)
-- reviews arriving
-- Energy or Sanity dropping below 25 for the first time in a stretch
-- the routine becoming invalid (free days changed)
-- the annual progress review
-
-**Next turn** plays exactly one turn. A setting can also stop at the end of each semester.
-
-### 4.4 Turn resolution order
-1. **World tick:** topic hype, hiring climate, scheduled world events.
-2. **Calendar:** semester changes, TA assignments, deadlines, status durations tick down.
-3. **Fixed commitments** are computed, then free days.
-4. **Scheduled events:** milestones, review results, story-arc follow-ups.
-5. **Random events:** 0–2 are drawn (section 11.5).
-6. **Re-plan if needed.** If events took days, they come from the lowest-priority activity; the player can adjust before resolving.
-7. **Resolve days:** activity effects, project progress, quality, skill growth.
-8. **Passive updates:** relationship decay, health, citations, isolation check.
-9. **Thresholds:** statuses (burnout, sick), achievements, interrupts for next turn.
-10. **Log and autosave.**
-
----
+**Decisions that no longer pop up:**
+- Acceptances, rejections and revise-and-resubmits are reported, not asked about. A rejected paper automatically goes back to revision for the next deadline, and you can change its target or shelve it from the project card.
+- Conference trips happen automatically: you travel if there's money, otherwise there's a chance of a travel grant, otherwise you present remotely.
 
 ## 5. Stats
 
@@ -218,16 +225,12 @@ The player sets the routine once and presses **Continue**. Turns then run on the
 | **Sanity** | 0–100 | Mood and motivation in one. Mostly moved by events; social, hobby and family days restore it; isolation and overtime wear it down. |
 | **Citations** | count, plus h-index | Grow from published papers and preprints (section 8.8). |
 | **Papers** | list | Accepted papers, plus what is under review. |
+| **Skills** | 0–100 each | Research taste, coding, writing, presenting, domain knowledge. They grow with what you choose. |
 
 ### 5.2 Hidden
 
 | Stat | Range | Start | What it affects |
 |---|---|---|---|
-| Research taste | 0–100 | by background | Novelty of ideas, choosing good problems |
-| Coding | 0–100 | by background | Speed and soundness of experiments and systems |
-| Writing | 0–100 | by background | Clarity of papers; rebuttal success |
-| Presenting | 0–100 | by background | Talks, posters, committee Q&A, interviews |
-| Domain knowledge | 0–100 | by background | Study design, clinical collaborations, lit review speed |
 | Advisor relationship | 0–100 | 50 | Advisor support, letters, how meetings go |
 | Labmates | 0–100 | 50 | Help, co-authorships, lab events |
 | Family / partner | 0–100 | 60 | Support during bad events |
@@ -243,7 +246,7 @@ Stat ids used in data files: `energy`, `sanity`, `citations`, `taste`, `coding`,
 - Weekday work day: `-3±1`. Overtime (weekend work) day: `-5±2`.
 - Rest day: `+8±2`. Exercise, Social, Hobby or Family day: `+5±2`. Weekend day off: `+6±2`.
 - Sleep baseline per turn: `+6`.
-- Target behavior: a normal routine (weekdays on, weekends off) is roughly energy-neutral; one full crunch turn costs about 45; two crunch turns in a row put you in the red.
+- Target behavior: a normal turn (weekdays on, weekends off) is roughly energy-neutral; one full crunch turn costs about 45; two crunch turns in a row put you in the red.
 - Efficiency multiplier: `clamp(0.4 + 0.012 × energy, 0.4, 1.0)`. At 50 or more you work at full speed; at 0, at 40%.
 
 **Sanity**
@@ -275,7 +278,7 @@ Players learn about hidden stats the way real students do, indirectly:
 ### 5.5 Rolled effects and arrows
 - `+7±3` rolls a whole number in [4, 10] from a triangular distribution peaking at 7, so most rolls land near the middle.
 - The roll is then scaled by traits and statuses (for instance, Resilient takes Sanity losses ×0.7) and clamped to the stat's range.
-- **Before choosing**, each choice shows arrows for its visible effects only (Energy, Sanity, Citations), derived automatically from the sign of each effect's center:
+- **Before choosing**, each choice shows arrows for its visible effects only (Energy, Sanity, Citations and the five skills), derived automatically from the sign of each effect's center:
   - `↑` / `↓` for small effects, `↑↑` / `↓↓` when the center is 10 or more (pending confirmation, section 19).
   - `↕` when the outcome depends on a check and success and failure point in opposite directions.
   - Hidden effects never get an arrow; the choice wording hints at them.
@@ -296,32 +299,22 @@ Temporary effects with a duration, shown as chips under the stats.
 | Injured | 3 turns | No Exercise |
 | Defense prep | 6 turns | 5 fixed days per turn on the thesis and slides |
 | Visa pending | until resolved | Blocks international travel |
-| On internship | internship turns | Replaces the routine (section 10.2) |
+| On internship | internship turns | Weekdays go to the internship; only the weekend is yours (section 10.2) |
 | On leave | chosen length | No research; Sanity and Health recover |
 
 ---
 
 ## 6. Character creation
 
-### 6.1 Background (pick one)
-
-| Background | Starting skills | Twist |
-|---|---|---|
-| Straight from undergrad | all skills 20–30 | Energy cap +10; misses some unwritten rules early |
-| Master's first | 30–40 | Starts with a half-finished project from the Master's |
-| Industry returnee | Coding 50, Writing 25, Network 35 | Slow processes hit Sanity ×1.2; better internship odds |
-| Career switcher (from psychology, nursing, design…) | Domain 55, Coding 15 | Study-type projects get a bonus; coding catch-up events |
-
-### 6.2 Origin (pick one)
-- **Domestic.**
-- **International:** visa layer (renewals, paperwork, travel lead times), family abroad (time-zone calls, long trips home), holiday differences, more Family decay.
-
-### 6.3 Traits
-Each character has three traits: the player picks one from three offered, and two are random (one reroll allowed). The target pool is 40; a draft of 24 is in Appendix B. Every trait has an upside and a downside.
-
-Some traits are earned during a run, for example Rejection-Hardened (after five rejections, rejections hurt Sanity half as much) or Burnout Survivor.
-
----
+Changed on 2026-10-16: there is no background or origin choice, and no trait picking.
+- **Setup:** you enter a name; three traits are rolled at random from the pool (Appendix B plus the four below). Contradictory pairs, such as Code Wizard and Wordsmith or Early Bird and Night Owl, are never rolled together.
+- **Starting point:** everyone begins from the same baseline skills (`start.skills` in `config.yml`, ±3), adjusted by traits.
+- **The old backgrounds and origin are now traits:**
+  - **Industry Veteran:** coding and network much higher, writing a bit lower.
+  - **Career Switcher:** domain knowledge high, coding low, user studies go better.
+  - **Master's Head Start:** you arrive with a half-finished project.
+  - **International Student:** visa events, family abroad, extra network at conferences. Content conditions on `origin: international` still work.
+- **Daily mode:** everyone gets the same traits and world on the same day.
 
 ## 7. People
 
@@ -583,7 +576,7 @@ Six layers run at the same time; each contributes scheduled events and a random 
 ### 10.2 Career
 - **Internships:**
   - Applications T2–T8 (career-prep days raise the odds), interviews T6–T14, offers by T15.
-  - Internship mode T20–T25: the routine is replaced by an internship project with its own event pool (mentor archetype, abundant compute, a paper policy or NDA, the return offer).
+  - Internship mode T20–T25: weekdays go to the internship (you only choose your weekends), with its own event pool (mentor archetype, abundant compute, a paper policy or NDA, the return offer).
   - Effects: Network, Coding, possibly a paper, and a return-offer flag that unlocks endings.
 - **Fellowships** (Years 1–3): winning one removes TA duty for the year and adds prestige for the job market. Funding matters through TA days, not a meter.
 - **Job market** (final year):
@@ -916,24 +909,22 @@ Episode URLs are `/phd101/<chapter>.<episode>/`, and chapters get renumbered, so
 ### 14.2 Main turn screen
 
 ```
-Year 2 · T4 · Oct 13–26 · Fall                     [Codex] [≡]
-Energy ███████░░░  Sanity █████░░░░░  Citations 37 (h 3)  Papers 2
-[Deadline mode] [Jet-lagged · 1]
+Year 2 · Oct 13–26 · Fall                     [Codex] [How to play] [Leave] [Menu]
+Energy ███████░░░ 68   Sanity █████░░░░░ 52   Citations 37 (h 3)   Papers 2 +1
+Taste ▃ 41  Coding ▅ 55  Writing ▄ 47  Presenting ▃ 38  Knowledge ▅ 52
+[Advisor: the Dark Angel] [TA]
 
-Upcoming  T5 CHI decisions · T8 ARR-C reviews · T9 Winter break
+LAST TURN: Y2 SEP 29–OCT 12
+  Energy 75 → 68   Writing 45 → 47   Citations 31 → 37
+  Beyond Accuracy: Writing 40% → 62%
+  Reviews are in for "Who Reads the Explanation?": 3, 4, 2 out of 5.
 
-Projects
-  ▸ Beyond Accuracy: Clinician-Centered LLM Evaluation   Writing 60% → ARR-C
-  ▸ Who Reads the Explanation? (study)                  IRB · waiting
-
-This turn  Fixed: TA ▮▮  Meetings ▮      Free 7 · Weekend 0/4
-  Beyond Accuracy      − ▮▮▮▮ +
-  Read broadly         − ▮    +
-  Exercise             − ▮    +
-  Social               − ▮    +
-
-[Next turn]                                        [Continue ▸▸]
-Log: The GPU queue had 412 jobs ahead of yours. You read a paper instead.
+THIS TURN                                                        ● ● ○ ○
+  Choose 4 things to do these two weeks (the rest goes to TA duty).
+  [Work on "Beyond Accuracy" ×2]  [Read papers]  [See friends]  [Rest] ...
+  Weekends: [Off (recover) ▾]
+  Also this turn:  ☑ Submit "Beyond Accuracy" to ACL   ☐ Apply for a fellowship
+  [Same as last turn]                                         [End turn ▸]
 ```
 
 ### 14.3 Event card
@@ -986,12 +977,12 @@ assets/phd-sim/data.json         # Jekyll-rendered JSON: game data + PhD 101 map
 assets/js/phd-sim/
   main.js                        # boot, load data, mount UI
   engine/                        # pure logic, no DOM; runs in browser and Node
-    state.js rng.js calendar.js routine.js stats.js effects.js conditions.js
-    events.js templating.js projects.js reviews.js citations.js people.js
-    world.js milestones.js endings.js achievements.js codex.js save.js
+    game.js (turn loop and plans) state.js rng.js util.js data.js derived.js
+    conditions.js effects.js events.js templating.js projects.js reviews.js
+    citations.js people.js world.js milestones.js endings.js achievements.js save.js
   ui/                            # rendering only
-    hud.js planner.js board.js eventcard.js log.js endcard.js codex.js
-    minigames/rebuttal.js …
+    app.js (flow and input) gameview.js (stats, planner, report, projects, log)
+    prompts.js (events, rebuttal, Q&A, matching) screens.js (setup, codex, end card)
 tools/phd-sim/                   # excluded from the site build
   export-data.rb                 # YAML → JSON with the same shape as data.json
   validate.mjs                   # schema and reference checks
@@ -1103,7 +1094,7 @@ Design targets to tune toward, to be calibrated with Arthur's stories and playte
 
 | Measure | Target |
 |---|---|
-| Five-year run length | 25–40 minutes with the routine |
+| Five-year run length | 25–40 minutes (one plan per turn, about 0.5 pop-ups per turn) |
 | Median time to graduate | 5.0–5.5 years |
 | Extends past Year 6 | 10–20% of runs |
 | Hits the Year 8 cap | under 5% |
@@ -1117,17 +1108,15 @@ Design targets to tune toward, to be calibrated with Arthur's stories and playte
 
 Every number above maps to a knob in `config.yml`.
 
-**Measured on v1** (`simulate.mjs 1000`, four bot policies, 2026-10-15):
-- **Graduation:** most graduates finish in years 5–6. Median elapsed time is 4.4 years for balanced play and 6.0 for slackers. 92% of balanced runs graduate, but only 66% of runs that work every weekend do.
-- **Leaving early:** about 15% of runs. Bots pick exits at random more often than people would.
-- **Tenure track:** about 1 in 7 graduates.
-- **Acceptance (first-author, decided):** about 38% at top venues including Findings, 35% at mid-tier venues and 65% at workshops. By year of submission it climbs from about 20% in Year 2 to about 62% in Year 5 as skills grow.
-- **Citations at the end:** median about 140 for balanced play. Each project keeps one citation stream across resubmissions.
-- **Sanity and burnouts:**
-  - Balanced play averages Sanity about 72 and burns out about 0.6 times per run.
-  - Working every weekend averages about 9 and burns out about 7 times.
-- **Ending reachability:** a random-choice probe reaches all 26 endings.
-- **Random-event overlap between consecutive runs:** about 50%, above the 35% target. With about 230 drawable events and many tied to specific advisors, project types or hooks, more content is the main lever.
+**Measured after the 2026-10-16 redesign** (`simulate.mjs 1000`, four bot policies):
+- **Graduation:** a reasonable player (mostly research, reacting to Energy and Sanity) graduates 87% of the time, typically in Year 5, with a median of 4.4 years elapsed and no burnouts.
+- **Crunch:** working every weekend still graduates 78% of the time but burns out about 10 times.
+- **Neglecting research:** bots that mostly skip it graduate under 40% of the time, usually as Eternal Students.
+- **Pop-ups:** about 0.4–0.6 per turn, counting events, the rebuttal, Q&A and offers. Before the redesign it was more than 1 per turn.
+- **Acceptance (first-author, decided):** about 30% at top venues including Findings, 26% mid-tier, 59% workshops. By year of submission: 11% in Year 2, 22% in Year 3, 36% in Year 4, 42% in Year 5.
+- **Citations at the end:** median about 120 for a reasonable player.
+- **Endings:** every one of the 26 is reached across the simulator and a random-choice probe.
+- **Random-event overlap between consecutive runs:** about 30%, now under the 35% target because each run sees fewer events.
 
 ---
 
@@ -1136,7 +1125,7 @@ Every number above maps to a knob in `config.yml`.
 ### Phase 1: engine and vertical slice (Years 1–2)
 **Builds:**
 - Minifier check (section 15.5), page shell, styles.
-- Turn loop, routine, auto-continue interrupts.
+- Turn loop (originally a routine with auto-continue; replaced by per-turn plans on 2026-10-16).
 - All stats (visible and hidden), rolled effects, arrows, statuses.
 - 12 traits, 4 backgrounds × 2 origins.
 - Advisor matching with 6 archetypes including Kind and Funded; labmates.

@@ -3,7 +3,7 @@ import { escapeHtml } from "../engine/util.js";
 
 export const esc = escapeHtml;
 
-const SHORT = { energy: "Energy", sanity: "Sanity", citations: "Citations" };
+const SHORT = { energy: "Energy", sanity: "Sanity", citations: "Citations", progress: "Progress", taste: "Taste", coding: "Coding", writing: "Writing", presenting: "Presenting", knowledge: "Knowledge" };
 const SYM = { up: ["↑", "↑↑"], down: ["↓", "↓↓"], mixed: ["↕", "↕"] };
 const WORD = { up: "up", down: "down", mixed: "could go either way" };
 
@@ -17,7 +17,8 @@ export function arrowsHtml(arrows) {
   }).join("") + "</span>";
 }
 
-const DELTA_LABEL = { energy: "Energy", sanity: "Sanity", citations: "Citations", days: "Free days this turn", days_next: "Free days next turn" };
+const DELTA_LABEL = { energy: "Energy", sanity: "Sanity", citations: "Citations", days: "Free days this turn", days_next: "Free days next turn",
+  taste: "Research taste", coding: "Coding", writing: "Writing", presenting: "Presenting", knowledge: "Domain knowledge" };
 
 export function deltasHtml(list) {
   if (!list || !list.length) return "";

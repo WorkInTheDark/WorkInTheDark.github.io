@@ -1,4 +1,5 @@
-# Traits. The engine applies each trait's effect by id; these are the player-facing texts.
+# Traits. Three are rolled at random for every new PhD. The engine applies each trait's effect by id;
+# these are the player-facing texts. Pairs that contradict each other are never rolled together (see state.js).
 start:
   - { id: night_owl,         name: "Night Owl",         up: "Overtime costs less Energy.",                         down: "Early meetings cost extra Sanity." }
   - { id: early_bird,        name: "Early Bird",        up: "Works 5% faster.",                                    down: "Deadline nights cost extra Energy." }
@@ -24,6 +25,10 @@ start:
   - { id: musician,          name: "Musician",          up: "Hobby days restore 50% more Sanity.",                 down: "Gigs occasionally eat a day." }
   - { id: stats_nerd,        name: "Stats Nerd",        up: "Analysis stages produce sounder work.",               down: "Methods reviewers love you a bit too much." }
   - { id: optimist,          name: "Optimist",          up: "Sanity recovers a little every turn.",                down: "Deadlines are always closer than they appear." }
+  - { id: international,     name: "International Student", up: "Extra network at conferences; two sets of holidays.", down: "Visas, time zones, and family far away." }
+  - { id: industry_veteran,  name: "Industry Veteran",  up: "Coding and network start much higher.",              down: "Academic writing starts lower." }
+  - { id: career_switcher,   name: "Career Switcher",   up: "Domain knowledge starts high; user studies go better.", down: "Coding starts lower." }
+  - { id: head_start,        name: "Master's Head Start", up: "You arrive with a half-finished project.",          down: "It comes with someone else's old decisions." }
 earned:
   - { id: rejection_hardened, name: "Rejection-Hardened", up: "Rejections hurt half as much.", down: "" }
   - { id: burnout_survivor,   name: "Burnout Survivor",   up: "You know your limits now: Sanity recovers faster.", down: "" }
