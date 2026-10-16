@@ -1,103 +1,89 @@
 # Venues and their (approximate, game-only) yearly cycles. Offsets count turns after the deadline.
 # tier: top | mid | workshop | journal. Findings is an outcome of ARR, not a venue.
+# field: nlp | hci. A paper only goes to venues of its own field (Arthur, 2026-10-16): empirical and
+# dataset papers are NLP, studies and systems are HCI, and a position paper is one or the other.
 - id: arr
   name: ARR
+  field: nlp
   tier: top
   findings: true
-  types: [empirical, dataset, position, study]
+  types: [empirical, dataset, position]
   weights: { N: 0.3, S: 0.45, C: 0.25 }
-  threshold: 74
+  threshold: 76
   cycles:
     - { deadline: 3,  name: NAACL, reviews_in: 5, rebuttal: true, decision_in: 8, conference_in: 13 }
     - { deadline: 12, name: ACL,   reviews_in: 5, rebuttal: true, decision_in: 8, conference_in: 11 }
     - { deadline: 19, name: EMNLP, reviews_in: 5, rebuttal: true, decision_in: 9, conference_in: 13 }
 - id: chi
   name: CHI
+  field: hci
   tier: top
   revise_resubmit: true
-  types: [study, system]
+  types: [study, system, position]
   weights: { N: 0.4, S: 0.3, C: 0.3 }
-  threshold: 74
+  threshold: 76
   cycles:
     - { deadline: 1, name: CHI, reviews_in: 4, rebuttal: false, decision_in: 4, revision_due_in: 7, final_in: 9, conference_in: 16 }
-- id: neurips
-  name: NeurIPS
-  tier: top
-  types: [empirical, dataset]
-  weights: { N: 0.4, S: 0.45, C: 0.15 }
-  threshold: 75
-  cycles:
-    - { deadline: 19, name: NeurIPS, reviews_in: 6, rebuttal: true, decision_in: 9, conference_in: 15 }
-- id: iclr
-  name: ICLR
-  tier: top
-  types: [empirical]
-  weights: { N: 0.4, S: 0.45, C: 0.15 }
-  threshold: 75
-  cycles:
-    - { deadline: 3, name: ICLR, reviews_in: 3, rebuttal: true, decision_in: 8, conference_in: 15 }
 - id: iui
   name: IUI
+  field: hci
   tier: mid
   types: [study, system]
   weights: { N: 0.35, S: 0.35, C: 0.3 }
-  threshold: 67
+  threshold: 69
   cycles:
     - { deadline: 3, name: IUI, reviews_in: 5, rebuttal: true, decision_in: 8, conference_in: 13 }
-- id: amia
-  name: AMIA
-  tier: mid
-  types: [study, system, empirical, dataset]
-  weights: { N: 0.3, S: 0.4, C: 0.3 }
-  threshold: 67
-  cycles:
-    - { deadline: 14, name: AMIA, reviews_in: 6, rebuttal: false, decision_in: 6, conference_in: 18 }
 - id: coling
   name: COLING
+  field: nlp
   tier: mid
   types: [empirical, dataset, position]
   weights: { N: 0.3, S: 0.45, C: 0.25 }
-  threshold: 67
+  threshold: 69
   cycles:
     - { deadline: 7, name: COLING, reviews_in: 6, rebuttal: true, decision_in: 9, conference_in: 17 }
 - id: ws_nlp
   name: "an NLP workshop"
+  field: nlp
   short: Workshop
   tier: workshop
-  types: [empirical, dataset, position, study]
+  types: [empirical, dataset, position]
   weights: { N: 0.35, S: 0.35, C: 0.3 }
-  threshold: 52
+  threshold: 54
   cycles:
     - { deadline: 5,  name: "the EMNLP workshop", reviews_in: 3, rebuttal: false, decision_in: 3, conference_in: 27 }
     - { deadline: 15, name: "the ACL workshop",   reviews_in: 3, rebuttal: false, decision_in: 3, conference_in: 7 }
     - { deadline: 22, name: "the NeurIPS workshop", reviews_in: 3, rebuttal: false, decision_in: 3, conference_in: 12 }
 - id: ws_hci
   name: "an HCI workshop"
+  field: hci
   short: Workshop
   tier: workshop
   types: [study, system, position]
   weights: { N: 0.4, S: 0.3, C: 0.3 }
-  threshold: 52
+  threshold: 54
   cycles:
     - { deadline: 6,  name: "the CSCW workshop", reviews_in: 3, rebuttal: false, decision_in: 3, conference_in: 10 }
     - { deadline: 11, name: "the CHI workshop",  reviews_in: 3, rebuttal: false, decision_in: 3, conference_in: 6 }
 - id: tacl
   name: TACL
+  field: nlp
   tier: journal
   journal: true
   types: [empirical, dataset, position]
   weights: { N: 0.3, S: 0.45, C: 0.25 }
-  threshold: 71
+  threshold: 73
   cycles:
     - { deadline: 2,  name: TACL, reviews_in: 8, rebuttal: false, decision_in: 8, conference_in: 0 }
     - { deadline: 15, name: TACL, reviews_in: 8, rebuttal: false, decision_in: 8, conference_in: 0 }
 - id: tochi
   name: TOCHI
+  field: hci
   tier: journal
   journal: true
   types: [study, system, position]
   weights: { N: 0.35, S: 0.35, C: 0.3 }
-  threshold: 71
+  threshold: 73
   cycles:
     - { deadline: 8,  name: TOCHI, reviews_in: 9, rebuttal: false, decision_in: 9, conference_in: 0 }
     - { deadline: 20, name: TOCHI, reviews_in: 9, rebuttal: false, decision_in: 9, conference_in: 0 }

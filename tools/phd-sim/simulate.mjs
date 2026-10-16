@@ -6,7 +6,7 @@ import { dirname, join } from "node:path";
 import { prepareData, newRun, Game, firstAuthorPubs, totalCitations, hIndex } from "../../assets/js/phd-sim/engine/index.js";
 import { Rng } from "../../assets/js/phd-sim/engine/rng.js";
 import { TURNS } from "../../assets/js/phd-sim/engine/state.js";
-import { activeProjects, overallPct, currentStage } from "../../assets/js/phd-sim/engine/projects.js";
+import { activeProjects } from "../../assets/js/phd-sim/engine/projects.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const D = prepareData(JSON.parse(readFileSync(join(here, "out", "data.json"), "utf8")));
@@ -22,7 +22,6 @@ function pickAction(p, policy, rng, stats) {
   const has = (id) => A.some((a) => a.id === id);
   const sanityOpp = by("opportunity").find((a) => (a.arrows || []).some((x) => x.stat === "sanity" && x.dir === "up"));
   const boostOpp = by("opportunity").find((a) => (a.arrows || []).some((x) => x.stat === "progress"));
-  const submit = A.find((a) => a.id.indexOf("submit:") === 0);
   const crunch = A.find((a) => a.id.indexOf("crunch:") === 0);
   // Bots skip papers that are already finished and only waiting for a deadline.
   const projects = by("project").filter((a) => a.label.indexOf("Polish") !== 0);
@@ -31,14 +30,12 @@ function pickAction(p, policy, rng, stats) {
   if (policy === "random") return rng.pick(A).id;
   if (policy === "slacker") {
     if (by("opportunity").length && rng.chance(0.8)) return rng.pick(by("opportunity")).id;
-    if (submit && rng.chance(0.5)) return submit.id;
     if (by("milestone").length && rng.chance(0.25)) return by("milestone")[0].id;
     if (rng.chance(0.45) || !projects.length) return has("recharge") ? "recharge" : A[0].id;
     return rng.pick(projects).id;
   }
   if (policy === "workaholic") {
     if (stats.energy < 12 || stats.health < 20) return care();
-    if (submit) return submit.id;
     if (crunch) return crunch.id;
     if (by("milestone").length) return by("milestone")[0].id;
     if (boostOpp) return boostOpp.id;
@@ -48,7 +45,6 @@ function pickAction(p, policy, rng, stats) {
   if (policy === "pusher" || policy === "swinger") {
     if (stats.energy < (policy === "pusher" ? 25 : 40) || stats.sanity < 30) return has("recharge") ? "recharge" : A[0].id;
     if (stats.health < 40) return care();
-    if (submit) return submit.id;
     if (by("milestone").length) return by("milestone")[0].id;
     if (policy === "swinger" && rng.chance(0.45)) return rng.pick(A.filter((a) => a.kind === "core" || a.kind === "opportunity")).id;
     if (litRead) return litRead.id;
@@ -59,7 +55,6 @@ function pickAction(p, policy, rng, stats) {
   if (stats.energy < 35) return has("recharge") ? "recharge" : A[0].id;
   if (stats.health < 40 && has("recharge")) return "recharge";
   if (stats.sanity < 40) return sanityOpp ? sanityOpp.id : has("recharge") ? "recharge" : A[0].id;
-  if (submit) return submit.id;
   if (by("milestone").length) return by("milestone")[0].id;
   if (boostOpp) return boostOpp.id;
   if (sanityOpp && stats.sanity < 65 && rng.chance(0.6)) return sanityOpp.id;
@@ -93,6 +88,8 @@ function answerPrompt(game, p, policy, rng) {
     }
     case "sys": {
       if (p.sys === "leave") return { choice: p.choices.length - 1 };
+      // A paper due this turn: submit it, unless a slacker can't be bothered.
+      if (p.sys === "submit") return { choice: policy === "slacker" && rng.chance(0.3) ? 2 : policy === "random" ? rng.int(0, 2) : 0 };
       if (p.sys === "internship_apply") return { choice: policy === "slacker" ? 2 : 0 };
       if (p.sys === "first_project") return { choice: rng.int(0, 1) };
       if (p.sys === "decision" && p.choices.length === 3) return { choice: rng.chance(0.8) ? 0 : 1 };
@@ -125,15 +122,15 @@ for (let r = 0; r < RUNS; r++) {
       if (p.type === "error") throw new Error("engine error state");
       if (p.type === "turn_end") {
         sanSum += game.state.stats.sanity; enSum += game.state.stats.energy; hpSum += game.state.stats.health; sanN++;
-        // How long a project takes, from its start until the bar is full (or it's submitted).
+        // How long a project takes, from its start until the draft is done (or it's submitted).
         game.state.projects.forEach((pr) => {
           if (doneAt[pr.id] !== undefined || pr.source !== "player") return;
-          if (pr.status === "submitted" || pr.status === "done" || (pr.status === "active" && !pr.revise && overallPct(game, pr) >= 100)) doneAt[pr.id] = game.state.turn - pr.created;
+          if (pr.status === "submitted" || pr.status === "done" || (pr.status === "active" && !pr.revise && pr.ready)) doneAt[pr.id] = game.state.turn - pr.created;
         });
         continue;
       }
       if (p.type === "plan") {
-        const projectsN = activeProjects(game).filter((x) => !x.revise && overallPct(game, x) < 100).length;
+        const projectsN = activeProjects(game).filter((x) => !x.revise && !x.ready).length;
         const cap = policy === "slacker" || policy === "pusher" || policy === "swinger" ? 1 : 2;
         if (p.canStartProject && projectsN < cap && rng.chance(0.5)) {
           if (game.startNewProject()) continue;

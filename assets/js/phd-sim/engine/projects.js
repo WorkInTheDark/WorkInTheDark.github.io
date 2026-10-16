@@ -1,4 +1,4 @@
-// Research projects: one progress bar with phases along it, daily work, hidden quality, and venue deadlines.
+// Research projects: named stages, daily work, hidden quality, and venue deadlines.
 import { clamp } from "./util.js";
 import { absTurn, yearOf, tOf, TURNS, span, turnDates } from "./state.js";
 import { hasTrait, hasStatus } from "./derived.js";
@@ -9,8 +9,10 @@ function S(id, kind, comp, skill, need, extra) {
   return st;
 }
 
-// Each project is one 0–100% bar. A stage's `need` is its share of the bar; "wait" stages
-// (IRB, recruiting, annotation) are pauses at a point on the bar, `wait` in turns (two weeks each).
+// A project moves through named stages. Work builds hidden progress in the current stage
+// (`need` points); at the end of each turn the stage either completes (a roll that gets likelier
+// the more you've done, certain once you've done it all) or stays. "Wait" stages (IRB, recruiting,
+// annotation) just take time: `wait` in turns (two weeks each).
 export const PROJECT_TYPES = {
   empirical: {
     label: "Empirical NLP",
@@ -45,9 +47,14 @@ export const PROJECT_TYPES = {
   }
 };
 
-// After a rejection or a revise-and-resubmit, the bar sits at 80% and revising fills the rest.
+// After a rejection or a revise-and-resubmit, the project goes back to one Revising stage.
 export const REVISE_STAGE = S("revise", "work", "C", "writing", 20);
-const REVISE_FROM = 80;
+
+// Which community a paper is for: NLP papers go to NLP venues, HCI papers to HCI venues.
+export const FIELD_LABELS = { nlp: "NLP", hci: "HCI" };
+export function fieldOf(p) {
+  return p.field || (p.type === "study" || p.type === "system" ? "hci" : "nlp");
+}
 
 export const STAGE_LABELS = {
   idea: "Idea", lit: "Related work", pilot: "Pilot", experiments: "Experiments", writing: "Writing",
@@ -66,43 +73,65 @@ export function stageNeed(G, p) {
   return currentStage(G, p).need;
 }
 
-// The whole project as one number, 0–100.
-export function overallPct(G, p) {
-  if (p.revise) return clamp(Math.floor(REVISE_FROM + p.progress), REVISE_FROM, 100);
-  const stages = PROJECT_TYPES[p.type].stages;
-  let done = 0;
-  for (let i = 0; i < Math.min(p.stageIdx, stages.length); i++) done += stages[i].need;
-  if (currentStage(G, p).kind !== "wait") done += p.progress;
-  return clamp(Math.floor(done), 0, 100);
+// Adds hidden progress to the current stage (negative for setbacks). Stages only change at the
+// end of the turn, in rollStages.
+export function addProgress(G, p, pts) {
+  const st = currentStage(G, p);
+  if (st.kind === "wait") return;
+  p.progress = clamp(p.progress + pts, 0, stageNeed(G, p));
+  if (pts > 0) p.turnPts = (p.turnPts || 0) + pts;
 }
 
-// Adds progress in points of the whole bar, moving through phases. It stops at a waiting
-// phase (IRB, recruiting, annotation) and at the end of writing. Setbacks stay within the phase.
-export function addProgress(G, p, pts, log) {
-  if (pts < 0) { p.progress = Math.max(0, p.progress + pts); return; }
-  let left = pts;
-  for (let guard = 0; guard < 12 && left > 0; guard++) {
+// End of turn: each project you moved forward either completes its stage or stays in it. The
+// chance grows with the work done in the stage, and it's certain once the work is all there.
+export function rollStages(G, log) {
+  activeProjects(G).forEach(function (p) {
     const st = currentStage(G, p);
-    if (st.kind === "wait") return;
-    const need = stageNeed(G, p);
-    const room = need - p.progress;
-    if (left < room) { p.progress += left; return; }
-    if (st.id === "writing" || st.id === "revise") { p.progress = need; return; }
-    left -= Math.max(0, room);
-    advanceStage(G, p, log);
-  }
+    const worked = (p.turnPts || 0) > 0;
+    p.turnPts = 0;
+    if (worked) p.lastWorked = G.state.turn;
+    if (!worked || st.kind === "wait" || p.ready) return;
+    const frac = p.progress / stageNeed(G, p);
+    if (frac < 1 && !G.rng.chance(Math.pow(frac, G.D.config.progress.roll_curve || 1.5))) return;
+    if (st.id === "writing" || st.id === "revise") {
+      p.ready = true;
+      if (log) log(p.short + ": " + (p.revise ? "the revision is done." : "the draft is done.") + " Ready to submit.");
+    } else {
+      advanceStage(G, p, log);
+    }
+  });
 }
 
-// Ready to submit: at least half of the writing (or the revision) is done.
+// For display: where a project stands, without numbers.
+export function stageInfo(G, p) {
+  const st = currentStage(G, p);
+  const stages = PROJECT_TYPES[p.type].stages;
+  const frac = st.kind === "wait" ? 0 : p.progress / stageNeed(G, p);
+  let hint = "";
+  if (st.kind === "wait") hint = "waiting, about " + Math.max(1, p.wait) * 2 + " weeks";
+  else if (p.pause > 0) hint = "on hold for " + p.pause * 2 + " weeks";
+  else if (p.ready) hint = "ready to submit";
+  else hint = frac < 0.35 ? "just started" : frac < 0.75 ? "making progress" : "nearly there";
+  return {
+    label: p.revise ? STAGE_LABELS.revise : STAGE_LABELS[st.id],
+    n: p.revise ? stages.length : Math.min(p.stageIdx, stages.length - 1) + 1,
+    of: stages.length,
+    hint: hint,
+    ready: !!p.ready && (st.id === "writing" || st.id === "revise"),
+    wait: st.kind === "wait"
+  };
+}
+
+// Submittable: the draft (or the revision) is done, or at least a rough draft exists.
 export function isReady(G, p) {
   const st = currentStage(G, p);
-  return (st.id === "writing" || st.id === "revise") && p.progress >= stageNeed(G, p) * 0.5;
+  return (st.id === "writing" || st.id === "revise") && (!!p.ready || p.progress >= stageNeed(G, p) * 0.4);
 }
 
 export function writingCompletion(G, p) {
   const st = currentStage(G, p);
   if (st.id !== "writing" && st.id !== "revise") return 0;
-  return clamp(p.progress / stageNeed(G, p), 0, 1);
+  return p.ready ? 1 : clamp(p.progress / stageNeed(G, p), 0, 1);
 }
 
 function shortTitle(title) {
@@ -115,14 +144,18 @@ export function newProjectObject(G, type, topicId, opts) {
   const s = G.state;
   opts = opts || {};
   const topic = s.world.topics.find(function (t) { return t.id === topicId; }) || s.world.topics[0];
-  const data = G.D.topicById[topic.id] || { titles: [] };
-  const unused = (data.titles || []).filter(function (t) { return topic.used.indexOf(t) < 0; });
+  const field = type === "position" ? (G.rng.chance(0.5) ? "nlp" : "hci") : (type === "study" || type === "system" ? "hci" : "nlp");
+  // Titles come from the project's own field, so an NLP paper never sounds like a CHI paper.
+  const data = G.D.topicById[topic.id] || { titles: {} };
+  const pool = (data.titles && data.titles[field]) || [];
+  const unused = pool.filter(function (t) { return topic.used.indexOf(t) < 0; });
   let title = opts.title || (unused.length ? G.rng.pick(unused) : null);
   if (!title) title = "More on " + topic.name.charAt(0).toUpperCase() + topic.name.slice(1) + " (Part " + (topic.used.length + 1) + ")";
   topic.used.push(title);
   const p = {
     id: "p" + s.nextId++,
     type: type,
+    field: field,
     topic: topic.id,
     title: title,
     short: shortTitle(title),
@@ -157,10 +190,12 @@ export function activeProjects(G) {
 
 // ---- Deadlines -------------------------------------------------------------
 
-export function venuesForType(G, type, opts) {
+// The venues a project can go to: its own field's venues that take its kind of paper.
+export function venuesFor(G, p, opts) {
   opts = opts || {};
+  const field = fieldOf(p);
   return G.D.venues.filter(function (v) {
-    if (v.types.indexOf(type) < 0) return false;
+    if (v.types.indexOf(p.type) < 0 || (v.field && v.field !== field)) return false;
     if (!opts.includeJournals && v.journal) return false;
     if (opts.onlyWorkshops) return v.tier === "workshop";
     return true;
@@ -210,10 +245,10 @@ export function autoTarget(G, p, opts) {
   const s = G.state;
   const lead = Math.max(1, Math.ceil(remainingTurns(G, p)));
   const from = s.turn + Math.max(span(opts.minLead || 1), Math.min(lead, 30));
-  const vs = venuesForType(G, p.type, { onlyWorkshops: opts.onlyWorkshops, includeJournals: false })
+  const vs = venuesFor(G, p, { onlyWorkshops: opts.onlyWorkshops, includeJournals: false })
     .filter(function (v) { return opts.onlyWorkshops || v.tier !== "workshop" || p.type === "position"; });
   let options = vs.map(function (v) { return nextDeadline(G, v.id, from); }).filter(Boolean);
-  if (!options.length) options = venuesForType(G, p.type, {}).map(function (v) { return nextDeadline(G, v.id, from); }).filter(Boolean);
+  if (!options.length) options = venuesFor(G, p, {}).map(function (v) { return nextDeadline(G, v.id, from); }).filter(Boolean);
   options.sort(function (a, b) { return a.turn - b.turn; });
   const soonest = options[0];
   if (!soonest) { p.target = null; return; }
@@ -296,7 +331,7 @@ export function workDay(G, p, eff, log, opts) {
     rate *= AVAIL_WRITING[s.advisor.params.avail - 1];
     if (s.advisor.archetype === "kind_funded") rate *= 0.97;   // meticulous about every figure
   }
-  addProgress(G, p, rate, log);
+  addProgress(G, p, rate);
 
   let dayQ = cfg.quality.base + cfg.quality.per_skill * skill;
   if (hasTrait(G, "perfectionist")) dayQ *= 1.1;
@@ -322,10 +357,10 @@ export function workDay(G, p, eff, log, opts) {
 }
 
 // A reading day nudges projects that aren't in Related work forward a little.
-export function readTrickle(G, p, log) {
+export function readTrickle(G, p) {
   const st = currentStage(G, p);
-  if (st.kind === "wait" || p.pause > 0 || p.revise) return;
-  addProgress(G, p, G.D.config.progress.read_trickle || 0.4, log);
+  if (st.kind === "wait" || p.pause > 0 || p.revise || p.ready) return;
+  addProgress(G, p, G.D.config.progress.read_trickle || 0.4);
 }
 
 export function advanceStage(G, p, log) {
@@ -333,9 +368,10 @@ export function advanceStage(G, p, log) {
   const done = currentStage(G, p);
   p.stageIdx = Math.min(p.stageIdx + 1, stages.length - 1);
   p.progress = 0;
+  p.ready = false;
   const next = currentStage(G, p);
   if (next.kind === "wait") p.wait = G.rng.int(next.wait[0], next.wait[1]);
-  if (log) log(p.short + ": " + STAGE_LABELS[done.id] + " done. Next: " + STAGE_LABELS[next.id] +
+  if (log) log(p.short + ": " + STAGE_LABELS[done.id] + " is done. On to " + STAGE_LABELS[next.id] +
     (next.kind === "wait" ? " (about " + p.wait * 2 + " weeks)" : "") + ".");
   if (next.id === "writing" && !p.target) autoTarget(G, p);
 }

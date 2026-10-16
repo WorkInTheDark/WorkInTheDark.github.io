@@ -11,7 +11,7 @@ import { addStat, addStatus, removeStatus, applyOutcome } from "./effects.js";
 import { fill } from "./templating.js";
 import { arrowsFor } from "./events.js";
 import { drawHook, fireHook, presentEvent, resolveEvent, flavorLine } from "./events.js";
-import { activeProjects, workDay, readTrickle, tickProjects, autoTarget, setTarget, currentStage, stageNeed, overallPct, withdrawRevision, rollMissedDeadlines, STAGE_LABELS, PROJECT_TYPES, writingCompletion, deadlineLabel } from "./projects.js";
+import { activeProjects, workDay, readTrickle, tickProjects, rollStages, autoTarget, setTarget, currentStage, stageNeed, stageInfo, isReady, withdrawRevision, rollMissedDeadlines, STAGE_LABELS, PROJECT_TYPES, writingCompletion, deadlineLabel } from "./projects.js";
 import { accrueCitations } from "./citations.js";
 import { yearlyLabmates } from "./people.js";
 import { tickWorld } from "./world.js";
@@ -27,7 +27,7 @@ const WORK_DAYS = ["read", "network", "help", "mentor", "career", "project", "wr
 // Prompts that come before the turn's focus (you need an advisor before you can plan).
 const PRE_SYS = ["matching", "first_project"];
 // System prompts that count as one of the turn's "things that happen".
-const PROMPT_SYS = ["rebuttal", "qa", "offers", "final_offers", "internship_offer", "the_question", "decision", "conference", "fellowship_apply", "internship_apply", "job_market_start"];
+const PROMPT_SYS = ["submit", "rebuttal", "qa", "offers", "final_offers", "internship_offer", "the_question", "decision", "conference", "fellowship_apply", "internship_apply", "job_market_start"];
 const ACTION_EXTRAS = ["apply_internship", "apply_fellowship", "proposal", "defense", "job_market"];
 
 function oppArrows(def) {
@@ -234,7 +234,7 @@ export class Game {
       out.push({ id: "intern_pace", kind: "core", label: "Keep a healthy pace", desc: "Do good work and leave at six. Weekends are yours.",
         arrows: [{ stat: "sanity", dir: "up", strength: 1 }] });
       activeProjects(this).slice(0, 2).forEach(function (p) {
-        if (currentStage(self, p).kind === "wait" || overallPct(self, p) >= 100) return;
+        if (currentStage(self, p).kind === "wait" || p.ready) return;
         out.push({ id: "intern_weekend:" + p.id, kind: "core", label: "Spend the weekends on “" + p.short + "”", desc: "Your own research doesn't stop for the summer.",
           arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "progress", dir: "up", strength: 1 }] });
       });
@@ -243,35 +243,28 @@ export class Game {
     } else if (!onLeave) {
       activeProjects(this).forEach(function (p) {
         const st = currentStage(self, p);
-        const pct = overallPct(self, p);
+        const info = stageInfo(self, p);
         const ttd = p.target && p.target.turn !== null && p.target.turn !== undefined ? p.target.turn - s.turn : null;
-        if (ttd === 0 && planExtras(self).some(function (x) { return x.id === "submit:" + p.id; })) {
-          const pctW = Math.round(writingCompletion(self, p) * 100);
-          out.push({ id: "submit:" + p.id, kind: "deadline", label: "Polish and submit “" + p.short + "” to " + deadlineLabel(self, p),
-            desc: "Deadline this turn. The draft is " + pctW + "% written; it needs at least half by the deadline.",
-            arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }] });
-          return;
-        }
         // A project that's waiting (IRB, recruiting, annotation) or on hold has nothing to work on this turn.
         if (st.kind === "wait" || p.pause > 0) return;
-        const dl = ttd !== null && ttd > 0 && ttd <= 3 ? " " + deadlineLabel(self, p) + " deadline in " + ttd * WEEKS_PER_TURN + " weeks." : "";
-        if (pct >= 100) {
+        const dl = ttd === 0 ? " " + deadlineLabel(self, p) + " deadline this turn." :
+          ttd !== null && ttd > 0 && ttd <= 3 ? " " + deadlineLabel(self, p) + " deadline in " + ttd * WEEKS_PER_TURN + " weeks." : "";
+        if (info.ready) {
           out.push({ id: "p:" + p.id, kind: "project", label: "Polish “" + p.short + "”",
-            desc: "Ready." + (dl || " Waiting for the next deadline.") + " More work only polishes the writing.",
+            desc: "Ready to submit." + (dl || " Waiting for the next deadline.") + " More work only polishes the writing.",
             arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
         } else {
           out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",
-            desc: (p.revise ? "Revising" : STAGE_LABELS[st.id]) + " · " + pct + "%." + dl + (st.id === "lit" ? " Reading moves this phase faster." : ""),
+            desc: info.label + ", stage " + info.n + " of " + info.of + " (" + info.hint + ")." + dl + (st.id === "lit" ? " Reading moves this stage faster." : ""),
             arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: st.id === "lit" ? 1 : 2 }] });
         }
-        if (ttd === 1 && pct < 100 && !fx.burnout) {
+        if (ttd === 1 && !info.ready && !fx.burnout) {
           out.push({ id: "crunch:" + p.id, kind: "deadline", label: "Crunch on “" + p.short + "”, weekends included",
             desc: "Deadline in 2 weeks. Every day, weekends too.",
             arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }, { stat: "health", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }] });
         }
       });
       planExtras(this).forEach(function (x) {
-        if (x.kind === "submit") return;
         out.push({ id: x.id, kind: "milestone", label: x.label, desc: x.desc, arrows: x.arrows || [] });
       });
       const lit = activeProjects(this).filter(function (p) { return !p.revise && currentStage(self, p).id === "lit" && !(p.pause > 0); });
@@ -336,7 +329,8 @@ export class Game {
     const projects = {};
     s.projects.forEach(function (p) {
       const st = currentStage(self, p);
-      projects[p.id] = { status: p.status, stage: p.revise ? "revise" : st.id, wait: st.kind === "wait", pct: overallPct(self, p) };
+      const info = stageInfo(self, p);
+      projects[p.id] = { status: p.status, stage: info.label, n: info.n, ready: info.ready, hint: info.hint };
     });
     return {
       stats: { energy: s.stats.energy, sanity: s.stats.sanity, health: s.stats.health },
@@ -392,12 +386,17 @@ export class Game {
     }
     if (hasStatus(this, "defense_prep")) fireHook(this, "defense_prep", {}).forEach(function (it) { items.push(it); });
     if (hasStatus(this, "job_market")) fireHook(this, "job_market", {}).forEach(function (it) { items.push(it); });
-    // A deadline two weeks out with the paper far from done weighs on you.
     activeProjects(this).forEach(function (p) {
-      if (!p.target || p.target.turn !== s.turn + 1 || p.loomWarned === p.target.turn) return;
-      if (overallPct(self, p) >= 85) return;
-      p.loomWarned = p.target.turn;
-      self.log("“" + p.short + "” is due in two weeks and it's at " + overallPct(self, p) + "%." + stressHit(self, 3), "bad");
+      if (!p.target || p.target.rrPaper || p.target.journalPaper) return;
+      // A deadline this turn: a card to submit or skip (one per paper, so two can go in together).
+      if (p.target.turn === s.turn && (currentStage(self, p).id === "writing" || p.revise)) {
+        items.push({ kind: "sys", sys: "submit", data: { projectId: p.id } });
+      }
+      // A deadline two weeks out with the paper far from done weighs on you.
+      if (p.target.turn === s.turn + 1 && p.loomWarned !== p.target.turn && !isReady(self, p)) {
+        p.loomWarned = p.target.turn;
+        self.log("“" + p.short + "” is due in two weeks and it's still in " + stageInfo(self, p).label + "." + stressHit(self, 3), "bad");
+      }
     });
     // Usually one event a turn, sometimes two or none. Updates (reviews, decisions, milestones)
     // count toward it, so a busy turn gets fewer random events.
@@ -446,8 +445,7 @@ export class Game {
     const tally = { work: 0, self: 0, social: 0, exercise: 0, overtime: 0, projects: {} };
 
     // Deadlines and milestones first (deadline mode changes how the turn goes).
-    if (action.indexOf("submit:") === 0) applyPlanExtra(this, action, { preprint: true });
-    else if (ACTION_EXTRAS.indexOf(action) >= 0) applyPlanExtra(this, action, {});
+    if (ACTION_EXTRAS.indexOf(action) >= 0) applyPlanExtra(this, action, {});
     if (action.indexOf("crunch:") === 0) addStatus(this, "deadline_mode", 1);
     let opp = null;
     if (action.indexOf("opp:") === 0) {
@@ -501,7 +499,7 @@ export class Game {
       let dayKey = "recharge";
       let effD = eff;
       if (action.indexOf("p:") === 0) dayKey = action;
-      else if (action.indexOf("submit:") === 0 || action.indexOf("crunch:") === 0) dayKey = "p:" + action.slice(action.indexOf(":") + 1);
+      else if (action.indexOf("crunch:") === 0) dayKey = "p:" + action.slice(7);
       else if (ACTION_EXTRAS.indexOf(action) >= 0) dayKey = action === "apply_fellowship" || action === "proposal" || action === "defense" ? "writing_day" : "career";
       else if (action === "read") dayKey = "read";
       else if (opp && opp.def) {
@@ -605,6 +603,7 @@ export class Game {
     const self = this;
     const t = tOf(s.turn);
     tickProjects(this, function (l) { self.log(l); });
+    rollStages(this, function (l) { self.log(l); });
     finishSubmissions(this);
     rollMissedDeadlines(this);
     s.projects.forEach(function (p) { p.days = 0; });
@@ -643,9 +642,11 @@ export class Game {
     s.projects.forEach(function (p) {
       const a = before.projects[p.id], b = after.projects[p.id];
       if (!b) return;
-      const label = function (x) { return x ? x.pct + "% (" + STAGE_LABELS[x.stage] + (x.wait ? ", waiting" : "") + ")" : "new"; };
-      if (!a || a.stage !== b.stage || a.pct !== b.pct || a.status !== b.status) {
+      const label = function (x) { return x ? (x.ready ? "Ready to submit" : x.stage) : "new"; };
+      if (!a || a.stage !== b.stage || a.ready !== b.ready || a.status !== b.status) {
         projects.push({ short: p.short, from: label(a), to: b.status === "submitted" ? "Submitted" : b.status === "done" ? "Published" : label(b) });
+      } else if (p.lastWorked === s.turn && p.status === "active" && !b.ready) {
+        projects.push({ short: p.short, from: null, to: "still in " + b.stage + " (" + b.hint + ")" });
       }
     });
     return {
@@ -806,7 +807,8 @@ export class Game {
     const venues = this.D.venues.filter(function (v) { return !v.journal; });
     const v = this.rng.pick(venues);
     const topic = this.rng.pick(s.world.topics);
-    const titles = (this.D.topicById[topic.id] || {}).titles || [];
+    const tt = (this.D.topicById[topic.id] || {}).titles || {};
+    const titles = (tt.nlp || []).concat(tt.hci || []);
     const title = titles.length ? this.rng.pick(titles) : "A Paper You Helped With";
     s.papers.push({
       id: "x" + s.nextId++, projectId: null, title: title, short: title.split(":")[0], type: "empirical", topic: topic.id,

@@ -1,8 +1,8 @@
 // The main game screen: header and bars, this turn's focus choices, last turn's report, projects, calendar and log.
 import { esc, bar, plural, arrowsHtml, shownStat } from "./common.js";
 import {
-  yearOf, tOf, turnDates, absTurn, span, WEEKS_PER_TURN, PROJECT_TYPES, STAGE_LABELS, currentStage, overallPct,
-  writingCompletion, deadlineLabel, venuesForType, absToLabel, totalCitations, hIndex, firstAuthorPubs
+  yearOf, tOf, turnDates, absTurn, span, WEEKS_PER_TURN, PROJECT_TYPES, STAGE_LABELS, FIELD_LABELS, fieldOf, currentStage, stageInfo,
+  deadlineLabel, venuesFor, absToLabel, totalCitations, hIndex, firstAuthorPubs
 } from "../engine/index.js";
 
 function dateLine(G) {
@@ -38,17 +38,26 @@ export function hudHtml(G) {
     "</section>";
 }
 
+// Where a project stands: its stages in order, the finished ones ticked, the current one in bold.
+function stagePath(G, p) {
+  const stages = PROJECT_TYPES[p.type].stages;
+  if (p.revise) return "<b>Revising</b> for the next deadline";
+  return stages.map(function (st, i) {
+    const name = esc(STAGE_LABELS[st.id]);
+    if (i < p.stageIdx) return '<span class="ps-muted">\u2713 ' + name + "</span>";
+    if (i === p.stageIdx) return "<b>" + name + "</b>";
+    return '<span class="ps-muted">' + name + "</span>";
+  }).join(" \u2192 ");
+}
+
 function projectCard(G, p) {
-  const st = currentStage(G, p);
-  const pct = overallPct(G, p);
-  let progressText = pct + "% · " + (p.revise ? "Revising" : STAGE_LABELS[st.id]);
-  if (st.kind === "wait") progressText += ": waiting, about " + plural(Math.max(1, p.wait) * WEEKS_PER_TURN, "week") + " left";
-  else if (p.pause > 0) progressText += " (on hold for " + plural(p.pause * WEEKS_PER_TURN, "week") + ")";
+  const info = stageInfo(G, p);
+  const progressText = (info.ready ? "Ready to submit" : "Stage " + info.n + " of " + info.of + ": " + info.label + " (" + info.hint + ")");
   let target = "";
   if (p.target && p.target.rrPaper) target = "Revision due in " + plural(Math.max(0, p.target.turn - G.state.turn) * WEEKS_PER_TURN, "week");
   else if (p.target && p.target.journalPaper) target = "Revision goes back when it's done";
   else {
-    const venues = venuesForType(G, p.type, { includeJournals: true });
+    const venues = venuesFor(G, p, { includeJournals: true });
     const opts = venues.map(function (v) {
       const sel = p.target && p.target.venueId === v.id ? " selected" : "";
       return '<option value="' + esc(v.id) + '"' + sel + ">" + esc(v.short || v.name) + " (" + esc(v.tier) + ")</option>";
@@ -58,13 +67,12 @@ function projectCard(G, p) {
     target = '<label class="ps-meta">Target <select class="ps-select" data-action="target" data-id="' + esc(p.id) + '">' + none + opts + "</select></label>" +
       (p.target ? ' <span class="ps-meta">' + esc(deadlineLabel(G, p)) + " deadline " + (ttd === 0 ? "<b>this turn</b>" : "in " + plural(ttd * WEEKS_PER_TURN, "week")) + "</span>" : "");
   }
-  const wc = writingCompletion(G, p);
-  const ready = (st.id === "writing" || st.id === "revise") ? ' <span class="ps-tag">' + (wc >= 0.5 ? "submittable" : "drafting") + "</span>" : "";
+  const ready = info.ready ? ' <span class="ps-tag">ready</span>' : "";
   return '<div class="ps-card ps-project">' +
     '<div class="ps-spread"><h4>' + esc(p.short) + "</h4>" +
     '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="shelve" data-id="' + esc(p.id) + '" aria-label="Shelve this project">Shelve</button></div>' +
-    '<div class="ps-meta">' + esc(PROJECT_TYPES[p.type].label) + ready + "</div>" +
-    '<div class="ps-progress" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="Project progress"><span style="width:' + pct + '%"></span></div>' +
+    '<div class="ps-meta">' + esc(PROJECT_TYPES[p.type].label) + " \u00b7 " + esc(FIELD_LABELS[fieldOf(p)]) + ready + "</div>" +
+    '<div class="ps-small" style="margin:.3rem 0">' + stagePath(G, p) + "</div>" +
     '<div class="ps-meta">' + esc(progressText) + "</div>" +
     '<div class="ps-row" style="margin-top:.35rem">' + target + "</div>" +
     "</div>";
@@ -153,7 +161,7 @@ export function reportHtml(G, report) {
     return '<span class="ps-delta ' + (good ? "ps-delta-good" : "ps-delta-bad") + '">' + esc(d.label) + " " + shownStat(d.stat, d.from) + " \u2192 " + shownStat(d.stat, d.to) + "</span>";
   }).join("");
   const projects = report.projects.map(function (p) {
-    return '<div class="ps-small"><b>' + esc(p.short) + ":</b> " + esc(p.from) + " \u2192 " + esc(p.to) + "</div>";
+    return '<div class="ps-small"><b>' + esc(p.short) + ":</b> " + (p.from ? esc(p.from) + " \u2192 " : "") + esc(p.to) + "</div>";
   }).join("");
   const news = report.news.filter(function (e) { return e.kind !== "line" || /\bdone\b|Next:/.test(e.text) === false; }).map(function (e) {
     if (e.kind === "tip") return '<p class="ps-tip ps-small">' + esc(e.text) + ' <a href="' + esc(e.url) + '" target="_blank" rel="noopener">Read: ' + esc(e.title) + " \u2192</a></p>";

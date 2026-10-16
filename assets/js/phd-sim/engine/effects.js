@@ -92,8 +92,8 @@ function projectEffect(G, key, raw, ctx, res, hidden) {
     const n = rollRange(G, raw);
     const st = currentStage(G, p);
     if (st.kind === "wait") return;
-    // Content values are points of the whole progress bar.
-    addProgress(G, p, n, function (line) { res.notes.push(line); });
+    // Content values are points of hidden progress in the current stage (a stage needs about 8–45).
+    addProgress(G, p, n);
     res.visible.push({ stat: "progress", label: p.short, amount: n });
   } else if (sub.indexOf("quality.") === 0) {
     const c = sub.slice(8);
@@ -109,7 +109,7 @@ function projectEffect(G, key, raw, ctx, res, hidden) {
     res.visible.push({ stat: "delay", label: p.short, amount: Math.round(n) * WEEKS_PER_TURN });
   } else if (sub === "pivot") {
     withdrawRevision(G, p);
-    p.stageIdx = 0; p.progress = 0; p.revise = false;
+    p.stageIdx = 0; p.progress = 0; p.revise = false; p.ready = false;
     p.q.S = { s: 0, n: 0 }; p.q.C = { s: 0, n: 0 };
     p.bonus.N = p.bonus.N * 0.5;
     p.target = null;

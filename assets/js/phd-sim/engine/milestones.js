@@ -10,7 +10,7 @@ import { fill } from "./templating.js";
 import { genCandidates, makeAdvisor, genLabmates, genCommittee } from "./people.js";
 import {
   PROJECT_TYPES, STAGE_LABELS, newProjectObject, activeProjects, autoTarget, components, weakestComp,
-  writingCompletion, isReady, deadlineLabel, venuesForType, nextDeadline, stageNeed
+  writingCompletion, isReady, deadlineLabel, venuesFor, nextDeadline, stageNeed, stageInfo
 } from "./projects.js";
 import { makePaper, generateReviews, rebuttalPrompt, resolveRebuttal, decide, metaLine, nextResubmitTarget } from "./reviews.js";
 import { setCiteMean, rollBreakout } from "./citations.js";
@@ -149,12 +149,16 @@ function firstProjectPrompt(G) {
 
 // ---- Submission -------------------------------------------------------------
 
+// A deadline this turn: one card per paper, so two papers due together can both go in.
 function submitPrompt(G, p) {
   const v = G.D.venueById[p.target.venueId];
-  const pct = Math.round(writingCompletion(G, p) * 100);
   const name = deadlineLabel(G, p);
-  return sys("submit", name + " deadline: this turn",
-    "“" + p.title + "” is " + pct + "% written. You need at least half a draft by the deadline to submit. The more complete the writing, the clearer the paper.",
+  const info = stageInfo(G, p);
+  let state;
+  if (info.ready) state = "“" + p.title + "” is ready.";
+  else if (isReady(G, p)) state = "“" + p.title + "” is a rough draft. It can go in as it is; a more finished draft reads better.";
+  else state = "“" + p.title + "” is barely drafted. Unless the next two weeks go very well, it won't be ready in time.";
+  return sys("submit", name + " deadline: this turn", state,
     [{ label: "Submit and post a preprint", desc: "Citations start early. Everyone will see it." },
       { label: "Submit without a preprint", desc: "Quiet until the decision." },
       { label: "Skip this deadline", desc: "Aim for the next one." }],
@@ -487,8 +491,9 @@ export function buildSys(G, item) {
       if (activeProjects(G).length) return null;
       return firstProjectPrompt(G);
     case "submit": {
+      // An earlier event this turn may have pivoted, shelved or retargeted the paper.
       const p = proj(G, d.projectId);
-      if (!p || p.status !== "active") return null;
+      if (!p || p.status !== "active" || !p.target || p.target.turn !== s.turn || p.submitting) return null;
       return submitPrompt(G, p);
     }
     case "the_question": {
@@ -651,13 +656,13 @@ export function handleSys(G, prompt, choice) {
       if (o === "findings") {
         if (choice === 0) { acceptPaper(G, pp, true); return empty("Findings it is. A publication is a publication."); }
         rejectPaper(G, pp);
-        if (p) { p.status = "active"; p.revise = true; p.progress = 0; nextResubmitTarget(G, p, false); }
+        if (p) { p.status = "active"; p.revise = true; p.progress = 0; p.ready = false; nextResubmitTarget(G, p, false); }
         return empty("You withdraw and start revising.");
       }
       if (o === "revise" || o === "major_revision") {
         if (choice === 0 && p) {
           pp.status = "revise_resubmit";
-          p.status = "active"; p.revise = true; p.progress = 0;
+          p.status = "active"; p.revise = true; p.progress = 0; p.ready = false;
           if (pp.journal) p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: null, journalPaper: pp.id };
           else {
             const c = G.D.venueById[pp.venueId].cycles[pp.cycle];
@@ -667,7 +672,7 @@ export function handleSys(G, prompt, choice) {
           return empty("Revision mode. Every reviewer comment is now a to-do item.");
         }
         rejectPaper(G, pp);
-        if (p) { p.status = "active"; p.revise = true; p.progress = 0; nextResubmitTarget(G, p, false); }
+        if (p) { p.status = "active"; p.revise = true; p.progress = 0; p.ready = false; nextResubmitTarget(G, p, false); }
         return empty("You withdraw it and look for another venue.");
       }
       // Rejected (or desk rejected): sanity hit then a plan.
@@ -677,7 +682,7 @@ export function handleSys(G, prompt, choice) {
       const dd = addStat(G, "sanity", hit);
       if (p) {
         if (choice === 2) { p.status = "shelved"; return { text: "You shelve it. It still taught you something.", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [] }; }
-        p.status = "active"; p.revise = true; p.progress = 0;
+        p.status = "active"; p.revise = true; p.progress = 0; p.ready = false;
         nextResubmitTarget(G, p, choice === 1);
        
         return { text: "Back to the draft. Next stop: " + (deadlineLabel(G, p) || "the next deadline") + ".", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [], tip: s.telemetry.rejections === 1 ? "Critique-Centric Feedback" : null };
@@ -877,13 +882,6 @@ export function planExtras(G) {
   const m = s.milestones;
   const out = [];
   if (!s.advisor || m.graduated) return out;
-  activeProjects(G).forEach(function (p) {
-    if (!p.target || p.target.rrPaper || p.target.journalPaper || p.target.turn !== s.turn || !isReadyish(G, p)) return;
-    const pct = Math.round(writingCompletion(G, p) * 100);
-    out.push({ id: "submit:" + p.id, kind: "submit", label: "Submit \u201c" + p.short + "\u201d to " + deadlineLabel(G, p),
-      desc: "The draft is " + pct + "% written. It needs at least half a draft by the deadline; the more finished, the clearer the paper.",
-      preprint: true, suggested: pct >= 35 });
-  });
   if (y >= 2 && y <= 5 && t >= 2 && t <= 7 && !(s.internship && s.internship.year === y) && !s.flags.on_market && !hasStatus(G, "defense_prep")) {
     out.push({ id: "apply_internship", kind: "apply", slot: true, label: "Apply for summer internships",
       desc: "Twelve weeks of industry research next summer. Offers arrive in March.",
@@ -920,14 +918,6 @@ export function applyPlanExtra(G, id, opts) {
   const s = G.state;
   const cfg = G.D.config;
   const y = yearOf(s.turn);
-  if (id.indexOf("submit:") === 0) {
-    const p = proj(G, id.slice(7));
-    if (!p || p.status !== "active") return;
-    p.submitting = { preprint: !(opts && opts.preprint === false) };
-    addStatus(G, "deadline_mode", 1);
-    fireHook(G, "deadline", { projectId: p.id, venue: deadlineLabel(G, p) }).forEach(function (it) { s.endItems.push(it); });
-    return;
-  }
   switch (id) {
     case "apply_internship":
       s.internship = { applied: "broad", year: y };
@@ -970,6 +960,7 @@ function internshipPaper(G, company) {
   const topic = G.rng.pick(s.world.topics);
   const p = createProject(G, "empirical", topic.id, { stageIdx: 4, seedQuality: 50 + s.stats.coding / 5, bonusN: 2, source: "internship" });
   p.progress = stageNeed(G, p);
+  p.ready = true;
   p.q.C.s = 40 + s.stats.writing * 0.5; p.q.C.n = 1;
   autoTarget(G, p, { minLead: 1 });
 }
@@ -1045,7 +1036,7 @@ function autoReject(G, pp) {
   const p = proj(G, pp.projectId);
   const scores = pp.reviews ? " Scores: " + pp.reviews.map(function (r) { return r.score; }).join(", ") + "." : "";
   if (p) {
-    p.status = "active"; p.revise = true; p.progress = 0;
+    p.status = "active"; p.revise = true; p.progress = 0; p.ready = false;
     nextResubmitTarget(G, p, false);
     log(G, (pp.deskReject ? "Desk rejected at " : "Rejected at ") + pp.venueName + ": \u201c" + pp.short + "\u201d." + scores + stress +
       " You'll revise it for " + (deadlineLabel(G, p) || "the next deadline") + " (change the target or shelve it in Projects).", "bad");
@@ -1059,7 +1050,7 @@ function autoRevise(G, pp) {
   const p = proj(G, pp.projectId);
   if (!p) { rejectPaper(G, pp); return; }
   pp.status = "revise_resubmit";
-  p.status = "active"; p.revise = true; p.progress = 0;
+  p.status = "active"; p.revise = true; p.progress = 0; p.ready = false;
   if (pp.journal) p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: null, journalPaper: pp.id };
   else {
     const c = G.D.venueById[pp.venueId].cycles[pp.cycle];

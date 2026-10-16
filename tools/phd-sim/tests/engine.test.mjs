@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { parseValue, compare } from "../../../assets/js/phd-sim/engine/util.js";
 import { Rng } from "../../../assets/js/phd-sim/engine/rng.js";
 import { prepareData, newRun, rollTraits, Game } from "../../../assets/js/phd-sim/engine/index.js";
-import { activeProjects, overallPct, addProgress, currentStage, PROJECT_TYPES } from "../../../assets/js/phd-sim/engine/projects.js";
+import { activeProjects, addProgress, rollStages, currentStage, stageNeed, fieldOf, autoTarget, PROJECT_TYPES } from "../../../assets/js/phd-sim/engine/projects.js";
 import { resolveRebuttal } from "../../../assets/js/phd-sim/engine/reviews.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -40,9 +40,7 @@ test("rng is deterministic and triangular rolls stay in range", () => {
 
 function planFor(p, rng) {
   const A = p.actions;
-  const submit = A.find((a) => a.id.indexOf("submit:") === 0);
   const projects = A.filter((a) => a.kind === "project");
-  if (submit) return { action: submit.id };
   if (rng.chance(0.25)) return { action: rng.pick(A).id };
   return { action: projects.length ? projects[0].id : A[0].id };
 }
@@ -52,6 +50,7 @@ function answerFor(p, rng) {
   if (p.type === "rebuttal") return { responses: {} };
   if (p.type === "qa") return { answers: Object.fromEntries(p.questions.map((q) => [q.key, "direct"])) };
   if (p.type === "sys" && p.sys === "leave") return { choice: p.choices.length - 1 };
+  if (p.type === "sys" && p.sys === "submit") return { choice: 0 };
   return { choice: (p.choices[rng.int(0, p.choices.length - 1)] || {}).i || 0 };
 }
 
@@ -123,37 +122,83 @@ test("every project kind's phases fill exactly one 0-100% bar", () => {
   });
 });
 
-test("progress moves through phases on one bar, stops at waits and caps at 100%", () => {
-  const g = gameWithProject("bar-1");
+test("stages only change at the end of a turn: done work always advances, partial work might", () => {
+  const g = gameWithProject("stage-1");
   const p = activeProjects(g)[0];
-  p.type = "study"; p.stageIdx = 0; p.progress = 0; p.revise = false; p.pause = 0;
-  addProgress(g, p, 10);
-  assert.equal(overallPct(g, p), 10);
-  assert.equal(currentStage(g, p).id, "lit");
-  addProgress(g, p, 50);
-  assert.equal(currentStage(g, p).id, "irb", "stops at the IRB wait");
-  assert.equal(overallPct(g, p), 32);
+  p.type = "study"; p.stageIdx = 1; p.progress = 0; p.revise = false; p.pause = 0; p.ready = false;
+  addProgress(g, p, 500);
+  assert.equal(currentStage(g, p).id, "lit", "no advance mid-turn");
+  assert.equal(p.progress, stageNeed(g, p), "progress caps at the stage's need");
+  rollStages(g);
+  assert.equal(currentStage(g, p).id, "design", "all the work done: the stage completes");
+  rollStages(g);
+  assert.equal(currentStage(g, p).id, "design", "no work this turn: it stays");
+  addProgress(g, p, 500); rollStages(g);
+  assert.equal(currentStage(g, p).id, "irb");
   assert.ok(p.wait >= 1 && p.wait <= 2, "IRB waits one or two turns (2-4 weeks)");
   p.stageIdx = PROJECT_TYPES.study.stages.length - 1; p.progress = 0;
-  addProgress(g, p, 500);
-  assert.equal(overallPct(g, p), 100);
+  addProgress(g, p, 500); rollStages(g);
+  assert.ok(p.ready, "a finished draft is ready to submit");
+  let advanced = 0;
+  for (let i = 0; i < 200; i++) {
+    p.stageIdx = 2; p.progress = 0; p.ready = false;
+    addProgress(g, p, stageNeed(g, p) * 0.5); rollStages(g);
+    if (p.stageIdx === 3) advanced++;
+  }
+  assert.ok(advanced > 40 && advanced < 160, "half the work: sometimes yes, sometimes no (" + advanced + "/200)");
 });
 
-test("a week of reading moves Related work much more than other phases", () => {
+test("a turn of reading moves Related work much more than other stages", () => {
   const lit = gameWithProject("read-1");
   const a = activeProjects(lit)[0];
-  a.type = "empirical"; a.stageIdx = 1; a.progress = 0; a.revise = false; a.pause = 0;
+  a.type = "empirical"; a.stageIdx = 1; a.progress = 0; a.revise = false; a.pause = 0; a.ready = false;
   lit.submitPlan({ action: "read" });
   lit.resolveTurn();
   const other = gameWithProject("read-1");
   const b = activeProjects(other)[0];
-  b.type = "empirical"; b.stageIdx = 3; b.progress = 0; b.revise = false; b.pause = 0;
+  b.type = "empirical"; b.stageIdx = 3; b.progress = 0; b.revise = false; b.pause = 0; b.ready = false;
   other.submitPlan({ action: "read" });
   other.resolveTurn();
-  const litGain = overallPct(lit, a) - 8;   // Related work starts after the 8% idea phase
-  const otherGain = overallPct(other, b) - 45;
-  assert.ok(otherGain <= 5, "other phases inch forward: " + otherGain);
-  assert.ok(litGain >= otherGain + 5, "related work moves a lot: " + litGain + " vs " + otherGain);
+  assert.ok(b.progress <= 5, "other stages inch forward: " + b.progress);
+  assert.ok(a.progress >= b.progress + 5, "related work moves a lot: " + a.progress + " vs " + b.progress);
+});
+
+test("two papers due in the same turn can both be submitted", () => {
+  const g = gameWithProject("two-1");
+  const rng = new Rng("two-1");
+  while (activeProjects(g).length < 2) g.startNewProject();
+  const due = g.state.turn + 1;
+  const ps = activeProjects(g).slice(0, 2);
+  ps.forEach((p) => {
+    p.type = "empirical"; p.field = "nlp"; p.stageIdx = PROJECT_TYPES.empirical.stages.length - 1;
+    p.progress = stageNeed(g, p); p.ready = true; p.revise = false; p.pause = 0;
+    p.target = { venueId: "arr", cycle: 0, turn: due };
+  });
+  g.submitPlan({ action: "read" });
+  let cards = 0;
+  for (let i = 0; i < 400; i++) {
+    const p = g.step();
+    if (p.type === "ended") break;
+    if (p.type === "turn_end") continue;
+    if (p.type === "plan") { if (g.state.turn > due) break; g.submitPlan({ action: "read" }); continue; }
+    if (p.type === "sys" && p.sys === "submit") cards++;
+    g.answer(answerFor(p, rng));
+  }
+  assert.equal(cards, 2, "one deadline card per paper");
+  ps.forEach((p) => assert.ok(g.state.papers.some((pp) => pp.projectId === p.id), "submitted: " + p.short));
+});
+
+test("NLP papers only go to NLP venues, HCI papers only to HCI venues", () => {
+  const g = gameWithProject("field-1");
+  const p = activeProjects(g)[0];
+  ["empirical", "dataset", "study", "system", "position"].forEach((type) => {
+    for (let i = 0; i < 6; i++) {
+      p.type = type; p.field = type === "position" ? (i % 2 ? "nlp" : "hci") : undefined; p.target = null;
+      autoTarget(g, p);
+      assert.ok(p.target, type + " gets a target");
+      assert.equal(D.venueById[p.target.venueId].field, fieldOf(p), type + " -> " + p.target.venueId);
+    }
+  });
 });
 
 test("new projects pick their own kind and topic, without a prompt", () => {

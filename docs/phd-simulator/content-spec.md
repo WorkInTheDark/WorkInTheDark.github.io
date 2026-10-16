@@ -224,7 +224,7 @@ Values are `"+7±3"` (a whole number rolled in [4, 10], peaked at 7), `"-5±2"`,
 | `citations` | **Visible.** Bonus citations, usually 1–15 |
 | `taste`, `coding`, `writing`, `presenting`, `knowledge` | Hidden skills, 0–100. Move 1–4 typically, 5–8 for big moments |
 | `advisor_rel`, `labmates_rel`, `family_rel`, `friends_rel`, `network` | Hidden, 0–100. Typical 2–6 |
-| `project.progress` | Bound project, in points of its whole 0–100% bar (it can cross into the next phase, but stops at a wait and at 100%; setbacks stay within the current phase). Typical 4–15 |
+| `project.progress` | Bound project: hidden progress points in its current stage (a stage needs 6–45). It never changes the stage directly; it makes the end-of-turn stage roll likelier (or, if negative, less likely). Typical 4–15 |
 | `project.quality.N`, `.S`, `.C` | Novelty, Soundness, Clarity of the bound project. Typical 3–10 |
 | `project.delay` | Turns added to (or, if negative, removed from) a waiting phase, or put on hold for a work phase |
 | `project.pivot` | `true`: back to `idea`, keeps half its Novelty |

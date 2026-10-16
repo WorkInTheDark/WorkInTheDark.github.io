@@ -16,7 +16,7 @@ A browser game on the site, inspired by 《读博模拟器》, in which the play
 | Turn length | **Two weeks: one focus click, then what comes up.** You pick the turn's focus (a project, Read and learn, Recharge, or an "only this turn" option), then answer the turn's updates and events, and sometimes a side activity. No multi-pick, no confirm button (section 4). History, all 2026-10-16: a repeating two-week routine, then a two-week planner with several picks, then one click per week, then this, after Arthur replayed the original 读博模拟器 (a month per turn: one to-do pick, then several event screens) |
 | Visible stats | Three bars to balance: **Energy**, **Stress** and **Health**, plus Citations (+ h-index) and Papers. Stress is the engine's `sanity` shown as 100 − sanity. New tasks (reviews, grading, a rebuttal) and bad news (rejections) raise Stress; many events now cost Health. "Get healthy" was dropped as a duplicate of Recharge |
 | Hidden stats | Skills (hidden again: the bars felt useless), relationships, network |
-| Projects | **One 0–100% progress bar per project**, with phases along it. About 4 months when you push, 6–8 when you alternate with other things. Kind and topic are assigned automatically. Waits (IRB, recruiting, annotation) are 2–4 weeks |
+| Projects | **Named stages, like the original game** (2026-10-16): each turn of work either completes the current stage or doesn't. About 4 months when you push, 6–8 when you alternate. Kind and topic are assigned automatically. Waits (IRB, recruiting, annotation) are 2–4 weeks. **NLP papers go only to NLP venues, HCI papers only to HCI venues.** Each paper due gets its own deadline card, so two papers can be submitted in one turn |
 | Character | Three traits rolled at random. No background or origin choice; those became traits (Industry Veteran, Career Switcher, Master's Head Start, International Student) (2026-10-16) |
 | Event frequency | **Usually one event a turn, sometimes two or none** (two more often than none: 15% / 60% / 25%). Updates that need an answer (reviews, decisions, milestones) count toward it. A side-activity card comes up in about a third of turns. Routine news goes into the report |
 | Not stats | Money and funding (funding becomes a hidden trait of the advisor) |
@@ -117,12 +117,11 @@ Real venue names, approximate dates. These are game timings, not authoritative d
 | ARR cycle B → EMNLP | T19 | T24, 1-turn response | T2 | T6–T7 |
 | ARR cycle C → EACL/next ACL | T3 | T8, 1-turn response | T11 | T15–T17 |
 | CHI | T1 | T5: reject or Revise & Resubmit | T10 | T16–T18 |
-| ICLR | T3 | T6, 2-turn discussion | T11 | T16–T18 |
-| NeurIPS | T19 | T25, 1-turn rebuttal | T2 | T8 |
-| AMIA Annual Symposium | T14 | T20 | T22 | T5–T6 |
 | IUI | T3 | T8 | T11 | T15–T17 |
 | Workshops | rolling | short | 3–4 turns after | with their main venue |
-| Journals (TACL, TOCHI, JAMIA) | any time | 6–12 turns, revision rounds | | presentation optional |
+| Journals (TACL, TOCHI) | any time | 6–12 turns, revision rounds | | presentation optional |
+
+**Venues by field (2026-10-16):** a paper only goes to its own field's venues. NLP (empirical, dataset, NLP position papers): ARR (NAACL, ACL, EMNLP), COLING, NLP workshops, TACL. HCI (studies, systems, HCI position papers): CHI, IUI, HCI workshops, TOCHI. NeurIPS, ICLR and AMIA were removed, since they're neither. Project titles come from the matching field too (`topics.yml` has `titles: { nlp: [...], hci: [...] }`).
 
 ARR rejections can be resubmitted to a later cycle with previous reviews attached, as in reality.
 
@@ -181,7 +180,7 @@ A few are always there:
 - **Recharge:** about +28 Energy, −18 Stress and +4 Health for the turn, on top of the weekends, however busy the turn is. It's the one rest choice; "Get healthy" was dropped because it duplicated it.
 
 Some come from the calendar and your progress:
-- **Deadline turn:** "Polish and submit "<project>" to VENUE" replaces that project's work choice. It needs at least half the writing done and always posts a preprint. Skip it and the target rolls to the next deadline.
+- **Deadlines don't use the focus.** In a deadline turn, each paper due gets its own card among the turn's updates: submit (with or without a preprint) or skip. Two papers due together can both go in. A rough draft can be submitted; a finished one reads better. A finished paper's work choice becomes "Polish <project>".
 - **The turn before a deadline:** "Crunch on "<project>", weekends included" (deadline mode, four overtime days, a big drain on all three bars).
 - **Milestones**, which take the turn's focus: internship or fellowship applications, scheduling the proposal, starting defense prep, the job market.
 - **Internship turns:** "Give it your all" (big drain, better return-offer odds), "Keep a healthy pace" (about Energy-neutral, a little Stress relief), "Spend the weekends on <project>", or "Take a few days off" (a Recharge).
@@ -207,7 +206,6 @@ And some come up for **this turn only** (`opportunities.yml`): the holidays at h
 | Work on a project | about −16 | about +4 | about −2 |
 | Read and learn | about −9 | about +4 | about −2 |
 | Recharge | about +31 | about −9 | about +4 |
-| Polish and submit | about −18 | about +8 | about −3 |
 
 Events and side activities move the bars further: 68 exhausting event outcomes now cost 2–3 Health, extra-work outcomes add Stress, and there are new Health events (the office chair, eye strain, flu season, crackers for lunch, the morning after a deadline, the fifth coffee, wrist pain, falling asleep in a talk, a sprained ankle, a three-day headache, pollen, the lab fridge). There are also "new task" events: a journal review request, a grading pile, slides needed by Friday, onboarding a rotation student.
 
@@ -426,9 +424,9 @@ Generated faculty for quals, proposal and defense, each with a field, a personal
 
 ### 8.1 Project types
 
-Each project is **one 0–100% progress bar**. Its phases sit along the bar, each with a share of it; waiting phases are pauses at a point on the bar.
+Each project moves through **named stages** (2026-10-16, adapted from the original game). Work builds hidden progress in the current stage; at the end of each turn the stage completes with chance `(done / need) ^ 1.5`, or for sure once all the work is in, and otherwise stays. At most one stage a turn. The card shows the stage path (finished stages ticked, current in bold) and a hint: just started, making progress, nearly there. When Writing completes, the paper is **ready to submit**. The `need` column below is each stage's work, in points.
 
-| Type | Phases (share of the bar) | Waits |
+| Type | Stages (work needed) | Waits |
 |---|---|---|
 | Empirical NLP | Idea 8 → Related work 17 → Pilot 20 → Experiments 30 → Writing 25 | none |
 | Human-centered study | Idea 6 → Related work 14 → Study design 12 → IRB → Recruiting → Sessions 20 → Analysis 20 → Writing 28 | IRB 2–4 weeks, recruiting 2 |
@@ -448,11 +446,11 @@ Type ids used in data files: `empirical`, `study`, `system`, `dataset`, `positio
 Each day of work adds, in % of the whole bar:
 
 ```
-progress = 3.3 × efficiency(energy) × skill_factor × modifiers × roll(±20%)
+progress = 3.6 × efficiency(energy) × skill_factor × modifiers × roll(±20%)
 skill_factor = 0.6 + 0.8 × (relevant_skill / 100)
 ```
 
-A full work turn at full Energy after Year 1 (about 9 free days) is about 25%; in Year 1, with classes, about 15%. Energy, events and rest turns bring a pushed project to about 18 weeks. Related work moves 0.8× as fast with "Work on" and 1.3× with **Read and learn**; a reading day also adds 0.4% to every other project. Event effects on `project.progress` are points of the whole bar.
+A full work turn at full Energy after Year 1 (about 9 free days) is about 27 points, enough to finish most stages; in Year 1, with classes, about 16. With rest turns, waits and events, a pushed project takes about 18–20 weeks. Related work moves 0.8× as fast with "Work on" and 1.3× with **Read and learn**; a reading day also adds 0.4 points to every other project. Event effects on `project.progress` are points in the current stage.
 
 ### 8.3 Quality
 Each project has three hidden quality components, 0–100:
@@ -461,7 +459,7 @@ Each project has three hidden quality components, 0–100:
 - **Clarity (C):** from writing days (writing skill).
 
 Each component is the average relevant skill applied over that stage's days, times how complete the stage was:
-- A stage can be cut short. Submitting with Writing at 60% caps Clarity accordingly. **Rushing shows up in reviews, not in the progress bar.**
+- Writing can be cut short: a rough draft (at least 40% of the Writing work) can be submitted, but Clarity is capped by how finished it is. **Rushing shows up in reviews.**
 - Submission becomes possible once Writing reaches 50%.
 - A strict advisor may block a submission whose quality is below their bar.
 
@@ -479,7 +477,7 @@ Overall paper quality for reviewing: `Q = wN·N + wS·S + wC·C`, with venue-spe
 - Authorship order can be negotiated in events (with consequences for labmate relationships).
 
 ### 8.6 Venues and decisions
-- **Tiers:** Top (ACL, EMNLP, NAACL, CHI, NeurIPS, ICLR), Mid (EACL, IUI, AMIA), Findings, Workshops, Journals (TACL, TOCHI, JAMIA).
+- **Tiers:** Top (ACL, EMNLP, NAACL, CHI), Mid (COLING, IUI), Findings, Workshops, Journals (TACL, TOCHI).
 - **Review model:**
   - Each of 3 reviewers scores `Q + persona_bias + noise(σ = 12)`, mapped to the venue's scale.
   - An area chair or meta-reviewer combines the scores, the rebuttal effects and some noise, and compares against the venue threshold.
