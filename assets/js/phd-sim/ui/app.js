@@ -260,10 +260,12 @@ export class App {
         if (window.confirm("Shelve this project? You can't bring it back.")) { this.game.shelveProject(id); this.persist(); this.keepScroll = true; this.render(); }
         break;
       case "new-project": {
+        const before = this.game.state.stats.sanity;
         const p = this.game.startNewProject();
         if (p) {
           this.persist();
-          this.flashToast("New project: " + p.short);
+          const up = Math.round(before - this.game.state.stats.sanity);
+          this.flashToast("New project: " + p.short + (up > 0 ? ". Stress +" + up + "." : "."));
           this.setPlan(this.game.planPrompt());
           this.keepScroll = true; this.render();
         }

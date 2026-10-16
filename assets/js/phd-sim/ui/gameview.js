@@ -145,7 +145,8 @@ export function planHtml(G, plan) {
   });
   if (plan.canStartProject) {
     html += '<div style="margin-top:.7rem"><button class="ps-btn ps-btn-sm" data-action="new-project">+ Start a new project</button> ' +
-      '<span class="ps-meta">Doesn\u2019t use up the turn.</span></div>';
+      '<span class="ps-meta">Doesn\u2019t use up the turn, but it\u2019s a big new commitment.</span> ' +
+      arrowsHtml([{ stat: "sanity", dir: "down", strength: plan.newProjectStress >= 10 ? 2 : 1 }]) + "</div>";
   }
   html += "</div></div>";
   return html;

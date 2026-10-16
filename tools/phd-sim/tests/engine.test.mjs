@@ -215,6 +215,19 @@ test("new projects pick their own kind and topic, without a prompt", () => {
   assert.equal(g.state.prompt, null);
 });
 
+test("starting a project adds real Stress, more when you're already juggling", () => {
+  const g = gameWithProject("stress-1");
+  activeProjects(g).forEach((p) => { p.status = "shelved"; });
+  g.state.player.traits = [];
+  const costs = [];
+  for (let i = 0; i < 3; i++) {
+    g.state.stats.sanity = 90;
+    g.startNewProject();
+    costs.push(Math.round(90 - g.state.stats.sanity));
+  }
+  assert.deepEqual(costs, [6, 9, 12]);
+});
+
 test("the rebuttal takes one response per reviewer and defaults to clarifying", () => {
   const g = gameWithProject("reb-1");
   const paper = {

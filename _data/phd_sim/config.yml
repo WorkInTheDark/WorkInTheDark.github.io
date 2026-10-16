@@ -39,6 +39,8 @@ sanity:
   weekend_off: "+1"
   pressure: 5            # the background weight of being a PhD student, every turn
   work_day: -0.5         # every work day (classes and TA included) adds a little Stress
+  new_project: 6         # starting a project adds this much Stress...
+  new_project_per_active: 3   # ...plus this much for each project already on your plate
   overtime_day: -1
   isolation_turns: 3
   isolation_hit: "-4±2"

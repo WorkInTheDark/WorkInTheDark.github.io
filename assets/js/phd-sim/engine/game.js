@@ -19,7 +19,7 @@ import { checkAchievements } from "./achievements.js";
 import { finalize } from "./endings.js";
 import { resolveRebuttal } from "./reviews.js";
 import {
-  buildSys, handleSys, answerMatching, answerQa, leavePrompt, autoProject, stressHit,
+  buildSys, handleSys, answerMatching, answerQa, leavePrompt, autoProject, newProjectStress, stressHit,
   queueMilestones, queuePapers, finishSubmissions, createProject, planExtras, applyPlanExtra
 } from "./milestones.js";
 
@@ -168,8 +168,9 @@ export class Game {
     const s = this.state;
     if (s.prompt || s.phase === "ended" || s.stage !== "plan" || !s.advisor) return null;
     if (activeProjects(this).length >= (this.D.config.progress.max_active_projects || 4)) return null;
+    const hit = newProjectStress(this);
     const p = autoProject(this);
-    this.log("New project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")." + stressHit(this, 2), "news");
+    this.log("New project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")." + stressHit(this, hit), "news");
     this.save();
     return p;
   }
@@ -300,7 +301,8 @@ export class Game {
       internship: hasStatus(this, "on_internship"),
       onLeave: hasStatus(this, "on_leave"),
       canStartProject: !!s.advisor && !s.milestones.graduated && !hasStatus(this, "on_leave") &&
-        activeProjects(this).length < (this.D.config.progress.max_active_projects || 4)
+        activeProjects(this).length < (this.D.config.progress.max_active_projects || 4),
+      newProjectStress: newProjectStress(this)
     };
   }
 

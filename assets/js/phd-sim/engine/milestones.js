@@ -125,6 +125,12 @@ export function createProject(G, type, topicId, opts) {
 
 // New projects pick their own kind and topic: the choice that matters is how you spend your time.
 const TYPE_WEIGHTS = { empirical: 3, study: 2.5, system: 2, dataset: 1, position: 0.7 };
+// Starting a project is a big new commitment: Stress goes up, more so when you're already juggling.
+export function newProjectStress(G) {
+  const cfg = G.D.config.sanity;
+  return (cfg.new_project || 6) + (cfg.new_project_per_active || 3) * activeProjects(G).length;
+}
+
 export function autoProject(G) {
   const s = G.state;
   const switcher = s.player.traits.indexOf("career_switcher") >= 0;
@@ -615,7 +621,7 @@ export function handleSys(G, prompt, choice) {
         autoTarget(G, p);
         return empty("You inherit “" + p.title + "”, its code, and its mysteries.");
       }
-      { const p = autoProject(G); return empty("Your first project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")."); }
+      { const hit = newProjectStress(G); const p = autoProject(G); return empty("Your first project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")." + stressHit(G, hit)); }
     case "submit": {
       const p = proj(G, d.projectId);
       if (!p) return null;
@@ -772,7 +778,7 @@ export function handleSys(G, prompt, choice) {
       return empty("You decline. Next year, then.");
     }
     case "idle_nudge":
-      if (choice === 0) { const p = autoProject(G); return empty("New project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")."); }
+      if (choice === 0) { const hit = newProjectStress(G); const p = autoProject(G); return empty("New project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")." + stressHit(G, hit)); }
       return null;
     case "leave": {
       const id = d.ids[choice];
