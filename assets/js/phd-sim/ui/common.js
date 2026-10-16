@@ -26,7 +26,7 @@ export function shownStat(stat, value) {
   return stat === "sanity" ? 100 - value : value;
 }
 
-const DELTA_LABEL = { energy: "Energy", sanity: "Stress", health: "Health", citations: "Citations", days: "Free days this week", days_next: "Free days next week" };
+const DELTA_LABEL = { energy: "Energy", sanity: "Stress", health: "Health", citations: "Citations", days: "Free days this turn", days_next: "Free days next turn" };
 
 export function deltasHtml(list) {
   if (!list || !list.length) return "";

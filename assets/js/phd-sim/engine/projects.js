@@ -1,6 +1,6 @@
 // Research projects: one progress bar with phases along it, daily work, hidden quality, and venue deadlines.
 import { clamp } from "./util.js";
-import { absTurn, yearOf, tOf, TURNS, weeks, weekDates } from "./state.js";
+import { absTurn, yearOf, tOf, TURNS, span, turnDates } from "./state.js";
 import { hasTrait, hasStatus } from "./derived.js";
 
 function S(id, kind, comp, skill, need, extra) {
@@ -10,7 +10,7 @@ function S(id, kind, comp, skill, need, extra) {
 }
 
 // Each project is one 0–100% bar. A stage's `need` is its share of the bar; "wait" stages
-// (IRB, recruiting, annotation) are pauses at a point on the bar, `wait` in weeks.
+// (IRB, recruiting, annotation) are pauses at a point on the bar, `wait` in turns (two weeks each).
 export const PROJECT_TYPES = {
   empirical: {
     label: "Empirical NLP",
@@ -21,21 +21,21 @@ export const PROJECT_TYPES = {
   study: {
     label: "Human-centered study",
     stages: [S("idea", "work", "N", "taste", 6), S("lit", "work", "N", "knowledge", 14),
-      S("design", "work", "S", "knowledge", 12), S("irb", "wait", null, null, 0, { wait: [2, 3] }),
-      S("recruiting", "wait", null, null, 0, { wait: [1, 2] }), S("sessions", "work", "S", "presenting", 20),
+      S("design", "work", "S", "knowledge", 12), S("irb", "wait", null, null, 0, { wait: [1, 2] }),
+      S("recruiting", "wait", null, null, 0, { wait: [1, 1] }), S("sessions", "work", "S", "presenting", 20),
       S("analysis", "work", "S", "knowledge", 20, { stats: true }), S("writing", "work", "C", "writing", 28)]
   },
   system: {
     label: "System + evaluation",
     stages: [S("idea", "work", "N", "taste", 6), S("lit", "work", "N", "knowledge", 14),
-      S("build", "work", "S", "coding", 28), S("irb", "wait", null, null, 0, { wait: [2, 3] }),
+      S("build", "work", "S", "coding", 28), S("irb", "wait", null, null, 0, { wait: [1, 2] }),
       S("study", "work", "S", "presenting", 16), S("analysis", "work", "S", "knowledge", 12, { stats: true }),
       S("writing", "work", "C", "writing", 24)]
   },
   dataset: {
     label: "Dataset / benchmark",
     stages: [S("idea", "work", "N", "taste", 7), S("lit", "work", "N", "knowledge", 15),
-      S("guidelines", "work", "S", "knowledge", 15), S("annotation", "wait", null, null, 0, { wait: [2, 3] }),
+      S("guidelines", "work", "S", "knowledge", 15), S("annotation", "wait", null, null, 0, { wait: [1, 2] }),
       S("baselines", "work", "S", "coding", 33), S("writing", "work", "C", "writing", 30)]
   },
   position: {
@@ -174,7 +174,7 @@ export function nextDeadline(G, venueId, fromTurn) {
   const y0 = yearOf(fromTurn);
   for (let y = y0; y <= y0 + 1; y++) {
     v.cycles.forEach(function (c, i) {
-      const at = absTurn(y, c.deadline) + 1;   // the deadline falls in the second week of its period
+      const at = absTurn(y, c.deadline);
       if (at >= fromTurn && (!best || at < best.turn)) best = { venueId: venueId, cycle: i, turn: at };
     });
   }
@@ -191,9 +191,9 @@ export function turnsToDeadline(G, p) {
   return p.target.turn - G.state.turn;
 }
 
-// Roughly how many weeks until a project is ready, for picking a realistic first target.
-const TYPICAL_PACE = 6;   // % of the bar per week for someone who works on it most weeks
-function remainingWeeks(G, p) {
+// Roughly how many turns until a project is ready, for picking a realistic first target.
+const TYPICAL_PACE = 12;   // % of the bar per turn for someone who works on it most turns
+function remainingTurns(G, p) {
   if (p.revise) return Math.max(0, REVISE_STAGE.need - p.progress) / TYPICAL_PACE;
   const stages = PROJECT_TYPES[p.type].stages;
   let w = 0;
@@ -208,8 +208,8 @@ function remainingWeeks(G, p) {
 export function autoTarget(G, p, opts) {
   opts = opts || {};
   const s = G.state;
-  const lead = Math.max(1, Math.ceil(remainingWeeks(G, p)));
-  const from = s.turn + Math.max(weeks(opts.minLead || 1), Math.min(lead, 60));
+  const lead = Math.max(1, Math.ceil(remainingTurns(G, p)));
+  const from = s.turn + Math.max(span(opts.minLead || 1), Math.min(lead, 30));
   const vs = venuesForType(G, p.type, { onlyWorkshops: opts.onlyWorkshops, includeJournals: false })
     .filter(function (v) { return opts.onlyWorkshops || v.tier !== "workshop" || p.type === "position"; });
   let options = vs.map(function (v) { return nextDeadline(G, v.id, from); }).filter(Boolean);
@@ -218,7 +218,7 @@ export function autoTarget(G, p, opts) {
   const soonest = options[0];
   if (!soonest) { p.target = null; return; }
   const tierRank = { top: 0, mid: 1, workshop: 2, journal: 3 };
-  const close = options.filter(function (o) { return o.turn <= soonest.turn + 6; });
+  const close = options.filter(function (o) { return o.turn <= soonest.turn + 3; });
   close.sort(function (a, b) {
     return tierRank[G.D.venueById[a.venueId].tier] - tierRank[G.D.venueById[b.venueId].tier] || a.turn - b.turn;
   });
@@ -287,7 +287,7 @@ export function workDay(G, p, eff, log, opts) {
   if (hasTrait(G, "perfectionist")) rate *= 0.87;
   if (hasTrait(G, "procrastinator")) {
     const ttd = turnsToDeadline(G, p);
-    if (ttd !== null && ttd <= 2) rate *= 1.4;
+    if (ttd !== null && ttd <= 1) rate *= 1.4;
     else if (p.progress < stageNeed(G, p) * 0.5) rate *= 0.8;
   }
   if (hasTrait(G, "introvert") && (st.id === "lit" || st.id === "writing" || st.id === "revise")) rate *= 1.1;
@@ -336,7 +336,7 @@ export function advanceStage(G, p, log) {
   const next = currentStage(G, p);
   if (next.kind === "wait") p.wait = G.rng.int(next.wait[0], next.wait[1]);
   if (log) log(p.short + ": " + STAGE_LABELS[done.id] + " done. Next: " + STAGE_LABELS[next.id] +
-    (next.kind === "wait" ? " (about " + p.wait + (p.wait === 1 ? " week" : " weeks") + ")" : "") + ".");
+    (next.kind === "wait" ? " (about " + p.wait * 2 + " weeks)" : "") + ".");
   if (next.id === "writing" && !p.target) autoTarget(G, p);
 }
 
@@ -380,7 +380,7 @@ export function deadlineLabel(G, p) {
 }
 
 export function absToLabel(G, turn) {
-  return "Y" + yearOf(turn) + " " + weekDates(turn);
+  return "Y" + yearOf(turn) + " " + turnDates(turn);
 }
 
 export { TURNS };

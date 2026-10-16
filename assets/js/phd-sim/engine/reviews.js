@@ -3,7 +3,7 @@ import { clamp, asList } from "./util.js";
 import { fill } from "./templating.js";
 import { components, qualityFor, autoTarget, nextDeadline } from "./projects.js";
 import { hasTrait } from "./derived.js";
-import { weeks } from "./state.js";
+import { span } from "./state.js";
 import { unlock } from "./achievements.js";
 
 // One response per reviewer, covering all of their concerns. Clarify is the default.
@@ -36,9 +36,9 @@ export function makePaper(G, p, opts) {
     journal: !!v.journal,
     cycle: p.target.cycle,
     submittedTurn: s.turn,
-    reviewsTurn: s.turn + weeks(c.reviews_in),
-    decisionTurn: s.turn + weeks(c.decision_in),
-    conferenceTurn: c.conference_in ? s.turn + weeks(c.conference_in) : null,
+    reviewsTurn: s.turn + span(c.reviews_in),
+    decisionTurn: s.turn + span(c.decision_in),
+    conferenceTurn: c.conference_in ? s.turn + span(c.conference_in) : null,
     rebuttal: !!c.rebuttal,
     rr: !!v.revise_resubmit,
     round: 1,

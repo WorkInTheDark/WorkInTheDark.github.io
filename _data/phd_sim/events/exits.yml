@@ -112,7 +112,7 @@
     - label: "Say yes and write a one-pager"
       text: "Explaining your field without jargon turns out to be hard, and useful. They ask you to stay in touch."
       flag_set: [policy_interest]
-      effects: { days: -2, network: "+4±2", presenting: "+2±1" }
+      effects: { days: -2, network: "+4±2", presenting: "+2±1", sanity: "-2±1" }
     - label: "Decline politely"
       text: "Your advisor says there will be other invitations."
       effects: { sanity: "+1" }
@@ -142,7 +142,7 @@
     - label: "Write it"
       text: "Your editor cuts every second qualifier. The piece is clearer than anything you've written, and your aunt shares it."
       flag_set: [science_writer]
-      effects: { days: -2, writing: "+3±1", network: "+2±1" }
+      effects: { days: -2, writing: "+3±1", network: "+2±1", sanity: "-2±1" }
     - label: "Decline, there's a deadline"
       text: "Maybe next time. There's always a deadline."
       effects: { sanity: "-1" }

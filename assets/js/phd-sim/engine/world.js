@@ -1,6 +1,6 @@
 // The field around you: topic hype, the hiring climate, and frontier model releases.
 import { clamp } from "./util.js";
-import { tOf, firstWeek } from "./state.js";
+import { tOf } from "./state.js";
 
 export function tickWorld(G, log) {
   const s = G.state;
@@ -8,10 +8,10 @@ export function tickWorld(G, log) {
   const items = [];
   w.topics.forEach(function (t) {
     const base = (G.D.topicById[t.id] || {}).hype || 50;
-    t.hype = clamp(t.hype + G.rng.normal(0, 2.1) + (base - t.hype) * 0.015, 5, 98);
+    t.hype = clamp(t.hype + G.rng.normal(0, 3) + (base - t.hype) * 0.03, 5, 98);
   });
   const t = tOf(s.turn);
-  if ((t === 1 || t === 14) && firstWeek(s.turn)) {
+  if ((t === 1 || t === 14)) {
     const r = G.rng.next();
     const before = w.hiring;
     if (w.hiring === "neutral") w.hiring = r < 0.2 ? "boom" : r < 0.4 ? "freeze" : "neutral";
@@ -33,7 +33,7 @@ export function tickWorld(G, log) {
     if (hot) hot.hype = clamp(hot.hype + shift, 5, 98);
     log(lab + " releases " + name + ". " + (hot ? (shift > 0 ? "Suddenly everyone cares about " : "Interest cools in ") + hot.name + "." : ""));
     items.push({ kind: "hook", hook: "model_release", ctx: { model: name, biglab: lab } });
-    w.nextRelease = s.turn + G.rng.int(16, 32);
+    w.nextRelease = s.turn + G.rng.int(8, 16);
   }
   return items;
 }

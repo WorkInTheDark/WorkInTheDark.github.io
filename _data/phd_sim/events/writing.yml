@@ -133,7 +133,7 @@
   choices:
     - label: "Spend the whole break on it"
       text: "Experiments by day, rewriting by night, family calls on mute. By New Year the paper is much better, and you are much more tired."
-      effects: { project.progress: "+20±5", project.quality.S: "+7±2", project.quality.C: "+5±2", energy: "-14±4", sanity: "-8±3", family_rel: "-5±2" }
+      effects: { project.progress: "+20±5", project.quality.S: "+7±2", project.quality.C: "+5±2", energy: "-14±4", sanity: "-8±3", family_rel: "-5±2", health: "-3±1" }
     - label: "Work mornings, family evenings"
       text: "The experiments run while you eat dinner. Progress is slower, but you will remember that the holidays happened."
       effects: { project.progress: "+10±3", project.quality.S: "+3±1", project.quality.C: "+2±1", energy: "-3±1", family_rel: "+2±1" }
@@ -145,7 +145,7 @@
       requires: { traits_any: [night_owl] }
       tag: "Night Owl"
       text: "Jobs launch at 1 am and finish by breakfast. Your family thinks you're on vacation. The cluster knows better."
-      effects: { project.progress: "+14±4", project.quality.S: "+5±2", energy: "-6±2", sanity: "-2±1", family_rel: "+1" }
+      effects: { project.progress: "+14±4", project.quality.S: "+5±2", energy: "-6±2", sanity: "-2±1", family_rel: "+1", health: "-2±1" }
 
 # ===========================================================================
 # Deadline day (hook: deadline)
@@ -166,11 +166,11 @@
       check: { stat: writing, vs: 50, spread: 20 }
       success:
         text: "Eight pages, and somehow clearer than twelve. Half the cuts were sentences that said the same thing twice."
-        effects: { project.quality.C: "+4±2", energy: "-6±2", writing: "+2±1" }
+        effects: { project.quality.C: "+4±2", energy: "-6±2", writing: "+2±1", health: "-2±1" }
         tip: "Paper Writing 101"
       failure:
         text: "Eight pages. Section 4 lost the sentences that explained it, and now nobody, you included, can follow it."
-        effects: { project.quality.C: "-4±2", energy: "-6±2" }
+        effects: { project.quality.C: "-4±2", energy: "-6±2", health: "-2±1" }
     - label: "Move everything to the appendix"
       text: "The main paper fits. Reviewers don't have to read the appendix, and they won't."
       effects: { project.quality.C: "-2±1", project.quality.S: "-2±1", energy: "-2±1" }
@@ -200,7 +200,7 @@
         achievement: overleaf_survivor
       failure:
         text: "Your local copy is from last Tuesday. You redo a week of edits from memory and submit at 11:58 pm."
-        effects: { project.quality.C: "-5±2", energy: "-6±2", sanity: "-4±2" }
+        effects: { project.quality.C: "-5±2", energy: "-6±2", sanity: "-4±2", health: "-2±1" }
         achievement: overleaf_survivor
     - label: "Wait and keep refreshing"
       text: "It comes back after 50 minutes. You spend the last hour fixing only what matters, which turns out to be a skill."
@@ -251,7 +251,7 @@
   choices:
     - label: "Use all 48 hours"
       text: "You use all 48. The paper is better. You are not."
-      effects: { project.quality.S: "+5±2", project.quality.C: "+4±2", energy: "-12±3", sanity: "-5±2" }
+      effects: { project.quality.S: "+5±2", project.quality.C: "+4±2", energy: "-12±3", sanity: "-5±2", health: "-3±1" }
       trait_add: deadline_junkie
     - label: "Polish for one day, then sleep"
       text: "One day of fixes, one long night of sleep, and a submission with 20 hours to spare. Nobody in your lab believes you."
@@ -264,7 +264,7 @@
       requires: { traits_any: [procrastinator] }
       tag: "Procrastinator"
       text: "Forty hours of feeling that you have time, then eight hours of doing more than you did all month."
-      effects: { project.quality.C: "+2±1", sanity: "+2±1", energy: "-8±3" }
+      effects: { project.quality.C: "+2±1", sanity: "+2±1", energy: "-8±3", health: "-2±1" }
       trait_add: deadline_junkie
 
 - id: wri_late_advisor_comments
@@ -279,7 +279,7 @@
   choices:
     - label: "Address every comment"
       text: "You get through all of them with ten minutes to spare. The big questions were the right questions."
-      effects: { project.quality.C: "+5±2", project.quality.S: "+2±1", energy: "-9±3", sanity: "-4±2", advisor_rel: "+3±1" }
+      effects: { project.quality.C: "+5±2", project.quality.S: "+2±1", energy: "-9±3", sanity: "-4±2", advisor_rel: "+3±1", health: "-2±1" }
       tip: "Critique-Centric Feedback"
     - label: "Fix the big questions only"
       check: { stat: taste, vs: 50, spread: 20 }
@@ -526,7 +526,7 @@
         tip: "Paper Writing 101"
       failure:
         text: "You fix 31 orphan words. Each fix creates a new one somewhere else. At 2 am, you stop."
-        effects: { energy: "-6±2", sanity: "-3±1" }
+        effects: { energy: "-6±2", sanity: "-3±1", health: "-2±1" }
 
 # ===========================================================================
 # Writing stage (hook: turn)

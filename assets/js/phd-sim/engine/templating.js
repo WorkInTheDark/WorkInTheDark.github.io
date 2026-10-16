@@ -1,6 +1,7 @@
 // Fills {tokens} in event text. Every token is bound once per event (stored in ctx.tok)
 // so {labmate} names the same person throughout a card, and saves stay consistent.
 import { ordinal } from "./util.js";
+import { TURNS } from "./state.js";
 
 const TOKEN_RE = /\{([a-z0-9_]+(?:\.[a-z0-9_]+)?)(?::(\d+)-(\d+))?(?:\|([a-z]+))?\}/gi;
 
@@ -21,7 +22,7 @@ function bound(G, ctx, key, fn) {
 
 export function fakePrior(G) {
   const n = G.D.names;
-  return G.rng.pick(n.last || ["Smith"]) + " et al. (" + (2023 + Math.floor(G.state.turn / 52)) + ")";
+  return G.rng.pick(n.last || ["Smith"]) + " et al. (" + (2023 + Math.floor(G.state.turn / TURNS)) + ")";
 }
 
 export function fill(text, G, ctx) {

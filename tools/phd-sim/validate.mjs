@@ -149,6 +149,24 @@ for (const o of D.opportunities) {
   for (const k of Object.keys(o)) if (CHOICE_KEYS.includes(k) && k !== "label") outcome[k] = o[k];
   checkOutcome(where, outcome, { id: o.id, file: "opportunities", when: o.when }, schedules);
 }
+const SIDE_KEYS = ["id", "label", "desc", "when", "weight", "helps"].concat(CHOICE_KEYS);
+const HELPS = ["health", "stress", "energy", "social", "career"];
+const sideIds = new Set();
+for (const o of D.side) {
+  const where = "side/" + o.id;
+  if (!o.id || !o.id.startsWith("side_")) err(where, "id should start with side_");
+  if (sideIds.has(o.id)) err(where, "duplicate id");
+  sideIds.add(o.id);
+  for (const k of Object.keys(o)) if (!SIDE_KEYS.includes(k)) err(where, "unknown key '" + k + "'");
+  if (!o.label) err(where, "missing label");
+  if (!o.effects) warn(where, "no effects");
+  if (o.helps && !HELPS.includes(o.helps)) err(where, "bad helps '" + o.helps + "'");
+  checkCond(where + ".when", o.when);
+  checkTokens(where, o.label); checkTokens(where, o.desc);
+  const outcome = {};
+  for (const k of Object.keys(o)) if (CHOICE_KEYS.includes(k) && k !== "label") outcome[k] = o[k];
+  checkOutcome(where, outcome, { id: o.id, file: "side", when: o.when }, schedules);
+}
 for (const a of D.achievements) checkCond("achievements/" + a.id, a.when);
 for (const t of D.titles) checkCond("titles/" + t.id, t.when);
 for (const t of D.epilogues) { checkCond("epilogues", t.when); checkTokens("epilogues", t.text); }
@@ -166,7 +184,7 @@ const byFile = {};
 D.events.forEach((e) => { byFile[e.file] = (byFile[e.file] || 0) + 1; });
 console.log("Events: " + D.events.length + " " + JSON.stringify(byFile));
 console.log("Flavor: " + D.flavor.length + ", personas: " + (D.reviews.personas || []).length + ", concerns: " + (D.reviews.concerns || []).length + ", QA: " + (D.qa.questions || []).length);
-console.log("Opportunities: " + D.opportunities.length);
+console.log("Opportunities: " + D.opportunities.length + ", side activities: " + D.side.length);
 console.log("Achievements: " + D.achievements.length + ", endings: " + D.endings.length + ", titles: " + D.titles.length + ", tips: " + D.tips.length);
 warnings.forEach((w) => console.log("warn  " + w));
 errors.forEach((e) => console.log("ERROR " + e));

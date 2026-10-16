@@ -31,7 +31,7 @@ export function eventHtml(p) {
 }
 
 export function sysHtml(p) {
-  return '<div class="ps-kicker">' + (p.sys === "notice" ? "Notice" : "Decision") + "</div>" +
+  return '<div class="ps-kicker">' + (p.sys === "notice" ? "Notice" : p.sys === "side" ? "Side activity" : "Decision") + "</div>" +
     '<h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" +
     '<p class="ps-text">' + esc(p.text) + "</p>" + choiceButtons(p.choices);
 }
@@ -68,7 +68,7 @@ export function rebuttalHtml(p, sel) {
         "</select></label></div>";
     }).join("") +
     '<details class="ps-small"><summary>What the responses do</summary><ul>' + p.options.map(function (o) { return "<li><b>" + esc(o.label) + ":</b> " + esc(o.desc) + "</li>"; }).join("") + "</ul></details>" +
-    (exp ? '<p class="ps-meta">New experiments will cost ' + exp + " days this week.</p>" : "") +
+    (exp ? '<p class="ps-meta">New experiments will cost ' + exp + " days this turn.</p>" : "") +
     '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="submit-rebuttal">Submit the response</button></div>';
 }
 

@@ -87,7 +87,7 @@ test("traits are rolled at random, without contradictory pairs", () => {
   }
 });
 
-test("each week takes exactly one action, and unknown actions fall back safely", () => {
+test("each turn takes exactly one focus, and unknown actions fall back safely", () => {
   const g = new Game(D, {}, start("plan-1"));
   let p = g.step();
   const rng = new Rng("a");
@@ -133,7 +133,7 @@ test("progress moves through phases on one bar, stops at waits and caps at 100%"
   addProgress(g, p, 50);
   assert.equal(currentStage(g, p).id, "irb", "stops at the IRB wait");
   assert.equal(overallPct(g, p), 32);
-  assert.ok(p.wait >= 2 && p.wait <= 3, "IRB waits 2-3 weeks");
+  assert.ok(p.wait >= 1 && p.wait <= 2, "IRB waits one or two turns (2-4 weeks)");
   p.stageIdx = PROJECT_TYPES.study.stages.length - 1; p.progress = 0;
   addProgress(g, p, 500);
   assert.equal(overallPct(g, p), 100);
@@ -152,8 +152,8 @@ test("a week of reading moves Related work much more than other phases", () => {
   other.resolveTurn();
   const litGain = overallPct(lit, a) - 8;   // Related work starts after the 8% idea phase
   const otherGain = overallPct(other, b) - 45;
-  assert.ok(otherGain <= 3, "other phases inch forward: " + otherGain);
-  assert.ok(litGain >= otherGain + 2, "related work moves a lot: " + litGain + " vs " + otherGain);
+  assert.ok(otherGain <= 5, "other phases inch forward: " + otherGain);
+  assert.ok(litGain >= otherGain + 5, "related work moves a lot: " + litGain + " vs " + otherGain);
 });
 
 test("new projects pick their own kind and topic, without a prompt", () => {

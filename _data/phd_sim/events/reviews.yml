@@ -240,7 +240,7 @@
   choices:
     - label: "Deliver every promise"
       text: "Everything you promised is in. Reviewer 2 will never check. You did it anyway, and your advisor noticed."
-      effects: { days: -3, energy: "-7±2", advisor_rel: "+4±2", paper.citations: "+3±1" }
+      effects: { days: -3, energy: "-7±2", advisor_rel: "+4±2", paper.citations: "+3±1", health: "-2±1", sanity: "-3±1" }
       tip: "Deliver Your Commitments"
     - label: "Deliver the main ones"
       text: "The baseline and the figure make it in. The error analysis becomes \"future work\"."
@@ -435,7 +435,7 @@
   choices:
     - label: "Rewrite half the paper"
       text: "New framing, new analysis, a new discussion section. It's nearly a new paper, and a better one."
-      effects: { days: -3, energy: "-8±3", sanity: "-4±2", paper.score: "+6±2", writing: "+2±1" }
+      effects: { days: -3, energy: "-8±3", sanity: "-4±2", paper.score: "+6±2", writing: "+2±1", health: "-2±1" }
       tip: "Critique-Centric Feedback"
     - label: "Fix only the must-fix list"
       text: "You make the required changes and explain the rest in the response letter. Solid, not dazzling."
@@ -447,7 +447,7 @@
         effects: { days: -1, energy: "-4±2", paper.score: "+5±2", labmates_rel: "+1" }
       failure:
         text: "{labmate}'s half is good, but in a completely different voice. The paper now has two personalities."
-        effects: { days: -2, energy: "-4±2", paper.score: "+2±1", labmates_rel: "-2±1" }
+        effects: { days: -2, energy: "-4±2", paper.score: "+2±1", labmates_rel: "-2±1", sanity: "-2±1" }
 
 - id: rev_review_ten
   title: "Ten Papers, Two Weeks"
@@ -463,10 +463,32 @@
   choices:
     - label: "Review all ten, properly"
       text: "Ten careful reviews. The area chair remembers your name, and you learn more about why papers get rejected than your own rejections taught you."
-      effects: { days: -4, energy: "-6±2", knowledge: "+3±1", taste: "+2±1", network: "+2±1" }
+      effects: { days: -4, energy: "-6±2", knowledge: "+3±1", taste: "+2±1", network: "+2±1", health: "-2±1", sanity: "-3±1" }
     - label: "Take three, decline seven"
       text: "Three thorough reviews, on time. The area chair thanks you for saying no early."
-      effects: { days: -1, knowledge: "+1", network: "+1" }
+      effects: { days: -1, knowledge: "+1", network: "+1", sanity: "-2±1" }
     - label: "Accept all ten and skim"
       text: "Your reviews are short; one is three sentences. The area chair notices. Somewhere, you've just become someone's Reviewer 2."
       effects: { days: -1, sanity: "-2±1", network: "-2±1" }
+
+# New work landing on your plate (2026-10-16): these raise Stress.
+- id: rev_journal_request
+  title: "Would You Be Willing to Review?"
+  category: reviews
+  rarity: common
+  repeatable: true
+  cooldown: 10
+  when: { year: [2, 8], has_advisor: true }
+  text:
+    - "A journal editor writes: \"Would you be willing to review this manuscript? We'd appreciate your comments within 21 days.\" It's 48 pages."
+    - "Your advisor forwards a review request with one line: \"You'd be great for this.\" It's due in three weeks."
+  choices:
+    - label: "Accept and do it properly"
+      text: "Three evenings, one careful review, and a new appreciation for clear figures."
+      effects: { sanity: "-4±1", energy: "-3±1", knowledge: "+2±1", network: "+2±1" }
+    - label: "Accept, then forget until the reminder"
+      text: "The reminder arrives. Then the second reminder. You write it in one panicked night."
+      effects: { sanity: "-5±2", energy: "-4±1", health: "-1" }
+    - label: "Decline politely"
+      text: "You suggest a labmate instead. The editor thanks you for the quick reply."
+      effects: { sanity: "+1" }

@@ -15,7 +15,7 @@
   choices:
     - label: "Spend the weekend trying it"
       text: "You find two things it does brilliantly and one it gets hilariously wrong. You keep notes on all three."
-      effects: { energy: "-6±2", knowledge: "+3±1", taste: "+2±1" }
+      effects: { energy: "-6±2", knowledge: "+3±1", taste: "+2±1", health: "-2±1" }
     - label: "Stay on your own path"
       check: { stat: taste, vs: 50, spread: 20 }
       success:
@@ -26,7 +26,7 @@
         effects: { sanity: "-4±2" }
     - label: "Start a quick evaluation of it"
       text: "Your two-day evaluation finds where {model} breaks. People start emailing you about it."
-      effects: { days: -2, energy: "-4±1", network: "+4±2", coding: "+1" }
+      effects: { days: -2, energy: "-4±1", network: "+4±2", coding: "+1", sanity: "-2±1" }
 
 - id: wor_biglab_claims
   title: "Solved, Apparently"
@@ -40,7 +40,7 @@
   choices:
     - label: "Test {model} on your data"
       text: "On your data, it gets 61%. Your paper now has a strong new baseline and a sharper story."
-      effects: { days: -2, energy: "-4±1", project.quality.S: "+6±2", project.quality.N: "+3±1" }
+      effects: { days: -2, energy: "-4±1", project.quality.S: "+6±2", project.quality.N: "+3±1", sanity: "-2±1" }
     - label: "Write a careful thread about it"
       check: { stat: writing, vs: 55, spread: 20 }
       success:
@@ -66,10 +66,10 @@
   choices:
     - label: "Rush to get yours out first"
       text: "You work three weekends straight. The draft moves fast, and a few corners get cut."
-      effects: { project.progress: "+12±3", energy: "-8±3", project.quality.S: "-4±2" }
+      effects: { project.progress: "+12±3", energy: "-8±3", project.quality.S: "-4±2", health: "-2±1" }
     - label: "Read every one of them"
       text: "Two overlap with yours. Now you know exactly what makes your work different."
-      effects: { days: -2, knowledge: "+4±1", project.quality.N: "+3±1" }
+      effects: { days: -2, knowledge: "+4±1", project.quality.N: "+3±1", sanity: "-2±1" }
     - label: "Find the angle nobody's taking"
       check: { stat: taste, vs: 55, spread: 20 }
       success:
@@ -96,7 +96,7 @@
       effects: { taste: "+2±1", sanity: "+1" }
     - label: "Build a real agent version"
       text: "You spend a week on it. It works, and it's actually more interesting than the buzzword."
-      effects: { days: -3, energy: "-5±2", coding: "+2±1", project.quality.N: "+5±2" }
+      effects: { days: -3, energy: "-5±2", coding: "+2±1", project.quality.N: "+5±2", sanity: "-3±1" }
 
 - id: wor_benchmark_debate
   title: "Does It Mean Anything?"
@@ -109,7 +109,7 @@
   choices:
     - label: "Add a second evaluation"
       text: "A small human evaluation backs up your numbers. It costs a week and makes the paper much harder to attack."
-      effects: { days: -2, energy: "-5±2", project.quality.S: "+7±2" }
+      effects: { days: -2, energy: "-5±2", project.quality.S: "+7±2", sanity: "-2±1" }
     - label: "Join the debate"
       text: "You post a careful take and spend two days answering replies. Some of them are useful."
       effects: { network: "+3±1", sanity: "-4±2", days: -1 }

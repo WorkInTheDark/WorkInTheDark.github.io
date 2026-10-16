@@ -67,7 +67,7 @@
       achievement: lost_luggage
     - label: "Wait at the airport for the bag"
       text: "The bag arrives at 11 pm. You get four hours of sleep and a clean shirt."
-      effects: { energy: "-7±2", sanity: "+2±1" }
+      effects: { energy: "-7±2", sanity: "+2±1", health: "-2±1" }
       achievement: lost_luggage
 
 - id: tra_keynote_nap
@@ -358,7 +358,7 @@
         effects: { energy: "-4±2" }
       failure:
         text: "It arrives in full. You spend the week on the couch with tissues and a stack of papers you don't read."
-        effects: { energy: "-6±2", sanity: "-3±1" }
+        effects: { energy: "-6±2", sanity: "-3±1", health: "-2±1" }
         status: { add: sick, turns: 1 }
     - label: "Work from home in a blanket"
       text: "Your labmates thank you for not bringing it to the lab."

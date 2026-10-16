@@ -19,7 +19,7 @@
       effects: { sanity: "+2±1", knowledge: "+1", days: 1 }
     - label: "Take it seriously anyway"
       text: "You learn more than you expected. You also sleep less than you expected."
-      effects: { energy: "-6±2", knowledge: "+4±1", taste: "+1" }
+      effects: { energy: "-6±2", knowledge: "+4±1", taste: "+1", health: "-2±1" }
     - label: "Find an angle that connects to your work"
       check: { stat: taste, vs: 50, spread: 15 }
       success:
@@ -92,7 +92,7 @@
   choices:
     - label: "Read every single one"
       text: "You read all 80. Your notes are beautiful. Your eyes are not."
-      effects: { knowledge: "+6±2", energy: "-14±3", sanity: "-4±2" }
+      effects: { knowledge: "+6±2", energy: "-14±3", sanity: "-4±2", health: "-3±1" }
     - label: "Split the list with your cohort"
       check: { stat: friends_rel, vs: 45, spread: 15 }
       success:
@@ -100,10 +100,10 @@
         effects: { knowledge: "+5±1", friends_rel: "+3±1", energy: "-5±2" }
       failure:
         text: "Two people never send their summaries. You read their 32 papers the night before."
-        effects: { knowledge: "+3±1", energy: "-10±3", friends_rel: "-2±1" }
+        effects: { knowledge: "+3±1", energy: "-10±3", friends_rel: "-2±1", health: "-3±1" }
     - label: "Read the core 20 deeply, skim the rest"
       text: "You know 20 papers cold and the other 60 by their figures. Honestly, that is the job."
-      effects: { knowledge: "+4±1", energy: "-6±2" }
+      effects: { knowledge: "+4±1", energy: "-6±2", health: "-2±1" }
       tip: "Paper Reading"
 
 - id: mil_quals_classic_paper
@@ -116,7 +116,7 @@
   choices:
     - label: "Read it, plus what it builds on"
       text: "Half of modern NLP turns out to be this paper with more GPUs. You see the field differently now."
-      effects: { knowledge: "+5±2", taste: "+2±1", days: -2 }
+      effects: { knowledge: "+5±2", taste: "+2±1", days: -2, sanity: "-2±1" }
       tip: "Literature Search"
     - label: "Ask {senior} what they were asked"
       check: { stat: labmates_rel, vs: 50, spread: 15 }
@@ -166,7 +166,7 @@
   choices:
     - label: "Rebuild the talk around the question"
       text: "You rework the first five slides around what nobody knows yet, not what you built. The talk gets sharper."
-      effects: { taste: "+3±1", presenting: "+2±1", days: -2 }
+      effects: { taste: "+3±1", presenting: "+2±1", days: -2, sanity: "-2±1" }
       tip: "Implications and Venue"
     - label: "Answer on the spot"
       check: { stat: taste, vs: 55, spread: 15 }
@@ -218,7 +218,7 @@
   choices:
     - label: "Add a scalability section"
       text: "Two new pages on deploying to a million users. Your external member is delighted. {advisor} is puzzled."
-      effects: { writing: "+2±1", network: "+2±1", advisor_rel: "-1", days: -2 }
+      effects: { writing: "+2±1", network: "+2±1", advisor_rel: "-1", days: -2, sanity: "-2±1" }
     - label: "Explain why depth matters here"
       check: { stat: presenting, vs: 55, spread: 15 }
       success:
@@ -272,7 +272,7 @@
   choices:
     - label: "Trace each paper back to one gap"
       text: "You find the thread: each paper fixes a limitation the last one exposed. Chapter 1 almost writes itself."
-      effects: { taste: "+4±1", writing: "+3±1", energy: "-4±2", days: -3 }
+      effects: { taste: "+4±1", writing: "+3±1", energy: "-4±2", days: -3, sanity: "-3±1" }
       tip: "Approach and Methods"
     - label: "Draw one diagram that links them"
       check: { stat: taste, vs: 55, spread: 15 }
@@ -348,7 +348,7 @@
   choices:
     - label: "Write the chapter"
       text: "Twenty pages in ten days. It is actually good, and you are actually tired."
-      effects: { writing: "+4±1", energy: "-12±3", days: -3 }
+      effects: { writing: "+4±1", energy: "-12±3", days: -3, health: "-3±1", sanity: "-3±1" }
     - label: "Negotiate a shorter section"
       check: { stat: presenting, vs: 55, spread: 15 }
       success:
@@ -356,7 +356,7 @@
         effects: { writing: "+2±1", sanity: "+2±1", days: -1 }
       failure:
         text: "{committee} agrees to something shorter. Their idea of shorter is 18 pages."
-        effects: { energy: "-6±2", days: -2 }
+        effects: { energy: "-6±2", days: -2, health: "-2±1", sanity: "-2±1" }
     - label: "Ask {advisor} to weigh in"
       check: { stat: advisor_rel, vs: 55, spread: 15 }
       success:
@@ -474,7 +474,7 @@
   choices:
     - label: "Repeat every answer twice"
       text: "They hear everything because you say everything twice. Your voice gives out right before the last slide."
-      effects: { energy: "-6±2", presenting: "+1" }
+      effects: { energy: "-6±2", presenting: "+1", health: "-2±1" }
     - label: "Suggest they switch to audio only"
       check: { stat: presenting, vs: 50, spread: 15 }
       success:
@@ -500,7 +500,7 @@
   choices:
     - label: "Address all 14 pages properly"
       text: "Every comment answered, every figure fixed. The final thesis is the best version of your work."
-      effects: { writing: "+3±1", energy: "-8±2" }
+      effects: { writing: "+3±1", energy: "-8±2", health: "-2±1" }
     - label: "Fix what matters, explain the rest"
       check: { stat: writing, vs: 55, spread: 15 }
       success:
@@ -508,7 +508,7 @@
         effects: { writing: "+2±1", sanity: "+4±1" }
       failure:
         text: "{committee} replies: \"Please address all comments.\" All 14 pages it is."
-        effects: { energy: "-10±3", sanity: "-4±2" }
+        effects: { energy: "-10±3", sanity: "-4±2", health: "-3±1" }
     - label: "Recruit {labmate} to proofread with you"
       text: "Two people, one weekend, a lot of snacks. Filed on Thursday."
       effects: { labmates_rel: "+3±1", sanity: "+2±1", energy: "-4±2" }

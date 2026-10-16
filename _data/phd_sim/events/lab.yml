@@ -11,7 +11,7 @@
   choices:
     - label: "Document it as you go"
       text: "By the end you understand every script, and you've written the README they never did."
-      effects: { days: -2, coding: "+4±1", labmates_rel: "+2±1" }
+      effects: { days: -2, coding: "+4±1", labmates_rel: "+2±1", sanity: "-2±1" }
     - label: "Book an hour with {senior} first"
       check: { stat: labmates_rel, vs: 45, spread: 15 }
       success:
@@ -22,7 +22,7 @@
         effects: { sanity: "-2±1", coding: "+1" }
     - label: "Rewrite it from scratch"
       text: "Your version is cleaner and half as long. It also takes a week and a half."
-      effects: { days: -3, energy: "-4±2", coding: "+3±1" }
+      effects: { days: -3, energy: "-4±2", coding: "+3±1", sanity: "-3±1" }
 
 - id: lab_proofread
   title: "Better Than the Reviewers"
@@ -34,7 +34,7 @@
   choices:
     - label: "Fix everything they found"
       text: "The paper gets clearer. You owe them a coffee, or several."
-      effects: { days: -2, project.quality.C: "+6±2", project.quality.S: "+3±1" }
+      effects: { days: -2, project.quality.C: "+6±2", project.quality.S: "+3±1", sanity: "-2±1" }
     - label: "Offer to read theirs in return"
       text: "You trade drafts. Both papers improve, and you learn how they write."
       effects: { days: -1, writing: "+2±1", labmates_rel: "+4±1", project.quality.C: "+4±2" }
@@ -330,3 +330,24 @@
       effects: { sanity: "+5±2", citations: "+6±3", labmates_rel: "+3±1" }
       counter: { best_collab_papers: +1 }
       flag_clear: [best_collab]
+
+# New work landing on your plate (2026-10-16): these raise Stress.
+- id: lab_onboard_rotation
+  title: "Show Them the Ropes"
+  category: lab
+  rarity: common
+  repeatable: true
+  cooldown: 16
+  when: { year: [2, 8], has_advisor: true }
+  text:
+    - "A rotation student joins the lab for six weeks, and {advisor} asks you to get them started on the codebase."
+  choices:
+    - label: "Pair with them for a few days"
+      text: "They're fast, curious, and find two bugs you'd stopped seeing."
+      effects: { days: -2, sanity: "-3±1", labmates_rel: "+3±1", presenting: "+1" }
+    - label: "Write them a setup guide"
+      text: "The guide takes an afternoon. Every new student uses it for the next three years."
+      effects: { days: -1, sanity: "-2±1", labmates_rel: "+2±1" }
+    - label: "Point them to the README"
+      text: "The README was last updated in 2021. They figure it out, eventually, and remember who pointed."
+      effects: { labmates_rel: "-2±1" }

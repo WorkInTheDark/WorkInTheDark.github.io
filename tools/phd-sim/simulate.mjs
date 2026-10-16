@@ -27,13 +27,13 @@ function pickAction(p, policy, rng, stats) {
   // Bots skip papers that are already finished and only waiting for a deadline.
   const projects = by("project").filter((a) => a.label.indexOf("Polish") !== 0);
   const litRead = A.find((a) => a.id === "read" && (a.arrows || []).some((x) => x.stat === "progress" && x.strength > 1));
-  const care = () => (stats.health < 40 && has("exercise") ? "exercise" : has("recharge") ? "recharge" : A[0].id);
+  const care = () => (has("recharge") ? "recharge" : A[0].id);
   if (policy === "random") return rng.pick(A).id;
   if (policy === "slacker") {
     if (by("opportunity").length && rng.chance(0.8)) return rng.pick(by("opportunity")).id;
     if (submit && rng.chance(0.5)) return submit.id;
     if (by("milestone").length && rng.chance(0.25)) return by("milestone")[0].id;
-    if (rng.chance(0.45) || !projects.length) return stats.health < 60 && has("exercise") ? "exercise" : has("recharge") ? "recharge" : A[0].id;
+    if (rng.chance(0.45) || !projects.length) return has("recharge") ? "recharge" : A[0].id;
     return rng.pick(projects).id;
   }
   if (policy === "workaholic") {
@@ -57,7 +57,7 @@ function pickAction(p, policy, rng, stats) {
   }
   // A reasonable player: research most weeks, reacting to the bars and to what comes up.
   if (stats.energy < 35) return has("recharge") ? "recharge" : A[0].id;
-  if (stats.health < 45 && has("exercise")) return "exercise";
+  if (stats.health < 40 && has("recharge")) return "recharge";
   if (stats.sanity < 40) return sanityOpp ? sanityOpp.id : has("recharge") ? "recharge" : A[0].id;
   if (submit) return submit.id;
   if (by("milestone").length) return by("milestone")[0].id;
@@ -108,7 +108,7 @@ let prevSeen = null;
 const overlaps = [];
 const errors = [];
 const promptTypes = {};
-const weekly = { weeks: 0, offered: 0, withOpp: 0, kinds: {} };
+const perTurn = { turns: 0, offered: 0, withOpp: 0, kinds: {} };
 const t0 = Date.now();
 for (let r = 0; r < RUNS; r++) {
   const policy = POLICY === "mixed" ? POLICIES[r % POLICIES.length] : POLICY;
@@ -141,9 +141,9 @@ for (let r = 0; r < RUNS; r++) {
         planTurns++;
         const opps = p.actions.filter((a) => a.kind === "opportunity").length;
         const choice = pickAction(p, policy, rng, game.state.stats);
-        weekly.weeks++; weekly.offered += opps; if (opps) weekly.withOpp++;
+        perTurn.turns++; perTurn.offered += opps; if (opps) perTurn.withOpp++;
         const kind = (p.actions.find((a) => a.id === choice) || {}).kind || "?";
-        if (policy === "balanced") weekly.kinds[kind] = (weekly.kinds[kind] || 0) + 1;
+        if (policy === "balanced") perTurn.kinds[kind] = (perTurn.kinds[kind] || 0) + 1;
         game.submitPlan({ action: choice });
         continue;
       }
@@ -198,8 +198,8 @@ for (const pol of POLICY === "mixed" ? POLICIES : [POLICY]) {
     "  pubs avg " + avg(R.map((x) => x.pubs)) + "  cites median " + median(R.map((x) => x.cites)) +
     "  h median " + median(R.map((x) => x.h)) + "  burnouts avg " + avg(R.map((x) => x.burnouts)) +
     "  energy avg " + avg(R.map((x) => x.energy)) + "  stress avg " + avg(R.map((x) => 100 - x.sanity)) + "  health avg " + avg(R.map((x) => x.health)) +
-    "  pop-ups per week " + avg(R.map((x) => Math.round(x.perTurn * 100) / 100)) +
-    "  weeks per project (median) " + median([].concat(...R.map((x) => x.projWeeks))));
+    "  pop-ups per turn " + avg(R.map((x) => Math.round(x.perTurn * 100) / 100)) +
+    "  weeks per project (median) " + median([].concat(...R.map((x) => x.projWeeks))) * 2);
 }
 const all = results;
 const count = (key) => { const m = {}; all.forEach((x) => { m[x[key]] = (m[x[key]] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + " " + v).join(", "); };
@@ -211,9 +211,9 @@ const agg = {};
 all.forEach((x) => Object.entries(x.tiers).forEach(([k, v]) => { agg[k] = agg[k] || { sub: 0, acc: 0 }; agg[k].sub += v.sub; agg[k].acc += v.acc; }));
 console.log("Acceptance by tier (first-author, decided): " + Object.entries(agg).map(([k, v]) => k + " " + pct(v.acc, v.sub) + " of " + v.sub).join(", "));
 console.log("Years (all runs): " + [1, 2, 3, 4, 5, 6, 7, 8, 9].map((y) => y + ":" + all.filter((x) => Math.ceil(x.years) === y).length).join(" "));
-console.log("Prompts by type (per week): " + Object.entries(promptTypes).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + " " + (v / Math.max(1, weekly.weeks)).toFixed(3)).join(", "));
-console.log("Weekly options: " + (weekly.withOpp / Math.max(1, weekly.weeks) * 100).toFixed(0) + "% of weeks offer at least one, avg " + (weekly.offered / Math.max(1, weekly.weeks)).toFixed(2) + " per week");
-console.log("Balanced bot's choices: " + Object.entries(weekly.kinds).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + " " + v).join(", "));
+console.log("Prompts by type (per turn): " + Object.entries(promptTypes).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + " " + (v / Math.max(1, perTurn.turns)).toFixed(3)).join(", "));
+console.log("Only-this-turn options: " + (perTurn.withOpp / Math.max(1, perTurn.turns) * 100).toFixed(0) + "% of turns offer at least one, avg " + (perTurn.offered / Math.max(1, perTurn.turns)).toFixed(2) + " per turn");
+console.log("Balanced bot's choices: " + Object.entries(perTurn.kinds).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + " " + v).join(", "));
 console.log("Random-event overlap between consecutive runs: median " + pct(median(overlaps) * 100, 100) + ", unique random events per run avg " + avg(all.map((x) => x.uniqueRandom)));
 const pool = D.events.filter((e) => e.trigger !== "scheduled").length;
 console.log("Random pool size: " + pool + ", seen at least once across all runs: " + Object.keys(meta.seenRuns).length);

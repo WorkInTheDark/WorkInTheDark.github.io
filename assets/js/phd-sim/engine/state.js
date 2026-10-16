@@ -2,9 +2,8 @@
 import { Rng } from "./rng.js";
 import { clamp, parseValue } from "./util.js";
 
-// One turn is one week; a year has 52. Content and the calendar still speak in "periods" of
-// two weeks (T1–T26), so tOf() returns the period and weeks() converts content durations.
-export const TURNS = 52;
+// One turn is two weeks (T1–T26 a year, starting 1 September). Content and config count in turns.
+export const TURNS = 26;
 // "sanity" is shown to the player as Stress (100 − sanity), so content keeps "up is good".
 export const VISIBLE = ["energy", "sanity", "health"];
 export const SKILLS = ["taste", "coding", "writing", "presenting", "knowledge"];
@@ -19,7 +18,7 @@ export const STAT_LABELS = {
   family_rel: "Family", friends_rel: "Friends", network: "Network"
 };
 
-// Things you can choose to do with a turn. Each choice is two weekdays of that activity.
+// Day activities: what a focus, an opportunity or a side activity spends days on.
 // `arrows` preview the visible effects (players never see numbers before choosing).
 export const ACTIVITIES = [
   { id: "read", label: "Read papers", kind: "work", desc: "Domain knowledge and research taste. Sometimes an idea.",
@@ -43,29 +42,28 @@ export const ACTIVITIES = [
   { id: "family", label: "Call family", kind: "self", desc: "They miss you. You miss them.",
     arrows: [{ stat: "sanity", dir: "up", strength: 1 }, { stat: "energy", dir: "up", strength: 1 }] }
 ];
-ACTIVITIES.push({ id: "recharge", label: "Recharge", kind: "self", desc: "Sleep in, see friends, do nothing useful. It counts.",
-  arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }] });
+ACTIVITIES.push({ id: "recharge", label: "Recharge", kind: "self", desc: "Sleep in, see friends, move your body, do nothing useful. It counts.",
+  arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }, { stat: "health", dir: "up", strength: 1 }] });
 ACTIVITIES.push({ id: "writing_day", label: "Write", kind: "work", desc: "Statements, proposals, chapters.",
   arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
 
-// The few things you can always do with a week. Everything else comes up as an opportunity.
+// The few things you can always focus a turn on. Everything else comes up as an opportunity.
 export const DEFAULT_ACTIONS = [
-  { id: "read", label: "Read and learn", desc: "A week with papers. Projects inch forward; sometimes you get an idea.",
+  { id: "read", label: "Read and learn", desc: "Two weeks with papers. Projects inch forward; sometimes you get an idea.",
     arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }] },
-  { id: "recharge", label: "Recharge", desc: "Sleep in, see friends, do nothing useful. It counts.",
-    arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }] },
-  { id: "exercise", label: "Get healthy", desc: "Gym, sleep, real meals. Your back will thank you.",
-    arrows: [{ stat: "health", dir: "up", strength: 2 }, { stat: "energy", dir: "up", strength: 1 }, { stat: "sanity", dir: "up", strength: 1 }] }
+  { id: "recharge", label: "Recharge", desc: "Sleep in, see friends, move your body, do nothing useful. It counts.",
+    arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }, { stat: "health", dir: "up", strength: 1 }] }
 ];
 export const ACTIVITY_BY_ID = {};
 ACTIVITIES.forEach(function (a) { ACTIVITY_BY_ID[a.id] = a; });
 
 export function yearOf(turn) { return Math.floor(turn / TURNS) + 1; }
-export function wOf(turn) { return (turn % TURNS) + 1; }
-export function tOf(turn) { return Math.floor((turn % TURNS) / 2) + 1; }
-export function firstWeek(turn) { return turn % 2 === 0; }
-export function absTurn(year, t) { return (year - 1) * TURNS + (t - 1) * 2; }
-export function weeks(n) { return Math.max(0, Math.round((Number(n) || 0) * 2)); }
+export function tOf(turn) { return (turn % TURNS) + 1; }
+export function absTurn(year, t) { return (year - 1) * TURNS + (t - 1); }
+// A duration from content or config, in turns (two weeks each).
+export function span(n) { return Math.max(0, Math.round(Number(n) || 0)); }
+// Players read time in weeks.
+export const WEEKS_PER_TURN = 2;
 
 const MONTHS = ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"];
 const MONTH_DAYS = [30, 31, 30, 31, 31, 28, 31, 30, 31, 30, 31, 31];
@@ -74,9 +72,9 @@ function dayToDate(d) {
   while (m < 11 && d >= MONTH_DAYS[m]) { d -= MONTH_DAYS[m]; m++; }
   return { m: m, d: d + 1 };
 }
-export function weekDates(turn) {
-  const start = dayToDate(((turn % TURNS)) * 7);
-  const end = dayToDate(((turn % TURNS)) * 7 + 6);
+export function turnDates(turn) {
+  const start = dayToDate((turn % TURNS) * 14);
+  const end = dayToDate((turn % TURNS) * 14 + 13);
   return MONTHS[start.m] + " " + start.d + "\u2013" + (end.m === start.m ? "" : MONTHS[end.m] + " ") + end.d;
 }
 export function semesterOf(t) {
@@ -143,7 +141,7 @@ export function newRun(D, opts) {
   });
 
   const state = {
-    version: 3,
+    version: 4,
     seed: opts.seed,
     daily: !!opts.daily,
     rng: rng.state(),

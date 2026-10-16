@@ -1,7 +1,7 @@
-// The main game screen: header, stats and skills, this week's choices, last week's report, projects, calendar and log.
+// The main game screen: header and bars, this turn's focus choices, last turn's report, projects, calendar and log.
 import { esc, bar, plural, arrowsHtml, shownStat } from "./common.js";
 import {
-  yearOf, tOf, weekDates, absTurn, weeks, PROJECT_TYPES, STAGE_LABELS, currentStage, overallPct,
+  yearOf, tOf, turnDates, absTurn, span, WEEKS_PER_TURN, PROJECT_TYPES, STAGE_LABELS, currentStage, overallPct,
   writingCompletion, deadlineLabel, venuesForType, absToLabel, totalCitations, hIndex, firstAuthorPubs
 } from "../engine/index.js";
 
@@ -10,9 +10,8 @@ function dateLine(G) {
   const t = tOf(s.turn);
   const row = G.D.calendar[t - 1] || {};
   const sem = { fall: "Fall", spring: "Spring", summer: "Summer", break: "Winter break" }[row.semester] || "";
-  // A period's note ("Fall semester starts") belongs to its first week; the rest ("Finals") span both.
-  const note = row.note && (s.turn % 2 === 0 || !/starts/.test(row.note)) ? row.note : "";
-  return '<div class="ps-date">Year ' + yearOf(s.turn) + " · " + esc(weekDates(s.turn)) + " <small>· " + esc(sem) + (note ? " · " + esc(note) : "") + "</small></div>";
+  const note = row.note || "";
+  return '<div class="ps-date">Year ' + yearOf(s.turn) + " · " + esc(turnDates(s.turn)) + " <small>· " + esc(sem) + (note ? " · " + esc(note) : "") + "</small></div>";
 }
 
 export function hudHtml(G) {
@@ -43,10 +42,10 @@ function projectCard(G, p) {
   const st = currentStage(G, p);
   const pct = overallPct(G, p);
   let progressText = pct + "% · " + (p.revise ? "Revising" : STAGE_LABELS[st.id]);
-  if (st.kind === "wait") progressText += ": waiting, about " + plural(Math.max(1, p.wait), "week") + " left";
-  else if (p.pause > 0) progressText += " (on hold for " + plural(p.pause, "week") + ")";
+  if (st.kind === "wait") progressText += ": waiting, about " + plural(Math.max(1, p.wait) * WEEKS_PER_TURN, "week") + " left";
+  else if (p.pause > 0) progressText += " (on hold for " + plural(p.pause * WEEKS_PER_TURN, "week") + ")";
   let target = "";
-  if (p.target && p.target.rrPaper) target = "Revision due in " + plural(Math.max(0, p.target.turn - G.state.turn), "week");
+  if (p.target && p.target.rrPaper) target = "Revision due in " + plural(Math.max(0, p.target.turn - G.state.turn) * WEEKS_PER_TURN, "week");
   else if (p.target && p.target.journalPaper) target = "Revision goes back when it's done";
   else {
     const venues = venuesForType(G, p.type, { includeJournals: true });
@@ -57,7 +56,7 @@ function projectCard(G, p) {
     const ttd = p.target ? p.target.turn - G.state.turn : null;
     const none = p.target ? "" : '<option value="" selected disabled>Choose a venue</option>';
     target = '<label class="ps-meta">Target <select class="ps-select" data-action="target" data-id="' + esc(p.id) + '">' + none + opts + "</select></label>" +
-      (p.target ? ' <span class="ps-meta">' + esc(deadlineLabel(G, p)) + " deadline " + (ttd === 0 ? "<b>this week</b>" : "in " + plural(ttd, "week")) + "</span>" : "");
+      (p.target ? ' <span class="ps-meta">' + esc(deadlineLabel(G, p)) + " deadline " + (ttd === 0 ? "<b>this turn</b>" : "in " + plural(ttd * WEEKS_PER_TURN, "week")) + "</span>" : "");
   }
   const wc = writingCompletion(G, p);
   const ready = (st.id === "writing" || st.id === "revise") ? ' <span class="ps-tag">' + (wc >= 0.5 ? "submittable" : "drafting") + "</span>" : "";
@@ -86,7 +85,7 @@ export function boardHtml(G) {
       const left = Math.max(0, p.decisionTurn - s.turn);
       return '<div class="ps-paper"><span class="ps-tag">' + esc(p.venueName) + "</span>" + esc(p.short) +
         (p.firstAuthor ? "" : ' <span class="ps-muted">(co-author)</span>') +
-        '<div class="ps-meta">' + (p.status === "revise_resubmit" ? "Revision in progress" : "Decision in " + plural(left, "week")) + "</div></div>";
+        '<div class="ps-meta">' + (p.status === "revise_resubmit" ? "Revision in progress" : "Decision in " + plural(left * WEEKS_PER_TURN, "week")) + "</div></div>";
     }).join("") + "</div></div>";
   }
   if (pubs.length) {
@@ -100,7 +99,7 @@ export function boardHtml(G) {
 
 const GROUPS = [
   { kind: "deadline", title: "Deadline" },
-  { kind: "opportunity", title: "This week only" },
+  { kind: "opportunity", title: "Only this turn" },
   { kind: "project", title: "Research" },
   { kind: "milestone", title: "Milestones" },
   { kind: "core", title: "Anytime" }
@@ -113,7 +112,7 @@ function actionButton(a) {
     (a.desc ? '<span class="ps-act-desc">' + esc(a.desc) + "</span>" : "") + arrowsHtml(a.arrows) + "</button></div>";
 }
 
-// One choice a week. Clicking it plays the week out right away.
+// The turn's focus: one click. The turn's updates and events come right after.
 export function planHtml(G, plan) {
   const fx = plan.days;
   const parts = fx.parts;
@@ -123,12 +122,12 @@ export function planHtml(G, plan) {
   if (parts.defense) fixed.push("defense prep");
   if (parts.family) fixed.push("family");
   let head;
-  if (plan.internship) head = "You're at your internship. Choose how to spend the week.";
+  if (plan.internship) head = "You're at your internship. How will you spend these two weeks?";
   else if (plan.onLeave) head = "You're on leave. Research can wait.";
-  else head = "What will you do this week?" + (fixed.length ? " (" + esc(fixed.join(", ")) + " take part of it.)" : "");
+  else head = "What will you focus on these two weeks?" + (fixed.length ? " (" + esc(fixed.join(", ")) + " take part of them.)" : "");
   if (fx.sick) head += " You're sick, so you'll get less done.";
   if (fx.burnout) head += " You're burned out: half speed, and no weekend work.";
-  let html = '<div class="ps-section ps-plan"><h3 class="ps-section-title">This week</h3><div class="ps-card">' +
+  let html = '<div class="ps-section ps-plan"><h3 class="ps-section-title">This turn</h3><div class="ps-card">' +
     '<p class="ps-small" style="margin-bottom:.6rem">' + head + "</p>";
   GROUPS.forEach(function (g) {
     const list = plan.actions.filter(function (a) { return a.kind === g.kind; });
@@ -138,7 +137,7 @@ export function planHtml(G, plan) {
   });
   if (plan.canStartProject) {
     html += '<div style="margin-top:.7rem"><button class="ps-btn ps-btn-sm" data-action="new-project">+ Start a new project</button> ' +
-      '<span class="ps-meta">Doesn\u2019t use up the week.</span></div>';
+      '<span class="ps-meta">Doesn\u2019t use up the turn.</span></div>';
   }
   html += "</div></div>";
   return html;
@@ -161,7 +160,7 @@ export function reportHtml(G, report) {
     return '<p class="ps-small ' + (KIND_CLASS[e.kind] || "") + '">' + esc(e.text) + "</p>";
   }).join("");
   const did = report.plan && report.plan.label ? '<p class="ps-small"><b>You:</b> ' + esc(report.plan.label) + "</p>" : "";
-  return '<div class="ps-section ps-report" aria-live="polite"><h3 class="ps-section-title">Last week: ' + esc(absToLabel(G, report.turn)) + "</h3>" +
+  return '<div class="ps-section ps-report" aria-live="polite"><h3 class="ps-section-title">Last turn: ' + esc(absToLabel(G, report.turn)) + "</h3>" +
     '<div class="ps-card">' + did + (deltas ? '<div class="ps-deltas">' + deltas + "</div>" : "") + projects + news + "</div></div>";
 }
 
@@ -184,11 +183,11 @@ export function calendarHtml(G) {
   if (m.quals !== "passed" && s.advisor) ev.push({ turn: absTurn(qy, G.D.config.quals_turn || 18), text: "Quals" });
   if (m.proposalAt && m.proposal === "pending") ev.push({ turn: m.proposalAt, text: "Thesis proposal" });
   if (m.defenseAt) ev.push({ turn: m.defenseAt, text: "Defense" });
-  const upcoming = ev.filter(function (e) { return e.turn >= s.turn && e.turn < s.turn + weeks(10); }).sort(function (a, b) { return a.turn - b.turn; }).slice(0, 7);
+  const upcoming = ev.filter(function (e) { return e.turn >= s.turn && e.turn < s.turn + span(10); }).sort(function (a, b) { return a.turn - b.turn; }).slice(0, 7);
   return '<div class="ps-section"><h3 class="ps-section-title">Coming up</h3><div class="ps-card ps-cal">' +
     (upcoming.length ? upcoming.map(function (e) {
       const d = e.turn - s.turn;
-      return "<div><b>" + (d === 0 ? "This week" : "In " + plural(d, "week")) + "</b><span>" + esc(e.text) + "</span></div>";
+      return "<div><b>" + (d === 0 ? "This turn" : "In " + plural(d * WEEKS_PER_TURN, "week")) + "</b><span>" + esc(e.text) + "</span></div>";
     }).join("") : '<span class="ps-muted">Nothing scheduled in the next few weeks.</span>') + "</div></div>";
 }
 
@@ -215,9 +214,9 @@ export function logHtml(G) {
 }
 
 export function introHtml(G) {
-  if (G.state.turn > 3) return "";
-  return '<div class="ps-section"><div class="ps-note"><b>How a week works.</b> Pick one thing to do and the week plays out. ' +
-    "Your bars, skills and projects change, and sometimes something happens or a new option shows up for that week only. Balance Energy (it powers work), Stress (at 100 you burn out) and Health (low means sick weeks).</div></div>";
+  if (G.state.turn > 2) return "";
+  return '<div class="ps-section"><div class="ps-note"><b>How a turn works.</b> A turn is two weeks. Pick what to focus on, then deal with what comes up: usually one event, sometimes updates like reviews, now and then a side activity. ' +
+    "Then the two weeks play out. Balance Energy (it powers work), Stress (at 100 you burn out) and Health (low means sick weeks).</div></div>";
 }
 
 export function gameHtml(G, ui) {

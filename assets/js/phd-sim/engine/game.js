@@ -1,10 +1,10 @@
-// The turn engine. Each turn is one week: start-of-week happenings (reviews, milestones, matching,
-// maybe an event, and any "this week only" options), then the player picks one thing to do, the
-// week plays out, and a report.
+// The turn engine. Each turn is two weeks: the player picks the turn's focus (one click), then
+// the turn's updates and events come up (reviews, decisions, milestones, usually one event,
+// sometimes a side activity), the two weeks play out, and a report.
 // step() advances to the next thing that needs the player; everything lives in serializable state.
 import { Rng } from "./rng.js";
 import { clamp, parseValue } from "./util.js";
-import { TURNS, yearOf, tOf, wOf, firstWeek, weeks, semesterOf, semesterKey, ACTIVITY_BY_ID, ACTIVITIES, DEFAULT_ACTIONS, STAT_LABELS } from "./state.js";
+import { TURNS, yearOf, tOf, span, WEEKS_PER_TURN, semesterOf, semesterKey, ACTIVITY_BY_ID, ACTIVITIES, DEFAULT_ACTIONS, STAT_LABELS } from "./state.js";
 import { hasStatus, hasTrait, totalCitations, firstAuthorPubs } from "./derived.js";
 import { check } from "./conditions.js";
 import { addStat, addStatus, removeStatus, applyOutcome } from "./effects.js";
@@ -19,11 +19,15 @@ import { checkAchievements } from "./achievements.js";
 import { finalize } from "./endings.js";
 import { resolveRebuttal } from "./reviews.js";
 import {
-  buildSys, handleSys, answerMatching, answerQa, leavePrompt, autoProject,
+  buildSys, handleSys, answerMatching, answerQa, leavePrompt, autoProject, stressHit,
   queueMilestones, queuePapers, finishSubmissions, createProject, planExtras, applyPlanExtra
 } from "./milestones.js";
 
 const WORK_DAYS = ["read", "network", "help", "mentor", "career", "project", "writing_day"];
+// Prompts that come before the turn's focus (you need an advisor before you can plan).
+const PRE_SYS = ["matching", "first_project"];
+// System prompts that count as one of the turn's "things that happen".
+const PROMPT_SYS = ["rebuttal", "qa", "offers", "final_offers", "internship_offer", "the_question", "decision", "conference", "fellowship_apply", "internship_apply", "job_market_start"];
 const ACTION_EXTRAS = ["apply_internship", "apply_fellowship", "proposal", "defense", "job_market"];
 
 function oppArrows(def) {
@@ -93,8 +97,8 @@ export class Game {
         continue;
       }
       if (s.stage === "turn_start") { this.startTurn(); s.stage = "start_items"; continue; }
-      if (s.stage === "start_items" || s.stage === "end_items") {
-        const queue = s.stage === "start_items" ? s.turnItems : s.endItems;
+      if (s.stage === "start_items" || s.stage === "turn_items" || s.stage === "end_items") {
+        const queue = s.stage === "end_items" ? s.endItems : s.turnItems;
         if (queue.length) {
           const item = queue.shift();
           const p = item.kind === "event" ? presentEvent(this, item) : buildSys(this, item);
@@ -102,6 +106,7 @@ export class Game {
           continue;
         }
         if (s.stage === "start_items") { s.stage = "plan"; this.save(); continue; }
+        if (s.stage === "turn_items") { s.stage = "resolve"; this.save(); continue; }
         const report = this.finishTurn();
         s.stage = "turn_start";
         this.save();
@@ -164,7 +169,7 @@ export class Game {
     if (s.prompt || s.phase === "ended" || s.stage !== "plan" || !s.advisor) return null;
     if (activeProjects(this).length >= (this.D.config.progress.max_active_projects || 4)) return null;
     const p = autoProject(this);
-    this.log("New project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ").", "news");
+    this.log("New project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")." + stressHit(this, 2), "news");
     this.save();
     return p;
   }
@@ -196,27 +201,26 @@ export class Game {
     const cfg = this.D.config.fixed_days;
     const t = tOf(s.turn);
     const f = { courses: 0, ta: 0, meetings: 0, defense: 0, family: 0, internship: 0 };
-    if (hasStatus(this, "on_internship")) f.internship = 5;
+    if (hasStatus(this, "on_internship")) f.internship = 10;
     else if (!hasStatus(this, "on_leave")) {
-      // Config amounts are per two weeks; every week gets exactly half, so weeks feel the same.
-      if (hasStatus(this, "coursework")) f.courses = (yearOf(s.turn) === 1 ? cfg.courses_y1 : cfg.courses_y2) / 2;
-      if (hasStatus(this, "ta")) f.ta = ((t === 8 || t === 18) ? cfg.ta_peak : cfg.ta) / 2;
-      if (s.advisor) f.meetings = (s.advisor.archetype === "micromanager" ? 2 : cfg.meetings) / 2;
-      if (hasStatus(this, "defense_prep")) f.defense = cfg.defense_prep / 2;
-      if (hasTrait(this, "parent")) f.family = 1;
+      if (hasStatus(this, "coursework")) f.courses = yearOf(s.turn) === 1 ? cfg.courses_y1 : cfg.courses_y2;
+      if (hasStatus(this, "ta")) f.ta = (t === 8 || t === 18) ? cfg.ta_peak : cfg.ta;
+      if (s.advisor) f.meetings = s.advisor.archetype === "micromanager" ? 2 : cfg.meetings;
+      if (hasStatus(this, "defense_prep")) f.defense = cfg.defense_prep;
+      if (hasTrait(this, "parent")) f.family = 2;
     }
     const total = f.courses + f.ta + f.meetings + f.defense + f.family + f.internship;
     const adj = s.stage === "turn_start" ? s.dayAdjNext : s.dayAdj;
-    let free = Math.max(0, 5 - total + adj);
+    let free = Math.max(0, 10 - total + adj);
     const sick = hasStatus(this, "sick");
-    if (sick) free = Math.max(0, free - 3);
+    if (sick) free = Math.max(0, free - 5);
     const burnout = hasStatus(this, "burnout");
     if (burnout) free = free / 2;
     if (hasStatus(this, "on_internship")) free = 0;
     return { parts: f, total: total, adj: adj, sick: sick, burnout: burnout, free: free };
   }
 
-  // Everything you could do this week. You pick exactly one, and the week plays out.
+  // Everything you could focus on this turn. You pick exactly one.
   actionList() {
     const s = this.state;
     const self = this;
@@ -225,14 +229,17 @@ export class Game {
     const fx = this.fixedDays();
     if (hasStatus(this, "on_internship")) {
       const co = s.internship && s.internship.accepted ? s.internship.accepted.company : "the internship";
-      out.push({ id: "intern_all", kind: "core", label: "Give " + co + " your all", desc: "Long days, big impression. Skills and network grow faster.",
+      out.push({ id: "intern_all", kind: "core", label: "Give " + co + " your all", desc: "Long days, big impression. A better shot at a return offer.",
         arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }] });
-      out.push({ id: "intern_pace", kind: "core", label: "Keep a healthy pace", desc: "Do good work and leave at six.",
-        arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
+      out.push({ id: "intern_pace", kind: "core", label: "Keep a healthy pace", desc: "Do good work and leave at six. Weekends are yours.",
+        arrows: [{ stat: "sanity", dir: "up", strength: 1 }] });
       activeProjects(this).slice(0, 2).forEach(function (p) {
-        out.push({ id: "intern_weekend:" + p.id, kind: "core", label: "Spend the weekend on “" + p.short + "”", desc: "Your own research doesn't stop for the summer.",
+        if (currentStage(self, p).kind === "wait" || overallPct(self, p) >= 100) return;
+        out.push({ id: "intern_weekend:" + p.id, kind: "core", label: "Spend the weekends on “" + p.short + "”", desc: "Your own research doesn't stop for the summer.",
           arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "progress", dir: "up", strength: 1 }] });
       });
+      out.push({ id: "recharge", kind: "core", label: "Take a few days off", desc: "Use your vacation days. Rest the rest of the time.",
+        arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
     } else if (!onLeave) {
       activeProjects(this).forEach(function (p) {
         const st = currentStage(self, p);
@@ -241,13 +248,13 @@ export class Game {
         if (ttd === 0 && planExtras(self).some(function (x) { return x.id === "submit:" + p.id; })) {
           const pctW = Math.round(writingCompletion(self, p) * 100);
           out.push({ id: "submit:" + p.id, kind: "deadline", label: "Polish and submit “" + p.short + "” to " + deadlineLabel(self, p),
-            desc: "Deadline this week. The draft is " + pctW + "% written; it needs at least half by the end of the week.",
+            desc: "Deadline this turn. The draft is " + pctW + "% written; it needs at least half by the deadline.",
             arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }] });
           return;
         }
-        // A project that's waiting (IRB, recruiting, annotation) or paused has nothing to work on this week.
+        // A project that's waiting (IRB, recruiting, annotation) or on hold has nothing to work on this turn.
         if (st.kind === "wait" || p.pause > 0) return;
-        const dl = ttd !== null && ttd > 0 && ttd <= 6 ? " " + deadlineLabel(self, p) + " deadline in " + ttd + (ttd === 1 ? " week." : " weeks.") : "";
+        const dl = ttd !== null && ttd > 0 && ttd <= 3 ? " " + deadlineLabel(self, p) + " deadline in " + ttd * WEEKS_PER_TURN + " weeks." : "";
         if (pct >= 100) {
           out.push({ id: "p:" + p.id, kind: "project", label: "Polish “" + p.short + "”",
             desc: "Ready." + (dl || " Waiting for the next deadline.") + " More work only polishes the writing.",
@@ -257,9 +264,9 @@ export class Game {
             desc: (p.revise ? "Revising" : STAGE_LABELS[st.id]) + " · " + pct + "%." + dl + (st.id === "lit" ? " Reading moves this phase faster." : ""),
             arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: st.id === "lit" ? 1 : 2 }] });
         }
-        if (ttd !== null && ttd >= 1 && ttd <= 2 && st.kind !== "wait" && !fx.burnout) {
-          out.push({ id: "crunch:" + p.id, kind: "deadline", label: "Crunch on “" + p.short + "”, weekend included",
-            desc: "Deadline in " + ttd + (ttd === 1 ? " week" : " weeks") + ". Every day of the week and the weekend.",
+        if (ttd === 1 && pct < 100 && !fx.burnout) {
+          out.push({ id: "crunch:" + p.id, kind: "deadline", label: "Crunch on “" + p.short + "”, weekends included",
+            desc: "Deadline in 2 weeks. Every day, weekends too.",
             arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }, { stat: "health", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }] });
         }
       });
@@ -271,7 +278,7 @@ export class Game {
       DEFAULT_ACTIONS.forEach(function (a) {
         let desc = a.desc, arrows = a.arrows;
         if (a.id === "read" && lit.length) {
-          desc = "A week with papers. Moves the Related work of “" + lit[0].short + "”" + (lit.length > 1 ? " and " + (lit.length - 1) + " more" : "") + " a lot.";
+          desc = "Two weeks with papers. Moves the Related work of “" + lit[0].short + "”" + (lit.length > 1 ? " and " + (lit.length - 1) + " more" : "") + " a lot.";
           arrows = [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }];
         }
         out.push({ id: a.id, kind: "core", label: a.label, desc: desc, arrows: arrows });
@@ -279,8 +286,8 @@ export class Game {
     } else {
       out.push({ id: "recharge", kind: "core", label: "Recharge", desc: "You're on leave. Rest is the job.", arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
     }
-    // This week only: opportunities that came up, and anything an event unlocked.
-    (s.weekOpps || []).forEach(function (o) {
+    // Only this turn: opportunities that came up, and anything an event unlocked.
+    (s.turnOpps || []).forEach(function (o) {
       const def = self.D.opportunityById[o.id];
       if (!def) return;
       if (onLeave && WORK_DAYS.indexOf(def.days || "rest") >= 0) return;
@@ -304,7 +311,7 @@ export class Game {
     };
   }
 
-  // plan: { action: actionId }. One choice per week; the week resolves right away.
+  // plan: { action: actionId }. The turn's focus; the turn's updates and events come next.
   submitPlan(plan) {
     const s = this.state;
     if (s.stage !== "plan" || s.prompt) return false;
@@ -313,7 +320,9 @@ export class Game {
     const action = plan && ids.indexOf(plan.action) >= 0 ? plan.action : (ids.indexOf("recharge") >= 0 ? "recharge" : ids[0]);
     s.plan = { action: action, label: list[ids.indexOf(action)].label };
     s.lastPlan = { action: action };
-    s.stage = "resolve";
+    s.turnItems = (s.laterItems || []).concat(s.turnItems || []);
+    s.laterItems = [];
+    s.stage = "turn_items";
     this.save();
     return true;
   }
@@ -345,8 +354,10 @@ export class Game {
     s.turnLogStart = s.log.length;
     s.newAchievements = [];
     s.turnItems = [];
+    s.laterItems = [];
     s.endItems = [];
     s.plan = null;
+    s.exercisedThisTurn = false;
     s.before = this.snapshot();
     const managed = ["coursework", "ta", "fellowship"];
     s.statuses.forEach(function (st) { if (managed.indexOf(st.id) < 0) st.turns--; });
@@ -360,7 +371,8 @@ export class Game {
     });
     this.updateCalendarStatuses();
 
-    // Everything that happens to you this week comes before you choose what to do.
+    // What happens to you this turn. Choosing an advisor (and a first project) comes before the
+    // focus; everything else comes right after it.
     let items = [];
     items = items.concat(queueMilestones(this));
     items = items.concat(queuePapers(this));
@@ -380,22 +392,34 @@ export class Game {
     }
     if (hasStatus(this, "defense_prep")) fireHook(this, "defense_prep", {}).forEach(function (it) { items.push(it); });
     if (hasStatus(this, "job_market")) fireHook(this, "job_market", {}).forEach(function (it) { items.push(it); });
-    // At most one random event, rarely: less likely when something else already happened.
-    const busy = items.some(function (it) { return it.kind === "event"; }) ||
-      s.log.slice(s.turnLogStart || 0).some(function (e) { return e.kind === "good" || e.kind === "bad"; });
+    // A deadline two weeks out with the paper far from done weighs on you.
+    activeProjects(this).forEach(function (p) {
+      if (!p.target || p.target.turn !== s.turn + 1 || p.loomWarned === p.target.turn) return;
+      if (overallPct(self, p) >= 85) return;
+      p.loomWarned = p.target.turn;
+      self.log("“" + p.short + "” is due in two weeks and it's at " + overallPct(self, p) + "%." + stressHit(self, 3), "bad");
+    });
+    // Usually one event a turn, sometimes two or none. Updates (reviews, decisions, milestones)
+    // count toward it, so a busy turn gets fewer random events.
     const ev = this.D.config.events;
-    if (this.rng.chance(busy ? (ev.busy_turn_event_chance || 0.03) : (ev.turn_event_chance || 0.12))) {
-      drawHook(this, "turn", {}, 1).forEach(function (it) { items.push(it); });
-    }
-    s.turnItems = s.turnItems.concat(items);
+    const odds = ev.per_turn || [0.15, 0.6, 0.25];
+    let want = 0;
+    for (let r = this.rng.next(), acc = 0; want < odds.length; want++) { acc += odds[want]; if (r < acc) break; }
+    const updates = items.filter(function (it) { return it.kind === "event" || PROMPT_SYS.indexOf(it.sys) >= 0; }).length;
+    if (want - updates > 0) drawHook(this, "turn", {}, want - updates).forEach(function (it) { items.push(it); });
+    // Now and then, something to do with an evening or a weekend.
+    const low = s.stats.health < 45 || s.stats.sanity < 40;
+    if (s.advisor && this.rng.chance((this.D.config.side && this.D.config.side.chance || 0.3) + (low ? 0.15 : 0))) items.push({ kind: "sys", sys: "side" });
+    s.turnItems = items.filter(function (it) { return PRE_SYS.indexOf(it.sys) >= 0; });
+    s.laterItems = items.filter(function (it) { return PRE_SYS.indexOf(it.sys) < 0; });
     this.rollOpportunities();
   }
 
-  // Extra options that come up for this week only, plus anything an event unlocked earlier.
+  // Extra options that come up for this turn only, plus anything an event unlocked earlier.
   rollOpportunities() {
     const s = this.state;
     const self = this;
-    const max = (this.D.config.opportunities && this.D.config.opportunities.max_per_week) || 2;
+    const max = (this.D.config.opportunities && this.D.config.opportunities.max_per_turn) || 2;
     const picks = [];
     (s.unlocks || []).filter(function (u) { return u.turn === s.turn; }).forEach(function (u) { picks.push({ id: u.id, ctx: u.ctx || {} }); });
     s.unlocks = (s.unlocks || []).filter(function (u) { return u.turn > s.turn; });
@@ -404,14 +428,14 @@ export class Game {
       const o = cands[i];
       if (picks.some(function (x) { return x.id === o.id; })) continue;
       if (o.once && s.seen["opp:" + o.id] !== undefined) continue;
-      if (s.seen["opp:" + o.id] !== undefined && s.turn - s.seen["opp:" + o.id] < weeks(o.cooldown || 4)) continue;
+      if (s.seen["opp:" + o.id] !== undefined && s.turn - s.seen["opp:" + o.id] < span(o.cooldown || 4)) continue;
       const ctx = {};
       if (!check(o.when, this, ctx)) continue;
       if (!this.rng.chance(o.chance === undefined ? 0.05 : o.chance)) continue;
       picks.push({ id: o.id, ctx: ctx });
     }
     picks.forEach(function (o) { s.seen["opp:" + o.id] = s.turn; });
-    s.weekOpps = picks;
+    s.turnOpps = picks;
   }
 
   resolveTurn() {
@@ -420,16 +444,15 @@ export class Game {
     const self = this;
     const action = (s.plan && s.plan.action) || "recharge";
     const tally = { work: 0, self: 0, social: 0, exercise: 0, overtime: 0, projects: {} };
-    const K = 0.5;   // passive effects were tuned per two weeks; a turn is now one week
 
-    // Deadlines and milestones first (deadline mode changes how the week goes).
+    // Deadlines and milestones first (deadline mode changes how the turn goes).
     if (action.indexOf("submit:") === 0) applyPlanExtra(this, action, { preprint: true });
     else if (ACTION_EXTRAS.indexOf(action) >= 0) applyPlanExtra(this, action, {});
     if (action.indexOf("crunch:") === 0) addStatus(this, "deadline_mode", 1);
     let opp = null;
     if (action.indexOf("opp:") === 0) {
       const oid = action.slice(4);
-      opp = { def: this.D.opportunityById[oid], ctx: ((s.weekOpps || []).find(function (o) { return o.id === oid; }) || {}).ctx || {} };
+      opp = { def: this.D.opportunityById[oid], ctx: ((s.turnOpps || []).find(function (o) { return o.id === oid; }) || {}).ctx || {} };
     }
 
     const fx = this.fixedDays();
@@ -445,17 +468,25 @@ export class Game {
     if (s.stats.health < cfg.health.poor) eff *= cfg.health.poor_efficiency;
 
     let weekendWork = null;
-    if (hasStatus(this, "on_internship")) {
-      for (let i = 0; i < 5; i++) addStat(this, "energy", this.roll(cfg.energy.workday));
-      addStat(this, "coding", action === "intern_all" ? 1.4 : 0.8);
-      addStat(this, "network", action === "intern_all" ? 1.2 : 0.6);
-      addStat(this, "presenting", 0.2);
-      if (action === "intern_all") { addStat(this, "energy", -6); addStat(this, "advisor_rel", 0); s.internshipEffort = (s.internshipEffort || 0) + 1; }
-      if (action === "intern_pace") addStat(this, "sanity", 3);
+    const interning = hasStatus(this, "on_internship");
+    if (interning && action !== "recharge") {
+      // Ten internship days. A healthy pace costs little; giving it your all costs a lot.
+      const allIn = action === "intern_all";
+      addStat(this, "energy", allIn ? this.roll(cfg.energy.workday) * 10 - 6 : this.roll(cfg.energy.fixed_day) * 6);
+      addStat(this, "sanity", (cfg.sanity.work_day || 0) * (allIn ? 10 : 4));
+      addStat(this, "coding", allIn ? 2.8 : 1.6);
+      addStat(this, "network", allIn ? 2.4 : 1.2);
+      addStat(this, "presenting", 0.4);
+      if (allIn) s.internshipEffort = (s.internshipEffort || 0) + 1;
       if (action.indexOf("intern_weekend:") === 0) weekendWork = "p:" + action.slice(15);
-      tally.work += 5;
+      tally.work += 10;
+    } else if (interning) {
+      // A few vacation days, and easy evenings.
+      addStat(this, "energy", this.roll(cfg.energy.fixed_day) * 6);
+      this.restTurn("recharge", 4, tally);
+      tally.work += 6;
     } else {
-      // Fixed commitments cost Energy like work days.
+      // Fixed commitments (classes, TA duty, meetings) cost a little Energy and add a little Stress.
       const fixedWork = fx.parts.courses + fx.parts.ta + fx.parts.meetings + fx.parts.defense;
       addStat(this, "energy", this.roll(cfg.energy.fixed_day) * fixedWork);
       addStat(this, "sanity", (cfg.sanity.work_day || 0) * fixedWork);
@@ -466,14 +497,13 @@ export class Game {
         addStat(this, "writing", 0.2 * fx.parts.defense);
         addStat(this, "presenting", 0.2 * fx.parts.defense);
       }
-      // The week's free days all go to the one thing you chose.
+      // The turn's free days all go to its focus.
       let dayKey = "recharge";
       let effD = eff;
       if (action.indexOf("p:") === 0) dayKey = action;
       else if (action.indexOf("submit:") === 0 || action.indexOf("crunch:") === 0) dayKey = "p:" + action.slice(action.indexOf(":") + 1);
       else if (ACTION_EXTRAS.indexOf(action) >= 0) dayKey = action === "apply_fellowship" || action === "proposal" || action === "defense" ? "writing_day" : "career";
       else if (action === "read") dayKey = "read";
-      else if (action === "exercise") dayKey = "exercise";
       else if (opp && opp.def) {
         const kind = opp.def.days || "rest";
         if (kind === "project") {
@@ -482,15 +512,15 @@ export class Game {
           effD = eff * (opp.def.boost || 1);
         } else dayKey = kind === "none" ? null : kind;
       }
-      if (dayKey === "recharge" || dayKey === "exercise") this.restWeek(dayKey, fx.free, tally);
+      if (dayKey === "recharge") this.restTurn("recharge", fx.free, tally);
       else if (dayKey) this.applyDays(dayKey, effD, fx.free, tally);
       if (action.indexOf("crunch:") === 0) weekendWork = "p:" + action.slice(7);
-      if (hasTrait(this, "caffeine_powered") && s.stats.energy < 40) addStat(this, "health", -0.5);
+      if (hasTrait(this, "caffeine_powered") && s.stats.energy < 40) addStat(this, "health", -1);
     }
-    // Weekends: off, unless you crunched.
-    const ot = weekendWork ? 2 : 0;
+    // Weekends (four days): off, unless you crunched or spent them on research.
+    const ot = weekendWork ? 4 : 0;
     for (let i = 0; i < ot; i++) this.applyDay(weekendWork, eff, true, tally);
-    for (let i = 0; i < 2 - ot; i++) {
+    for (let i = 0; i < 4 - ot; i++) {
       addStat(this, "energy", this.roll(cfg.energy.weekend_off));
       addStat(this, "sanity", cfg.sanity.weekend_off);
       addStat(this, "friends_rel", 0.5);
@@ -504,62 +534,63 @@ export class Game {
     addStat(this, "energy", cfg.energy.baseline);
     addStat(this, "sanity", -(cfg.sanity.pressure || 0));
 
-    // Passive effects (per week).
+    // Passive effects (per turn).
     const tl = s.telemetry;
     tl.overtime_days += tally.overtime;
-    tl.overtime_streak = tally.overtime >= 1 ? tl.overtime_streak + 1 : 0;
+    tl.overtime_streak = tally.overtime >= 2 ? tl.overtime_streak + 1 : 0;
     tl.days_off_streak = tally.self === 0 ? tl.days_off_streak + 1 : 0;
     s.isolation = tally.social === 0 ? (s.isolation || 0) + 1 : 0;
-    if (s.isolation >= weeks(cfg.sanity.isolation_turns)) addStat(this, "sanity", K * this.roll(cfg.sanity.isolation_hit) * (hasTrait(this, "social_butterfly") ? 1.3 : 1));
+    if (s.isolation >= span(cfg.sanity.isolation_turns)) addStat(this, "sanity", this.roll(cfg.sanity.isolation_hit) * (hasTrait(this, "social_butterfly") ? 1.3 : 1));
     s.noExercise = tally.exercise === 0 ? (s.noExercise || 0) + 1 : 0;
-    if (hasTrait(this, "gym_rat") && s.noExercise >= 6) addStat(this, "sanity", -1);
+    if (hasTrait(this, "gym_rat") && s.noExercise >= 3) addStat(this, "sanity", -2);
     const inPerson = s.advisor && !hasStatus(this, "at_conference") && !hasStatus(this, "on_internship") && !hasStatus(this, "sick") && !hasStatus(this, "on_leave");
     if (inPerson && s.advisor.archetype === "kind_funded") {
-      addStat(this, "sanity", this.roll("+1±1"));
-      addStat(this, "labmates_rel", 0.15);
+      addStat(this, "sanity", this.roll("+2±1"));
+      addStat(this, "labmates_rel", 0.3);
       tl.lab_meetings_in_person++;
     }
     if (s.advisor) {
-      if (s.advisor.archetype === "micromanager") addStat(this, "sanity", -K);
-      if (s.advisor.archetype === "famous_absent") addStat(this, "network", 0.4 * K);
+      if (s.advisor.archetype === "micromanager") addStat(this, "sanity", -1);
+      if (s.advisor.archetype === "famous_absent") addStat(this, "network", 0.4);
       const projDays = Object.keys(tally.projects).length;
-      if (activeProjects(this).length && !projDays && !hasStatus(this, "on_internship")) addStat(this, "advisor_rel", -0.3);
-      else if (projDays) addStat(this, "advisor_rel", 0.15);
+      if (activeProjects(this).length && !projDays && !hasStatus(this, "on_internship")) addStat(this, "advisor_rel", -0.6);
+      else if (projDays) addStat(this, "advisor_rel", 0.3);
     }
-    if (hasTrait(this, "cat_person")) addStat(this, "sanity", K);
-    if (hasTrait(this, "optimist")) addStat(this, "sanity", K);
-    if (hasTrait(this, "burnout_survivor")) addStat(this, "sanity", 0.5 * K);
-    if (hasStatus(this, "post_rejection_blues")) addStat(this, "sanity", -1);
-    if (hasStatus(this, "deadline_mode")) addStat(this, "sanity", hasTrait(this, "deadline_junkie") ? -3 : -2);
-    if (hasStatus(this, "in_love")) addStat(this, "sanity", 1);
-    if (hasStatus(this, "on_leave")) addStat(this, "sanity", 2);
-    // Health: desk weeks wear you down a little; exhaustion and stress wear it down faster.
-    if (tally.exercise === 0) addStat(this, "health", cfg.health.desk_week);
-    if (s.stats.energy < 25) addStat(this, "health", cfg.health.exhausted_week);
-    if (s.stats.sanity < 30) addStat(this, "health", cfg.health.stressed_week);
+    if (hasTrait(this, "cat_person")) addStat(this, "sanity", 1);
+    if (hasTrait(this, "optimist")) addStat(this, "sanity", 1);
+    if (hasTrait(this, "burnout_survivor")) addStat(this, "sanity", 0.5);
+    if (hasStatus(this, "post_rejection_blues")) addStat(this, "sanity", -2);
+    if (hasStatus(this, "deadline_mode")) addStat(this, "sanity", hasTrait(this, "deadline_junkie") ? -4 : -3);
+    if (hasStatus(this, "in_love")) addStat(this, "sanity", 2);
+    if (hasStatus(this, "on_leave")) addStat(this, "sanity", 4);
+    // Health: desk turns wear you down a little; exhaustion and stress wear it down faster.
+    if (tally.exercise === 0 && !s.exercisedThisTurn) addStat(this, "health", cfg.health.desk_turn);
+    if (s.stats.energy < 25) addStat(this, "health", cfg.health.exhausted_turn);
+    if (s.stats.sanity < 30) addStat(this, "health", cfg.health.stressed_turn);
 
     // Health and burnout.
     const t = tOf(s.turn);
-    let sickP = (cfg.health.sick_base + cfg.health.sick_per_point * (100 - s.stats.health)) * K;
+    let sickP = cfg.health.sick_base + cfg.health.sick_per_point * (100 - s.stats.health);
     if (t >= cfg.health.flu_season[0] && t <= cfg.health.flu_season[1]) sickP *= 2;
     if (!hasStatus(this, "sick") && this.rng.chance(sickP)) {
-      addStatus(this, "sick", 2);
+      addStatus(this, "sick", 1);
       addStat(this, "energy", -15);
-      this.log("You catch something nasty. The next week or two will be slow.", "bad");
+      addStat(this, "health", -4);
+      this.log("You catch something nasty. The next two weeks will be slow.", "bad");
     }
     if (s.stats.sanity <= 0 && !hasStatus(this, "burnout")) {
-      addStatus(this, "burnout", weeks(cfg.sanity.burnout_turns) + 1);
+      addStatus(this, "burnout", span(cfg.sanity.burnout_turns) + 1);
       tl.burnouts++;
       s.stats.sanity = 15;
       this.log("Burnout. You hit empty. For the next several weeks you'll get half as much done and can't crunch. Rest. This happens to more people than will ever say so.", "bad");
     }
     if (s.stats.health < 35 && !s.warnedHealth) {
       s.warnedHealth = true;
-      this.log("Your health is slipping: you'll get sick more often and work a little slower. A week of gym, sleep and real meals helps.", "bad");
+      this.log("Your health is slipping: you'll get sick more often and work a little slower. Recharging helps, and so does saying yes to the gym or a hike when it comes up.", "bad");
     } else if (s.stats.health > 55) s.warnedHealth = false;
     if (s.stats.energy < 20 && !s.warnedEnergy) {
       s.warnedEnergy = true;
-      this.log("You're running on fumes: with Energy this low, everything gets less done. A week of recharging helps.", "bad");
+      this.log("You're running on fumes: with Energy this low, everything gets less done. Two weeks of recharging help.", "bad");
     } else if (s.stats.energy > 50) s.warnedEnergy = false;
     if (s.stats.sanity < 25 && !s.warnedSanity && !hasStatus(this, "burnout")) {
       s.warnedSanity = true;
@@ -578,7 +609,7 @@ export class Game {
     rollMissedDeadlines(this);
     s.projects.forEach(function (p) { p.days = 0; });
     accrueCitations(this);
-    if (wOf(s.turn) === TURNS) yearlyLabmates(this, function (l) { self.log(l); });
+    if (tOf(s.turn) === TURNS) yearlyLabmates(this, function (l) { self.log(l); });
     this.maybeTip();
     s.telemetry.turns++;
     checkAchievements(this);
@@ -628,25 +659,18 @@ export class Game {
 
   // ---- Days ------------------------------------------------------------------
 
-  // Recharge and Get healthy restore a whole week's worth however busy the week is: classes and
-  // TA still happen, but evenings, sleep and the gym are yours.
-  restWeek(kind, free, tally) {
+  // Recharge restores a whole turn's worth however busy the turn is: classes and TA still
+  // happen, but evenings, sleep and the weekend are yours. It's good for your body too.
+  restTurn(kind, free, tally) {
     const s = this.state;
     const cfg = this.D.config;
-    if (kind === "recharge") {
-      addStat(this, "energy", this.roll(cfg.energy.recharge_week));
-      addStat(this, "sanity", this.roll(cfg.sanity.recharge_week));
-      addStat(this, "health", cfg.health.recharge_week);
-      addStat(this, "friends_rel", 2);
-      s.telemetry.rest_days += Math.round(free);
-      tally.self += 2; tally.social++;
-    } else {
-      addStat(this, "energy", this.roll(cfg.energy.exercise_week));
-      addStat(this, "health", this.roll(cfg.health.exercise_week) * (hasTrait(this, "gym_rat") ? 1.3 : 1));
-      addStat(this, "sanity", this.roll(cfg.sanity.exercise_week));
-      s.telemetry.exercise_days += Math.round(free);
-      tally.self += 2; tally.exercise += 2;
-    }
+    addStat(this, "energy", this.roll(cfg.energy.recharge_turn));
+    addStat(this, "sanity", this.roll(cfg.sanity.recharge_turn));
+    addStat(this, "health", this.roll(cfg.health.recharge_turn));
+    addStat(this, "friends_rel", 3);
+    s.telemetry.rest_days += Math.round(free);
+    s.telemetry.exercise_days += 1;
+    tally.self += 3; tally.social++; tally.exercise++;
   }
 
   // n can be fractional (4.5 days): the last part-day counts for its fraction of everything.
@@ -805,7 +829,7 @@ export class Game {
     const inSemester = sem === "fall" || sem === "spring";
     const course = inSemester && (y === 1 || (y === 2 && sem === "fall"));
     if (course) addStatus(this, "coursework", 1); else removeStatus(this, "coursework");
-    if (course && (t === 1 || t === 10) && firstWeek(s.turn)) {
+    if (course && (t === 1 || t === 10)) {
       this.log("This semester: " + this.rng.shuffle(COURSES).slice(0, y === 1 ? 2 : 1).join(" and ") + ".");
     }
     if (s.fellowshipYear === y) addStatus(this, "fellowship", 1); else removeStatus(this, "fellowship");
@@ -820,7 +844,7 @@ export class Game {
       if (ta) {
         s.telemetry.ta_semesters++;
         s.taCourse = this.rng.pick(TA_COURSES);
-        this.log("You're a TA for " + s.taCourse + " this semester. About a day a week goes to teaching.");
+        this.log("You're a TA for " + s.taCourse + " this semester. Two days a turn go to teaching." + stressHit(this, 4));
       }
     }
     if (inSemester && s.ta[key]) addStatus(this, "ta", 1); else removeStatus(this, "ta");
@@ -828,7 +852,7 @@ export class Game {
 
   maybeTip() {
     const s = this.state;
-    if (s.turn - s.lastTipTurn < weeks(this.D.config.tip_spacing || 6)) return;
+    if (s.turn - s.lastTipTurn < span(this.D.config.tip_spacing || 6)) return;
     const self = this;
     const tips = this.D.tips.filter(function (tp) { return !s.tipsShown[tp.id] && self.D.phd101[tp.topic] && (!tp.when || check(tp.when, self, {})); });
     if (!tips.length) return;

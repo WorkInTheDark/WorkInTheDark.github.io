@@ -132,7 +132,7 @@ export class App {
     this.advance();
   }
 
-  // Runs the game forward until it needs the player: a prompt, or next week's choice.
+  // Runs the game forward until it needs the player: a prompt, or the next turn's focus.
   advance() {
     if (!this.game || this.screen !== "game") return;
     for (let guard = 0; guard < 200; guard++) {
@@ -161,7 +161,7 @@ export class App {
     this.plan = p;
   }
 
-  // One click plays the week. A quick double click shouldn't also spend the next week.
+  // One click sets the turn's focus. A quick double click shouldn't also pick the next turn's.
   doAction(id) {
     if (!this.game || !this.plan || this.modal) return;
     if (Date.now() - (this.planShownAt || 0) < 400) return;

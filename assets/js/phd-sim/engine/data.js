@@ -83,5 +83,7 @@ export function prepareData(raw) {
   D.qa = src.qa || { questions: [], members: [] };
   D.opportunities = asList(src.opportunities);
   D.opportunityById = indexBy(D.opportunities);
+  D.side = asList(src.side);
+  D.sideById = indexBy(D.side);
   return D;
 }

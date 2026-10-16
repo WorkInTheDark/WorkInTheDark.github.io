@@ -3,7 +3,7 @@
 Status: v1 implemented (2026-10-15) on the `phd-simulator` branch. Phases 1 and 2 are built, plus parts of Phase 3 (daily seed, share image, job talk Q&A); see section 18 for what is and isn't done.
 Owner: Arthur. This file is the design; `content-spec.md` is the exact data contract; `tools/phd-sim/README.md` lists the dev commands. It is excluded from the Jekyll build.
 
-A browser game on the site, inspired by 《读博模拟器》, in which the player lives through an NLP × HCI PhD one week at a time: choosing an advisor, running projects, surviving reviews, travelling to conferences, living a life outside the lab, and landing somewhere at the end. The aim is a game that is as realistic as possible while still being fun, and that can be replayed many times without feeling repetitive.
+A browser game on the site, inspired by 《读博模拟器》, in which the player lives through an NLP × HCI PhD two weeks at a time: choosing an advisor, running projects, surviving reviews, travelling to conferences, living a life outside the lab, and landing somewhere at the end. The aim is a game that is as realistic as possible while still being fun, and that can be replayed many times without feeling repetitive.
 
 ---
 
@@ -13,12 +13,12 @@ A browser game on the site, inspired by 《读博模拟器》, in which the play
 |---|---|
 | Language | English |
 | Field | NLP × HCI (human-centered AI, clinical AI flavor) |
-| Turn length | **One week, one choice.** Each week you pick one thing to do and the week plays out right away: no multi-pick, no confirm button. A few choices are always there (each project, Read, Recharge); random happenings add "This week only" choices (section 4). Changed twice on 2026-10-16: first from a repeating two-week routine to a per-turn planner, then to this |
-| Visible stats | Three bars to balance: **Energy**, **Stress** and **Health**, plus Citations (+ h-index) and Papers. Stress is the engine's `sanity` shown as 100 − sanity (2026-10-16, third round of feedback) |
+| Turn length | **Two weeks: one focus click, then what comes up.** You pick the turn's focus (a project, Read and learn, Recharge, or an "only this turn" option), then answer the turn's updates and events, and sometimes a side activity. No multi-pick, no confirm button (section 4). History, all 2026-10-16: a repeating two-week routine, then a two-week planner with several picks, then one click per week, then this, after Arthur replayed the original 读博模拟器 (a month per turn: one to-do pick, then several event screens) |
+| Visible stats | Three bars to balance: **Energy**, **Stress** and **Health**, plus Citations (+ h-index) and Papers. Stress is the engine's `sanity` shown as 100 − sanity. New tasks (reviews, grading, a rebuttal) and bad news (rejections) raise Stress; many events now cost Health. "Get healthy" was dropped as a duplicate of Recharge |
 | Hidden stats | Skills (hidden again: the bars felt useless), relationships, network |
-| Projects | **One 0–100% progress bar per project**, with phases along it. About 4 months when you push, 6–8 when you alternate with other things. Kind and topic are assigned automatically. Waits (IRB, recruiting, annotation) are 1–3 weeks |
+| Projects | **One 0–100% progress bar per project**, with phases along it. About 4 months when you push, 6–8 when you alternate with other things. Kind and topic are assigned automatically. Waits (IRB, recruiting, annotation) are 2–4 weeks |
 | Character | Three traits rolled at random. No background or origin choice; those became traits (Industry Veteran, Career Switcher, Master's Head Start, International Student) (2026-10-16) |
-| Event frequency | About one pop-up every four to five weeks (random events at 9% a week, plus milestones, reviews and Q&As); routine news goes into the weekly report instead of pop-ups (2026-10-16) |
+| Event frequency | **Usually one event a turn, sometimes two or none** (two more often than none: 15% / 60% / 25%). Updates that need an answer (reviews, decisions, milestones) count toward it. A side-activity card comes up in about a third of turns. Routine news goes into the report |
 | Not stats | Money and funding (funding becomes a hidden trait of the advisor) |
 | Effects | Rolled within a range, written `+7±3` |
 | Before choosing | Arrows only, never numbers |
@@ -74,15 +74,14 @@ Target run length: 25–40 minutes for a five-year PhD, with save and resume.
 
 ## 3. Time and calendar
 
-### 3.1 Turns and periods
-- **One turn = one week** = 5 weekdays + a weekend. One year = 52 turns, starting on 1 September (364 days; the missing day is ignored).
-- **The calendar still counts in two-week periods**, T1–T26, two turns each. The tables below, the venue calendar, and every `turn:` condition, cooldown and duration in the content files use periods. The engine converts: a content duration of N periods lasts 2N weeks, and things that happen "at T12" happen in the first week of T12 (deadlines fall in the second week).
-- Nominal program: 5 years (260 weeks). Extensions up to the end of Year 8 (416 weeks), when the run ends regardless.
-- Elsewhere in this doc, durations written in "turns" for statuses, venues and milestones are periods (two weeks each) unless they say weeks.
+### 3.1 Turns
+- **One turn = two weeks** = 10 weekdays + 4 weekend days. One year = 26 turns (T1–T26), starting on 1 September (364 days; the missing day is ignored).
+- Content and config count in turns. Players read time in weeks and dates ("deadline in 4 weeks", "Oct 13–26").
+- Nominal program: 5 years (130 turns). Extensions up to the end of Year 8 (208 turns), when the run ends regardless.
 
-### 3.2 Period-to-date map (each year)
+### 3.2 Turn-to-date map (each year)
 
-| Period | Dates | Notes |
+| Turn | Dates | Notes |
 |---|---|---|
 | T1 | Sep 1–14 | Fall semester starts |
 | T2 | Sep 15–28 | |
@@ -152,92 +151,71 @@ ARR rejections can be resubmitted to a later cycle with previous reviews attache
 
 ---
 
-## 4. The week
+## 4. The turn
 
-Changed twice on 2026-10-16 at Arthur's request. First the repeating routine and auto-continue were removed in favor of a two-week planner with several picks and an End turn button. He found that too complicated, so now **each turn is one week and you make one choice**. Clicking it plays the week out at once.
+Changed four times on 2026-10-16 at Arthur's request; this is the current shape. A turn is two weeks:
+
+1. **Focus (one click).** What the turn's free weekdays go to.
+2. **What comes up.** The turn's updates and events, one card at a time, each with its own choices.
+3. **Sometimes, a side activity:** one small card for an evening or a weekend.
+4. **The report** for the two weeks.
 
 ### 4.1 Fixed time
-- Fixed commitments take part of each week before your choice gets the rest:
+Fixed commitments take part of each turn's 10 weekdays:
 
-  | Commitment | Days per week | When |
-  |---|---|---|
-  | Courses | about 1.5 in Year 1, 1 in Year 2 fall | Coursework terms |
-  | TA duty | about 1 (1.5 at finals) | TA semesters |
-  | Meetings | about 0.5 (1 with a Micromanager) | Always |
-  | Defense prep | about 2.5 | Defense prep |
-  | Family | 1 | Parent trait |
-  | Internship | all 5 | Internship weeks |
+| Commitment | Days per turn | When |
+|---|---|---|
+| Courses | 3 in Year 1, 2 in Year 2 fall | Coursework terms |
+| TA duty | 2 (3 at finals) | TA semesters |
+| Meetings | 1 (2 with a Micromanager) | Always |
+| Defense prep | 5 | Defense prep |
+| Family | 2 | Parent trait |
+| Internship | all 10 | Internship turns |
 
-  Two-week amounts from `config.yml` are split across a period's two weeks (rounded up in the first week, down in the second).
-- **All the remaining weekdays** go to the one thing you chose. You get fewer when you're sick (3 fewer) or burned out (half).
-- **Weekends are off** (+Energy, −Stress), except when you crunch for a deadline.
+All the remaining weekdays go to the focus. You get 5 fewer when you're sick, and half when burned out. Weekends (4 days) are off, unless you crunch or spend them on research during an internship.
 
-### 4.2 What you can choose
-Only a few choices are always there, because most real activities don't fill a week:
-- **Work on "<project>"**, for each active project, unless it's waiting (IRB, recruiting, annotation) or on hold, when it has nothing to work on that week. At 100% it becomes **Polish "<project>"**: ready, waiting for its deadline, and more work only polishes the writing.
-- **Read and learn:** moves a project in **Related work** a lot (1.3× a work week on it, versus 0.8× for "Work on" in that phase) and every other project a little (about 1–2% a week). Sometimes an idea.
-- **Recharge:** about +20 Energy and −10 Stress for the week, on top of the weekend, however busy the week is.
-- **Get healthy:** gym, sleep, real meals. About +11 Health, +8 Energy, −4 Stress.
+### 4.2 Focus choices
+A few are always there:
+- **Work on "<project>"**, for each active project, unless it's waiting (IRB, recruiting, annotation) or on hold. At 100% it becomes **Polish "<project>"**: ready, waiting for its deadline, and more work only polishes the writing.
+- **Read and learn:** moves a project in **Related work** a lot (1.3× working on it, versus 0.8× for "Work on" in that phase) and every other project a little. Sometimes an idea.
+- **Recharge:** about +28 Energy, −18 Stress and +4 Health for the turn, on top of the weekends, however busy the turn is. It's the one rest choice; "Get healthy" was dropped because it duplicated it.
 
-Some choices come from the calendar and your progress:
-- **Deadline week:** "Polish and submit "<project>" to VENUE" replaces that project's work choice. It needs at least half the writing done by the end of the week and always posts a preprint. If you skip it, the target rolls to the next deadline.
-- **One or two weeks before a deadline:** "Crunch on "<project>", weekend included". It adds deadline mode, two overtime days, and a big drain on all three bars.
-- **Milestones**, which use the week: apply for internships (Years 2–5, T2–T7) or a fellowship (Years 1–3, T3–T6), schedule the thesis proposal, start defense prep, or go on the job market.
-- **Internship weeks:** "Give it your all", "Keep a healthy pace", or "Spend the weekend on <project>".
+Some come from the calendar and your progress:
+- **Deadline turn:** "Polish and submit "<project>" to VENUE" replaces that project's work choice. It needs at least half the writing done and always posts a preprint. Skip it and the target rolls to the next deadline.
+- **The turn before a deadline:** "Crunch on "<project>", weekends included" (deadline mode, four overtime days, a big drain on all three bars).
+- **Milestones**, which take the turn's focus: internship or fellowship applications, scheduling the proposal, starting defense prep, the job market.
+- **Internship turns:** "Give it your all" (big drain, better return-offer odds), "Keep a healthy pace" (about Energy-neutral, a little Stress relief), "Spend the weekends on <project>", or "Take a few days off" (a Recharge).
 - **On leave:** only Recharge.
 
-Everything else comes up as a **"This week only"** choice (`opportunities.yml`):
-- the holidays at home, winter break, a spring-break trip, a summer vacation
-- a friend or your parents visiting
-- a summer school, a hackathon, a nearby workshop, an invited talk, the career fair, visit day
-- a writing retreat, an empty GPU cluster, the clinic suddenly having openings, or your advisor's free week (each boosts project progress)
-- helping a labmate make their deadline, teaching this week's lectures
-- the thesis bootcamp during defense prep
+And some come up for **this turn only** (`opportunities.yml`): the holidays at home, winter break, a spring-break trip, a summer vacation, a summer school, a hackathon, an invited talk, the career fair, visit day, a writing retreat, an empty GPU cluster, the clinic suddenly having openings, your advisor's free two weeks, helping a labmate make their deadline, teaching the lectures, the thesis bootcamp. Each eligible one rolls its `chance` every turn (respecting `when`, `cooldown`, `once`), up to 2 a turn; events can also `unlock:` one for the next turn. About 40% of turns offer at least one.
 
-Each week every eligible opportunity rolls its `chance` (respecting `when`, `cooldown` and `once`), up to `opportunities.max_per_week` (2). Events can also unlock one with `unlock:` (for this week or next). About 29% of weeks offer at least one. If you don't take it, it's gone.
+**Start a new project** is a free button: it doesn't use up the turn, and the project's kind and topic are picked for you (section 8.1).
 
-**Start a new project** is a free button, not a choice: it doesn't use up the week, and the project's kind and topic are picked for you (section 8.1).
+### 4.3 What comes up
+- **Before the focus:** only advisor matching and your first project (you need an advisor to plan).
+- **After the focus**, in order: milestones and Q&As on their dates (quals, proposal, defense), reviews arriving with the rebuttal, decisions, conference trips, internship and job offers, the Dark Angel's Question, world news hooks, scheduled arc follow-ups, then **random events**.
+- **How many events:** each turn rolls a target of 0, 1 or 2 "things that happen" (15% / 60% / 25%). Updates that need an answer count toward it, so a turn with reviews gets fewer random events. Hook events (deadline, after a decision, conference) come on top, at their own chances.
+- **Side activities** (`side.yml`): in about 30% of turns (45% when Health or Stress is in trouble), a card offers two or three small things for an evening or a weekend: the gym, a run club, yoga, a doctor's visit, cooking, an early bedtime, board games, dinner with friends, a hike, a concert, a hobby, coffee with a visiting speaker, a reading group, helping a labmate debug, a visiting friend or parents, a nearby workshop. Options that help a bar in trouble are three times as likely. They don't take the focus; a few cost a day. "Not this time" is always there.
+- **Stress from new work and bad news:** reviews arriving (Stress up by how bad they are, plus the rebuttal to write), rejections (about +10, +13 for a desk reject), revise-and-resubmit (+5), a new TA semester (+4), quals announced (+6), scheduling the proposal (+5), starting defense prep (+6), the job market (+5), a new project (+2), applications (+2), and a deadline two weeks away with the paper under 85% (+3). The log says "Stress +N" for each.
 
-Every choice shows arrows for its visible effects, never numbers. A quick double click can't spend two weeks: clicks in the first 0.4 seconds of a new week are ignored.
-
-### 4.3 Week order
-1. **Start of the week:** the calendar and statuses update. Then come the things that need you before you choose:
-   - advisor matching
-   - quals, proposal and defense Q&A on their dates
-   - reviews arriving, with the rebuttal
-   - a Findings decision
-   - internship and job offers
-   - the Dark Angel's Question, the week before a deadline
-   - at most one random event (9% a week, or 3% if something else already happened)
-
-   Then the week's opportunities are rolled.
-2. **Your choice:** one click.
-3. **The week plays out:** days resolve, the opportunity's outcome applies, passive effects apply, and health and burnout are checked.
-4. **End of the week:** submissions and revisions are finalized, then citations, tips and achievements.
-5. **The report** ("Last week"): what you did, Energy, Stress and Health changes, project progress, and news (decisions, conference trips, results, warnings).
-
-**Decisions that no longer pop up:**
-- Acceptances, rejections and revise-and-resubmits are reported, not asked about. A rejected paper automatically goes back to revision for the next deadline, and you can change its target or shelve it from the project card.
-- Conference trips happen automatically: you travel if there's money, otherwise there's a chance of a travel grant, otherwise you present remotely.
+**Decisions that don't pop up:** acceptances, rejections and revise-and-resubmits are reported; a rejected paper goes back to revision for the next deadline. Conference trips happen automatically.
 
 ### 4.4 Balance targets
-The three bars push against "Work on" every week:
 
-| Week | Energy | Stress | Health |
+| Turn focus | Energy | Stress | Health |
 |---|---|---|---|
-| Work on a project | about −8 | about +2.5 | about −1 |
-| Read and learn | about −5 | about +2.5 | about −1 |
-| Recharge | about +22 | about −7 | 0 |
-| Get healthy | about +10 | about −2 | about +11 |
-| Crunch | about −26 | about +9 | about −5 |
+| Work on a project | about −16 | about +4 | about −2 |
+| Read and learn | about −9 | about +4 | about −2 |
+| Recharge | about +31 | about −9 | about +4 |
+| Polish and submit | about −18 | about +8 | about −3 |
 
-So you can work about three weeks for each Recharge week, and need a Get healthy week every couple of months. Below 60 Energy you work slower, at 100 Stress you burn out, and low Health means sick weeks.
+Events and side activities move the bars further: 68 exhausting event outcomes now cost 2–3 Health, extra-work outcomes add Stress, and there are new Health events (the office chair, eye strain, flu season, crackers for lunch, the morning after a deadline, the fifth coffee, wrist pain, falling asleep in a talk, a sprained ankle, a three-day headache, pollen, the lab fridge). There are also "new task" events: a journal review request, a grading pile, slides needed by Friday, onboarding a rotation student.
 
 From `simulate.mjs` (900 runs) and a one-project probe:
-- A project you push on (work every week you can, resting only when a bar runs low) takes about **18 weeks** after Year 1 and about 22 weeks in Year 1, when classes take part of every week. Alternating with other things takes 6–8 months.
-- A sensible bot graduates about 90% of the time, with a median of about 4.6 years. A workaholic bot burns out about 3 times; a slacker bot graduates around year 5.7.
-- Top-venue acceptance is about 26% per decided first-author submission.
-- Pop-ups: about 0.25 per week.
+- A project you push on takes about **18 weeks** after Year 1 and about 22 in Year 1.
+- A sensible bot graduates about 93% of the time, with a median of about 4.4 years; a slacker around year 5.8. A bot that never rests ends Year 1 near Energy 10, Stress 100, Health 0.
+- About 1.1 events per turn, plus about 0.35 side cards; about 1.6 cards per turn in all.
+- Known cost: with about four times as many events per run, the overlap of random events between consecutive runs rose to about 60%. More event content is the fix.
 
 ## 5. Stats
 
@@ -249,7 +227,7 @@ In this doc and in the content files, **"Sanity" is the engine's name for what p
 |---|---|---|
 | **Energy** | 0–100 | Short-term fuel. Work uses it; Recharge and weekends restore it. Below 60, each day gets less done. |
 | **Stress** | 0–100 | The engine's `sanity`, shown as 100 − sanity. Builds with work, deadlines and rejections; Recharge and good things bring it down. At 100 you burn out. Content keeps "sanity up is good". |
-| **Health** | 0–100 | Wears down slowly at a desk, faster when you're exhausted (Energy < 25) or stressed (Stress > 70) and when you crunch. Below 35 you work 10% slower; low Health means more sick weeks. Get healthy rebuilds it. |
+| **Health** | 0–100 | Wears down slowly at a desk, faster when you're exhausted (Energy < 25) or stressed (Stress > 70) and when you crunch. Below 35 you work 10% slower; low Health means more sick turns. Recharge and health side activities (the gym, a doctor's visit) rebuild it. |
 | **Citations** | count, plus h-index | Grow from published papers and preprints (section 8.8). |
 | **Papers** | list | Accepted papers, plus what is under review. |
 
@@ -269,28 +247,29 @@ Stat ids used in data files: `energy`, `sanity`, `health`, `citations`, `taste`,
 ### 5.3 Starting tuning values (all in `config.yml`)
 
 **Energy**
-- Research day `-3±1`; class, TA or meeting day `-2`; overtime (weekend) day `-5±2`; weekend day off `+4±1`; `-2` a week for life.
-- A Recharge week `+20±3` and a Get healthy week `+8±2`, as whole-week amounts that don't depend on how many free days the week had.
+- Research day `-3±1`; class, TA or meeting day `-2`; overtime (weekend) day `-5±2`; weekend day off `+4±1`; `-4` a turn for life.
+- A Recharge turn `+28±4`, a whole-turn amount that doesn't depend on how many free days the turn had.
 - Efficiency multiplier: `clamp(0.35 + 0.011 × energy, 0.35, 1.0)`: full speed at 60 or more.
 
 **Stress** (stored as `sanity`, so the signs below are sanity changes)
-- Every work day `-0.5`, plus `-2.5` a week of background pressure; weekend days off `+1` each.
-- A Recharge week `+10±2`; a Get healthy week `+4±1`; social, hobby or family days from opportunities `+3±1`.
-- Overtime day `-1`. Isolation (no social time for 6 weeks) adds more.
+- Every work day `-0.5`, plus `-5` a turn of background pressure; weekend days off `+1` each.
+- A Recharge turn `+18±3`; social, hobby or family days from opportunities `+3±1`; side activities `+1` to `+5`.
+- New work and bad news: see section 4.3.
+- Overtime day `-1`. Isolation (no social time for 3 turns) adds more.
 - Stress over 75: efficiency ×0.8, and "should I quit?" events become possible.
-- At 100: **Burnout** for 7 weeks (free days halved, no crunching).
+- At 100: **Burnout** for 4 turns (free days halved, no crunching).
 
 **Health**
-- `-1` a week with no exercise; `-1` more when the week ends with Energy under 25, and `-1` when it ends with Stress over 70; overtime day `-1.5`.
-- A Get healthy week `+11±2`; Recharge `+1`.
-- Weekly chance of getting sick: `(0.01 + 0.004 × (100 − health)) / 2`, doubled in flu season.
+- `-2` a turn with no exercise (a health side activity or Recharge counts); `-2` more when the turn ends with Energy under 25, and `-2` when it ends with Stress over 70; overtime day `-1.5`; many event outcomes.
+- A Recharge turn `+4±1`; health side activities `+3` to `+6`.
+- Below 35, work is 10% slower. Chance of getting sick each turn: `0.01 + 0.003 × (100 − health)`, doubled in flu season (sick: 5 fewer free days, −15 Energy, −4 Health).
 
 **Skills (hidden)**
 - Each day of relevant work: `Δ = 0.25 × (1 − skill/100)`, so growth slows as skills rise. They speed up progress and raise paper quality.
 - Events can add ranged boosts (`writing: "+7±3"`).
 
 **Relationships (hidden)**
-- Advisor relationship moves with weeks spent on projects (or not), kept or broken commitments, and events.
+- Advisor relationship moves with turns spent on projects (or not), kept or broken commitments, and events.
 
 ### 5.4 How hidden stats show up
 Players learn about hidden stats the way real students do, indirectly:
@@ -452,16 +431,16 @@ Each project is **one 0–100% progress bar**. Its phases sit along the bar, eac
 | Type | Phases (share of the bar) | Waits |
 |---|---|---|
 | Empirical NLP | Idea 8 → Related work 17 → Pilot 20 → Experiments 30 → Writing 25 | none |
-| Human-centered study | Idea 6 → Related work 14 → Study design 12 → IRB → Recruiting → Sessions 20 → Analysis 20 → Writing 28 | IRB 2–3 weeks, recruiting 1–2 |
-| System + evaluation | Idea 6 → Related work 14 → Build 28 → IRB → User study 16 → Analysis 12 → Writing 24 | IRB 2–3 weeks |
-| Dataset / benchmark | Idea 7 → Related work 15 → Guidelines 15 → Annotation → Baselines 33 → Writing 30 | annotation 2–3 weeks |
+| Human-centered study | Idea 6 → Related work 14 → Study design 12 → IRB → Recruiting → Sessions 20 → Analysis 20 → Writing 28 | IRB 2–4 weeks, recruiting 2 |
+| System + evaluation | Idea 6 → Related work 14 → Build 28 → IRB → User study 16 → Analysis 12 → Writing 24 | IRB 2–4 weeks |
+| Dataset / benchmark | Idea 7 → Related work 15 → Guidelines 15 → Annotation → Baselines 33 → Writing 30 | annotation 2–4 weeks |
 | Position / survey | Idea 10 → Related work 45 → Writing 45 | none |
 
 Type ids used in data files: `empirical`, `study`, `system`, `dataset`, `position`.
 
 **New projects pick their own kind and topic** (2026-10-16): Arthur found choosing them pointless, and hype meant nothing to players. The kind is weighted (empirical 3, study 2.5, system 2, dataset 1, position 0.7; Career Switchers lean toward studies), and the topic is one not already used by an active project. Hype still matters behind the scenes (citations, novelty, scoops).
 
-**Waiting phases** advance by calendar time rather than work. While a project waits (or is on hold after a setback), it has no "Work on" choice that week. Events can shorten or lengthen waits.
+**Waiting phases** advance by calendar time rather than work. While a project waits (or is on hold after a setback), it has no "Work on" choice that turn. Events can shorten or lengthen waits.
 
 **Revising:** after a rejection or a revise-and-resubmit, the bar sits at 80% and revising (a 20% phase) fills the rest.
 
@@ -469,11 +448,11 @@ Type ids used in data files: `empirical`, `study`, `system`, `dataset`, `positio
 Each day of work adds, in % of the whole bar:
 
 ```
-progress = 3.0 × efficiency(energy) × skill_factor × modifiers × roll(±20%)
+progress = 3.3 × efficiency(energy) × skill_factor × modifiers × roll(±20%)
 skill_factor = 0.6 + 0.8 × (relevant_skill / 100)
 ```
 
-A full work week at full Energy after Year 1 (about 4.5 free days) is about 10%; in Year 1, with classes, about 6%. Related work moves 0.8× as fast with "Work on" and 1.3× with **Read and learn**; a reading day also adds 0.4% to every other project. Event effects on `project.progress` are points of the whole bar.
+A full work turn at full Energy after Year 1 (about 9 free days) is about 25%; in Year 1, with classes, about 15%. Energy, events and rest turns bring a pushed project to about 18 weeks. Related work moves 0.8× as fast with "Work on" and 1.3× with **Read and learn**; a reading day also adds 0.4% to every other project. Event effects on `project.progress` are points of the whole bar.
 
 ### 8.3 Quality
 Each project has three hidden quality components, 0–100:

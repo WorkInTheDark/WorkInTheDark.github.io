@@ -105,7 +105,7 @@
   choices:
     - label: "Go for all three"
       text: "You push hard on all three. One of them is going to be good. {advisor} is thrilled."
-      effects: { project.progress: "+15±5", energy: "-10±3", sanity: "-6±2", advisor_rel: "+5±2" }
+      effects: { project.progress: "+15±5", energy: "-10±3", sanity: "-6±2", advisor_rel: "+5±2", health: "-3±1" }
     - label: "Pick the strongest one"
       check: { stat: advisor_rel, vs: 50, spread: 15 }
       success:
@@ -121,7 +121,7 @@
         effects: { project.progress: "+8±3", energy: "-5±2", labmates_rel: "+3±1" }
       failure:
         text: "{labmate} is drowning too. You split the misery evenly."
-        effects: { energy: "-7±2", sanity: "-3±1", labmates_rel: "+1" }
+        effects: { energy: "-7±2", sanity: "-3±1", labmates_rel: "+1", health: "-2±1" }
 
 # --- Kind but Unfunded ------------------------------------------------------
 
@@ -169,7 +169,7 @@
         effects: { days: -2, sanity: "-3±1" }
     - label: "Apply for a fellowship together"
       text: "{advisor} goes through your application line by line. It's the best draft you've written."
-      effects: { days: -2, writing: "+3±1", career_prep: "+1", advisor_rel: "+3±1" }
+      effects: { days: -2, writing: "+3±1", career_prep: "+1", advisor_rel: "+3±1", sanity: "-2±1" }
 
 # --- Grant Machine ----------------------------------------------------------
 
@@ -183,7 +183,7 @@
   choices:
     - label: "Read the grant, then write it"
       text: "Aim 2 turns out to be your project. You finally know why you're funded."
-      effects: { days: -2, knowledge: "+3±1", writing: "+2±1", advisor_rel: "+3±1" }
+      effects: { days: -2, knowledge: "+3±1", writing: "+2±1", advisor_rel: "+3±1", sanity: "-2±1" }
     - label: "Recycle your last paper's intro"
       check: { stat: writing, vs: 45, spread: 15 }
       success:
@@ -255,7 +255,7 @@
   choices:
     - label: "Write a quick position paper"
       text: "You post it within a week. People start citing it as \"the early one\"."
-      effects: { days: -3, energy: "-4±2", citations: "+5±3", network: "+3±1" }
+      effects: { days: -3, energy: "-4±2", citations: "+5±3", network: "+3±1", sanity: "-3±1" }
     - label: "Tell the lab \"We called it\""
       text: "Lab meeting turns into a small party. {advisor} brings cake."
       effects: { sanity: "+5±2", labmates_rel: "+2±1", advisor_rel: "+2±1" }
@@ -351,13 +351,13 @@
   choices:
     - label: "Build it"
       text: "It takes two weeks. It's the cleanest code you've written, and now you know how startups work."
-      effects: { days: -3, energy: "-5±2", coding: "+4±1", advisor_rel: "+3±1" }
+      effects: { days: -3, energy: "-5±2", coding: "+4±1", advisor_rel: "+3±1", sanity: "-3±1" }
       flag_set: [startup_idea]
     - label: "Build a demo, not a product"
       check: { stat: coding, vs: 50, spread: 15 }
       success:
         text: "A slick demo in two days. {advisor} pitches it on Monday."
-        effects: { days: -2, coding: "+2±1", advisor_rel: "+3±1" }
+        effects: { days: -2, coding: "+2±1", advisor_rel: "+3±1", sanity: "-2±1" }
       failure:
         text: "The demo crashes mid-pitch. {advisor} says investors love authenticity."
         effects: { days: -2, sanity: "-3±1" }
@@ -401,7 +401,7 @@
   choices:
     - label: "Run the power analysis"
       text: "It says you need 34 people. For the pilot. You negotiate down to 12."
-      effects: { days: -2, knowledge: "+3±1", project.quality.S: "+6±2" }
+      effects: { days: -2, knowledge: "+3±1", project.quality.S: "+6±2", sanity: "-2±1" }
     - label: "Explain what pilots are for"
       check: { stat: presenting, vs: 55, spread: 15 }
       success:
@@ -417,7 +417,7 @@
         effects: { project.quality.S: "+4±2", labmates_rel: "+1" }
       failure:
         text: "Their script is in a language you don't know. You learn it."
-        effects: { days: -2, coding: "+2±1" }
+        effects: { days: -2, coding: "+2±1", sanity: "-2±1" }
 
 - id: leg_mp_ten_seeds
   title: "Ten Seeds and a Test"
@@ -478,7 +478,7 @@
         effects: { sanity: "-1", project.quality.N: "+2±1", project.quality.S: "+2±1" }
     - label: "Ask for a week to prepare"
       text: "You come back with all ten written out. Not perfect, but every answer is real."
-      effects: { days: -2, knowledge: "+3±1", project.quality.N: "+4±2", project.quality.S: "+4±2" }
+      effects: { days: -2, knowledge: "+3±1", project.quality.N: "+4±2", project.quality.S: "+4±2", sanity: "-2±1" }
       tip: "Judy's Ten Questions"
 
 - id: leg_kf_87_comments
@@ -491,7 +491,7 @@
   choices:
     - label: "Work through all 87"
       text: "Eighty-seven resolved. It reads like a different, better paper."
-      effects: { days: -3, energy: "-4±2", writing: "+3±1", project.quality.C: "+8±2" }
+      effects: { days: -3, energy: "-4±2", writing: "+3±1", project.quality.C: "+8±2", sanity: "-3±1" }
       tip: "Critique-Centric Feedback"
     - label: "Group them and fix the root causes"
       check: { stat: writing, vs: 50, spread: 15 }
@@ -532,7 +532,7 @@
       check: { stat: taste, vs: 55, spread: 15 }
       success:
         text: "They name one experiment. It takes four days, and it fits before the deadline."
-        effects: { days: -3, energy: "-4±2", project.quality.S: "+6±2" }
+        effects: { days: -3, energy: "-4±2", project.quality.S: "+6±2", sanity: "-3±1" }
       failure:
         text: "The honest answer is a month of work. You plan it for the next cycle."
         effects: { sanity: "-2±1", project.quality.S: "+3±1" }
@@ -733,7 +733,7 @@
       effects: { days: -1, project.quality.C: "+4±2" }
     - label: "Fix every figure while you're there"
       text: "Same fonts, same sizes, same colors, everywhere. The paper suddenly looks professional."
-      effects: { days: -2, presenting: "+1", project.quality.C: "+7±2" }
+      effects: { days: -2, presenting: "+1", project.quality.C: "+7±2", sanity: "-2±1" }
     - label: "Ask for the font rules in writing"
       text: "You get a three-line style guide. You tape it above your monitor."
       effects: { writing: "+2±1", project.quality.C: "+2±1" }

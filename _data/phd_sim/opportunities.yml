@@ -1,14 +1,14 @@
-# "This week only" options. Each week a few of these may come up (each rolls its `chance` when
-# its conditions hold); events can also unlock one with `unlock: <id>`. Choosing one spends the
-# week's free days on `days` (an activity, `project` for the bound project, or `none`), then
-# applies the outcome keys (text, effects, flag_set, achievement, tip, ...).
-# cooldown counts two-week periods, like event cooldowns.
+# "Only this turn" focus options. Each turn a few of these may come up (each rolls its `chance` when
+# its conditions hold); events can also unlock one with `unlock: <id>`. Choosing one as the turn's
+# focus spends its free days on `days` (an activity, `project` for the bound project, or `none`),
+# then applies the outcome keys (text, effects, flag_set, achievement, tip, ...).
+# cooldown counts turns, like event cooldowns. Smaller things live in side.yml.
 
 - id: opp_holiday_home
   label: "Go home for the holidays"
   reason: "The holidays are here. Everyone else is leaving campus."
   when: { turn: [7, 7] }
-  chance: 0.7
+  chance: 0.9
   days: family
   text: "Home cooking, old friends, and nobody asking about your h-index. Mostly."
   effects: { sanity: "+10±3", energy: "+6±2", family_rel: "+8±2" }
@@ -16,7 +16,7 @@
   label: "Take the winter break off"
   reason: "Winter break. The lab is empty and the inbox is quiet."
   when: { turn: [9, 9] }
-  chance: 0.9
+  chance: 0.95
   days: rest
   text: "A real break. You come back into the new year with your head clear."
   effects: { sanity: "+12±3", energy: "+8±2", family_rel: "+5±2" }
@@ -24,7 +24,7 @@
   label: "Celebrate Lunar New Year"
   reason: "Dumplings, red envelopes, and calls home."
   when: { turn: [11, 12] }
-  chance: 0.35
+  chance: 0.63
   cooldown: 13
   days: family
   text: "You eat too many dumplings and call everyone back home."
@@ -33,7 +33,7 @@
   label: "Take a spring break trip"
   reason: "Spring break. Friends are planning a trip somewhere warm."
   when: { turn: [14, 14] }
-  chance: 0.6
+  chance: 0.8
   days: hobby
   text: "Sun, bad snacks, and not a single paper. You come back lighter."
   effects: { sanity: "+10±3", energy: "+6±2", friends_rel: "+6±2" }
@@ -41,33 +41,16 @@
   label: "Take a real vacation"
   reason: "It's summer, and you haven't taken more than a weekend off in a long time."
   when: { turn: [20, 25], status_none: [on_internship] }
-  chance: 0.12
+  chance: 0.216
   cooldown: 13
   days: rest
-  text: "A whole week without a laptop. It feels strange for two days, then wonderful."
+  text: "Two weeks without a laptop. It feels strange for two days, then wonderful."
   effects: { sanity: "+14±3", energy: "+12±3" }
-- id: opp_friend_visit
-  label: "Show a visiting friend around"
-  reason: "An old friend from undergrad is in town for a few days."
-  chance: 0.04
-  cooldown: 8
-  days: social
-  text: "You see your city through a visitor's eyes, and remember you have a life outside the lab."
-  effects: { sanity: "+8±2", friends_rel: "+8±2" }
-- id: opp_parents_visit
-  label: "Show your parents around"
-  reason: "Your parents are visiting and want to see \"where you work\"."
-  when: { year: [1, 7] }
-  chance: 0.025
-  cooldown: 13
-  days: family
-  text: "They take a photo of you next to your desk and send it to the whole family."
-  effects: { sanity: "+6±2", family_rel: "+10±3" }
 - id: opp_summer_school
   label: "Go to a summer school"
   reason: "A summer school on human-centered NLP has a spot for you."
   when: { year: [1, 3], turn: [19, 23], has_advisor: true, status_none: [on_internship] }
-  chance: 0.2
+  chance: 0.36
   cooldown: 26
   days: read
   text: "Lectures by people whose papers you've read, and a group chat that lasts for years."
@@ -76,7 +59,7 @@
   label: "Join a hackathon"
   reason: "A week-long hackathon on AI for health is looking for teammates."
   when: { year: [1, 4] }
-  chance: 0.03
+  chance: 0.054
   cooldown: 13
   days: network
   text: "Very little sleep, one working demo, and three new people who want to collaborate."
@@ -85,7 +68,7 @@
   label: "Join the writing retreat for “{project}”"
   reason: "The department's writing retreat has a seat: a quiet room, coffee, and no meetings."
   when: { project: { stage: [writing, revise] } }
-  chance: 0.06
+  chance: 0.108
   cooldown: 8
   days: project
   boost: 1.4
@@ -95,7 +78,7 @@
   label: "Run everything on the empty GPU cluster"
   reason: "Everyone else is at a conference. The GPU cluster is completely empty."
   when: { project: { stage: [pilot, experiments, baselines] } }
-  chance: 0.06
+  chance: 0.108
   cooldown: 8
   days: project
   boost: 1.6
@@ -103,9 +86,9 @@
   effects: { coding: "+1±1" }
 - id: opp_clinic_open
   label: "Run study sessions while the clinic has openings"
-  reason: "The clinic suddenly has a week of open slots for your study."
+  reason: "The clinic suddenly has two weeks of open slots for your study."
   when: { project: { stage: [sessions, study] } }
-  chance: 0.08
+  chance: 0.144
   cooldown: 8
   days: project
   boost: 1.5
@@ -114,19 +97,19 @@
   flag_set: [clinical_partner]
 - id: opp_advisor_free_week
   label: "Work side by side with your advisor"
-  reason: "Your advisor's calendar is unexpectedly free all week."
+  reason: "Your advisor's calendar is unexpectedly free for the next two weeks."
   when: { has_advisor: true, project: { stage_kind: work } }
-  chance: 0.03
+  chance: 0.054
   cooldown: 13
   days: project
   boost: 1.3
-  text: "A week of whiteboards and quick feedback. You learn how your advisor thinks."
+  text: "Two weeks of whiteboards and quick feedback. You learn how your advisor thinks."
   effects: { advisor_rel: "+5±2", taste: "+2±1", project.quality.N: "+3±1" }
 - id: opp_collaborator_visit
-  label: "Visit a collaborator's lab for a week"
-  reason: "A collaborator invites you to spend a week in their lab."
+  label: "Visit a collaborator's lab for two weeks"
+  reason: "A collaborator invites you to spend two weeks in their lab."
   when: { year: [2, 6], stat: { network: ">=35" }, project: { stage_kind: work } }
-  chance: 0.03
+  chance: 0.054
   cooldown: 26
   days: project
   boost: 1.25
@@ -136,7 +119,7 @@
   label: "Help {labmate} make their deadline"
   reason: "{labmate} has a deadline Friday and is drowning."
   when: { has_advisor: true }
-  chance: 0.04
+  chance: 0.072
   cooldown: 8
   days: help
   text: "You fix the plots and rewrite the related work. They promise to return the favor."
@@ -145,17 +128,17 @@
   label: "Take an undergrad under your wing"
   reason: "An eager undergrad wants to do research and your advisor suggests you."
   when: { year: [3, 7], has_advisor: true, flags_none: [has_undergrad_mentee] }
-  chance: 0.04
+  chance: 0.072
   cooldown: 26
   days: mentor
-  text: "You spend the week setting them up. Teaching it makes you understand it better."
+  text: "You spend two weeks setting them up. Teaching it makes you understand it better."
   effects: { presenting: "+2±1", labmates_rel: "+3±1" }
   flag_set: [has_undergrad_mentee]
 - id: opp_career_fair
   label: "Prepare for the career fair"
   reason: "The fall career fair is next week. Recruiters from big labs will be there."
   when: { year: [2, 6], turn: [3, 6] }
-  chance: 0.25
+  chance: 0.45
   cooldown: 13
   days: career
   text: "A polished CV, a practiced pitch, and a tote bag full of stickers."
@@ -164,60 +147,43 @@
   label: "Give an invited talk at another university"
   reason: "A professor who read your paper invites you to give a talk."
   when: { year: [3, 8], telemetry: { first_author_pubs: ">=1" } }
-  chance: 0.03
+  chance: 0.054
   cooldown: 13
   days: network
   text: "Your talk goes well, and the hard questions come from people who actually read the paper."
   effects: { presenting: "+3±1", network: "+5±2", citations: "+3±2" }
-- id: opp_nearby_workshop
-  label: "Attend a workshop in the next city over"
-  reason: "A small workshop in your area has a free student registration."
-  when: { has_advisor: true }
-  chance: 0.025
-  cooldown: 13
-  days: network
-  text: "Small rooms, long conversations, and a few new ideas."
-  effects: { network: "+5±2", knowledge: "+2±1", sanity: "+2±1" }
 - id: opp_reading_sprint
   label: "Run a reading sprint with the lab"
-  reason: "The lab wants to read the ten most important papers of the year, together, this week."
+  reason: "The lab wants to read the ten most important papers of the year, together, over the next two weeks."
   when: { has_advisor: true }
-  chance: 0.025
+  chance: 0.045
   cooldown: 13
   days: read
   text: "Ten papers, five arguments, one shared sense of where the field is going."
   effects: { taste: "+2±1", labmates_rel: "+3±1" }
 - id: opp_teach_lectures
-  label: "Teach this week's lectures"
+  label: "Teach the next two weeks of lectures"
   reason: "The professor you TA for is traveling and asks you to teach."
   when: { status_any: [ta] }
-  chance: 0.06
+  chance: 0.108
   cooldown: 13
   days: career
   text: "Three lectures. Your slides improve every time you give them."
   effects: { presenting: "+4±1", energy: "-4±2" }
-- id: opp_fitness_week
-  label: "Do the department's fitness challenge"
-  reason: "The department is running a fitness challenge this week."
-  chance: 0.02
-  cooldown: 26
-  days: exercise
-  text: "You walk, run and climb more than you have all year. Your back thanks you."
-  effects: { health: "+5±2" }
 - id: opp_visit_day
   label: "Host prospective students at visit day"
   reason: "Visit day is coming. Your advisor asks you to show prospective students around."
   when: { year: [2, 7], turn: [12, 14], has_advisor: true }
-  chance: 0.3
+  chance: 0.54
   cooldown: 13
   days: network
   text: "You hear yourself giving the advice you needed in your first year."
   effects: { presenting: "+2±1", labmates_rel: "+2±1", advisor_rel: "+2±1" }
 - id: opp_quiet_week
-  label: "Take a quiet week"
-  reason: "You've been running on empty. Your advisor tells you to take a week."
+  label: "Take two quiet weeks"
+  reason: "You've been running on empty. Your advisor tells you to take some time."
   when: { stat: { sanity: "<40" }, has_advisor: true }
-  chance: 0.15
+  chance: 0.27
   cooldown: 8
   days: rest
   text: "Nothing urgent turns out to be urgent. You come back steadier."
@@ -227,7 +193,7 @@
   label: "Join the thesis-writing bootcamp"
   reason: "The graduate school runs a week-long thesis bootcamp."
   when: { status_any: [defense_prep] }
-  chance: 0.25
+  chance: 0.45
   cooldown: 13
   days: writing_day
   text: "Eight hours of writing a day, in a room full of people doing the same. A chapter appears."

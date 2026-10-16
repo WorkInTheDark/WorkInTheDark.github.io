@@ -37,7 +37,7 @@
   choices:
     - label: "Write the section"
       text: "You write four pages about your own work in the future tense. {advisor} is clearly grateful."
-      effects: { days: -3, energy: "-3±1", writing: "+3±1", advisor_rel: "+4±2" }
+      effects: { days: -3, energy: "-3±1", writing: "+3±1", advisor_rel: "+4±2", sanity: "-3±1" }
     - label: "Offer figures, not prose"
       text: "You send two clean figures. Both end up on page one."
       effects: { days: -1, advisor_rel: "+2±1" }
@@ -114,7 +114,7 @@
         effects: { energy: "-3±1", sanity: "-4±2", presenting: "+2±1" }
     - label: "Rebuild the slides tonight"
       text: "You give a crisp lecture built around your own work. {advisor} hears it went great."
-      effects: { energy: "-7±2", sanity: "-2±1", presenting: "+4±1", advisor_rel: "+4±2" }
+      effects: { energy: "-7±2", sanity: "-2±1", presenting: "+4±1", advisor_rel: "+4±2", health: "-2±1" }
     - label: "Say you can't this time"
       text: "The lecture is canceled. The class gets a free hour and seems thrilled."
       effects: { sanity: "+1", advisor_rel: "-2±1" }
@@ -153,7 +153,7 @@
   choices:
     - label: "Run it properly"
       text: "You pick good papers and bring snacks. Attendance doubles."
-      effects: { days: -2, energy: "-3±1", knowledge: "+4±1", labmates_rel: "+3±1" }
+      effects: { days: -2, energy: "-3±1", knowledge: "+4±1", labmates_rel: "+3±1", sanity: "-2±1" }
     - label: "Make it a rotation"
       check: { stat: labmates_rel, vs: 50, spread: 15 }
       success:
@@ -228,7 +228,7 @@
       effects: { project.pivot: true, sanity: "-4±2", taste: "+2±1", advisor_rel: "+3±1" }
     - label: "Add one experiment in that direction"
       text: "One small experiment satisfies the keynote energy, and it actually adds something."
-      effects: { days: -2, project.progress: "-5±2", project.quality.N: "+4±2" }
+      effects: { days: -2, project.progress: "-5±2", project.quality.N: "+4±2", sanity: "-2±1" }
     - label: "Wait a week and see"
       check: { stat: advisor_rel, vs: 45, spread: 20 }
       success:
@@ -254,7 +254,7 @@
       effects: { project.quality.C: "+3±1", network: "+3±1", advisor_rel: "-3±1" }
     - label: "Draft both framings"
       text: "You write two introductions. Everyone picks the second one, which neither of them proposed."
-      effects: { days: -2, energy: "-4±2", writing: "+2±1", project.quality.C: "+5±2" }
+      effects: { days: -2, energy: "-4±2", writing: "+2±1", project.quality.C: "+5±2", sanity: "-2±1" }
     - label: "Get them both on one call"
       check: { stat: presenting, vs: 55, spread: 15 }
       success:
@@ -409,7 +409,7 @@
         schedule: { event: adv_sabbatical_return, in: [2, 3], chance: 1.0 }
     - label: "Work side by side with {advisor}"
       text: "A week of real daytime meetings. You get more done than in the last two months."
-      effects: { days: -2, taste: "+3±1", advisor_rel: "+4±2" }
+      effects: { days: -2, taste: "+3±1", advisor_rel: "+4±2", sanity: "-2±1" }
       status: { add: jet_lagged, turns: 1 }
       schedule: { event: adv_sabbatical_return, in: [2, 3], chance: 1.0 }
     - label: "Explore the city on the weekend"
@@ -445,3 +445,25 @@
       text: "Forty minutes of stories, and three introductions to people you should know."
       effects: { network: "+3±1", advisor_rel: "+2±1" }
       flag_clear: [sabbatical_dawn, sabbatical_async, sabbatical_visit]
+
+# New work landing on your plate (2026-10-16): these raise Stress.
+- id: adv_by_friday
+  title: "By Friday?"
+  category: advisor
+  rarity: common
+  repeatable: true
+  cooldown: 10
+  when: { has_advisor: true }
+  text:
+    - "{advisor} asks if you could put together slides about your project for a funder visit. By Friday."
+    - "{advisor} needs two paragraphs on your project for a grant renewal. \"Nothing fancy. By Friday?\""
+  choices:
+    - label: "Drop everything and do it well"
+      text: "Your slides make it into the meeting, and your advisor mentions your name twice."
+      effects: { days: -2, sanity: "-4±1", advisor_rel: "+4±1", presenting: "+1" }
+    - label: "Do a quick version"
+      text: "Good enough. Your advisor polishes it at midnight and doesn't mention it."
+      effects: { days: -1, sanity: "-2±1", advisor_rel: "+1" }
+    - label: "Ask for until next Wednesday"
+      text: "\"Sure, Wednesday works.\" You could have just asked all along."
+      effects: { sanity: "-1", advisor_rel: "-1" }

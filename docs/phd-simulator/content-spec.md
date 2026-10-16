@@ -2,7 +2,7 @@
 
 The exact contract between the YAML content in `_data/phd_sim/` and the game engine in `assets/js/phd-sim/`. The design doc (`design.md`) explains *why*; this file says *exactly what keys exist*. The validator (`tools/phd-sim/validate.mjs`) rejects anything not listed here.
 
-**Time units.** The engine plays one turn per week (52 a year), but content counts in **two-week periods**, T1–T26 a year. Every `turn:` condition, `cooldown`, status `turns:`, `schedule` `in:` and `project.delay` in the YAML is in periods; the engine doubles durations into weeks and fires period-start things in the first week of the period. Write content as if a turn were two weeks, and the timing stays right.
+**Time units.** One turn is two weeks; a year is T1–T26. Every `turn:` condition, `cooldown`, status `turns:`, `schedule` `in:` and `project.delay` in the YAML is in turns. Player-facing text talks in weeks.
 
 ---
 
@@ -44,7 +44,8 @@ The exact contract between the YAML content in `_data/phd_sim/` and the game eng
 | `events/wellbeing.yml` | Light wellbeing | `wel_` |
 | `events/exits.yml` | Ways out of the PhD (engine-owned) | `exi_` |
 | `flavor.yml` | One-line turn-log flavor | none |
-| `opportunities.yml` | "This week only" choices (section 3.3) | `opp_` |
+| `opportunities.yml` | "Only this turn" focus choices (section 3.3) | `opp_` |
+| `side.yml` | Side activities for an evening or a weekend (section 3.4) | `side_` |
 | `reviews.yml` | Reviewer personas, concerns, meta-reviews | none |
 | `qa.yml` | Committee and interview questions | none |
 
@@ -103,24 +104,24 @@ trait_add: rejection_hardened                 # earned traits only (section 7.2)
 schedule: { event: res_scooped_2, in: [1, 3], chance: 1.0 }   # or a list; target must be trigger: scheduled
 achievement: best_paper                       # only ids from section 9
 tip: "Critique-Centric Feedback"              # PhD 101 topic (section 10), shown as a link
-unlock: opp_writing_retreat                   # or a list; adds that "This week only" choice (section 3.3)
+unlock: opp_writing_retreat                   # or a list; adds that "Only this turn" choice (section 3.3)
 ```
 
 `ending` exists but is reserved for `events/exits.yml`.
 
-`unlock` adds the opportunity to this week's choices if the event happened before you chose (start of the week), or to next week's otherwise, and tells the player ("New option this week: …"). It ignores the opportunity's `chance` and `when`, so unlock only ones that make sense in the event's situation.
+`unlock` adds the opportunity to the next turn's choices (or this turn's, if it happens before the focus is chosen), and tells the player ("New option next turn: …"). It ignores the opportunity's `chance` and `when`, so unlock only ones that make sense in the event's situation.
 
 ### 3.3 Opportunities (`opportunities.yml`)
 
-A "This week only" choice. It appears beside the everyday choices for one week; if you don't take it, it's gone. Choosing it spends all of the week's free days on `days`, then applies the outcome keys.
+An "Only this turn" focus choice. It appears beside the everyday choices for one turn; if you don't take it, it's gone. Choosing it spends all of the turn's free days on `days`, then applies the outcome keys.
 
 ```yaml
 - id: opp_writing_retreat                 # unique, starts with opp_
   label: "Join the writing retreat for “{project}”"   # the button; tokens allowed
-  reason: "The department's writing retreat has a seat."   # why it's here this week (shown under the label)
+  reason: "The department's writing retreat has a seat."   # why it's here this turn (shown under the label)
   when: { project: { stage: [writing, revise] } }          # conditions (section 4); a project condition binds {project}
-  chance: 0.06                            # per eligible week (default 0.05)
-  cooldown: 8                             # periods before it can come up again (default 4)
+  chance: 0.06                            # per eligible turn (default 0.05)
+  cooldown: 8                             # turns before it can come up again (default 4)
   once: true                              # optional: at most once per run
   days: project                           # what the free days do (below)
   boost: 1.4                              # days: project only; progress multiplier
@@ -128,7 +129,24 @@ A "This week only" choice. It appears beside the everyday choices for one week; 
   effects: { writing: "+2±1" }
 ```
 
-`days` is one of: `read`, `network`, `help`, `mentor`, `career`, `rest`, `recharge`, `exercise`, `social`, `hobby`, `family`, `writing_day`, `project` (the bound project, or your first one), or `none` (the outcome is all that happens). The arrows on the button come from `days` and `effects`. At most `opportunities.max_per_week` (2) come up in a week.
+`days` is one of: `read`, `network`, `help`, `mentor`, `career`, `rest`, `recharge`, `exercise`, `social`, `hobby`, `family`, `writing_day`, `project` (the bound project, or your first one), or `none` (the outcome is all that happens). The arrows on the button come from `days` and `effects`. At most `opportunities.max_per_turn` (2) come up in a turn.
+
+### 3.4 Side activities (`side.yml`)
+
+Small things for an evening or a weekend. In some turns, after the events, a card offers two or three of them plus "Not this time". They don't use the turn's focus.
+
+```yaml
+- id: side_gym                     # unique, starts with side_
+  label: "Hit the gym three times" # the choice; tokens allowed ({labmate} etc.)
+  desc: "Your body will thank you, eventually."
+  helps: health                    # health | stress | energy | social | career: 3x as likely when that bar is in trouble
+  weight: 3                        # default 1
+  when: { has_advisor: true }      # conditions (section 4)
+  text: "Sore on Tuesday, smug on Thursday."
+  effects: { health: "+5±1", energy: "-2±1", sanity: "+1" }   # plus any outcome keys from 3.2
+```
+
+Keep effects small (bars ±1 to ±6). A side activity that takes real time uses `days: -1`. A `helps: health` choice also counts as exercise for the turn.
 
 ---
 
@@ -139,7 +157,7 @@ All keys are ANDed. Comparison strings are `"<30"`, `"<=1"`, `">=60"`, `">5"`, `
 | Key | Example | Meaning |
 |---|---|---|
 | `year` | `[2, 4]` | PhD year range, inclusive (1–8) |
-| `turn` | `[20, 25]` | Period of the year, inclusive (1–26, two weeks each; see the calendar below) |
+| `turn` | `[20, 25]` | Turn of the year, inclusive (1–26, two weeks each; see the calendar below) |
 | `semester` | `[fall, break]` | `fall` (T1–T8), `break` (T9), `spring` (T10–T18), `summer` (T19–T26) |
 | `stat` | `{ sanity: "<30", writing: ">=60" }` | Any stat (section 5) |
 | `has_advisor` | `true` | The advisor has been chosen |
@@ -151,7 +169,7 @@ All keys are ANDed. Comparison strings are `"<30"`, `"<=1"`, `">=60"`, `">5"`, `
 | `counter` | `{ resched: ">=2" }` | Run counters (missing = 0) |
 | `status_any` / `status_none` | `[ta]` | Status ids (section 8) |
 | `milestone` | `{ quals: passed, proposal: pending }` | `quals`/`proposal`: `pending`, `passed`, `failed_once`; `defense_prep`: `active`, `inactive`; `graduated`: `true` or `false` |
-| `project` | `{ type: study, stage: recruiting }` | A matching **active first-author project** exists; binds `{project}`. Fields: `type`, `stage` (one value or a list), `stage_kind` (`work` or `wait`), `turns_to_deadline` (comparison: weeks until its target venue's next deadline; 0 = this week) |
+| `project` | `{ type: study, stage: recruiting }` | A matching **active first-author project** exists; binds `{project}`. Fields: `type`, `stage` (one value or a list), `stage_kind` (`work` or `wait`), `turns_to_deadline` (comparison: turns until its target venue's next deadline; 0 = this turn) |
 | `paper` | `{ status: under_review, tier: top }` | A matching paper exists; binds `{paper}` and `{venue}`. Fields: `status`, `tier`, `submissions` (comparison), `first_author` (`true`/`false`) |
 | `world` | `{ hiring: freeze }` | `hiring`: `boom`, `neutral`, `freeze`; `hype` (comparison, the bound project's topic) |
 | `telemetry` | `{ rejections: ">=3" }` | Run statistics (section 4.1) |
@@ -207,13 +225,13 @@ Values are `"+7±3"` (a whole number rolled in [4, 10], peaked at 7), `"-5±2"`,
 | `advisor_rel`, `labmates_rel`, `family_rel`, `friends_rel`, `network` | Hidden, 0–100. Typical 2–6 |
 | `project.progress` | Bound project, in points of its whole 0–100% bar (it can cross into the next phase, but stops at a wait and at 100%; setbacks stay within the current phase). Typical 4–15 |
 | `project.quality.N`, `.S`, `.C` | Novelty, Soundness, Clarity of the bound project. Typical 3–10 |
-| `project.delay` | Periods (two weeks each) added to (or, if negative, removed from) a waiting phase, or put on hold for a work phase |
+| `project.delay` | Turns added to (or, if negative, removed from) a waiting phase, or put on hold for a work phase |
 | `project.pivot` | `true`: back to `idea`, keeps half its Novelty |
 | `project.abandon` | `true`: the project is dropped |
 | `paper.score` | Bound paper under review: added to every reviewer's score (0–100 scale; 5 ≈ half a point). Typical 2–8 |
 | `paper.desk_reject` | `true`: the bound paper is desk-rejected |
 | `paper.citations` | Bonus citations for the bound paper |
-| `days` / `days_next` | Free days gained (+) or lost (−) this week or next. Typical ±1 to ±3 |
+| `days` / `days_next` | Free days gained (+) or lost (−) this turn or next. Typical ±1 to ±4 |
 | `career_prep` | Points toward internship and job applications. Typical 1–3 |
 
 Arrows are derived automatically: for each visible target (`energy`, `sanity`, `health`, `citations`), the center of the value gives ↑ or ↓, and ↑↑ or ↓↓ when it is 10 or more. Sanity arrows are drawn as Stress, flipped, in the same color. A check whose success and failure point opposite ways shows ↕.
@@ -222,25 +240,25 @@ Arrows are derived automatically: for each visible target (`energy`, `sanity`, `
 
 ## 6. Hooks
 
-`hook` decides **when** the engine considers an event. The default `turn` means a random draw at the start of a week. Other hooks fire at specific moments; when one fires, the engine draws one eligible event for it (at the chance shown) and binds the tokens listed.
+`hook` decides **when** the engine considers an event. The default `turn` means a random draw after the turn's focus. Other hooks fire at specific moments; when one fires, the engine draws one eligible event for it (at the chance shown) and binds the tokens listed.
 
 | Hook | Fires | Chance | Binds |
 |---|---|---|---|
-| `turn` | At the start of each week, before you choose: at most 1 draw (9%, 3% if something else already happened) | — | — |
-| `deadline` | The week you submit a paper, before submission | 0.3 | `{project}`, `{venue}` |
+| `turn` | After the turn's focus: 0, 1 or 2 draws (a target of 0/1/2 at 15%/60%/25%, minus updates already in the turn) | — | — |
+| `deadline` | The turn you submit a paper, after the two weeks | 0.3 | `{project}`, `{venue}` |
 | `after_submit` | Right after a submission | 0.2 | `{paper}`, `{venue}` |
 | `reviews_in` | When reviews arrive, before the rebuttal | 0.3 | `{paper}`, `{venue}` |
 | `after_accept` | After an acceptance | 0.35 | `{paper}`, `{venue}` |
 | `after_reject` | After a rejection | 0.3 | `{paper}`, `{venue}` |
 | `conference` | Each conference you attend in person | 1.0, 1 event | `{city}`, `{paper}`, `{venue}` |
-| `internship` | Each internship week | 0.15 | `{company}` |
-| `defense_prep` | Each defense-prep week | 0.2 | — |
+| `internship` | Each internship turn | 0.3 | `{company}` |
+| `defense_prep` | Each defense-prep turn | 0.4 | — |
 | `defense` | Defense day, before the Q&A | 1.0 | — |
-| `job_market` | Each job-market week | 0.07 | — |
+| `job_market` | Each job-market turn | 0.15 | — |
 | `model_release` | When a frontier model is released in the world timeline | 0.25 | `{model}`, `{biglab}` |
 | `graduation` | Commencement | 1.0, up to 2 events | — |
 
-Events with `trigger: scheduled` are never drawn. They fire only through `schedule` from another event, at the start of the scheduled period, and only if their `when` still holds.
+Events with `trigger: scheduled` are never drawn. They fire only through `schedule` from another event, in the scheduled turn, and only if their `when` still holds.
 
 ---
 
@@ -387,7 +405,7 @@ Any other flag name is free for content to invent.
   when: { advisor: [kind_funded] }
 ```
 
-One random line goes into the log in weeks without news, and sometimes in others.
+One random line goes into the log in turns without news, and sometimes in others.
 
 ---
 

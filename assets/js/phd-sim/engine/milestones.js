@@ -2,7 +2,7 @@
 // defense, internships, fellowships, the job market, and leaving. Each builder returns a
 // prompt; handleSys applies the player's choice.
 import { clamp, asList } from "./util.js";
-import { yearOf, tOf, absTurn, STAT_LABELS, weeks, firstWeek } from "./state.js";
+import { yearOf, tOf, absTurn, STAT_LABELS, span, WEEKS_PER_TURN } from "./state.js";
 import { hasTrait, hasStatus, firstAuthorPubs, pendingFirstAuthor, acceptedPapers } from "./derived.js";
 import { applyOutcome, addStat, addStatus, removeStatus } from "./effects.js";
 import { unlock } from "./achievements.js";
@@ -15,7 +15,8 @@ import {
 import { makePaper, generateReviews, rebuttalPrompt, resolveRebuttal, decide, metaLine, nextResubmitTarget } from "./reviews.js";
 import { setCiteMean, rollBreakout } from "./citations.js";
 import { computeOffers, finalize } from "./endings.js";
-import { fireHook } from "./events.js";
+import { fireHook, arrowsFor } from "./events.js";
+import { check } from "./conditions.js";
 
 function sys(id, title, text, choices, data) {
   return {
@@ -32,6 +33,13 @@ function notice(title, text, data) {
 function proj(G, id) { return G.state.projects.find(function (p) { return p.id === id; }); }
 function paper(G, id) { return G.state.papers.find(function (p) { return p.id === id; }); }
 function log(G, text, kind) { G.state.log.push({ turn: G.state.turn, kind: kind || "line", text: text }); }
+
+// New work landing on your plate and bad news both raise Stress. Returns " Stress +N." for the log.
+export function stressHit(G, amount) {
+  const d = addStat(G, "sanity", -Math.abs(amount));
+  const n = Math.round(-d);
+  return n > 0 ? " Stress +" + n + "." : "";
+}
 
 const COMP_WORDS = {
   N: { name: "novelty", question: "Why does anyone need this? Right now the case for novelty is the weakest part of the paper." },
@@ -50,8 +58,8 @@ export function matchingPrompt(G) {
     type: "matching",
     title: forced ? "Time to choose an advisor" : "Choosing an advisor",
     text: forced
-      ? "The matching deadline is this week. Pick the lab you will spend the next five years in."
-      : "Three professors are taking students. Senior students have opinions about each of them; rumors are right most of the time. Rotating in a lab costs 3 days this week and shows you the truth.",
+      ? "The matching deadline is this turn. Pick the lab you will spend the next five years in."
+      : "Three professors are taking students. Senior students have opinions about each of them; rumors are right most of the time. Rotating in a lab costs 3 days this turn and shows you the truth.",
     forced: forced,
     rotatedThisTurn: !!s.rotatedTurn && s.rotatedTurn === s.turn,
     candidates: s.candidates.map(function (c, i) {
@@ -115,7 +123,7 @@ export function createProject(G, type, topicId, opts) {
   return p;
 }
 
-// New projects pick their own kind and topic: the choice that matters is how you spend your weeks.
+// New projects pick their own kind and topic: the choice that matters is how you spend your time.
 const TYPE_WEIGHTS = { empirical: 3, study: 2.5, system: 2, dataset: 1, position: 0.7 };
 export function autoProject(G) {
   const s = G.state;
@@ -145,8 +153,8 @@ function submitPrompt(G, p) {
   const v = G.D.venueById[p.target.venueId];
   const pct = Math.round(writingCompletion(G, p) * 100);
   const name = deadlineLabel(G, p);
-  return sys("submit", name + " deadline: this week",
-    "“" + p.title + "” is " + pct + "% written. You need at least half a draft by the end of the week to submit. The more complete the writing, the clearer the paper.",
+  return sys("submit", name + " deadline: this turn",
+    "“" + p.title + "” is " + pct + "% written. You need at least half a draft by the deadline to submit. The more complete the writing, the clearer the paper.",
     [{ label: "Submit and post a preprint", desc: "Citations start early. Everyone will see it." },
       { label: "Submit without a preprint", desc: "Quiet until the decision." },
       { label: "Skip this deadline", desc: "Aim for the next one." }],
@@ -157,17 +165,18 @@ function questionPrompt(G, p) {
   const comps = components(G, p);
   const weak = weakestComp(comps);
   return sys("the_question", "The Question",
-    "A week before the deadline, " + (G.state.advisor ? G.state.advisor.nick : "your advisor") + " reads “" + p.short + "” and asks one question: “" + COMP_WORDS[weak].question + "”",
-    [{ label: "Fix it this week", desc: "Work on the paper this week and the fix goes in." },
+    "Two weeks before the deadline, " + (G.state.advisor ? G.state.advisor.nick : "your advisor") + " reads “" + p.short + "” and asks one question: “" + COMP_WORDS[weak].question + "”",
+    [{ label: "Fix it this turn", desc: "Work on the paper this turn and the fix goes in." },
       { label: "Note it and keep going", desc: "There's only so much time." }],
     { projectId: p.id, comp: weak });
 }
 
 // ---- Decisions and conferences ---------------------------------------------
 
+// Reviews are new work (a rebuttal to write) and, usually, bad news.
 function sanityFromScores(reviews) {
   const avg = reviews.reduce(function (a, r) { return a + r.score; }, 0) / reviews.length;
-  return Math.round((avg - 3) * 3);
+  return Math.round((avg - 3.3) * 5 - 2);
 }
 
 function decisionPrompt(G, pp, outcome) {
@@ -220,7 +229,7 @@ function acceptPaper(G, pp, findings) {
   if (p) p.status = "done";
   if (pp.promises) {
     s.dayAdjNext -= Math.min(4, pp.promises);
-    log(G, "Camera-ready: the " + pp.promises + " fixes you promised in the rebuttal will take " + Math.min(4, pp.promises) + " days next week.");
+    log(G, "Camera-ready: the " + pp.promises + " fixes you promised in the rebuttal will take " + Math.min(4, pp.promises) + " days next turn.");
   }
   if (pp.conferenceTurn && pp.conferenceTurn > s.turn) s.flags.trip_planned = true;
   if (broke) log(G, "Something about “" + pp.short + "” catches on. People keep citing it.");
@@ -237,7 +246,7 @@ function rejectPaper(G, pp) {
     s.player.traits.push("rejection_hardened");
     log(G, "Five rejections in, something has changed. New trait: Rejection-Hardened.");
   }
-  addStatus(G, "post_rejection_blues", 3);
+  addStatus(G, "post_rejection_blues", 2);
   s.pendingHooks.push({ hook: "after_reject", ctx: { paperId: pp.id } });
 }
 
@@ -264,7 +273,7 @@ function conferencePrompt(G, pp) {
   choices.push({ label: "Present remotely", desc: "Cheaper and calmer. Fewer people meet you." });
   data.options.push("remote");
   return sys("conference", pp.venueName + " in " + city,
-    "“" + pp.short + "” gets presented this week. " + (fund >= 3 ? "Your advisor will pay for the trip." : "Your lab has no travel money."), choices, data);
+    "“" + pp.short + "” gets presented this turn. " + (fund >= 3 ? "Your advisor will pay for the trip." : "Your lab has no travel money."), choices, data);
 }
 
 function attend(G, pp, city, extraDays) {
@@ -405,8 +414,8 @@ export function answerQa(G, resp) {
       addStat(G, "advisor_rel", 4);
     } else {
       res.text = "The committee asks you to revise the plan and present again in a few weeks.";
-      m.proposalAt = s.turn + weeks(4);
-      addStatus(G, "proposal_prep", weeks(4));
+      m.proposalAt = s.turn + span(4);
+      addStatus(G, "proposal_prep", span(4));
       res.visible.push({ stat: "sanity", amount: addStat(G, "sanity", -6) });
     }
   } else if (stage === "defense") {
@@ -418,11 +427,11 @@ export function answerQa(G, resp) {
     } else if (frac >= 0.4) {
       res.text = "You pass, with minor revisions. Two more weeks of fixes and you're done.";
       m.defense = "minor";
-      m.graduateAt = s.turn + weeks(1);
+      m.graduateAt = s.turn + span(1);
     } else {
       res.text = "You pass, with major revisions. Six weeks of work, then a short follow-up meeting.";
       m.defense = "major";
-      m.graduateAt = s.turn + weeks(3);
+      m.graduateAt = s.turn + span(3);
     }
     res.visible.push({ stat: "sanity", amount: addStat(G, "sanity", 10) });
   } else if (stage === "job_talk") {
@@ -444,13 +453,33 @@ function graduate(G) {
 
 // ---- Prompts built on demand for queued sys items --------------------------
 
+// Two or three small things for an evening or a weekend, picked with an eye on your bars.
+function sidePrompt(G) {
+  const s = G.state;
+  const trouble = { health: s.stats.health < 50, stress: s.stats.sanity < 45, energy: s.stats.energy < 35 };
+  let pool = (G.D.side || []).filter(function (o) { return check(o.when, G, {}); });
+  const picks = [];
+  for (let i = 0; i < 3 && pool.length; i++) {
+    const o = G.rng.weighted(pool, function (x) { return (x.weight || 1) * (trouble[x.helps] ? 3 : 1); });
+    picks.push(o);
+    pool = pool.filter(function (x) { return x.label !== o.label; });
+  }
+  if (!picks.length) return null;
+  const ctxs = picks.map(function () { return {}; });
+  const choices = picks.map(function (o, i) { return { label: fill(o.label, G, ctxs[i]), desc: fill(o.desc || "", G, ctxs[i]), arrows: arrowsFor(o) }; });
+  choices.push({ label: "Not this time" });
+  return sys("side", "On the side", "Something you could do with an evening or a weekend:", choices, { ids: picks.map(function (o) { return o.id; }), ctxs: ctxs });
+}
+
 export function buildSys(G, item) {
   const s = G.state;
   const d = item.data || {};
   switch (item.sys) {
+    case "side":
+      return sidePrompt(G);
     case "welcome":
       return notice("Welcome to your PhD, " + s.player.name,
-        "It's September. You have five years, give or take, to become an expert in something nobody fully understands yet. Each turn is one week: choose one thing to do with it, keep an eye on Energy, Stress and Health, and remember: everyone else is also figuring it out.");
+        "It's September. You have five years, give or take, to become an expert in something nobody fully understands yet. Each turn is two weeks: choose what to focus on, keep an eye on Energy, Stress and Health, and remember: everyone else is also figuring it out.");
     case "matching":
       if (s.advisor) return null;
       return matchingPrompt(G);
@@ -486,7 +515,7 @@ export function buildSys(G, item) {
       return qaPrompt(G, d.stage);
     case "proposal_offer":
       return sys("proposal_offer", "Ready to propose?",
-        "Your committee is formed and you have " + firstAuthorPubs(G) + " first-author papers. The thesis proposal turns you from a student into a candidate. You'd present in " + weeks(G.D.config.proposal_prep_turns || 4) + " weeks.",
+        "Your committee is formed and you have " + firstAuthorPubs(G) + " first-author papers. The thesis proposal turns you from a student into a candidate. You'd present in " + span(G.D.config.proposal_prep_turns || 4) * WEEKS_PER_TURN + " weeks.",
         [{ label: "Schedule the proposal", desc: "Project days until then count as preparation." }, { label: "Not yet" }]);
     case "defense_offer": {
       const acc = firstAuthorPubs(G);
@@ -494,7 +523,7 @@ export function buildSys(G, item) {
       return sys("defense_offer", "Ready to defend?",
         early ? "You have " + acc + " first-author papers accepted and one under review. You could start defense preparation now and hope the third one lands. Prep takes about three months."
           : "You have " + acc + " first-author papers accepted. Defense preparation takes about three months of thesis writing and slides.",
-        [{ label: "Start defense prep", desc: "Part of every week goes to the thesis and slides." }, { label: "Not yet" }]);
+        [{ label: "Start defense prep", desc: "Part of every turn goes to the thesis and slides." }, { label: "Not yet" }]);
     }
     case "internship_apply":
       return sys("internship_apply", "Summer internships",
@@ -507,7 +536,7 @@ export function buildSys(G, item) {
     case "fellowship_apply":
       return sys("fellowship_apply", "Fellowship applications",
         "A fellowship would pay your way for a year, with no TA duty. The research statement takes a couple of days.",
-        [{ label: "Apply", desc: "Costs 2 days this week.", arrows: [] }, { label: "Skip it" }]);
+        [{ label: "Apply", desc: "Costs 2 days this turn.", arrows: [] }, { label: "Skip it" }]);
     case "job_market_start":
       return sys("job_market_start", "The job market",
         "You're close enough to the finish line that people ask what's next. Going on the market takes time, but offers don't arrive on their own.",
@@ -564,6 +593,13 @@ export function handleSys(G, prompt, choice) {
   const d = prompt.data || {};
   switch (prompt.sys) {
     case "notice": return null;
+    case "side": {
+      const def = G.D.sideById[d.ids && d.ids[choice]];
+      if (!def) return null;
+      s.telemetry.side_activities = (s.telemetry.side_activities || 0) + 1;
+      if (def.helps === "health") { s.telemetry.exercise_days++; s.exercisedThisTurn = true; }
+      return applyOutcome(G, def, (d.ctxs && d.ctxs[choice]) || {});
+    }
     case "first_project":
       if (choice === 0) {
         const t = G.rng.pick(s.world.topics);
@@ -625,7 +661,7 @@ export function handleSys(G, prompt, choice) {
           if (pp.journal) p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: null, journalPaper: pp.id };
           else {
             const c = G.D.venueById[pp.venueId].cycles[pp.cycle];
-            p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: pp.submittedTurn + weeks(c.revision_due_in || 7), rrPaper: pp.id };
+            p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: pp.submittedTurn + span(c.revision_due_in || 7), rrPaper: pp.id };
           }
          
           return empty("Revision mode. Every reviewer comment is now a to-do item.");
@@ -669,8 +705,8 @@ export function handleSys(G, prompt, choice) {
     }
     case "proposal_offer":
       if (choice === 0) {
-        s.milestones.proposalAt = s.turn + weeks(G.D.config.proposal_prep_turns || 4);
-        addStatus(G, "proposal_prep", weeks(G.D.config.proposal_prep_turns || 4));
+        s.milestones.proposalAt = s.turn + span(G.D.config.proposal_prep_turns || 4);
+        addStatus(G, "proposal_prep", span(G.D.config.proposal_prep_turns || 4));
         s.committee = genCommittee(G, 4);
         s.readiness = 0;
         return empty("Your committee: " + s.committee.map(function (c) { return c.name; }).join(", ") + ". The date is set.");
@@ -679,7 +715,7 @@ export function handleSys(G, prompt, choice) {
       return empty("Not yet. Your advisor will ask again.");
     case "defense_offer":
       if (choice === 0) {
-        const turns = weeks(G.D.config.defense_prep_turns || 6);
+        const turns = span(G.D.config.defense_prep_turns || 6);
         s.milestones.defensePrepStart = s.turn;
         s.milestones.defenseAt = s.turn + turns;
         while (tOf(s.milestones.defenseAt) === 9) s.milestones.defenseAt += 1;
@@ -714,7 +750,7 @@ export function handleSys(G, prompt, choice) {
       if (choice === 4) { s.job = { skipYear: yearOf(s.turn) }; return empty("Not this year. The thesis comes first."); }
       s.job = { tracks: map[choice], year: yearOf(s.turn) };
       s.flags.on_market = true;
-      addStatus(G, "job_market", weeks(16));
+      addStatus(G, "job_market", span(16));
       return empty("You polish your CV, your website and your research statement, in that order, several times.");
     }
     case "offers":
@@ -752,13 +788,13 @@ export function queueMilestones(G) {
   const y = yearOf(s.turn);
   const m = s.milestones;
   const items = [];
-  if (!s.advisor && y === 1 && t <= 8 && firstWeek(s.turn) && (t <= 2 || t === 8 || t % 2 === 0)) items.push({ kind: "sys", sys: "matching" });
+  if (!s.advisor && y === 1 && t <= 8 && (t <= 2 || t === 8 || t % 2 === 0)) items.push({ kind: "sys", sys: "matching" });
 
   // Quals at T18 of the quals year (retake the following year).
   const qualsYear = m.quals === "failed_once" ? m.qualsYear + 1 : m.qualsYear;
   if (m.quals !== "passed" && y === qualsYear && s.advisor) {
-    if (t === cfg.quals_turn - 6 && firstWeek(s.turn)) { addStatus(G, "quals_prep", weeks(6)); s.readiness = 0; log(G, "Quals are in twelve weeks. Reading papers now counts as preparation.", "news"); }
-    if (t === cfg.quals_turn && firstWeek(s.turn)) items.push({ kind: "sys", sys: "qa", data: { stage: "quals" } });
+    if (t === cfg.quals_turn - 6) { addStatus(G, "quals_prep", span(6)); s.readiness = 0; log(G, "Quals are in twelve weeks. Reading papers now counts as preparation." + stressHit(G, 6), "news"); }
+    if (t === cfg.quals_turn) items.push({ kind: "sys", sys: "qa", data: { stage: "quals" } });
   }
 
   // Proposal day (scheduling it is a plan action).
@@ -805,7 +841,7 @@ export function queueMilestones(G) {
     s.careerPrep = 0;
   }
   if (s.internship && s.internship.accepted && s.internship.accepted.year === y) {
-    if (t === 20 && firstWeek(s.turn) && !s.internship.accepted.started) { s.internship.accepted.started = true; addStatus(G, "on_internship", weeks(6)); log(G, "Your internship at " + s.internship.accepted.company + " starts. Weekends are still yours.", "news"); }
+    if (t === 20 && !s.internship.accepted.started) { s.internship.accepted.started = true; addStatus(G, "on_internship", span(6)); log(G, "Your internship at " + s.internship.accepted.company + " starts. Weekends are still yours." + stressHit(G, 3), "news"); }
     if (t === 26 && !s.internship.accepted.done) {
       s.internship.accepted.done = true;
       s.telemetry.internships++;
@@ -822,11 +858,11 @@ export function queueMilestones(G) {
 
   // Job market (going on it is a plan action).
   if (hasStatus(G, "job_market")) {
-    if (t === 8 && firstWeek(s.turn)) {
+    if (t === 8) {
       const job = s.job || {};
       if (job.tracks && job.tracks.indexOf("academia") >= 0) items.push({ kind: "sys", sys: "qa", data: { stage: "job_talk" } });
     }
-    if (t === 16 && firstWeek(s.turn)) items.push({ kind: "sys", sys: "offers" });
+    if (t === 16) items.push({ kind: "sys", sys: "offers" });
   }
   return items;
 }
@@ -845,7 +881,7 @@ export function planExtras(G) {
     if (!p.target || p.target.rrPaper || p.target.journalPaper || p.target.turn !== s.turn || !isReadyish(G, p)) return;
     const pct = Math.round(writingCompletion(G, p) * 100);
     out.push({ id: "submit:" + p.id, kind: "submit", label: "Submit \u201c" + p.short + "\u201d to " + deadlineLabel(G, p),
-      desc: "The draft is " + pct + "% written. It needs at least half a draft by the end of this week; the more finished, the clearer the paper.",
+      desc: "The draft is " + pct + "% written. It needs at least half a draft by the deadline; the more finished, the clearer the paper.",
       preprint: true, suggested: pct >= 35 });
   });
   if (y >= 2 && y <= 5 && t >= 2 && t <= 7 && !(s.internship && s.internship.year === y) && !s.flags.on_market && !hasStatus(G, "defense_prep")) {
@@ -861,7 +897,7 @@ export function planExtras(G) {
   if (m.proposal === "pending" && m.quals === "passed" && !m.proposalAt && t !== 9 &&
     y >= (cfg.proposal_min_year || 3) && firstAuthorPubs(G) >= (cfg.proposal_min_pubs || 2)) {
     out.push({ id: "proposal", kind: "milestone", label: "Schedule your thesis proposal",
-      desc: "Present to your committee in " + weeks(cfg.proposal_prep_turns || 4) + " weeks. Project work until then counts as preparation." });
+      desc: "Present to your committee in " + span(cfg.proposal_prep_turns || 4) * WEEKS_PER_TURN + " weeks. Project work until then counts as preparation." });
   }
   if (m.proposal === "passed" && !m.defensePrepStart && t !== 9) {
     const acc = firstAuthorPubs(G);
@@ -870,7 +906,7 @@ export function planExtras(G) {
     const early = acc < need;
     if (acc >= need || (!strictNoEarly && acc === need - 1 && pendingFirstAuthor(G) >= 1)) {
       out.push({ id: "defense", kind: "milestone", label: "Start defense preparation",
-        desc: "About three months of thesis writing and slides (part of every week)." + (early ? " Your third paper is still under review: if it's rejected, the defense waits." : "") });
+        desc: "About three months of thesis writing and slides (part of every turn)." + (early ? " Your third paper is still under review: if it's rejected, the defense waits." : "") });
     }
   }
   if (m.proposal === "passed" && y >= 4 && t >= 1 && t <= 4 && !hasStatus(G, "job_market") && !s.acceptedOffer && !(s.job && s.job.year === y)) {
@@ -896,35 +932,35 @@ export function applyPlanExtra(G, id, opts) {
     case "apply_internship":
       s.internship = { applied: "broad", year: y };
       s.flags.internship_applied = true;
-      log(G, "You send out internship applications: one CV, many small edits.", "news");
+      log(G, "You send out internship applications: one CV, many small edits." + stressHit(G, 2), "news");
       break;
     case "apply_fellowship":
       s.fellowship = { year: y, applied: true };
       s.flags.fellowship_applied = true;
-      log(G, "Fellowship application submitted. Results come in February.", "news");
+      log(G, "Fellowship application submitted. Results come in February." + stressHit(G, 2), "news");
       break;
     case "proposal":
-      s.milestones.proposalAt = s.turn + weeks(cfg.proposal_prep_turns || 4);
-      addStatus(G, "proposal_prep", weeks(cfg.proposal_prep_turns || 4));
+      s.milestones.proposalAt = s.turn + span(cfg.proposal_prep_turns || 4);
+      addStatus(G, "proposal_prep", span(cfg.proposal_prep_turns || 4));
       s.committee = genCommittee(G, 4);
       s.readiness = 0;
-      log(G, "Proposal scheduled. Your committee: " + s.committee.map(function (c) { return c.name; }).join(", ") + ".", "news");
+      log(G, "Proposal scheduled. Your committee: " + s.committee.map(function (c) { return c.name; }).join(", ") + "." + stressHit(G, 5), "news");
       break;
     case "defense": {
-      const turns = weeks(cfg.defense_prep_turns || 6);
+      const turns = span(cfg.defense_prep_turns || 6);
       s.milestones.defensePrepStart = s.turn;
       s.milestones.defenseAt = s.turn + turns;
       while (tOf(s.milestones.defenseAt) === 9) s.milestones.defenseAt += 1;
       addStatus(G, "defense_prep", turns);
       s.readiness = 0;
-      log(G, "Defense preparation begins: thesis chapters, slides, and a date with your committee in about three months.", "news");
+      log(G, "Defense preparation begins: thesis chapters, slides, and a date with your committee in about three months." + stressHit(G, 6), "news");
       break;
     }
     case "job_market":
       s.job = { tracks: ["academia", "industry", "startup", "other"], year: y };
       s.flags.on_market = true;
-      addStatus(G, "job_market", weeks(16));
-      log(G, "You go on the job market. You polish your CV, your website and your research statement, in that order, several times.", "news");
+      addStatus(G, "job_market", span(16));
+      log(G, "You go on the job market. You polish your CV, your website and your research statement, in that order, several times." + stressHit(G, 5), "news");
       break;
   }
 }
@@ -954,8 +990,9 @@ export function queuePapers(G) {
     if (pp.status === "under_review" && pp.rebuttal && pp.reviewsTurn === s.turn && !pp.reviews && pp.firstAuthor) {
       generateReviews(G, pp);
       const hit = sanityFromScores(pp.reviews);
-      addStat(G, "sanity", hit);
-      log(G, "Reviews are in for \u201c" + pp.short + "\u201d: " + pp.reviews.map(function (r) { return r.score; }).join(", ") + " out of 5.", "news");
+      const d = addStat(G, "sanity", hit);
+      log(G, "Reviews are in for \u201c" + pp.short + "\u201d: " + pp.reviews.map(function (r) { return r.score; }).join(", ") + " out of 5." +
+        (d < -0.5 ? " Stress +" + Math.round(-d) + "." : ""), "news");
       fireHook(G, "reviews_in", { paperId: pp.id }).forEach(function (it) { items.push(it); });
       items.push({ kind: "sys", sys: "rebuttal", data: { paperId: pp.id } });
     }
@@ -1001,19 +1038,19 @@ export function queuePapers(G) {
 function autoReject(G, pp) {
   const s = G.state;
   rejectPaper(G, pp);
-  let hit = G.rng.triangular(-8, 3);
+  let hit = G.rng.triangular(pp.deskReject ? -13 : -10, 3);
   if (hasTrait(G, "rejection_hardened")) hit = Math.round(hit / 2);
   if (hasTrait(G, "perfectionist")) hit = Math.round(hit * 1.3);
-  addStat(G, "sanity", hit);
+  const stress = stressHit(G, hit);
   const p = proj(G, pp.projectId);
   const scores = pp.reviews ? " Scores: " + pp.reviews.map(function (r) { return r.score; }).join(", ") + "." : "";
   if (p) {
     p.status = "active"; p.revise = true; p.progress = 0;
     nextResubmitTarget(G, p, false);
-    log(G, (pp.deskReject ? "Desk rejected at " : "Rejected at ") + pp.venueName + ": \u201c" + pp.short + "\u201d." + scores +
+    log(G, (pp.deskReject ? "Desk rejected at " : "Rejected at ") + pp.venueName + ": \u201c" + pp.short + "\u201d." + scores + stress +
       " You'll revise it for " + (deadlineLabel(G, p) || "the next deadline") + " (change the target or shelve it in Projects).", "bad");
   } else {
-    log(G, "Rejected at " + pp.venueName + ": \u201c" + pp.short + "\u201d." + scores, "bad");
+    log(G, "Rejected at " + pp.venueName + ": \u201c" + pp.short + "\u201d." + scores + stress, "bad");
   }
 }
 
@@ -1026,10 +1063,10 @@ function autoRevise(G, pp) {
   if (pp.journal) p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: null, journalPaper: pp.id };
   else {
     const c = G.D.venueById[pp.venueId].cycles[pp.cycle];
-    p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: pp.submittedTurn + weeks(c.revision_due_in || 7), rrPaper: pp.id };
+    p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: pp.submittedTurn + span(c.revision_due_in || 7), rrPaper: pp.id };
   }
   log(G, (pp.journal ? "Major revision" : "Revise and resubmit") + " for \u201c" + pp.short + "\u201d at " + pp.venueName +
-    ". Work on it to address the reviews; it goes back " + (pp.journal ? "when the revision is done." : "when the revision is due."), "news");
+    ". Work on it to address the reviews; it goes back " + (pp.journal ? "when the revision is done." : "when the revision is due.") + stressHit(G, G.rng.triangular(5, 2)), "news");
 }
 
 function isReadyish(G, p) {
@@ -1056,7 +1093,7 @@ export function finishSubmissions(G) {
       pp.roundBonus = improve;
       pp.status = "under_review";
       const c = G.D.venueById[pp.venueId].cycles[pp.cycle];
-      pp.decisionTurn = p.target.rrPaper ? pp.submittedTurn + weeks(c.final_in || c.decision_in + 5) : s.turn + weeks(4);
+      pp.decisionTurn = p.target.rrPaper ? pp.submittedTurn + span(c.final_in || c.decision_in + 5) : s.turn + span(4);
       if (pp.decisionTurn <= s.turn) pp.decisionTurn = s.turn + 1;
       p.status = "submitted"; p.revise = false; p.target = null;
       log(G, "You send the revision of “" + pp.short + "” back to " + pp.venueName + ".");

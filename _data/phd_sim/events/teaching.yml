@@ -17,7 +17,7 @@
   choices:
     - label: "Grade all weekend"
       text: "Done by Sunday midnight. You now see partial credit in your dreams."
-      effects: { energy: "-10±3", sanity: "-5±2" }
+      effects: { energy: "-10±3", sanity: "-5±2", health: "-3±1" }
     - label: "Write a rubric first, then batch it"
       check: { stat: writing, vs: 45, spread: 15 }
       success:
@@ -25,7 +25,7 @@
         effects: { energy: "-5±2", sanity: "+1" }
       failure:
         text: "Halfway through, an answer breaks your rubric. You regrade 60 exams."
-        effects: { energy: "-10±3", sanity: "-6±2" }
+        effects: { energy: "-10±3", sanity: "-6±2", health: "-3±1" }
     - label: "Spread it across the week"
       text: "Two hours every evening. Grades go in Wednesday, and the professor sends one pointed email."
       effects: { energy: "-3±1", sanity: "-1", days: -2 }
@@ -68,7 +68,7 @@
   choices:
     - label: "Stay until everyone is helped"
       text: "You leave at 9 pm. Thirty-one students, one off-by-one error. You could fix it in your sleep, and soon will."
-      effects: { energy: "-8±2", presenting: "+1", days: -1 }
+      effects: { energy: "-8±2", presenting: "+1", days: -1, health: "-2±1" }
     - label: "Explain the bug once, to everyone"
       check: { stat: presenting, vs: 50, spread: 15 }
       success:
@@ -76,7 +76,7 @@
         effects: { presenting: "+3±1", sanity: "+3±1" }
       failure:
         text: "Half the room follows. The other half lines up again, now with two bugs."
-        effects: { energy: "-6±2", sanity: "-3±1" }
+        effects: { energy: "-6±2", sanity: "-3±1", health: "-2±1" }
     - label: "Post a fix on the forum, end on time"
       text: "Your forum post gets 40 thank-yous and one complaint that you posted it too late."
       effects: { writing: "+1", sanity: "+2±1", energy: "-2±1" }
@@ -119,7 +119,7 @@
       effects: { presenting: "+2±1", energy: "-4±2", sanity: "-2±1" }
     - label: "Stay up and make the slides your own"
       text: "You cut it to 40 slides and add two examples from your research. Three students stay after to ask about it."
-      effects: { presenting: "+4±1", knowledge: "+2±1", energy: "-10±3" }
+      effects: { presenting: "+4±1", knowledge: "+2±1", energy: "-10±3", health: "-3±1" }
     - label: "Turn it into a discussion class"
       check: { stat: presenting, vs: 60, spread: 15 }
       success:
@@ -141,10 +141,10 @@
       check: { stat: coding, vs: 55, spread: 15 }
       success:
         text: "A dependency updated itself. You pin the version at 1 am and the forum calms down."
-        effects: { coding: "+3±1", energy: "-6±2", sanity: "+2±1" }
+        effects: { coding: "+3±1", energy: "-6±2", sanity: "+2±1", health: "-2±1" }
       failure:
         text: "By 4 am it passes the reference solution and fails everything else. You go to bed anyway."
-        effects: { coding: "+1", energy: "-12±3", sanity: "-5±2" }
+        effects: { coding: "+1", energy: "-12±3", sanity: "-5±2", health: "-3±1" }
     - label: "Ask the professor for an extension"
       text: "The deadline moves 48 hours. The forum celebrates as if you personally saved them."
       effects: { sanity: "+3±1", days_next: -1 }
@@ -215,7 +215,7 @@
   choices:
     - label: "Relearn it properly this time"
       text: "Twice through the textbook, and it finally clicks. Your undergrad self would be stunned."
-      effects: { knowledge: "+4±1", energy: "-6±2" }
+      effects: { knowledge: "+4±1", energy: "-6±2", health: "-2±1" }
     - label: "Stay one lecture ahead"
       text: "You learn each topic the night before you teach it. It works, mostly, and nobody notices."
       effects: { knowledge: "+2±1", sanity: "-3±1" }
@@ -247,3 +247,25 @@
     - label: "Save it in a \"good days\" folder"
       text: "You start a folder for emails like this. The next rejection stings a little less."
       effects: { sanity: "+5±1" }
+
+# New work landing on your plate (2026-10-16): these raise Stress.
+- id: tea_grading_pile
+  title: "The Grading Pile"
+  category: teaching
+  rarity: common
+  repeatable: true
+  cooldown: 8
+  when: { status_any: [ta] }
+  text:
+    - "The midterms are in: 140 of them, due back by Monday. The professor is at a conference."
+    - "The final projects arrive at 11:59 pm. All 38 of them. Some have videos."
+  choices:
+    - label: "Grade them all carefully"
+      text: "Fair, detailed feedback on every one. Two students email to say thank you, which almost never happens."
+      effects: { days: -2, energy: "-4±1", sanity: "-4±1", presenting: "+1" }
+    - label: "Make a rubric and move fast"
+      text: "The rubric is a work of art. The grading goes fast, and nobody complains."
+      effects: { days: -1, sanity: "-3±1" }
+    - label: "Ask the other TA to split it"
+      text: "They say yes, and you owe them one."
+      effects: { days: -1, sanity: "-1", labmates_rel: "-1" }

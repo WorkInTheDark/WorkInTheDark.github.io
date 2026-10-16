@@ -29,7 +29,7 @@
         effects: { sanity: "-4±1", days: -1 }
     - label: "Move somewhere cheaper"
       text: "Three viewings, one van, and many boxes later, you have a cheaper place and a longer commute."
-      effects: { days: -3, energy: "-6±2", sanity: "+3±1" }
+      effects: { days: -3, energy: "-6±2", sanity: "+3±1", health: "-2±1" }
 
 - id: lif_roommate_drums
   title: "The Drummer"
@@ -69,7 +69,7 @@
   choices:
     - label: "Move everything in one weekend"
       text: "Two days of stairs and tape. On Monday your back hurts, and so does the draft."
-      effects: { days: -2, energy: "-8±3", project.progress: "-6±2" }
+      effects: { days: -2, energy: "-8±3", project.progress: "-6±2", health: "-2±1", sanity: "-2±1" }
     - label: "Ask the lab to help, buy pizza"
       text: "Four labmates, one van and six pizzas. The move takes an afternoon, and you owe everyone."
       effects: { days: -1, energy: "-4±1", labmates_rel: "+4±2" }
@@ -444,7 +444,7 @@
         effects: { project.progress: "-15±4", sanity: "-8±3" }
     - label: "Rebuild from Git and Overleaf"
       text: "The code is on Git and the paper is on Overleaf. The figures were only on your desktop."
-      effects: { days: -2, energy: "-5±2", project.progress: "-5±2" }
+      effects: { days: -2, energy: "-5±2", project.progress: "-5±2", sanity: "-2±1" }
     - label: "Borrow {labmate}'s old laptop"
       check: { stat: labmates_rel, vs: 50, spread: 20 }
       success:

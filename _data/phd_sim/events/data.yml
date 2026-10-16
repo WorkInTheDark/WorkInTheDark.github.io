@@ -43,7 +43,7 @@
   choices:
     - label: "Annotate all 500 this weekend"
       text: "By Sunday night you know this data better than anyone alive. Your eyes would like a word."
-      effects: { energy: "-10±3", days: -2, knowledge: "+4±2", project.quality.S: "+6±2" }
+      effects: { energy: "-10±3", days: -2, knowledge: "+4±2", project.quality.S: "+6±2", health: "-3±1", sanity: "-2±1" }
       flag_set: [dat_gold_standard]
     - label: "Split them with {labmate}"
       check: { stat: labmates_rel, vs: 50, spread: 15 }
@@ -53,7 +53,7 @@
         flag_set: [dat_gold_standard]
       failure:
         text: "\"I have a deadline too.\" You do 400 of them alone, more slowly than you'd like."
-        effects: { energy: "-8±2", days: -2, sanity: "-3±1", project.quality.S: "+3±1" }
+        effects: { energy: "-8±2", days: -2, sanity: "-3±1", project.quality.S: "+3±1", health: "-2±1" }
     - label: "Do 100, call it a pilot"
       text: "100 careful examples. It's a pilot now. Nobody needs to know it was meant to be 500."
       effects: { energy: "-3±1", sanity: "+1", project.quality.S: "+2±1" }
@@ -93,7 +93,7 @@
   choices:
     - label: "Deduplicate and rerun everything"
       text: "Scores drop four points. Now they mean something, and you can say so."
-      effects: { energy: "-6±2", days: -2, coding: "+2±1", project.quality.S: "+7±2" }
+      effects: { energy: "-6±2", days: -2, coding: "+2±1", project.quality.S: "+7±2", health: "-2±1", sanity: "-2±1" }
       flag_set: [dat_clean_split]
     - label: "Report both splits"
       text: "Two columns in every table: original and deduplicated. It's careful, and it shows."

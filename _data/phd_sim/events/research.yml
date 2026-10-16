@@ -80,7 +80,7 @@
       requires: { flags_all: [scoop_gap] }
       tag: "Found the gap"
       text: "You cite them in the first paragraph, then show what they missed. The paper gets sharper, not smaller."
-      effects: { energy: "-6±2", days: -2, project.quality.N: "-3±1", project.quality.C: "+6±2" }
+      effects: { energy: "-6±2", days: -2, project.quality.N: "-3±1", project.quality.C: "+6±2", health: "-2±1", sanity: "-2±1" }
       flag_set: [scoop_cited]
       schedule: { event: res_scooped_cited, in: [3, 5], chance: 1.0 }
       tip: "Stakeholders and Gap"
@@ -88,17 +88,17 @@
       check: { stat: writing, vs: 55, spread: 20 }
       success:
         text: "A new framing, a fair comparison, a generous citation. It reads like a follow-up, not a copy."
-        effects: { energy: "-6±2", days: -2, project.quality.N: "-5±2", project.quality.S: "+4±2" }
+        effects: { energy: "-6±2", days: -2, project.quality.N: "-5±2", project.quality.S: "+4±2", health: "-2±1", sanity: "-2±1" }
         flag_set: [scoop_cited]
         schedule: { event: res_scooped_cited, in: [3, 5], chance: 1.0 }
       failure:
         text: "Four rewrites of the intro later, it still reads as \"like theirs, but later\"."
-        effects: { energy: "-6±2", sanity: "-5±2", project.quality.N: "-9±3" }
+        effects: { energy: "-6±2", sanity: "-5±2", project.quality.N: "-9±3", health: "-2±1" }
         flag_set: [scoop_cited]
         schedule: { event: res_scooped_cited, in: [3, 5], chance: 1.0 }
     - label: "Rush to submit first"
       text: "You cancel everything. The plan: submit first, polish later."
-      effects: { energy: "-12±3", sanity: "-5±2", project.progress: "+20±5", project.quality.S: "-5±2", project.quality.N: "-6±2" }
+      effects: { energy: "-12±3", sanity: "-5±2", project.progress: "+20±5", project.quality.S: "-5±2", project.quality.N: "-6±2", health: "-3±1" }
       status: { add: deadline_mode, turns: 1 }
       flag_set: [scoop_rushed]
       schedule: { event: res_scooped_rushed, in: [2, 3], chance: 1.0 }
@@ -185,7 +185,7 @@
   choices:
     - label: "Add it as a baseline"
       text: "Three days of API calls and a new row in Table 2. Your system loses, but the comparison is honest."
-      effects: { energy: "-6±2", days: -3, project.quality.S: "+6±2", project.quality.N: "-3±1" }
+      effects: { energy: "-6±2", days: -3, project.quality.S: "+6±2", project.quality.N: "-3±1", health: "-2±1", sanity: "-3±1" }
       flag_set: [res_model_baselined]
     - label: "Reframe: where does it still fail?"
       check: { stat: taste, vs: 55, spread: 20 }
@@ -214,10 +214,10 @@
       check: { stat: coding, vs: 55, spread: 20 }
       success:
         text: "A missing flag, buried in a shell script. The numbers now match within half a point."
-        effects: { energy: "-6±2", days: -2, coding: "+3±1", project.quality.S: "+5±2" }
+        effects: { energy: "-6±2", days: -2, coding: "+3±1", project.quality.S: "+5±2", health: "-2±1", sanity: "-2±1" }
       failure:
         text: "A week later you're still five points short. You report what you got and explain why."
-        effects: { energy: "-8±2", days: -2, sanity: "-5±2", coding: "+2±1" }
+        effects: { energy: "-8±2", days: -2, sanity: "-5±2", coding: "+2±1", health: "-2±1" }
     - label: "Email the authors"
       text: "A polite email with three specific questions. No reply, not even an out-of-office. You use their published numbers for now."
       effects: { sanity: "-1", project.quality.S: "-2±1" }
@@ -253,7 +253,7 @@
   choices:
     - label: "Rerun everything on the new version"
       text: "Two days of reruns. The tables agree with each other again, until the next silent update."
-      effects: { energy: "-5±2", days: -2, project.quality.S: "+4±2" }
+      effects: { energy: "-5±2", days: -2, project.quality.S: "+4±2", sanity: "-2±1" }
     - label: "Report the version and date"
       text: "A footnote with the exact version string and access date. Small, honest, and reviewers like it."
       effects: { writing: "+1", project.quality.S: "+2±1" }
@@ -364,12 +364,12 @@
   choices:
     - label: "Build a clean test split"
       text: "New examples, written after the model's training cutoff. The scores drop, and now they mean something."
-      effects: { energy: "-6±2", days: -3, project.quality.S: "+7±2" }
+      effects: { energy: "-6±2", days: -3, project.quality.S: "+7±2", health: "-2±1", sanity: "-3±1" }
     - label: "Make contamination a finding"
       check: { stat: taste, vs: 55, spread: 20 }
       success:
         text: "A whole new section on how much the model has memorized. It may be the most interesting part of the paper."
-        effects: { energy: "-4±2", days: -2, taste: "+2±1", project.quality.N: "+7±3" }
+        effects: { energy: "-4±2", days: -2, taste: "+2±1", project.quality.N: "+7±3", sanity: "-2±1" }
       failure:
         text: "Interesting, but it swallows the paper. Two weeks of side quest, and the main story is thinner."
         effects: { days: -2, sanity: "-4±2", project.progress: "-10±3" }
@@ -414,7 +414,7 @@
       check: { stat: taste, vs: 50, spread: 20 }
       success:
         text: "It's the data-cleaning step you added for convenience. That's the real story, and it's a better one."
-        effects: { days: -2, project.quality.N: "+5±2", project.quality.S: "+4±2" }
+        effects: { days: -2, project.quality.N: "+5±2", project.quality.S: "+4±2", sanity: "-2±1" }
       failure:
         text: "Every part helps a little and nothing helps a lot. Two weeks of ablations, no clear story."
         effects: { sanity: "-5±2", project.progress: "-12±4" }
@@ -450,10 +450,10 @@
       check: { stat: coding, vs: 65, spread: 15 }
       success:
         text: "After 40 runs, it wins by 0.3. You aren't proud of it, and you suspect it won't hold."
-        effects: { energy: "-6±2", project.progress: "+5±2", project.quality.S: "-3±1" }
+        effects: { energy: "-6±2", project.progress: "+5±2", project.quality.S: "-3±1", health: "-2±1" }
       failure:
         text: "After 40 runs, it still loses. Now it loses tired."
-        effects: { energy: "-10±3", sanity: "-6±2" }
+        effects: { energy: "-10±3", sanity: "-6±2", health: "-3±1" }
 
 # Earned: only fires if you took a rest, social, hobby, family or exercise
 # day last turn (days_off_streak == 0) and you're not running on empty.
@@ -603,7 +603,7 @@
         schedule: { event: res_clinicians_wait, in: [2, 3], chance: 1.0 }
     - label: "Switch to interviewing nurses"
       text: "A new recruiting email and a small IRB amendment. The nurses' station replies within the hour."
-      effects: { energy: "-6±2", project.delay: 1, project.quality.N: "+4±2", project.quality.S: "-3±1" }
+      effects: { energy: "-6±2", project.delay: 1, project.quality.N: "+4±2", project.quality.S: "-3±1", health: "-2±1" }
       counter: { resched: +1 }
       flag_set: [clinicians_nurses]
       schedule: { event: res_clinicians_nurses, in: [1, 2], chance: 1.0 }
@@ -722,10 +722,10 @@
       check: { stat: knowledge, vs: 45, spread: 20 }
       success:
         text: "Just enough people show up this time. Five sessions in one day, and a lot of good data."
-        effects: { energy: "-8±2", project.progress: "+8±3" }
+        effects: { energy: "-8±2", project.progress: "+8±3", health: "-2±1" }
       failure:
         text: "Everyone shows up this time, at once. You run two sessions in parallel, badly."
-        effects: { energy: "-8±2", sanity: "-3±1", project.quality.S: "-3±1" }
+        effects: { energy: "-8±2", sanity: "-3±1", project.quality.S: "-3±1", health: "-2±1" }
 
 - id: res_font_critic
   title: "A Matter of Type"
@@ -794,7 +794,7 @@
       effects: { project.progress: "+2±1", project.quality.N: "+3±1", project.quality.S: "-2±1" }
     - label: "End early and fix it tonight"
       text: "A long night with the logs. By morning that bug is gone, along with two others you hadn't met yet."
-      effects: { energy: "-6±2", coding: "+3±1", project.progress: "-4±2", project.quality.S: "+3±1" }
+      effects: { energy: "-6±2", coding: "+3±1", project.progress: "-4±2", project.quality.S: "+3±1", health: "-2±1" }
 
 - id: res_hospital_wifi
   title: "Access Denied"
@@ -819,10 +819,10 @@
       check: { stat: coding, vs: 55, spread: 20 }
       success:
         text: "An offline build that runs from a laptop. It's faster than the online one, which is a little embarrassing."
-        effects: { energy: "-7±2", coding: "+3±1", project.progress: "+6±2" }
+        effects: { energy: "-7±2", coding: "+3±1", project.progress: "+6±2", health: "-2±1" }
       failure:
         text: "At 3 am it half-works. The next session runs on the half that works."
-        effects: { energy: "-8±2", sanity: "-3±1", project.progress: "-3±1" }
+        effects: { energy: "-8±2", sanity: "-3±1", project.progress: "-3±1", health: "-2±1" }
 
 - id: res_unrealistic_scenario
   title: "That's Not How a Clinic Works"
@@ -839,7 +839,7 @@
       tip: "Understanding Workflows"
     - label: "Shadow a clinic shift first"
       text: "Eight hours on your feet. You come back with three better scenarios and very tired legs."
-      effects: { energy: "-6±2", days: -2, knowledge: "+6±2", project.quality.S: "+6±2", project.quality.N: "+2±1" }
+      effects: { energy: "-6±2", days: -2, knowledge: "+6±2", project.quality.S: "+6±2", project.quality.N: "+2±1", health: "-2±1", sanity: "-2±1" }
     - label: "Keep it; it's a controlled study"
       text: "Controlled, yes. Reviewers from medicine will have notes."
       effects: { sanity: "+1", project.quality.S: "-4±2" }
@@ -879,7 +879,7 @@
   choices:
     - label: "Clean it by hand"
       text: "You flag every response that's too fast, too tidy or too nice. About 30% goes. What's left is real."
-      effects: { energy: "-7±2", days: -2, project.quality.S: "+5±2" }
+      effects: { energy: "-7±2", days: -2, project.quality.S: "+5±2", health: "-2±1", sanity: "-2±1" }
     - label: "Add attention checks, relaunch"
       text: "Round two asks: \"Select purple.\" The bots select blue. The humans, mostly, select purple."
       effects: { sanity: "-2±1", project.delay: 1, project.quality.S: "+6±2" }
@@ -890,7 +890,7 @@
         effects: { coding: "+2±1", project.quality.S: "+4±2" }
       failure:
         text: "The script flags half your real participants too. You end up cleaning by hand anyway."
-        effects: { energy: "-6±2", days: -1, project.quality.S: "+2±1" }
+        effects: { energy: "-6±2", days: -1, project.quality.S: "+2±1", health: "-2±1" }
 
 - id: res_all_neutral
   title: "Neutral on Everything"
@@ -925,7 +925,7 @@
   choices:
     - label: "Re-listen and fix them yourself"
       text: "Ten hours in headphones. You now know every participant's voice, laugh and favorite filler word."
-      effects: { energy: "-6±2", days: -2, knowledge: "+3±1", project.quality.S: "+5±2" }
+      effects: { energy: "-6±2", days: -2, knowledge: "+3±1", project.quality.S: "+5±2", health: "-2±1", sanity: "-2±1" }
     - label: "Ask the participant to recall it"
       check: { stat: network, vs: 45, spread: 20 }
       success:

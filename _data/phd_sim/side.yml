@@ -1,0 +1,164 @@
+# Side activities: small things for an evening or a weekend. Now and then a turn offers a card
+# with two or three of these (plus "Not this time"). They don't use the turn's focus; a few cost
+# a day (`days: -1`). Schema: id (side_), label, desc, when, weight (default 1), helps
+# (health | stress | energy | social | career: offered more often when that bar is in trouble),
+# then outcome keys (text, effects, flag_set, achievement, tip, ...). Arrows come from `effects`.
+
+- id: side_gym
+  label: "Hit the gym three times"
+  desc: "Your body will thank you, eventually."
+  helps: health
+  weight: 3
+  text: "Sore on Tuesday, smug on Thursday."
+  effects: { health: "+5±1", energy: "-2±1", sanity: "+1" }
+- id: side_run_club
+  label: "Join {labmate}'s Saturday run club"
+  desc: "Five kilometers, then pastries."
+  helps: health
+  weight: 2
+  when: { has_advisor: true }
+  text: "You finish last and nobody minds. The pastries are excellent."
+  effects: { health: "+4±1", sanity: "+2±1", labmates_rel: "+2±1" }
+- id: side_yoga
+  label: "Try the free yoga class at the rec center"
+  desc: "Your shoulders have been up by your ears since September."
+  helps: health
+  weight: 2
+  text: "You can't touch your toes. You can, however, unclench your jaw."
+  effects: { health: "+3±1", sanity: "+3±1" }
+- id: side_doctor
+  label: "Finally see a doctor about that cough"
+  desc: "It's been three weeks. Your labmates have noticed."
+  helps: health
+  weight: 3
+  when: { stat: { health: "<60" } }
+  text: "Antibiotics, rest, and a doctor who says \"you should sleep more\" like it's easy."
+  effects: { health: "+6±2", days: -1 }
+- id: side_meal_prep
+  label: "Cook real food on Sunday"
+  desc: "Five lunches that aren't vending machine crackers."
+  helps: health
+  weight: 2
+  text: "Lentil soup, five containers. By Thursday you never want to see a lentil again."
+  effects: { health: "+3±1", energy: "+2±1" }
+- id: side_bedtime
+  label: "Go to bed before midnight, every night"
+  desc: "A radical experiment."
+  helps: energy
+  weight: 2
+  text: "It works. You're annoyed by how well it works."
+  effects: { energy: "+5±1", health: "+2±1" }
+- id: side_afternoon_off
+  label: "Take Friday afternoon off"
+  desc: "The paper will still be there on Monday."
+  helps: energy
+  weight: 2
+  text: "A long walk, a longer nap. Monday-you is grateful."
+  effects: { energy: "+4±1", sanity: "+3±1", days: -1 }
+- id: side_board_games
+  label: "Board game night at {labmate}'s place"
+  desc: "Someone always brings a game with forty pages of rules."
+  helps: stress
+  weight: 2
+  when: { has_advisor: true }
+  text: "Nobody understands the rules by the end. Everyone has a great time."
+  effects: { sanity: "+4±1", labmates_rel: "+2±1", energy: "-1" }
+- id: side_dinner
+  label: "Dinner with friends from outside the lab"
+  desc: "People who don't know what a p-value is."
+  helps: stress
+  weight: 2
+  text: "Nobody asks about your paper. It's the best two hours of the month."
+  effects: { sanity: "+4±1", friends_rel: "+3±1" }
+- id: side_call_home
+  label: "Call home for an hour"
+  desc: "They miss you."
+  helps: social
+  text: "You hear about the neighbor's dog, the cousin's wedding and the weather. It helps more than you expected."
+  effects: { sanity: "+2±1", family_rel: "+4±1" }
+- id: side_hike
+  label: "Go on a day hike"
+  desc: "Trees. Actual trees."
+  helps: stress
+  when: { turn: [1, 7] }
+  text: "Six hours outside, zero notifications, one very good sandwich."
+  effects: { health: "+3±1", sanity: "+4±1", energy: "-2±1" }
+- id: side_hike_spring
+  label: "Go on a day hike"
+  desc: "The trails are open again."
+  helps: stress
+  when: { turn: [15, 26] }
+  text: "Six hours outside, zero notifications, one very good sandwich."
+  effects: { health: "+3±1", sanity: "+4±1", energy: "-2±1" }
+- id: side_concert
+  label: "See a concert downtown"
+  desc: "Loud music, no slides."
+  helps: stress
+  text: "Your ears ring all Sunday. Worth it."
+  effects: { sanity: "+4±1", energy: "-2±1" }
+- id: side_hobby
+  label: "Two evenings with your old hobby"
+  desc: "The one you had before you had a research agenda."
+  helps: stress
+  text: "You're rusty, and it doesn't matter at all."
+  effects: { sanity: "+4±1" }
+- id: side_coffee_speaker
+  label: "Get coffee with the visiting speaker"
+  desc: "Their talk was good. Your question was better."
+  helps: career
+  when: { has_advisor: true }
+  text: "Twenty minutes, one business card, and a promise to send them your preprint."
+  effects: { network: "+3±1", energy: "-1" }
+- id: side_reading_group
+  label: "Go to the department reading group"
+  desc: "Free pizza and someone else's paper."
+  helps: career
+  when: { has_advisor: true }
+  text: "The discussion is better than the paper. The pizza is about as good as the paper."
+  effects: { knowledge: "+1", labmates_rel: "+2±1", energy: "-1" }
+- id: side_help_debug
+  label: "Help {labmate} debug their training run"
+  desc: "\"It's probably a quick fix.\""
+  helps: social
+  when: { has_advisor: true }
+  text: "It's a learning rate. It's always a learning rate. They owe you one."
+  effects: { labmates_rel: "+3±1", coding: "+1", energy: "-2±1" }
+- id: side_friend_visit
+  label: "Show a visiting friend around town"
+  desc: "An old friend from undergrad is in town for the weekend."
+  helps: stress
+  text: "You see your city through a visitor's eyes, and remember you have a life outside the lab."
+  effects: { sanity: "+5±1", friends_rel: "+5±2", energy: "-2±1" }
+- id: side_parents_visit
+  label: "Host your parents for a weekend"
+  desc: "They want to see \"where you work\"."
+  helps: social
+  when: { year: [1, 7] }
+  text: "They take a photo of you next to your desk and send it to the whole family."
+  effects: { sanity: "+3±1", family_rel: "+6±2", energy: "-2±1" }
+- id: side_step_challenge
+  label: "Sign up for the department step challenge"
+  desc: "The staff team has won three years running."
+  helps: health
+  text: "You take the stairs, walk to meetings, and still lose to the staff team. Your legs feel great."
+  effects: { health: "+4±1", sanity: "+1" }
+- id: side_nearby_workshop
+  label: "Drop in on a workshop in the next city"
+  desc: "Free student registration, one train ride away."
+  helps: career
+  when: { has_advisor: true }
+  text: "Small rooms, long conversations, and a few new ideas."
+  effects: { network: "+4±1", knowledge: "+1", days: -1 }
+- id: side_bike
+  label: "Bike to campus instead of taking the bus"
+  desc: "The weather's good. Your excuses aren't."
+  helps: health
+  when: { turn: [3, 7] }
+  text: "Twenty minutes each way. You arrive awake for once."
+  effects: { health: "+3±1", energy: "-1" }
+- id: side_dentist
+  label: "Go to the dentist appointment you've moved three times"
+  desc: "They've stopped sending reminders. They've started sending concern."
+  helps: health
+  text: "One small filling and a lecture about stress and teeth grinding. Fair."
+  effects: { health: "+3±1", sanity: "-1" }
