@@ -1,6 +1,6 @@
 // Drawing, presenting and resolving content events.
 import { clamp, clone, asList } from "./util.js";
-import { yearOf } from "./state.js";
+import { yearOf, weeks } from "./state.js";
 import { check } from "./conditions.js";
 import { fill } from "./templating.js";
 import { applyOutcome } from "./effects.js";
@@ -8,7 +8,7 @@ import { statValue, hasTrait } from "./derived.js";
 
 export const HOOK_CHANCE = {
   turn: 1, deadline: 0.3, after_submit: 0.2, reviews_in: 0.3, after_accept: 0.35, after_reject: 0.3,
-  conference: 1, internship: 0.3, defense_prep: 0.4, defense: 1, job_market: 0.15, model_release: 0.25, graduation: 1
+  conference: 1, internship: 0.15, defense_prep: 0.2, defense: 1, job_market: 0.07, model_release: 0.25, graduation: 1
 };
 const HOOK_MAX = { conference: 1, graduation: 2 };
 
@@ -19,7 +19,7 @@ export function eventEligible(G, ev, ctx, scheduled) {
   const seenAt = s.seen[ev.id];
   if (seenAt !== undefined && !scheduled) {
     if (!ev.repeatable) return false;
-    if (s.turn - seenAt < (ev.cooldown || cfg.default_cooldown || 6)) return false;
+    if (s.turn - seenAt < weeks(ev.cooldown || cfg.default_cooldown || 6)) return false;
   }
   if (!scheduled && ev.rarity === "legendary" && s.lastLegendaryYear === yearOf(s.turn)) return false;
   return check(ev.when, G, ctx);
@@ -44,7 +44,7 @@ export function eventWeight(G, ev) {
   let w = (cfg.rarity[ev.rarity] || 10) * (ev.weight || 1);
   w *= novelty(G, ev);
   if ((ev.rarity === "rare" || ev.rarity === "legendary") && hasTrait(G, "lucky")) w *= 1.5;
-  const recent = s.recentCats.filter(function (r) { return s.turn - r.turn < cfg.balance_window; })
+  const recent = s.recentCats.filter(function (r) { return s.turn - r.turn < weeks(cfg.balance_window); })
     .filter(function (r) { return r.cat === ev.category; }).length;
   if (recent >= 2) w *= 0.5;
   else if (recent === 0) w *= 1.3;

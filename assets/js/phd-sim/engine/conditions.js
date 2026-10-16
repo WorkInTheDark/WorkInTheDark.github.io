@@ -31,8 +31,9 @@ export function matchProject(G, p, spec) {
   if (spec.stage && asList(spec.stage).indexOf(st.id) < 0) return false;
   if (spec.stage_kind && st.kind !== spec.stage_kind) return false;
   if (spec.turns_to_deadline !== undefined) {
-    const t = turnsToDeadline(G, p);
-    if (t === null || !compare(t, spec.turns_to_deadline)) return false;
+    const w = turnsToDeadline(G, p);
+    // Content counts in two-week periods: this week and next are both "0–1 periods away".
+    if (w === null || w < 0 || !compare(Math.ceil(w / 2), spec.turns_to_deadline)) return false;
   }
   return true;
 }

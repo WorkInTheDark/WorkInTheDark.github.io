@@ -1,6 +1,6 @@
 // Applies outcome objects (effects, flags, statuses, schedules…) and reports what changed.
 import { parseValue, clamp, asList } from "./util.js";
-import { STAT_IDS } from "./state.js";
+import { STAT_IDS, weeks } from "./state.js";
 import { hasTrait } from "./derived.js";
 import { fill } from "./templating.js";
 import { unlock } from "./achievements.js";
@@ -73,7 +73,7 @@ export function schedule(G, spec, ctx) {
     if (!sc || !sc.event) return;
     if (sc.chance !== undefined && !G.rng.chance(sc.chance)) return;
     const range = Array.isArray(sc.in) ? sc.in : [sc.in || 1, sc.in || 1];
-    const at = G.state.turn + Math.max(1, G.rng.int(range[0], range.length > 1 ? range[1] : range[0]));
+    const at = G.state.turn + Math.max(1, weeks(G.rng.int(range[0], range.length > 1 ? range[1] : range[0])));
     G.state.queue.push({ event: sc.event, turn: at, ctx: { projectId: ctx.projectId, paperId: ctx.paperId, tok: ctx.tok } });
   });
 }
@@ -109,9 +109,9 @@ function projectEffect(G, key, raw, ctx, res, hidden) {
   } else if (sub === "delay") {
     const n = rollRange(G, raw);
     const st = currentStage(G, p);
-    if (st.kind === "wait") p.wait = Math.max(0, p.wait + n);
-    else if (n > 0) p.pause += n;
-    res.visible.push({ stat: "delay", label: p.short, amount: n });
+    if (st.kind === "wait") p.wait = Math.max(0, p.wait + Math.round(n * 2));
+    else if (n > 0) p.pause += weeks(n);
+    res.visible.push({ stat: "delay", label: p.short, amount: Math.round(n * 2) });
   } else if (sub === "pivot") {
     withdrawRevision(G, p);
     p.stageIdx = 0; p.progress = 0; p.revise = false;
@@ -174,7 +174,7 @@ export function applyOutcome(G, out, ctx) {
   if (out.counter) Object.keys(out.counter).forEach(function (k) {
     s.counters[k] = (s.counters[k] || 0) + (parseInt(out.counter[k], 10) || 0);
   });
-  asList(out.status).forEach(function (st) { if (st && st.add) addStatus(G, st.add, st.turns || 1); });
+  asList(out.status).forEach(function (st) { if (st && st.add) addStatus(G, st.add, weeks(st.turns || 1)); });
   asList(out.status_remove).forEach(function (id) { removeStatus(G, id); });
   if (out.trait_add && s.player.traits.indexOf(out.trait_add) < 0) {
     s.player.traits.push(out.trait_add);
@@ -182,6 +182,17 @@ export function applyOutcome(G, out, ctx) {
     res.notes.push("New trait: " + (t ? t.name : out.trait_add) + ".");
   }
   if (out.schedule) schedule(G, out.schedule, ctx);
+  // Events can open up an extra option for the week (or for next week, if the week is already over).
+  asList(out.unlock).forEach(function (id) {
+    if (!G.D.opportunityById || !G.D.opportunityById[id]) return;
+    const when = G.state.stage === "end_items" ? G.state.turn + 1 : G.state.turn;
+    G.state.unlocks = (G.state.unlocks || []).concat([{ id: id, turn: when, ctx: { projectId: ctx.projectId, paperId: ctx.paperId, tok: ctx.tok } }]);
+    if (when === G.state.turn) {
+      G.state.weekOpps = (G.state.weekOpps || []).filter(function (o) { return o.id !== id; }).concat([{ id: id, ctx: { projectId: ctx.projectId, tok: ctx.tok } }]);
+    }
+    const def = G.D.opportunityById[id];
+    res.notes.push("New option " + (when === G.state.turn ? "this week" : "next week") + ": " + fill(def.label, G, ctx) + ".");
+  });
   asList(out.achievement).forEach(function (a) { unlock(G, a); });
   if (out.ending) { s.pendingEnding = out.ending; res.ending = out.ending; }
   return res;

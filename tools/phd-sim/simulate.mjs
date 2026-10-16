@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { prepareData, newRun, Game, firstAuthorPubs, totalCitations, hIndex } from "../../assets/js/phd-sim/engine/index.js";
 import { Rng } from "../../assets/js/phd-sim/engine/rng.js";
+import { TURNS } from "../../assets/js/phd-sim/engine/state.js";
 import { activeProjects } from "../../assets/js/phd-sim/engine/projects.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -13,37 +14,48 @@ const RUNS = parseInt(process.argv[2] || "200", 10);
 const POLICY = process.argv[3] || "mixed";
 const POLICIES = ["balanced", "workaholic", "slacker", "random"];
 
-// Builds a turn plan from the plan prompt, the way each kind of player might.
-function makePlan(p, policy, rng) {
-  const picks = {};
-  let left = p.slots;
-  const add = (id, n) => { if (!id || left <= 0) return; const k = Math.min(n, left); picks[id] = (picks[id] || 0) + k; left -= k; };
-  const projects = p.actions.filter((a) => a.kind === "project").map((a) => a.id);
-  const has = (id) => p.actions.some((a) => a.id === id);
-  p.actions.filter((a) => a.kind === "apply").forEach((a) => { if (policy !== "slacker") add(a.id, 1); });
-  if (policy === "random") {
-    while (left > 0) add(rng.pick(p.actions).id, 1);
-  } else if (policy === "workaholic") {
-    projects.slice(0, 2).forEach((id, i) => add(id, i === 0 ? Math.ceil(left / 2) : left));
-    if (!projects.length) add("read", left);
-  } else if (policy === "slacker") {
-    if (projects.length) add(projects[0], 1);
-    ["social", "hobby", "rest", "exercise", "read"].forEach((id) => add(id, 1));
-  } else {
-    // A reasonable player: mostly research, but reacting to the Energy and Sanity bars.
-    const st = p.stats || {};
-    if (st.energy !== undefined && st.energy < 35) add("rest", 1);
-    if (st.sanity !== undefined && st.sanity < 45) add("social", 1);
-    if (st.sanity !== undefined && st.sanity < 30) add("hobby", 1);
-    if (left >= 4 && rng.chance(0.5)) add(rng.chance(0.5) ? "exercise" : "social", 1);
-    if (!projects.length) add("read", left);
-    projects.slice(0, 2).forEach((id, i) => add(id, i === 0 ? Math.ceil(left / Math.min(2, projects.length)) : left));
-    while (left > 0) add("read", 1);
+// Picks one action for the week, the way each kind of player might.
+function pickAction(p, policy, rng, stats) {
+  const A = p.actions;
+  const by = (kind) => A.filter((a) => a.kind === kind);
+  const has = (id) => A.some((a) => a.id === id);
+  const sanityOpp = by("opportunity").find((a) => (a.arrows || []).some((x) => x.stat === "sanity" && x.dir === "up"));
+  const boostOpp = by("opportunity").find((a) => (a.arrows || []).some((x) => x.stat === "progress"));
+  const submit = A.find((a) => a.id.indexOf("submit:") === 0);
+  const crunch = A.find((a) => a.id.indexOf("crunch:") === 0);
+  const projects = by("project");
+  if (policy === "random") return rng.pick(A).id;
+  if (policy === "slacker") {
+    if (by("opportunity").length && rng.chance(0.8)) return rng.pick(by("opportunity")).id;
+    if (submit && rng.chance(0.5)) return submit.id;
+    if (by("milestone").length && rng.chance(0.25)) return by("milestone")[0].id;
+    if (rng.chance(0.45) || !projects.length) return has("recharge") ? "recharge" : A[0].id;
+    return rng.pick(projects).id;
   }
-  const extras = {};
-  p.extras.forEach((x) => { extras[x.id] = x.kind === "submit" ? { preprint: true } : true; });
-  const weekend = policy === "workaholic" && p.weekend.allowed && p.weekend.targets.length ? p.weekend.targets[0].id : "off";
-  return { picks, weekend, extras };
+  if (policy === "workaholic") {
+    if (stats.energy < 12 && has("recharge")) return "recharge";
+    if (submit) return submit.id;
+    if (crunch) return crunch.id;
+    if (by("milestone").length) return by("milestone")[0].id;
+    if (boostOpp) return boostOpp.id;
+    if (projects.length) return projects[Math.floor(rng.next() * Math.min(2, projects.length))].id;
+    return "read";
+  }
+  // A reasonable player: research most weeks, reacting to the bars and to what comes up.
+  if (stats.energy < 30 && has("recharge")) return "recharge";
+  if (stats.sanity < 40) return sanityOpp ? sanityOpp.id : has("recharge") ? "recharge" : A[0].id;
+  if (submit) return submit.id;
+  if (by("milestone").length) return by("milestone")[0].id;
+  if (boostOpp) return boostOpp.id;
+  if (sanityOpp && stats.sanity < 65 && rng.chance(0.6)) return sanityOpp.id;
+  if (crunch && stats.energy > 55 && rng.chance(0.5)) return crunch.id;
+  if (rng.chance(0.1) && has("read")) return "read";
+  if (rng.chance(0.08) && has("recharge")) return "recharge";
+  if (projects.length) {
+    const soon = projects.slice().sort((x, y) => (/deadline in (\d+)/.exec(x.desc) ? +/deadline in (\d+)/.exec(x.desc)[1] : 99) - (/deadline in (\d+)/.exec(y.desc) ? +/deadline in (\d+)/.exec(y.desc)[1] : 99));
+    return (rng.chance(0.7) ? soon[0] : rng.pick(projects)).id;
+  }
+  return has("read") ? "read" : A[0].id;
 }
 
 function answerPrompt(game, p, policy, rng) {
@@ -84,6 +96,8 @@ const meta = { runs: 0, achievements: {}, seenRuns: {}, codex: {} };
 let prevSeen = null;
 const overlaps = [];
 const errors = [];
+const promptTypes = {};
+const weekly = { weeks: 0, offered: 0, withOpp: 0, kinds: {} };
 const t0 = Date.now();
 for (let r = 0; r < RUNS; r++) {
   const policy = POLICY === "mixed" ? POLICIES[r % POLICIES.length] : POLICY;
@@ -99,16 +113,23 @@ for (let r = 0; r < RUNS; r++) {
       if (p.type === "error") throw new Error("engine error state");
       if (p.type === "turn_end") { sanSum += game.state.stats.sanity; sanN++; continue; }
       if (p.type === "plan") {
-        p.stats = { energy: game.state.stats.energy, sanity: game.state.stats.sanity };
-        if (p.canStartProject && activeProjects(game).length < (policy === "slacker" ? 1 : 2) && rng.chance(0.6)) {
+        const projectsN = p.actions.filter((a) => a.kind === "project" || a.kind === "deadline").length;
+        if (p.canStartProject && projectsN < (policy === "slacker" ? 1 : 2) && rng.chance(0.5)) {
           const np = game.requestNewProject();
           if (np) { prompts++; game.answer({ type: rng.pick(np.types).id, topic: rng.pick(np.topics).id }); continue; }
         }
         planTurns++;
-        game.submitPlan(makePlan(p, policy, rng));
+        const opps = p.actions.filter((a) => a.kind === "opportunity").length;
+        const choice = pickAction(p, policy, rng, game.state.stats);
+        weekly.weeks++; weekly.offered += opps; if (opps) weekly.withOpp++;
+        const kind = (p.actions.find((a) => a.id === choice) || {}).kind || "?";
+        if (policy === "balanced") weekly.kinds[kind] = (weekly.kinds[kind] || 0) + 1;
+        game.submitPlan({ action: choice });
         continue;
       }
       prompts++;
+      const pk = p.type === "event" ? "event:" + (D.eventById[p.id] && D.eventById[p.id].trigger === "scheduled" ? "scheduled" : "random/hook") : p.type;
+      promptTypes[pk] = (promptTypes[pk] || 0) + 1;
       game.answer(answerPrompt(game, p, policy, rng));
     }
     if (guard >= 20000) throw new Error("did not finish");
@@ -135,11 +156,11 @@ for (let r = 0; r < RUNS; r++) {
     if (p.status === "accepted" || p.status === "rejected") { tiers[k].sub++; if (p.status === "accepted") tiers[k].acc++; }
   });
   results.push({
-    policy, ending: s.ending.id, graduated: s.ending.graduated, years: s.turn / 26, pubs: firstAuthorPubs(game),
+    policy, ending: s.ending.id, graduated: s.ending.graduated, years: s.turn / TURNS, pubs: firstAuthorPubs(game),
     cites: totalCitations(game), h: hIndex(game), burnouts: s.telemetry.burnouts, events: s.telemetry.events_seen,
     prompts, tiers, title: s.ending.title.id, advisor: s.advisor ? s.advisor.archetype : "none", quals: s.milestones.quals,
     proposal: s.milestones.proposal, uniqueRandom: seenRandom.length, sanity: sanN ? sanSum / sanN : 0, perTurn: prompts / Math.max(1, s.turn),
-    qs: s.papers.filter((p) => p.firstAuthor && p.meta !== undefined).map((p) => ({ y: Math.floor(p.submittedTurn / 26) + 1, Q: p.Q, meta: p.meta, bonus: p.scoreBonus || 0, tier: p.tier, st: p.status, round: p.round }))
+    qs: s.papers.filter((p) => p.firstAuthor && p.meta !== undefined).map((p) => ({ y: Math.floor(p.submittedTurn / TURNS) + 1, Q: p.Q, meta: p.meta, bonus: p.scoreBonus || 0, tier: p.tier, st: p.status, round: p.round }))
   });
 }
 
@@ -167,6 +188,9 @@ const agg = {};
 all.forEach((x) => Object.entries(x.tiers).forEach(([k, v]) => { agg[k] = agg[k] || { sub: 0, acc: 0 }; agg[k].sub += v.sub; agg[k].acc += v.acc; }));
 console.log("Acceptance by tier (first-author, decided): " + Object.entries(agg).map(([k, v]) => k + " " + pct(v.acc, v.sub) + " of " + v.sub).join(", "));
 console.log("Years (all runs): " + [1, 2, 3, 4, 5, 6, 7, 8, 9].map((y) => y + ":" + all.filter((x) => Math.ceil(x.years) === y).length).join(" "));
+console.log("Prompts by type (per week): " + Object.entries(promptTypes).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + " " + (v / Math.max(1, weekly.weeks)).toFixed(3)).join(", "));
+console.log("Weekly options: " + (weekly.withOpp / Math.max(1, weekly.weeks) * 100).toFixed(0) + "% of weeks offer at least one, avg " + (weekly.offered / Math.max(1, weekly.weeks)).toFixed(2) + " per week");
+console.log("Balanced bot's choices: " + Object.entries(weekly.kinds).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + " " + v).join(", "));
 console.log("Random-event overlap between consecutive runs: median " + pct(median(overlaps) * 100, 100) + ", unique random events per run avg " + avg(all.map((x) => x.uniqueRandom)));
 const pool = D.events.filter((e) => e.trigger !== "scheduled").length;
 console.log("Random pool size: " + pool + ", seen at least once across all runs: " + Object.keys(meta.seenRuns).length);

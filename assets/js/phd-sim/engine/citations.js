@@ -1,5 +1,6 @@
 // Citation accrual: each published paper (or preprint) is a small Poisson process.
 import { hasTrait } from "./derived.js";
+import { TURNS } from "./state.js";
 
 export function setCiteMean(G, p) {
   const cfg = G.D.config.citations;
@@ -35,10 +36,10 @@ export function accrueCitations(G) {
     if (p.superseded || (!accepted && !p.preprint)) return;
     if (!p.citeMean) setCiteMean(G, p);
     const start = accepted ? p.pubTurn : p.submittedTurn;
-    const yr = (s.turn - start) / 26;
+    const yr = (s.turn - start) / TURNS;
     if (yr < 0) return;
     const ramp = yr < 1 ? 0.4 : yr < 2 ? 0.8 : Math.max(0.5, 1 - 0.03 * (yr - 2));
-    const mean = p.citeMean * ramp / 26 * (accepted ? 1 : cfg.preprint_factor) * net * (p.breakout || 1);
+    const mean = p.citeMean * ramp / TURNS * (accepted ? 1 : cfg.preprint_factor) * net * (p.breakout || 1);
     p.citations = (p.citations || 0) + G.rng.poisson(mean);
   });
 }

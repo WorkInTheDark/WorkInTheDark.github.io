@@ -3,7 +3,7 @@
 Status: v1 implemented (2026-10-15) on the `phd-simulator` branch. Phases 1 and 2 are built, plus parts of Phase 3 (daily seed, share image, job talk Q&A); see section 18 for what is and isn't done.
 Owner: Arthur. This file is the design; `content-spec.md` is the exact data contract; `tools/phd-sim/README.md` lists the dev commands. It is excluded from the Jekyll build.
 
-A browser game on the site, inspired by 《读博模拟器》, in which the player lives through an NLP × HCI PhD in two-week turns: choosing an advisor, running projects, surviving reviews, travelling to conferences, living a life outside the lab, and landing somewhere at the end. The aim is a game that is as realistic as possible while still being fun, and that can be replayed many times without feeling repetitive.
+A browser game on the site, inspired by 《读博模拟器》, in which the player lives through an NLP × HCI PhD one week at a time: choosing an advisor, running projects, surviving reviews, travelling to conferences, living a life outside the lab, and landing somewhere at the end. The aim is a game that is as realistic as possible while still being fun, and that can be replayed many times without feeling repetitive.
 
 ---
 
@@ -13,11 +13,11 @@ A browser game on the site, inspired by 《读博模拟器》, in which the play
 |---|---|
 | Language | English |
 | Field | NLP × HCI (human-centered AI, clinical AI flavor) |
-| Turn length | Two weeks. Each turn you choose what to do (several choices of two days each), then end the turn and read a report. No routine and no auto-play (changed 2026-10-16) |
+| Turn length | **One week, one choice.** Each week you pick one thing to do and the week plays out right away: no multi-pick, no confirm button. A few choices are always there (each project, Read, Recharge); random happenings add "This week only" choices (section 4). Changed twice on 2026-10-16: first from a repeating two-week routine to a per-turn planner, then to this |
 | Visible stats | Energy, Sanity, Citations (+ h-index), Papers, and the five skills (made visible again 2026-10-16, since actions now train them directly) |
 | Hidden stats | Relationships, network, health |
 | Character | Three traits rolled at random. No background or origin choice; those became traits (Industry Veteran, Career Switcher, Master's Head Start, International Student) (2026-10-16) |
-| Event frequency | About one random event every four turns, plus events tied to milestones; routine news goes into the turn report instead of pop-ups (2026-10-16) |
+| Event frequency | About one pop-up every four to five weeks (random events at 9% a week, plus milestones, reviews and Q&As); routine news goes into the weekly report instead of pop-ups (2026-10-16) |
 | Not stats | Money and funding (funding becomes a hidden trait of the advisor) |
 | Effects | Rolled within a range, written `+7±3` |
 | Before choosing | Arrows only, never numbers |
@@ -73,14 +73,15 @@ Target run length: 25–40 minutes for a five-year PhD, with save and resume.
 
 ## 3. Time and calendar
 
-### 3.1 Turns
-- One turn = 14 days = 10 weekdays + 4 weekend days.
-- One year = 26 turns, starting on 1 September. 26 × 14 = 364 days; the missing day is ignored.
-- Nominal program: 5 years (130 turns). Extensions up to the end of Year 8 (208 turns), when the run ends regardless.
+### 3.1 Turns and periods
+- **One turn = one week** = 5 weekdays + a weekend. One year = 52 turns, starting on 1 September (364 days; the missing day is ignored).
+- **The calendar still counts in two-week periods**, T1–T26, two turns each. The tables below, the venue calendar, and every `turn:` condition, cooldown and duration in the content files use periods. The engine converts: a content duration of N periods lasts 2N weeks, and things that happen "at T12" happen in the first week of T12 (deadlines fall in the second week).
+- Nominal program: 5 years (260 weeks). Extensions up to the end of Year 8 (416 weeks), when the run ends regardless.
+- Elsewhere in this doc, durations written in "turns" for statuses, venues and milestones are periods (two weeks each) unless they say weeks.
 
-### 3.2 Turn-to-date map (each year)
+### 3.2 Period-to-date map (each year)
 
-| Turn | Dates | Notes |
+| Period | Dates | Notes |
 |---|---|---|
 | T1 | Sep 1–14 | Fall semester starts |
 | T2 | Sep 15–28 | |
@@ -136,84 +137,91 @@ ARR rejections can be resubmitted to a later cycle with previous reviews attache
   - the proposal passed
   - **at least 3 publications:** accepted, peer-reviewed, first author, any tier (Findings and workshops count). The default reading is pending Arthur's confirmation (section 19).
   - Optionally, you can start with the third paper still under review. If it is rejected during preparation, the defense is postponed until a third paper is accepted. Strict advisors may refuse the early start.
-- **Defense preparation takes 6 turns (12 weeks, about three months):**
-  - Thesis writing and slides take a fixed 5 days per turn.
+- **Defense preparation takes 12 weeks (about three months):**
+  - Thesis writing and slides take a fixed part of every week (5 days per two weeks).
   - Prep days build a hidden **readiness** score from Writing and Presenting.
   - Prep has its own event pool: finding a date when the whole committee is free, thesis formatting rules, the acknowledgments section, a committee member who wants one more chapter.
 - **The defense** happens at the end of the 6th prep turn, as the Committee Q&A mini-game (section 9.2). It cannot fall on T9 (winter break); if it would, it moves to T10.
 - **Defense outcomes:**
   - **pass**
-  - **pass with minor revisions** (1 more turn of fixes)
-  - **major revisions** (3 more turns, then a short re-defense)
+  - **pass with minor revisions** (2 more weeks of fixes)
+  - **major revisions** (6 more weeks, then a short re-defense)
 
   There is no outright fail: as in reality, advisors don't schedule a defense they expect to fail.
 
 ---
 
-## 4. The turn plan
+## 4. The week
 
-Changed on 2026-10-16 at Arthur's request: the repeating routine and auto-continue were removed. Every turn is now an explicit choice.
+Changed twice on 2026-10-16 at Arthur's request. First the repeating routine and auto-continue were removed in favor of a two-week planner with several picks and an End turn button. He found that too complicated, so now **each turn is one week and you make one choice**. Clicking it plays the week out at once.
 
-### 4.1 Choices per turn
-- A turn is 10 weekdays plus a weekend.
-- Fixed commitments take weekdays first:
+### 4.1 Fixed time
+- Fixed commitments take part of each week before your choice gets the rest:
 
-  | Commitment | Days | When |
+  | Commitment | Days per week | When |
   |---|---|---|
-  | Courses | 3 in Year 1, 2 in Year 2 fall | Coursework terms |
-  | TA duty | 2 (3 at finals) | TA semesters |
-  | Meetings | 1 (2 with a Micromanager) | Always |
-  | Defense prep | 5 | Defense prep |
-  | Family | 2 | Parent trait |
-  | Conference trip | 4 | The turn of a trip |
-  | Internship | all 10 | Internship turns |
+  | Courses | about 1.5 in Year 1, 1 in Year 2 fall | Coursework terms |
+  | TA duty | about 1 (1.5 at finals) | TA semesters |
+  | Meetings | about 0.5 (1 with a Micromanager) | Always |
+  | Defense prep | about 2.5 | Defense prep |
+  | Family | 1 | Parent trait |
+  | Internship | all 5 | Internship weeks |
 
-- **Choices:** the remaining days divide into choices of two days each (`turn.days_per_choice`). Typically 3 choices in Year 1 and 4 afterwards.
-- **Fewer choices** when you are sick (5 fewer days) or burned out (half the free days).
-- **Leftover days** (an odd day, or choices you didn't use) become rest.
+  Two-week amounts from `config.yml` are split across a period's two weeks (rounded up in the first week, down in the second).
+- **All the remaining weekdays** go to the one thing you chose. You get fewer when you're sick (3 fewer) or burned out (half).
+- **Weekends are off** (+Energy, +Sanity), except when you crunch for a deadline.
 
 ### 4.2 What you can choose
-- **Projects:** "Work on" each active project. This advances the current stage and trains that stage's skill.
-- **Everyday activities:**
-  - Read papers
-  - Network
-  - Help labmates
-  - Mentor (once you have a mentee)
-  - Practice talks and interviews
-  - Rest
-  - Exercise
-  - See friends
-  - Hobby
-  - Call family
-- **Repeats:** you can pick the same thing more than once to focus on it.
-- **Arrows:** every card shows arrows for its visible effects, never numbers.
-- **Time-limited options** that use a choice: "Apply for summer internships" (Years 2–5, T2–T7) and "Apply for a fellowship" (Years 1–3, T3–T6).
-- **Free options**, shown as checkboxes under "Also this turn":
-  - **Submit a project** at its deadline (with an optional preprint).
-  - **Schedule the thesis proposal** once you are eligible.
-  - **Start defense preparation** once you are eligible.
-  - **Go on the job market**, Year 4 and later, T1–T4.
-  - **Start a new project.**
-- **Weekends:** off by default, or you can work them on one thing. That is two overtime days, costing Energy, Sanity and Health.
-- **"Same as last turn"** fills in last turn's picks; nothing is pre-selected otherwise.
+Only a few choices are always there, because most real activities don't fill a week:
+- **Work on "<project>"**, for each active project. It advances the current stage and trains that stage's skill.
+- **Read and learn:** knowledge and taste, and sometimes an idea.
+- **Recharge:** sleep, see people, do nothing useful. Restores Energy and Sanity.
 
-### 4.3 Turn order
-1. **Start of turn:** the calendar and statuses update, then the things that need you before you plan:
+Some choices come from the calendar and your progress:
+- **Deadline week:** "Polish and submit "<project>" to VENUE" replaces that project's work choice. It needs at least half a draft by the end of the week and always posts a preprint. If you skip it, the target rolls to the next deadline.
+- **One or two weeks before a deadline:** "Crunch on "<project>", weekend included". It adds deadline mode, two overtime days, and a big drain.
+- **Milestones**, which use the week: apply for internships (Years 2–5, T2–T7) or a fellowship (Years 1–3, T3–T6), schedule the thesis proposal, start defense prep, or go on the job market.
+- **Internship weeks:** "Give it your all", "Keep a healthy pace", or "Spend the weekend on <project>".
+- **On leave:** only Recharge.
+
+Everything else comes up as a **"This week only"** choice (`opportunities.yml`):
+- the holidays at home, winter break, a spring-break trip, a summer vacation
+- a friend or your parents visiting
+- a summer school, a hackathon, a nearby workshop, an invited talk, the career fair, visit day
+- a writing retreat, an empty GPU cluster, the clinic suddenly having openings, or your advisor's free week (each boosts project progress)
+- helping a labmate make their deadline, teaching this week's lectures
+- the thesis bootcamp during defense prep
+
+Each week every eligible opportunity rolls its `chance` (respecting `when`, `cooldown` and `once`), up to `opportunities.max_per_week` (2). Events can also unlock one with `unlock:` (for this week or next). About 28% of weeks offer at least one. If you don't take it, it's gone.
+
+**Start a new project** is a free button, not a choice: it doesn't use up the week.
+
+Every choice shows arrows for its visible effects, never numbers. A quick double click can't spend two weeks: clicks in the first 0.4 seconds of a new week are ignored.
+
+### 4.3 Week order
+1. **Start of the week:** the calendar and statuses update. Then come the things that need you before you choose:
    - advisor matching
    - quals, proposal and defense Q&A on their dates
    - reviews arriving, with the rebuttal
    - a Findings decision
    - internship and job offers
-   - the Dark Angel's Question
-2. **The plan:** you choose and press End turn.
-3. **The two weeks play out:** days resolve, passive effects apply, and health and burnout are checked.
-4. **Events:** at most one random event (25%, or 5% if something else already happened this turn). Also arc follow-ups, and events tied to submissions, decisions, conferences, internships, defense prep, the job market and model releases.
-5. **End of turn:** submissions and revisions are finalized, then citations, tips and achievements.
-6. **The turn report:** stat and skill changes, project progress, and news (decisions, conference trips, results, warnings).
+   - the Dark Angel's Question, the week before a deadline
+   - at most one random event (9% a week, or 3% if something else already happened)
+
+   Then the week's opportunities are rolled.
+2. **Your choice:** one click.
+3. **The week plays out:** days resolve, the opportunity's outcome applies, passive effects apply, and health and burnout are checked.
+4. **End of the week:** submissions and revisions are finalized, then citations, tips and achievements.
+5. **The report** ("Last week"): what you did, stat and skill changes, project progress, and news (decisions, conference trips, results, warnings).
 
 **Decisions that no longer pop up:**
 - Acceptances, rejections and revise-and-resubmits are reported, not asked about. A rejected paper automatically goes back to revision for the next deadline, and you can change its target or shelve it from the project card.
 - Conference trips happen automatically: you travel if there's money, otherwise there's a chance of a travel grant, otherwise you present remotely.
+
+### 4.4 Balance targets (from `simulate.mjs`, 600 runs)
+- A sensible bot (research most weeks, recharge when Energy < 30 or Sanity < 40, takes milestones and boosts) graduates about 90% of the time, with a median of about 4.4 years. Real players should land around year 5.
+- A workaholic bot burns out about 8 times and graduates later. A slacker bot graduates around year 6.5.
+- Pop-ups: about 0.22 per week.
 
 ## 5. Stats
 
@@ -245,8 +253,8 @@ Stat ids used in data files: `energy`, `sanity`, `citations`, `taste`, `coding`,
 **Energy**
 - Weekday work day: `-3±1`. Overtime (weekend work) day: `-5±2`.
 - Rest day: `+8±2`. Exercise, Social, Hobby or Family day: `+5±2`. Weekend day off: `+6±2`.
-- Sleep baseline per turn: `+6`.
-- Target behavior: a normal turn (weekdays on, weekends off) is roughly energy-neutral; one full crunch turn costs about 45; two crunch turns in a row put you in the red.
+- Sleep baseline per week: `0`.
+- Target behavior: a normal work week (weekdays on, weekends off) costs about 3 Energy, so a Recharge week (about +30) is needed every two months or so. A crunch week costs about 25.
 - Efficiency multiplier: `clamp(0.4 + 0.012 × energy, 0.4, 1.0)`. At 50 or more you work at full speed; at 0, at 40%.
 
 **Sanity**

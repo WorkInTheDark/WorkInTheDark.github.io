@@ -2,7 +2,7 @@
 import { check } from "./conditions.js";
 import { fill } from "./templating.js";
 import { totalCitations, hIndex, acceptedPapers, firstAuthorPubs, hasTrait, paperCitations } from "./derived.js";
-import { yearOf, tOf, STAT_LABELS, HIDDEN } from "./state.js";
+import { yearOf, tOf, STAT_LABELS, HIDDEN, TURNS } from "./state.js";
 import { unlock, checkAchievements } from "./achievements.js";
 
 export function profile(G) {
@@ -132,7 +132,7 @@ export function finalize(G, endingId) {
   checkAchievements(G);
   const title = pickTitle(G);
   const numbers = {
-    years: Math.round((s.turn / 26) * 10) / 10,
+    years: Math.round((s.turn / TURNS) * 10) / 10,
     pubs: firstAuthorPubs(G),
     allPubs: acceptedPapers(G).length,
     citations: totalCitations(G),

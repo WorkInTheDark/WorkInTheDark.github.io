@@ -6,7 +6,7 @@ Local tooling for the game at `/phd-simulator/`. Nothing in `tools/` is publishe
 |---|---|
 | `ruby tools/phd-sim/export-data.rb` | Exports `_data/phd_sim/` plus the PhD 101 topic map to `tools/phd-sim/out/data.json`, the same shape Jekyll renders at `/assets/phd-sim/data.json`. Run it after editing any YAML. |
 | `node --experimental-default-type=module tools/phd-sim/validate.mjs` | Checks every event, condition, effect, token, schedule target, achievement and PhD 101 topic against `docs/phd-simulator/content-spec.md`. Exits non-zero on errors. |
-| `node --experimental-default-type=module tools/phd-sim/simulate.mjs 300` | Plays 300 headless runs with four bot policies and prints graduation times, endings, acceptance rates, citations, burnouts and event overlap. Add `QSTATS=1` for paper quality by year. |
+| `node --experimental-default-type=module tools/phd-sim/simulate.mjs 300` | Plays 300 headless runs with four bot policies and prints graduation times, endings, acceptance rates, citations, burnouts, event overlap, pop-ups per week by type, how often "This week only" options come up, and what the sensible bot chose. Add `QSTATS=1` for paper quality by year. |
 | `node --experimental-default-type=module --test tools/phd-sim/tests/` | Engine unit tests (determinism, save and reload, many full runs). |
 | `python3 tools/phd-sim/serve.py` | No-cache static server. Open http://127.0.0.1:8766/tools/phd-sim/dev/index.html for the dev page (uses the exported JSON, has a dark-mode toggle and a "clear saves" button). |
 

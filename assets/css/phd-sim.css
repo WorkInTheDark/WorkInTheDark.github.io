@@ -141,12 +141,8 @@ html[data-theme='dark'] .ps-app {
 .ps-bar-skill.ps-bar-low > span { background: var(--ps-accent-solid); opacity: 0.6; }
 
 /* The turn planner */
-.ps-pips { display: inline-flex; gap: 4px; }
-.ps-pip { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ps-accent-solid); background: transparent; }
-.ps-pip-on { background: var(--ps-accent-solid); }
 .ps-actions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.5rem; }
 .ps-act { position: relative; border: 1px solid var(--ps-line); border-radius: 10px; background: var(--ps-bg); display: flex; flex-direction: column; }
-.ps-act-on { border-color: var(--ps-accent); background: var(--ps-tint); box-shadow: inset 0 0 0 1px var(--ps-accent); }
 .ps-act-project { border-left: 3px solid var(--ps-accent-solid); }
 .ps-act-apply { border-style: dashed; }
 .ps-act-main {
@@ -155,20 +151,10 @@ html[data-theme='dark'] .ps-app {
 }
 .ps-act-main:hover:not([disabled]) { background: var(--ps-wash); }
 .ps-act-main[disabled] { cursor: default; }
-.ps-act:not(.ps-act-on) .ps-act-main[disabled] { opacity: 0.55; }
 .ps-act-main:focus-visible { outline: 2px solid var(--ps-accent); outline-offset: 2px; }
 .ps-act-label { font-weight: 600; font-size: 0.9rem; line-height: 1.25; }
 .ps-act-desc { font-size: 0.78rem; color: var(--ps-muted); line-height: 1.3; }
 .ps-act .ps-arrows { flex-wrap: wrap; margin-top: 0.15rem; }
-.ps-act-count { display: flex; align-items: center; gap: 0.4rem; padding: 0 0.5rem 0.45rem; }
-.ps-act-count .ps-step { width: 30px; height: 30px; border: 1px solid var(--ps-line); border-radius: 8px; }
-.ps-act-count b { color: var(--ps-accent); }
-.ps-weekend { display: block; margin-top: 0.7rem; font-size: 0.88rem; }
-.ps-extras { border-top: 1px dashed var(--ps-line); margin-top: 0.7rem; padding-top: 0.2rem; }
-.ps-extra { margin: 0.4rem 0; font-size: 0.9rem; }
-.ps-extra input { margin-right: 0.3rem; }
-.ps-plan-foot { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.9rem; }
-.ps-plan-foot .ps-btn-primary { min-width: 9rem; justify-content: center; }
 
 /* Turn report and news */
 .ps-report .ps-card { border-left: 3px solid var(--ps-accent-solid); }

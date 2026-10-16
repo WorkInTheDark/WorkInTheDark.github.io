@@ -1,8 +1,8 @@
-// The main game screen: header, stats and skills, the turn planner, last turn's report, projects, calendar and log.
+// The main game screen: header, stats and skills, this week's choices, last week's report, projects, calendar and log.
 import { esc, bar, plural, arrowsHtml } from "./common.js";
 import {
-  ACTIVITIES, ACTIVITY_BY_ID, STAT_LABELS, yearOf, tOf, PROJECT_TYPES, STAGE_LABELS, currentStage, stageNeed,
-  writingCompletion, deadlineLabel, venuesForType, absToLabel, totalCitations, hIndex, firstAuthorPubs, hasStatus
+  STAT_LABELS, yearOf, tOf, weekDates, absTurn, weeks, PROJECT_TYPES, STAGE_LABELS, currentStage, stageNeed,
+  writingCompletion, deadlineLabel, venuesForType, absToLabel, totalCitations, hIndex, firstAuthorPubs
 } from "../engine/index.js";
 
 function dateLine(G) {
@@ -10,7 +10,9 @@ function dateLine(G) {
   const t = tOf(s.turn);
   const row = G.D.calendar[t - 1] || {};
   const sem = { fall: "Fall", spring: "Spring", summer: "Summer", break: "Winter break" }[row.semester] || "";
-  return '<div class="ps-date">Year ' + yearOf(s.turn) + " · " + esc(row.dates || "") + " <small>· " + esc(sem) + (row.note ? " · " + esc(row.note) : "") + "</small></div>";
+  // A period's note ("Fall semester starts") belongs to its first week; the rest ("Finals") span both.
+  const note = row.note && (s.turn % 2 === 0 || !/starts/.test(row.note)) ? row.note : "";
+  return '<div class="ps-date">Year ' + yearOf(s.turn) + " · " + esc(weekDates(s.turn)) + " <small>· " + esc(sem) + (note ? " · " + esc(note) : "") + "</small></div>";
 }
 
 export function hudHtml(G) {
@@ -45,15 +47,15 @@ function projectCard(G, p) {
   const stages = PROJECT_TYPES[p.type].stages;
   let progressText, pct;
   if (st.kind === "wait") {
-    progressText = STAGE_LABELS[st.id] + ": waiting, about " + plural(Math.max(1, p.wait), "turn") + " left";
+    progressText = STAGE_LABELS[st.id] + ": waiting, about " + plural(Math.max(1, p.wait), "week") + " left";
     pct = 0;
   } else {
     pct = Math.min(100, Math.round((p.progress / need) * 100));
-    progressText = STAGE_LABELS[st.id] + " " + pct + "%" + (p.pause > 0 ? " (paused " + plural(p.pause, "turn") + ")" : "");
+    progressText = STAGE_LABELS[st.id] + " " + pct + "%" + (p.pause > 0 ? " (paused " + plural(p.pause, "week") + ")" : "");
   }
   const stageNo = p.revise ? "" : " · stage " + (p.stageIdx + 1) + " of " + stages.length;
   let target = "";
-  if (p.target && p.target.rrPaper) target = "Revision due in " + plural(Math.max(0, p.target.turn - G.state.turn), "turn");
+  if (p.target && p.target.rrPaper) target = "Revision due in " + plural(Math.max(0, p.target.turn - G.state.turn), "week");
   else if (p.target && p.target.journalPaper) target = "Revision goes back when it's done";
   else {
     const venues = venuesForType(G, p.type, { includeJournals: true });
@@ -64,7 +66,7 @@ function projectCard(G, p) {
     const ttd = p.target ? p.target.turn - G.state.turn : null;
     const none = p.target ? "" : '<option value="" selected disabled>Choose a venue</option>';
     target = '<label class="ps-meta">Target <select class="ps-select" data-action="target" data-id="' + esc(p.id) + '">' + none + opts + "</select></label>" +
-      (p.target ? ' <span class="ps-meta">' + esc(deadlineLabel(G, p)) + " deadline " + (ttd === 0 ? "<b>this turn</b>" : "in " + plural(ttd, "turn")) + "</span>" : "");
+      (p.target ? ' <span class="ps-meta">' + esc(deadlineLabel(G, p)) + " deadline " + (ttd === 0 ? "<b>this week</b>" : "in " + plural(ttd, "week")) + "</span>" : "");
   }
   const wc = writingCompletion(G, p);
   const ready = (st.id === "writing" || st.id === "revise") ? ' <span class="ps-tag">' + (wc >= 0.5 ? "submittable" : "drafting") + "</span>" : "";
@@ -86,14 +88,14 @@ export function boardHtml(G) {
   const canNew = !!s.advisor && active.length < (G.D.config.progress.max_active_projects || 4);
   let html = '<div class="ps-section"><h3 class="ps-section-title">Projects</h3>';
   html += active.length ? active.map(function (p) { return projectCard(G, p); }).join("") :
-    '<p class="ps-muted ps-small">' + (s.advisor ? "No active projects. Start one from your choices this turn." : "Choose an advisor first.") + "</p>";
+    '<p class="ps-muted ps-small">' + (s.advisor ? "No active projects. Start one with the button above." : "Choose an advisor first.") + "</p>";
   html += "</div>";
   if (under.length) {
     html += '<div class="ps-section"><h3 class="ps-section-title">Under review</h3><div class="ps-card">' + under.map(function (p) {
       const left = Math.max(0, p.decisionTurn - s.turn);
       return '<div class="ps-paper"><span class="ps-tag">' + esc(p.venueName) + "</span>" + esc(p.short) +
         (p.firstAuthor ? "" : ' <span class="ps-muted">(co-author)</span>') +
-        '<div class="ps-meta">' + (p.status === "revise_resubmit" ? "Revision in progress" : "Decision in " + plural(left, "turn")) + "</div></div>";
+        '<div class="ps-meta">' + (p.status === "revise_resubmit" ? "Revision in progress" : "Decision in " + plural(left, "week")) + "</div></div>";
     }).join("") + "</div></div>";
   }
   if (pubs.length) {
@@ -105,11 +107,23 @@ export function boardHtml(G) {
   return html;
 }
 
-function slotsUsed(sel) {
-  return Object.keys(sel.picks).reduce(function (n, k) { return n + sel.picks[k]; }, 0);
+const GROUPS = [
+  { kind: "deadline", title: "Deadline" },
+  { kind: "opportunity", title: "This week only" },
+  { kind: "project", title: "Research" },
+  { kind: "milestone", title: "Milestones" },
+  { kind: "core", title: "Anytime" }
+];
+
+function actionButton(a) {
+  return '<div class="ps-act' + (a.kind === "project" || a.kind === "deadline" ? " ps-act-project" : "") + (a.kind === "opportunity" ? " ps-act-apply" : "") + '">' +
+    '<button class="ps-act-main" data-action="do" data-id="' + esc(a.id) + '">' +
+    '<span class="ps-act-label">' + esc(a.label) + "</span>" +
+    (a.desc ? '<span class="ps-act-desc">' + esc(a.desc) + "</span>" : "") + arrowsHtml(a.arrows) + "</button></div>";
 }
 
-export function planHtml(G, plan, sel) {
+// One choice a week. Clicking it plays the week out right away.
+export function planHtml(G, plan) {
   const fx = plan.days;
   const parts = fx.parts;
   const fixed = [];
@@ -117,52 +131,24 @@ export function planHtml(G, plan, sel) {
   if (parts.ta) fixed.push("TA duty");
   if (parts.defense) fixed.push("defense prep");
   if (parts.family) fixed.push("family");
-  if (fx.adj < 0) fixed.push("other commitments");
-  const used = slotsUsed(sel);
-  const left = plan.slots - used;
   let head;
-  if (plan.internship) head = "You're at your internship this turn. Weekdays belong to it; your weekends are still yours.";
-  else head = "Choose <b>" + plan.slots + "</b> thing" + (plan.slots === 1 ? "" : "s") + " to do these two weeks" +
-    (fixed.length ? " (the rest goes to " + esc(fixed.join(", ")) + ")" : "") + "." +
-    (fx.sick ? " You're sick, so you have less time." : "") + (fx.burnout ? " You're burned out: fewer choices, no weekend work." : "") +
-    (plan.onLeave ? " You're on leave: research can wait." : "");
-  let html = '<div class="ps-section ps-plan"><div class="ps-spread"><h3 class="ps-section-title">This turn</h3>' +
-    '<div class="ps-pips" aria-label="' + used + " of " + plan.slots + ' choices made">' +
-    Array.from({ length: plan.slots }).map(function (_, i) { return '<span class="ps-pip' + (i < used ? " ps-pip-on" : "") + '"></span>'; }).join("") + "</div></div>";
-  html += '<div class="ps-card"><p class="ps-small" style="margin-bottom:.6rem">' + head + "</p>";
-  if (plan.slots > 0) {
-    html += '<div class="ps-actions-grid">' + plan.actions.map(function (a) {
-      const n = sel.picks[a.id] || 0;
-      const full = left <= 0 || n >= a.max;
-      return '<div class="ps-act' + (n ? " ps-act-on" : "") + (a.kind === "project" ? " ps-act-project" : "") + (a.kind === "apply" ? " ps-act-apply" : "") + '">' +
-        '<button class="ps-act-main" data-action="pick" data-id="' + esc(a.id) + '"' + (full ? " disabled" : "") + ' aria-label="' + esc(a.label + (n ? ", chosen " + n + " times" : "")) + '">' +
-        '<span class="ps-act-label">' + esc(a.label) + "</span>" +
-        '<span class="ps-act-desc">' + esc(a.desc) + "</span>" + arrowsHtml(a.arrows) + "</button>" +
-        (n ? '<div class="ps-act-count"><button class="ps-step" data-action="unpick" data-id="' + esc(a.id) + '" aria-label="One less: ' + esc(a.label) + '">\u2212</button><b>\u00d7' + n + "</b></div>" : "") +
-        "</div>";
-    }).join("") + "</div>";
+  if (plan.internship) head = "You're at your internship. Choose how to spend the week.";
+  else if (plan.onLeave) head = "You're on leave. Research can wait.";
+  else head = "What will you do this week?" + (fixed.length ? " (" + esc(fixed.join(", ")) + " take part of it.)" : "");
+  if (fx.sick) head += " You're sick, so you'll get less done.";
+  if (fx.burnout) head += " You're burned out: half speed, and no weekend work.";
+  let html = '<div class="ps-section ps-plan"><h3 class="ps-section-title">This week</h3><div class="ps-card">' +
+    '<p class="ps-small" style="margin-bottom:.6rem">' + head + "</p>";
+  GROUPS.forEach(function (g) {
+    const list = plan.actions.filter(function (a) { return a.kind === g.kind; });
+    if (!list.length) return;
+    html += '<div class="ps-meta" style="margin:.5rem 0 .3rem"><b>' + g.title + "</b></div>" +
+      '<div class="ps-actions-grid">' + list.map(actionButton).join("") + "</div>";
+  });
+  if (plan.canStartProject) {
+    html += '<div style="margin-top:.7rem"><button class="ps-btn ps-btn-sm" data-action="new-project">+ Start a new project</button> ' +
+      '<span class="ps-meta">Doesn\u2019t use up the week.</span></div>';
   }
-  if (plan.weekend.allowed) {
-    html += '<label class="ps-weekend">Weekends: <select class="ps-select" data-action="weekend"><option value="off">Off (recover)</option>' +
-      plan.weekend.targets.map(function (t) { return '<option value="' + esc(t.id) + '"' + (sel.weekend === t.id ? " selected" : "") + ">Work: " + esc(t.label.replace(/^Work on /, "")) + "</option>"; }).join("") +
-      "</select> <span class=\"ps-meta\">Weekend work adds progress but costs Energy, Sanity and Health.</span></label>";
-  }
-  if (plan.extras.length || plan.canStartProject) {
-    html += '<div class="ps-extras"><div class="ps-section-title" style="margin-top:.6rem">Also this turn</div>';
-    plan.extras.forEach(function (x) {
-      const on = !!sel.extras[x.id];
-      html += '<div class="ps-extra"><label><input type="checkbox" data-action="extra" data-id="' + esc(x.id) + '"' + (on ? " checked" : "") + "> <b>" + esc(x.label) + "</b></label>" +
-        '<div class="ps-meta">' + esc(x.desc) + "</div>" +
-        (x.kind === "submit" && on ? '<label class="ps-meta"><input type="checkbox" data-action="preprint" data-id="' + esc(x.id) + '"' + (sel.extras[x.id].preprint !== false ? " checked" : "") + "> Post a preprint too (citations start early)</label>" : "") +
-        "</div>";
-    });
-    if (plan.canStartProject) html += '<button class="ps-btn ps-btn-sm" data-action="new-project">+ Start a new project</button>';
-    html += "</div>";
-  }
-  html += '<div class="ps-plan-foot">' +
-    (plan.last ? '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="repeat-last">Same as last turn</button>' : "<span></span>") +
-    '<div class="ps-row">' + (left > 0 && plan.slots > 0 ? '<span class="ps-meta">' + left + " unused \u2192 rest</span>" : "") +
-    '<button class="ps-btn ps-btn-primary" data-action="end-turn">End turn \u25b8</button></div></div>';
   html += "</div></div>";
   return html;
 }
@@ -182,8 +168,9 @@ export function reportHtml(G, report) {
     if (e.kind === "tip") return '<p class="ps-tip ps-small">' + esc(e.text) + ' <a href="' + esc(e.url) + '" target="_blank" rel="noopener">Read: ' + esc(e.title) + " \u2192</a></p>";
     return '<p class="ps-small ' + (KIND_CLASS[e.kind] || "") + '">' + esc(e.text) + "</p>";
   }).join("");
-  return '<div class="ps-section ps-report" aria-live="polite"><h3 class="ps-section-title">Last turn: ' + esc(absToLabel(G, report.turn)) + "</h3>" +
-    '<div class="ps-card">' + (deltas ? '<div class="ps-deltas">' + deltas + "</div>" : "") + projects + news + "</div></div>";
+  const did = report.plan && report.plan.label ? '<p class="ps-small"><b>You:</b> ' + esc(report.plan.label) + "</p>" : "";
+  return '<div class="ps-section ps-report" aria-live="polite"><h3 class="ps-section-title">Last week: ' + esc(absToLabel(G, report.turn)) + "</h3>" +
+    '<div class="ps-card">' + did + (deltas ? '<div class="ps-deltas">' + deltas + "</div>" : "") + projects + news + "</div></div>";
 }
 
 export function calendarHtml(G) {
@@ -202,15 +189,15 @@ export function calendarHtml(G) {
   });
   const m = s.milestones;
   const qy = m.quals === "failed_once" ? m.qualsYear + 1 : m.qualsYear;
-  if (m.quals !== "passed") ev.push({ turn: (qy - 1) * 26 + 17, text: "Quals" });
+  if (m.quals !== "passed" && s.advisor) ev.push({ turn: absTurn(qy, G.D.config.quals_turn || 18), text: "Quals" });
   if (m.proposalAt && m.proposal === "pending") ev.push({ turn: m.proposalAt, text: "Thesis proposal" });
   if (m.defenseAt) ev.push({ turn: m.defenseAt, text: "Defense" });
-  const upcoming = ev.filter(function (e) { return e.turn >= s.turn && e.turn < s.turn + 10; }).sort(function (a, b) { return a.turn - b.turn; }).slice(0, 7);
+  const upcoming = ev.filter(function (e) { return e.turn >= s.turn && e.turn < s.turn + weeks(10); }).sort(function (a, b) { return a.turn - b.turn; }).slice(0, 7);
   return '<div class="ps-section"><h3 class="ps-section-title">Coming up</h3><div class="ps-card ps-cal">' +
     (upcoming.length ? upcoming.map(function (e) {
       const d = e.turn - s.turn;
-      return "<div><b>" + (d === 0 ? "This turn" : "In " + plural(d, "turn")) + "</b><span>" + esc(e.text) + "</span></div>";
-    }).join("") : '<span class="ps-muted">Nothing scheduled in the next few turns.</span>') + "</div></div>";
+      return "<div><b>" + (d === 0 ? "This week" : "In " + plural(d, "week")) + "</b><span>" + esc(e.text) + "</span></div>";
+    }).join("") : '<span class="ps-muted">Nothing scheduled in the next few weeks.</span>') + "</div></div>";
 }
 
 export function logHtml(G) {
@@ -236,9 +223,9 @@ export function logHtml(G) {
 }
 
 export function introHtml(G) {
-  if (G.state.turn > 1) return "";
-  return '<div class="ps-section"><div class="ps-note"><b>How a turn works.</b> Each turn is two weeks. Pick what to do with it, then end the turn. ' +
-    "Your bars, skills and projects change, and sometimes something happens. Watch Energy (it powers work) and Sanity (at zero you burn out).</div></div>";
+  if (G.state.turn > 3) return "";
+  return '<div class="ps-section"><div class="ps-note"><b>How a week works.</b> Pick one thing to do and the week plays out. ' +
+    "Your bars, skills and projects change, and sometimes something happens or a new option shows up for that week only. Watch Energy (it powers work) and Sanity (at zero you burn out).</div></div>";
 }
 
 export function gameHtml(G, ui) {
@@ -248,6 +235,6 @@ export function gameHtml(G, ui) {
     '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="leave">Leave the PhD</button>' +
     '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="title">Menu</button></div></div>' +
     hudHtml(G) +
-    '<div class="ps-layout"><div>' + introHtml(G) + reportHtml(G, ui.report) + (ui.plan ? planHtml(G, ui.plan, ui.sel) : "") + boardHtml(G) + "</div>" +
+    '<div class="ps-layout"><div>' + introHtml(G) + reportHtml(G, ui.report) + (ui.plan ? planHtml(G, ui.plan) : "") + boardHtml(G) + "</div>" +
     "<div>" + calendarHtml(G) + logHtml(G) + "</div></div>";
 }

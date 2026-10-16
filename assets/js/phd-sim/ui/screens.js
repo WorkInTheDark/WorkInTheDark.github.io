@@ -42,12 +42,13 @@ export function setupHtml(app) {
 
 export function helpHtml() {
   return '<div class="ps-spread"><h2>How to play</h2><button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="back">Back</button></div><div class="ps-card">' +
-    "<p><b>Each turn is two weeks.</b> Classes, TA duty and meetings take some of your time; you choose what to do with the rest. Each choice is two days of that activity. Tap a choice again to do more of it. Then press <b>End turn</b>.</p>" +
-    "<p>After each turn, the <b>report</b> shows how your bars, skills and projects changed, and what happened. Sometimes something happens that needs a decision.</p>" +
-    "<p><b>Energy</b> powers work: below 50, everything gets less done. <b>Sanity</b> is your mood and motivation; at zero you burn out for a few turns. Rest, friends, hobbies and exercise bring them back. Weekends are off unless you choose to work them.</p>" +
+    "<p><b>Each turn is one week.</b> Classes, TA duty and meetings take some of it; you choose <b>one thing</b> to do with the rest, and the week plays out as soon as you choose.</p>" +
+    "<p>A few choices are always there: work on a project, read, or recharge. Other things come up: a writing retreat, a friend in town, an empty GPU cluster, the holidays. Those show up under <b>This week only</b> and are gone if you don't take them.</p>" +
+    "<p>After each week, the <b>report</b> shows how your bars, skills and projects changed, and what happened. Now and then something happens that needs a decision.</p>" +
+    "<p><b>Energy</b> powers work: below 50, everything gets less done. <b>Sanity</b> is your mood and motivation; at zero you burn out for a few weeks. Recharging and the good things that come up bring them back. Weekends are off unless you crunch for a deadline.</p>" +
     "<p>Your <b>skills</b> grow with what you do: reading builds knowledge and taste, project work builds the skill each stage needs. Relationships, network and health stay <b>hidden</b>, like in real life; watch for hints. Everything is revealed at the end.</p>" +
     "<p>Choices show <b>arrows</b> (\u2191 up, \u2193 down, doubled when big, \u2195 when it depends on how it goes). Numbers only appear after you choose.</p>" +
-    "<p><b>Projects</b> move through stages. Some stages just take calendar time (IRB review, recruiting, annotation). When a deadline arrives, a <b>Submit</b> option appears in your turn; you need at least half a draft. Reviews are noisy. Rebuttals help.</p>" +
+    "<p><b>Projects</b> move through stages. Some stages just take calendar time (IRB review, recruiting, annotation). In a deadline week, a <b>Polish and submit</b> choice appears; you need at least half a draft. Skip it and the paper waits for the next deadline. Reviews are noisy. Rebuttals help.</p>" +
     "<p><b>To graduate</b> you pass quals, propose your thesis, publish at least three first-author papers, spend about three months preparing, and defend. Or don't: leaving is never losing.</p>" +
     "<p>Your progress saves in this browser. The <b>Codex</b> remembers everything you've discovered across runs.</p></div>";
 }

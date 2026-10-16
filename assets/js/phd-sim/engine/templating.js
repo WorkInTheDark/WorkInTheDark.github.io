@@ -21,7 +21,7 @@ function bound(G, ctx, key, fn) {
 
 export function fakePrior(G) {
   const n = G.D.names;
-  return G.rng.pick(n.last || ["Smith"]) + " et al. (" + (2023 + Math.floor(G.state.turn / 26)) + ")";
+  return G.rng.pick(n.last || ["Smith"]) + " et al. (" + (2023 + Math.floor(G.state.turn / 52)) + ")";
 }
 
 export function fill(text, G, ctx) {

@@ -2,6 +2,8 @@
 
 The exact contract between the YAML content in `_data/phd_sim/` and the game engine in `assets/js/phd-sim/`. The design doc (`design.md`) explains *why*; this file says *exactly what keys exist*. The validator (`tools/phd-sim/validate.mjs`) rejects anything not listed here.
 
+**Time units.** The engine plays one turn per week (52 a year), but content counts in **two-week periods**, T1–T26 a year. Every `turn:` condition, `cooldown`, status `turns:`, `schedule` `in:` and `project.delay` in the YAML is in periods; the engine doubles durations into weeks and fires period-start things in the first week of the period. Write content as if a turn were two weeks, and the timing stays right.
+
 ---
 
 ## 1. Writing rules (apply to every string)
@@ -42,6 +44,7 @@ The exact contract between the YAML content in `_data/phd_sim/` and the game eng
 | `events/wellbeing.yml` | Light wellbeing | `wel_` |
 | `events/exits.yml` | Ways out of the PhD (engine-owned) | `exi_` |
 | `flavor.yml` | One-line turn-log flavor | none |
+| `opportunities.yml` | "This week only" choices (section 3.3) | `opp_` |
 | `reviews.yml` | Reviewer personas, concerns, meta-reviews | none |
 | `qa.yml` | Committee and interview questions | none |
 
@@ -100,9 +103,32 @@ trait_add: rejection_hardened                 # earned traits only (section 7.2)
 schedule: { event: res_scooped_2, in: [1, 3], chance: 1.0 }   # or a list; target must be trigger: scheduled
 achievement: best_paper                       # only ids from section 9
 tip: "Critique-Centric Feedback"              # PhD 101 topic (section 10), shown as a link
+unlock: opp_writing_retreat                   # or a list; adds that "This week only" choice (section 3.3)
 ```
 
 `ending` exists but is reserved for `events/exits.yml`.
+
+`unlock` adds the opportunity to this week's choices if the event happened before you chose (start of the week), or to next week's otherwise, and tells the player ("New option this week: …"). It ignores the opportunity's `chance` and `when`, so unlock only ones that make sense in the event's situation.
+
+### 3.3 Opportunities (`opportunities.yml`)
+
+A "This week only" choice. It appears beside the everyday choices for one week; if you don't take it, it's gone. Choosing it spends all of the week's free days on `days`, then applies the outcome keys.
+
+```yaml
+- id: opp_writing_retreat                 # unique, starts with opp_
+  label: "Join the writing retreat for “{project}”"   # the button; tokens allowed
+  reason: "The department's writing retreat has a seat."   # why it's here this week (shown under the label)
+  when: { project: { stage: [writing, revise] } }          # conditions (section 4); a project condition binds {project}
+  chance: 0.06                            # per eligible week (default 0.05)
+  cooldown: 8                             # periods before it can come up again (default 4)
+  once: true                              # optional: at most once per run
+  days: project                           # what the free days do (below)
+  boost: 1.4                              # days: project only; progress multiplier
+  text: "Five days of uninterrupted writing."             # plus any outcome keys from 3.2
+  effects: { writing: "+2±1" }
+```
+
+`days` is one of: `read`, `network`, `help`, `mentor`, `career`, `rest`, `recharge`, `exercise`, `social`, `hobby`, `family`, `writing_day`, `project` (the bound project, or your first one), or `none` (the outcome is all that happens). The arrows on the button come from `days` and `effects`. At most `opportunities.max_per_week` (2) come up in a week.
 
 ---
 
@@ -113,7 +139,7 @@ All keys are ANDed. Comparison strings are `"<30"`, `"<=1"`, `">=60"`, `">5"`, `
 | Key | Example | Meaning |
 |---|---|---|
 | `year` | `[2, 4]` | PhD year range, inclusive (1–8) |
-| `turn` | `[20, 25]` | Turn of the year, inclusive (1–26; see the calendar below) |
+| `turn` | `[20, 25]` | Period of the year, inclusive (1–26, two weeks each; see the calendar below) |
 | `semester` | `[fall, break]` | `fall` (T1–T8), `break` (T9), `spring` (T10–T18), `summer` (T19–T26) |
 | `stat` | `{ sanity: "<30", writing: ">=60" }` | Any stat (section 5) |
 | `has_advisor` | `true` | The advisor has been chosen |
@@ -125,7 +151,7 @@ All keys are ANDed. Comparison strings are `"<30"`, `"<=1"`, `">=60"`, `">5"`, `
 | `counter` | `{ resched: ">=2" }` | Run counters (missing = 0) |
 | `status_any` / `status_none` | `[ta]` | Status ids (section 8) |
 | `milestone` | `{ quals: passed, proposal: pending }` | `quals`/`proposal`: `pending`, `passed`, `failed_once`; `defense_prep`: `active`, `inactive`; `graduated`: `true` or `false` |
-| `project` | `{ type: study, stage: recruiting }` | A matching **active first-author project** exists; binds `{project}`. Fields: `type`, `stage` (one value or a list), `stage_kind` (`work` or `wait`), `turns_to_deadline` (comparison: turns until its target venue's next deadline; 0 = this turn) |
+| `project` | `{ type: study, stage: recruiting }` | A matching **active first-author project** exists; binds `{project}`. Fields: `type`, `stage` (one value or a list), `stage_kind` (`work` or `wait`), `turns_to_deadline` (comparison: weeks until its target venue's next deadline; 0 = this week) |
 | `paper` | `{ status: under_review, tier: top }` | A matching paper exists; binds `{paper}` and `{venue}`. Fields: `status`, `tier`, `submissions` (comparison), `first_author` (`true`/`false`) |
 | `world` | `{ hiring: freeze }` | `hiring`: `boom`, `neutral`, `freeze`; `hype` (comparison, the bound project's topic) |
 | `telemetry` | `{ rejections: ">=3" }` | Run statistics (section 4.1) |
@@ -160,9 +186,9 @@ Any type can also be in `revise` (a rejected paper being revised for resubmissio
 | T11–T12 | Lunar New Year | | |
 
 ### 4.1 Telemetry keys
-- **Time:** `turns`
-- **Overtime:** `overtime_days`, `overtime_streak` (consecutive turns with 2 or more overtime days)
-- **Wellbeing:** `burnouts`, `days_off_streak` (consecutive turns with no rest, social, hobby, family or exercise day)
+- **Time:** `turns` (periods played)
+- **Overtime:** `overtime_days`, `overtime_streak` (consecutive periods with overtime)
+- **Wellbeing:** `burnouts`, `days_off_streak` (consecutive periods with no rest, social, hobby, family or exercise day)
 - **Papers:** `submissions`, `acceptances`, `rejections`, `desk_rejects`, `first_author_pubs`, `coauthor_pubs`
 - **Impact:** `citations`, `h_index`
 - **Activities:** `conferences`, `rebuttals`, `reading_days`, `social_days`, `ta_semesters`, `lab_meetings_in_person`
@@ -187,7 +213,7 @@ Values are `"+7±3"` (a whole number rolled in [4, 10], peaked at 7), `"-5±2"`,
 | `paper.score` | Bound paper under review: added to every reviewer's score (0–100 scale; 5 ≈ half a point). Typical 2–8 |
 | `paper.desk_reject` | `true`: the bound paper is desk-rejected |
 | `paper.citations` | Bonus citations for the bound paper |
-| `days` / `days_next` | Free days gained (+) or lost (−) this turn or next. Typical ±1 to ±4 |
+| `days` / `days_next` | Free days gained (+) or lost (−) this week or next. Typical ±1 to ±3 |
 | `career_prep` | Points toward internship and job applications. Typical 1–3 |
 
 Arrows are derived automatically: for each visible target (`energy`, `sanity`, `citations`, `taste`, `coding`, `writing`, `presenting`, `knowledge`), the center of the value gives ↑ or ↓, and ↑↑ or ↓↓ when it is 10 or more. A check whose success and failure point opposite ways shows ↕.
@@ -196,25 +222,25 @@ Arrows are derived automatically: for each visible target (`energy`, `sanity`, `
 
 ## 6. Hooks
 
-`hook` decides **when** the engine considers an event. The default `turn` means a random draw at the start of a turn. Other hooks fire at specific moments; when one fires, the engine draws one eligible event for it (at the chance shown) and binds the tokens listed.
+`hook` decides **when** the engine considers an event. The default `turn` means a random draw at the start of a week. Other hooks fire at specific moments; when one fires, the engine draws one eligible event for it (at the chance shown) and binds the tokens listed.
 
 | Hook | Fires | Chance | Binds |
 |---|---|---|---|
-| `turn` | After you plan each turn: at most 1 draw (25%, 5% if something else already happened) | — | — |
-| `deadline` | The turn you submit a paper, before submission | 0.3 | `{project}`, `{venue}` |
+| `turn` | At the start of each week, before you choose: at most 1 draw (9%, 3% if something else already happened) | — | — |
+| `deadline` | The week you submit a paper, before submission | 0.3 | `{project}`, `{venue}` |
 | `after_submit` | Right after a submission | 0.2 | `{paper}`, `{venue}` |
 | `reviews_in` | When reviews arrive, before the rebuttal | 0.3 | `{paper}`, `{venue}` |
 | `after_accept` | After an acceptance | 0.35 | `{paper}`, `{venue}` |
 | `after_reject` | After a rejection | 0.3 | `{paper}`, `{venue}` |
 | `conference` | Each conference you attend in person | 1.0, 1 event | `{city}`, `{paper}`, `{venue}` |
-| `internship` | Each internship turn | 0.3 | `{company}` |
-| `defense_prep` | Each defense-prep turn | 0.4 | — |
+| `internship` | Each internship week | 0.15 | `{company}` |
+| `defense_prep` | Each defense-prep week | 0.2 | — |
 | `defense` | Defense day, before the Q&A | 1.0 | — |
-| `job_market` | Each job-market turn | 0.15 | — |
+| `job_market` | Each job-market week | 0.07 | — |
 | `model_release` | When a frontier model is released in the world timeline | 0.25 | `{model}`, `{biglab}` |
 | `graduation` | Commencement | 1.0, up to 2 events | — |
 
-Events with `trigger: scheduled` are never drawn. They fire only through `schedule` from another event, at the start of the scheduled turn, and only if their `when` still holds.
+Events with `trigger: scheduled` are never drawn. They fire only through `schedule` from another event, at the start of the scheduled period, and only if their `when` still holds.
 
 ---
 
@@ -361,7 +387,7 @@ Any other flag name is free for content to invent.
   when: { advisor: [kind_funded] }
 ```
 
-One random line goes into the turn log on turns without events, and sometimes on others.
+One random line goes into the log in weeks without news, and sometimes in others.
 
 ---
 

@@ -21,7 +21,7 @@ const HOOKS = ["turn", "deadline", "after_submit", "reviews_in", "after_accept",
 const RARITY = ["common", "uncommon", "rare", "legendary"];
 const PREFIX = { research: "res_", data: "dat_", writing: "wri_", reviews: "rev_", advisor: "adv_", legion: "leg_", lab: "lab_", milestones: "mil_", teaching: "tea_", career: "car_", travel: "tra_", world: "wor_", life: "lif_", wellbeing: "wel_", exits: "exi_" };
 const EVENT_KEYS = ["id", "title", "category", "rarity", "hook", "trigger", "repeatable", "cooldown", "weight", "arc", "when", "text", "choices", "file"];
-const CHOICE_KEYS = ["label", "requires", "tag", "check", "success", "failure", "text", "effects", "flag_set", "flag_clear", "counter", "status", "status_remove", "trait_add", "schedule", "achievement", "tip", "ending"];
+const CHOICE_KEYS = ["label", "requires", "tag", "check", "success", "failure", "text", "effects", "flag_set", "flag_clear", "counter", "status", "status_remove", "trait_add", "schedule", "achievement", "tip", "ending", "unlock"];
 const OUTCOME_KEYS = ["text", "effects", "flag_set", "flag_clear", "counter", "status", "status_remove", "trait_add", "schedule", "achievement", "tip", "ending"];
 const COND_KEYS = ["year", "turn", "semester", "stat", "has_advisor", "advisor", "advisor_not", "background", "origin", "traits_any", "traits_none", "flags_all", "flags_any", "flags_none", "counter", "status_any", "status_none", "milestone", "project", "paper", "world", "telemetry", "chance", "any", "not"];
 const TELEMETRY = ["turns", "overtime_days", "overtime_streak", "burnouts", "days_off_streak", "submissions", "acceptances", "rejections", "desk_rejects", "first_author_pubs", "coauthor_pubs", "citations", "h_index", "conferences", "rebuttals", "reading_days", "social_days", "ta_semesters", "lab_meetings_in_person", "top_pubs", "workshop_pubs", "min_sanity", "internships", "study_projects", "mentor_days", "rest_days", "exercise_days", "ideas", "scoops", "resubmissions", "events_seen"];
@@ -89,6 +89,7 @@ function checkOutcome(where, o, ev, schedules) {
   if (o.tip && !TOPICS.has(o.tip)) err(where, "unknown PhD 101 topic '" + o.tip + "'");
   if (o.ending) { if (!ENDINGS.has(o.ending)) err(where, "unknown ending '" + o.ending + "'"); if (ev.file !== "exits") err(where, "ending used outside exits.yml"); }
   [].concat(o.schedule || []).forEach((s) => schedules.push({ from: ev.id, to: s && s.event, where }));
+  [].concat(o.unlock || []).forEach((u) => { if (!D.opportunityById[u]) err(where, "unknown opportunity '" + u + "' in unlock"); });
 }
 
 const ids = new Set();
@@ -130,6 +131,24 @@ for (const s of schedules) {
 }
 for (const ev of D.events) if (ev.trigger === "scheduled" && !reached.has(ev.id)) err(ev.file + "/" + ev.id, "scheduled event is never scheduled");
 
+const OPP_KEYS = ["id", "label", "reason", "desc", "when", "chance", "cooldown", "once", "days", "boost"].concat(CHOICE_KEYS);
+const DAY_KINDS = ["read", "network", "help", "mentor", "career", "rest", "exercise", "social", "hobby", "family", "recharge", "writing_day", "project", "none"];
+const oppIds = new Set();
+for (const o of D.opportunities) {
+  const where = "opportunities/" + o.id;
+  if (!o.id || !o.id.startsWith("opp_")) err(where, "id should start with opp_");
+  if (oppIds.has(o.id)) err(where, "duplicate id");
+  oppIds.add(o.id);
+  for (const k of Object.keys(o)) if (!OPP_KEYS.includes(k)) err(where, "unknown key '" + k + "'");
+  if (!o.label) err(where, "missing label");
+  if (o.days && !DAY_KINDS.includes(o.days)) err(where, "bad days '" + o.days + "'");
+  if (o.days === "project" && !JSON.stringify(o.when || {}).includes('"project"')) warn(where, "days: project without a project condition");
+  checkCond(where + ".when", o.when);
+  checkTokens(where, o.label); checkTokens(where, o.reason);
+  const outcome = {};
+  for (const k of Object.keys(o)) if (CHOICE_KEYS.includes(k) && k !== "label") outcome[k] = o[k];
+  checkOutcome(where, outcome, { id: o.id, file: "opportunities", when: o.when }, schedules);
+}
 for (const a of D.achievements) checkCond("achievements/" + a.id, a.when);
 for (const t of D.titles) checkCond("titles/" + t.id, t.when);
 for (const t of D.epilogues) { checkCond("epilogues", t.when); checkTokens("epilogues", t.text); }
@@ -147,6 +166,7 @@ const byFile = {};
 D.events.forEach((e) => { byFile[e.file] = (byFile[e.file] || 0) + 1; });
 console.log("Events: " + D.events.length + " " + JSON.stringify(byFile));
 console.log("Flavor: " + D.flavor.length + ", personas: " + (D.reviews.personas || []).length + ", concerns: " + (D.reviews.concerns || []).length + ", QA: " + (D.qa.questions || []).length);
+console.log("Opportunities: " + D.opportunities.length);
 console.log("Achievements: " + D.achievements.length + ", endings: " + D.endings.length + ", titles: " + D.titles.length + ", tips: " + D.tips.length);
 warnings.forEach((w) => console.log("warn  " + w));
 errors.forEach((e) => console.log("ERROR " + e));

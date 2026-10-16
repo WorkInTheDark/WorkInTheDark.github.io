@@ -19,7 +19,6 @@ export class App {
     this.modal = null;
     this.plan = null;
     this.report = null;
-    this.sel = { picks: {}, weekend: "off", extras: {} };
     this.achShown = {};
     this.reduced = prefersReducedMotion();
     const self = this;
@@ -134,7 +133,7 @@ export class App {
     this.advance();
   }
 
-  // Runs the game forward until it needs the player: a prompt, or the next turn's plan.
+  // Runs the game forward until it needs the player: a prompt, or next week's choice.
   advance() {
     if (!this.game || this.screen !== "game") return;
     for (let guard = 0; guard < 200; guard++) {
@@ -147,6 +146,7 @@ export class App {
       }
       if (p.type === "plan") {
         this.setPlan(p);
+        this.planShownAt = Date.now();
         this.persist();
         this.keepScroll = true;
         this.render();
@@ -159,32 +159,16 @@ export class App {
   }
 
   setPlan(p) {
-    const keepSel = this.plan && this.plan.turn === p.turn;
     this.plan = p;
-    const sel = keepSel ? this.sel : { picks: {}, weekend: "off", extras: {} };
-    const valid = {};
-    p.actions.forEach(function (a) { valid[a.id] = a.max; });
-    let left = p.slots;
-    const picks = {};
-    Object.keys(sel.picks).forEach(function (k) {
-      const n = Math.min(sel.picks[k], valid[k] || 0, left);
-      if (n > 0) { picks[k] = n; left -= n; }
-    });
-    const extras = {};
-    p.extras.forEach(function (x) {
-      if (keepSel && sel.extras[x.id]) extras[x.id] = sel.extras[x.id];
-      else if (!keepSel && x.suggested) extras[x.id] = { preprint: true };
-    });
-    const weekend = p.weekend.allowed && p.weekend.targets.some(function (t) { return t.id === sel.weekend; }) ? sel.weekend : "off";
-    this.sel = { picks: picks, weekend: weekend, extras: extras };
   }
 
-  endTurn() {
+  // One click plays the week. A quick double click shouldn't also spend the next week.
+  doAction(id) {
     if (!this.game || !this.plan || this.modal) return;
-    if (!this.game.submitPlan(this.sel)) return;
+    if (Date.now() - (this.planShownAt || 0) < 400) return;
+    if (!this.game.submitPlan({ action: id })) return;
     this.plan = null;
     this.advance();
-    window.scrollTo(0, Math.max(0, this.root.getBoundingClientRect().top + window.scrollY - 70));
   }
 
   checkAchievements(toast) {
@@ -273,24 +257,7 @@ export class App {
       case "codex": this.prev = this.screen; this.screen = "codex"; this.render(); break;
       case "back": this.screen = this.prev || "title"; this.render(); break;
       case "start": this.startRun(); break;
-      case "pick": {
-        const act = this.plan && this.plan.actions.find(function (x) { return x.id === id; });
-        const used = Object.keys(this.sel.picks).reduce(function (n, k) { return n + self.sel.picks[k]; }, 0);
-        if (act && used < this.plan.slots && (this.sel.picks[id] || 0) < act.max) this.sel.picks[id] = (this.sel.picks[id] || 0) + 1;
-        this.focusSel = '[data-action="pick"][data-id="' + id + '"]';
-        this.keepScroll = true; this.render();
-        break;
-      }
-      case "unpick":
-        if (this.sel.picks[id]) { this.sel.picks[id]--; if (!this.sel.picks[id]) delete this.sel.picks[id]; }
-        this.focusSel = '[data-action="pick"][data-id="' + id + '"]';
-        this.keepScroll = true; this.render();
-        break;
-      case "repeat-last":
-        if (this.plan && this.plan.last) this.sel.picks = Object.assign({}, this.plan.last);
-        this.keepScroll = true; this.render();
-        break;
-      case "end-turn": this.endTurn(); break;
+      case "do": this.doAction(id); break;
       case "shelve":
         if (window.confirm("Shelve this project? You can't bring it back.")) { this.game.shelveProject(id); this.persist(); this.keepScroll = true; this.render(); }
         break;
@@ -335,16 +302,6 @@ export class App {
     const a = el.getAttribute("data-action");
     if (!a) return;
     if (a === "target") { this.game.setTarget(el.getAttribute("data-id"), el.value); this.persist(); this.setPlan(this.game.planPrompt()); this.keepScroll = true; this.render(); }
-    else if (a === "weekend") { this.sel.weekend = el.value; this.keepScroll = true; this.render(); }
-    else if (a === "extra") {
-      const xid = el.getAttribute("data-id");
-      if (el.checked) this.sel.extras[xid] = { preprint: true }; else delete this.sel.extras[xid];
-      this.focusSel = '[data-action="extra"][data-id="' + xid + '"]'; this.keepScroll = true; this.render();
-    } else if (a === "preprint") {
-      const xid = el.getAttribute("data-id");
-      if (this.sel.extras[xid]) this.sel.extras[xid].preprint = el.checked;
-      this.keepScroll = true; this.render();
-    }
     else if (a === "respond") {
       const k = el.getAttribute("data-key");
       if (el.value === "skip") delete this.psel.responses[k]; else this.psel.responses[k] = el.value;

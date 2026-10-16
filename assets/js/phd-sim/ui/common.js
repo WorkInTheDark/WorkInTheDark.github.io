@@ -17,7 +17,7 @@ export function arrowsHtml(arrows) {
   }).join("") + "</span>";
 }
 
-const DELTA_LABEL = { energy: "Energy", sanity: "Sanity", citations: "Citations", days: "Free days this turn", days_next: "Free days next turn",
+const DELTA_LABEL = { energy: "Energy", sanity: "Sanity", citations: "Citations", days: "Free days this week", days_next: "Free days next week",
   taste: "Research taste", coding: "Coding", writing: "Writing", presenting: "Presenting", knowledge: "Domain knowledge" };
 
 export function deltasHtml(list) {
@@ -26,7 +26,7 @@ export function deltasHtml(list) {
     let label = DELTA_LABEL[d.stat] || d.stat;
     let good = d.amount > 0;
     if (d.stat === "progress") label = (d.label || "Project") + " progress";
-    if (d.stat === "delay") { label = (d.label || "Project") + " delay (turns)"; good = d.amount < 0; }
+    if (d.stat === "delay") { label = (d.label || "Project") + " delay (weeks)"; good = d.amount < 0; }
     const n = Math.round(d.amount * 10) / 10;
     return '<span class="ps-delta ' + (good ? "ps-delta-good" : "ps-delta-bad") + '">' + esc(label) + " " + (n > 0 ? "+" : "−") + Math.abs(n) + "</span>";
   }).join("") + "</div>";

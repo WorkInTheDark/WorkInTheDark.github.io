@@ -1,14 +1,17 @@
-// The turn engine. Each turn: start-of-turn happenings (reviews, milestones, matching), then
-// the player's plan for the two weeks, then the turn plays out, maybe an event, and a report.
+// The turn engine. Each turn is one week: start-of-week happenings (reviews, milestones, matching,
+// maybe an event, and any "this week only" options), then the player picks one thing to do, the
+// week plays out, and a report.
 // step() advances to the next thing that needs the player; everything lives in serializable state.
 import { Rng } from "./rng.js";
 import { clamp, parseValue } from "./util.js";
-import { TURNS, yearOf, tOf, semesterOf, semesterKey, ACTIVITY_BY_ID, ACTIVITIES, STAT_LABELS } from "./state.js";
+import { TURNS, yearOf, tOf, wOf, firstWeek, weeks, perWeek, semesterOf, semesterKey, ACTIVITY_BY_ID, ACTIVITIES, DEFAULT_ACTIONS, STAT_LABELS } from "./state.js";
 import { hasStatus, hasTrait, totalCitations, firstAuthorPubs } from "./derived.js";
 import { check } from "./conditions.js";
-import { addStat, addStatus, removeStatus } from "./effects.js";
+import { addStat, addStatus, removeStatus, applyOutcome } from "./effects.js";
+import { fill } from "./templating.js";
+import { arrowsFor } from "./events.js";
 import { drawHook, fireHook, presentEvent, resolveEvent, flavorLine } from "./events.js";
-import { activeProjects, workDay, tickProjects, autoTarget, setTarget, currentStage, stageNeed, withdrawRevision, rollMissedDeadlines, STAGE_LABELS } from "./projects.js";
+import { activeProjects, workDay, tickProjects, autoTarget, setTarget, currentStage, stageNeed, withdrawRevision, rollMissedDeadlines, STAGE_LABELS, writingCompletion, deadlineLabel } from "./projects.js";
 import { accrueCitations } from "./citations.js";
 import { yearlyLabmates } from "./people.js";
 import { tickWorld } from "./world.js";
@@ -19,6 +22,18 @@ import {
   buildSys, handleSys, answerMatching, answerQa, answerNewProject, newProjectPrompt, leavePrompt,
   queueMilestones, queuePapers, finishSubmissions, createProject, planExtras, applyPlanExtra
 } from "./milestones.js";
+
+const WORK_DAYS = ["read", "network", "help", "mentor", "career", "project", "writing_day"];
+const ACTION_EXTRAS = ["apply_internship", "apply_fellowship", "proposal", "defense", "job_market"];
+
+function oppArrows(def) {
+  const base = (ACTIVITY_BY_ID[def.days || "rest"] || { arrows: [] }).arrows || [];
+  const extra = arrowsFor(def);
+  const out = [];
+  base.concat(extra).forEach(function (a) { if (!out.some(function (b) { return b.stat === a.stat; })) out.push(a); });
+  if (def.days === "project") out.unshift({ stat: "progress", dir: "up", strength: (def.boost || 1) > 1.2 ? 2 : 1 });
+  return out;
+}
 
 const COURSES = ["Machine Learning", "Natural Language Processing", "HCI Research Methods", "Statistics for Experiments",
   "Deep Learning", "Qualitative Methods", "Algorithms", "Information Retrieval", "Ethics of AI"];
@@ -181,55 +196,79 @@ export class Game {
     const cfg = this.D.config.fixed_days;
     const t = tOf(s.turn);
     const f = { courses: 0, ta: 0, meetings: 0, defense: 0, family: 0, internship: 0 };
-    if (hasStatus(this, "on_internship")) f.internship = 10;
+    if (hasStatus(this, "on_internship")) f.internship = 5;
     else if (!hasStatus(this, "on_leave")) {
-      if (hasStatus(this, "coursework")) f.courses = yearOf(s.turn) === 1 ? cfg.courses_y1 : cfg.courses_y2;
-      if (hasStatus(this, "ta")) f.ta = (t === 8 || t === 18) ? cfg.ta_peak : cfg.ta;
-      if (s.advisor) f.meetings = s.advisor.archetype === "micromanager" ? 2 : cfg.meetings;
-      if (hasStatus(this, "defense_prep")) f.defense = cfg.defense_prep;
-      if (hasTrait(this, "parent")) f.family = 2;
+      if (hasStatus(this, "coursework")) f.courses = perWeek(yearOf(s.turn) === 1 ? cfg.courses_y1 : cfg.courses_y2, s.turn);
+      if (hasStatus(this, "ta")) f.ta = perWeek((t === 8 || t === 18) ? cfg.ta_peak : cfg.ta, s.turn);
+      if (s.advisor) f.meetings = perWeek(s.advisor.archetype === "micromanager" ? 2 : cfg.meetings, s.turn);
+      if (hasStatus(this, "defense_prep")) f.defense = perWeek(cfg.defense_prep, s.turn);
+      if (hasTrait(this, "parent")) f.family = 1;
     }
     const total = f.courses + f.ta + f.meetings + f.defense + f.family + f.internship;
     const adj = s.stage === "turn_start" ? s.dayAdjNext : s.dayAdj;
-    let free = Math.max(0, 10 - total + adj);
+    let free = Math.max(0, 5 - total + adj);
     const sick = hasStatus(this, "sick");
-    if (sick) free = Math.max(0, free - 5);
+    if (sick) free = Math.max(0, free - 3);
     const burnout = hasStatus(this, "burnout");
     if (burnout) free = Math.floor(free / 2);
     if (hasStatus(this, "on_internship")) free = 0;
-    const per = (this.D.config.turn && this.D.config.turn.days_per_choice) || 2;
-    return {
-      parts: f, total: total, adj: adj, sick: sick, burnout: burnout, free: free,
-      slots: Math.floor(free / per), perChoice: per,
-      weekendAllowed: !burnout && !hasStatus(this, "on_leave")
-    };
+    return { parts: f, total: total, adj: adj, sick: sick, burnout: burnout, free: free };
   }
 
+  // Everything you could do this week. You pick exactly one, and the week plays out.
   actionList() {
     const s = this.state;
     const self = this;
     const out = [];
     const onLeave = hasStatus(this, "on_leave");
-    if (!onLeave) {
+    const fx = this.fixedDays();
+    if (hasStatus(this, "on_internship")) {
+      const co = s.internship && s.internship.accepted ? s.internship.accepted.company : "the internship";
+      out.push({ id: "intern_all", kind: "core", label: "Give " + co + " your all", desc: "Long days, big impression. Skills and network grow faster.",
+        arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "coding", dir: "up", strength: 1 }] });
+      out.push({ id: "intern_pace", kind: "core", label: "Keep a healthy pace", desc: "Do good work and leave at six.",
+        arrows: [{ stat: "sanity", dir: "up", strength: 1 }, { stat: "coding", dir: "up", strength: 1 }] });
+      activeProjects(this).slice(0, 2).forEach(function (p) {
+        out.push({ id: "intern_weekend:" + p.id, kind: "core", label: "Spend the weekend on “" + p.short + "”", desc: "Your own research doesn't stop for the summer.",
+          arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "progress", dir: "up", strength: 1 }] });
+      });
+    } else if (!onLeave) {
       activeProjects(this).forEach(function (p) {
         const st = currentStage(self, p);
         const pct = st.kind === "wait" ? null : Math.min(100, Math.round(p.progress / stageNeed(self, p) * 100));
-        out.push({
-          id: "p:" + p.id, kind: "project", label: "Work on \u201c" + p.short + "\u201d",
-          desc: STAGE_LABELS[st.id] + (st.kind === "wait" ? ": waiting (about " + Math.max(1, p.wait) + " more turns). Working on it now does little." : " " + pct + "%"),
+        const ttd = p.target && p.target.turn !== null && p.target.turn !== undefined ? p.target.turn - s.turn : null;
+        if (ttd === 0 && planExtras(self).some(function (x) { return x.id === "submit:" + p.id; })) {
+          const pctW = Math.round(writingCompletion(self, p) * 100);
+          out.push({ id: "submit:" + p.id, kind: "deadline", label: "Polish and submit “" + p.short + "” to " + deadlineLabel(self, p),
+            desc: "Deadline this week. The draft is " + pctW + "% written; it needs at least half by the end of the week.",
+            arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }, { stat: "writing", dir: "up", strength: 1 }] });
+          return;
+        }
+        out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",
+          desc: STAGE_LABELS[st.id] + (st.kind === "wait" ? ": waiting (about " + Math.max(1, p.wait) + " more weeks). Working on it now does little." : " " + pct + "%") +
+            (ttd !== null && ttd > 0 && ttd <= 6 ? ". " + deadlineLabel(self, p) + " deadline in " + ttd + (ttd === 1 ? " week" : " weeks") + "." : ""),
           arrows: st.kind === "wait" ? [{ stat: "energy", dir: "down", strength: 1 }] :
-            [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }, { stat: st.skill, dir: "up", strength: 1 }],
-          max: 5
-        });
+            [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }, { stat: st.skill, dir: "up", strength: 1 }] });
+        if (ttd !== null && ttd >= 1 && ttd <= 2 && st.kind !== "wait" && !fx.burnout) {
+          out.push({ id: "crunch:" + p.id, kind: "deadline", label: "Crunch on “" + p.short + "”, weekend included",
+            desc: "Deadline in " + ttd + (ttd === 1 ? " week" : " weeks") + ". Every day of the week and the weekend.",
+            arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }] });
+        }
       });
+      planExtras(this).forEach(function (x) {
+        if (x.kind === "submit") return;
+        out.push({ id: x.id, kind: "milestone", label: x.label, desc: x.desc, arrows: x.arrows || [] });
+      });
+      DEFAULT_ACTIONS.forEach(function (a) { out.push({ id: a.id, kind: "core", label: a.label, desc: a.desc, arrows: a.arrows }); });
+    } else {
+      out.push({ id: "recharge", kind: "core", label: "Recharge", desc: "You're on leave. Rest is the job.", arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
     }
-    ACTIVITIES.forEach(function (a) {
-      if (onLeave && a.kind === "work") return;
-      if (a.id === "mentor" && !s.mentee && !s.flags.has_undergrad_mentee) return;
-      out.push({ id: a.id, kind: a.kind, label: a.label, desc: a.desc, arrows: a.arrows, max: 5 });
-    });
-    planExtras(this).forEach(function (x) {
-      if (x.slot) out.push({ id: x.id, kind: "apply", label: x.label, desc: x.desc, arrows: x.arrows || [], max: 1 });
+    // This week only: opportunities that came up, and anything an event unlocked.
+    (s.weekOpps || []).forEach(function (o) {
+      const def = self.D.opportunityById[o.id];
+      if (!def) return;
+      if (onLeave && WORK_DAYS.indexOf(def.days || "rest") >= 0) return;
+      out.push({ id: "opp:" + o.id, kind: "opportunity", label: fill(def.label, self, o.ctx), desc: fill(def.reason || def.desc || "", self, o.ctx), arrows: oppArrows(def) });
     });
     return out;
   }
@@ -237,65 +276,34 @@ export class Game {
   planPrompt() {
     const s = this.state;
     const fx = this.fixedDays();
-    const actions = this.actionList();
-    const extras = planExtras(this).filter(function (x) { return !x.slot; });
-    const valid = {};
-    actions.forEach(function (a) { valid[a.id] = a.max; });
-    let last = null;
-    if (s.lastPlan && s.lastPlan.picks) {
-      last = {};
-      let left = fx.slots;
-      Object.keys(s.lastPlan.picks).forEach(function (k) {
-        if (!valid[k] || left <= 0 || k.indexOf("apply_") === 0) return;
-        const n = Math.min(s.lastPlan.picks[k], valid[k], left);
-        if (n > 0) { last[k] = n; left -= n; }
-      });
-      if (!Object.keys(last).length) last = null;
-    }
-    const workTargets = actions.filter(function (a) { return a.kind === "project" || a.id === "read" || a.id === "career"; })
-      .map(function (a) { return { id: a.id, label: a.label }; });
     return {
       type: "plan",
       turn: s.turn,
-      slots: fx.slots,
       days: fx,
-      actions: actions,
-      extras: extras,
-      weekend: { allowed: fx.weekendAllowed && workTargets.length > 0, targets: workTargets },
-      last: last,
+      actions: this.actionList(),
       internship: hasStatus(this, "on_internship"),
       onLeave: hasStatus(this, "on_leave"),
-      canStartProject: !!s.advisor && !s.milestones.graduated && activeProjects(this).length < (this.D.config.progress.max_active_projects || 4)
+      canStartProject: !!s.advisor && !s.milestones.graduated && !hasStatus(this, "on_leave") &&
+        activeProjects(this).length < (this.D.config.progress.max_active_projects || 4)
     };
   }
 
-  // plan: { picks: { actionId: count }, weekend: actionId | "off", extras: { extraId: { preprint } } }
+  // plan: { action: actionId }. One choice per week; the week resolves right away.
   submitPlan(plan) {
     const s = this.state;
     if (s.stage !== "plan" || s.prompt) return false;
-    const opts = this.planPrompt();
-    const valid = {};
-    opts.actions.forEach(function (a) { valid[a.id] = a.max; });
-    const picks = {};
-    let left = opts.slots;
-    Object.keys((plan && plan.picks) || {}).forEach(function (k) {
-      const n = Math.min(parseInt(plan.picks[k], 10) || 0, valid[k] || 0, left);
-      if (n > 0) { picks[k] = n; left -= n; }
-    });
-    const extras = {};
-    const extraIds = opts.extras.map(function (x) { return x.id; });
-    Object.keys((plan && plan.extras) || {}).forEach(function (k) {
-      if (extraIds.indexOf(k) >= 0 && plan.extras[k]) extras[k] = plan.extras[k] === true ? {} : plan.extras[k];
-    });
-    const weekend = opts.weekend.allowed && plan && plan.weekend && opts.weekend.targets.some(function (t) { return t.id === plan.weekend; }) ? plan.weekend : "off";
-    s.plan = { picks: picks, weekend: weekend, extras: extras };
-    s.lastPlan = { picks: picks, weekend: weekend };
+    const list = this.actionList();
+    const ids = list.map(function (a) { return a.id; });
+    const action = plan && ids.indexOf(plan.action) >= 0 ? plan.action : (ids.indexOf("recharge") >= 0 ? "recharge" : ids[0]);
+    s.plan = { action: action, label: list[ids.indexOf(action)].label };
+    s.lastPlan = { action: action };
     s.stage = "resolve";
     this.save();
     return true;
   }
 
   // ---- Turn phases ---------------------------------------------------------
+
 
   snapshot() {
     const s = this.state;
@@ -336,41 +344,77 @@ export class Game {
     });
     this.updateCalendarStatuses();
 
-    // Things that need you before you plan: matching, milestones, reviews, offers.
+    // Everything that happens to you this week comes before you choose what to do.
     let items = [];
     items = items.concat(queueMilestones(this));
     items = items.concat(queuePapers(this));
     if (s.milestones.graduated && !s.pendingEnding && !items.some(function (it) { return it.sys === "final_offers"; })) {
       items.push({ kind: "sys", sys: "final_offers" });
     }
-    s.turnItems = s.turnItems.concat(items);
-
-    // Things that happen during the two weeks, after you plan.
     tickWorld(this, function (l) { self.log(l, "news"); }).forEach(function (h) {
-      fireHook(self, h.hook, h.ctx).forEach(function (it) { s.endItems.push(it); });
+      fireHook(self, h.hook, h.ctx).forEach(function (it) { items.push(it); });
     });
-    s.pendingHooks.forEach(function (h) { fireHook(self, h.hook, h.ctx).forEach(function (it) { s.endItems.push(it); }); });
+    s.pendingHooks.forEach(function (h) { fireHook(self, h.hook, h.ctx).forEach(function (it) { items.push(it); }); });
     s.pendingHooks = [];
     const due = s.queue.filter(function (q) { return q.turn <= s.turn; });
     s.queue = s.queue.filter(function (q) { return q.turn > s.turn; });
-    due.forEach(function (q) { s.endItems.push({ kind: "event", id: q.event, ctx: q.ctx || {}, scheduled: true }); });
+    due.forEach(function (q) { items.push({ kind: "event", id: q.event, ctx: q.ctx || {}, scheduled: true }); });
     if (hasStatus(this, "on_internship") && s.internship && s.internship.accepted) {
-      fireHook(this, "internship", { company: s.internship.accepted.company }).forEach(function (it) { s.endItems.push(it); });
+      fireHook(this, "internship", { company: s.internship.accepted.company }).forEach(function (it) { items.push(it); });
     }
-    if (hasStatus(this, "defense_prep")) fireHook(this, "defense_prep", {}).forEach(function (it) { s.endItems.push(it); });
-    if (hasStatus(this, "job_market")) fireHook(this, "job_market", {}).forEach(function (it) { s.endItems.push(it); });
+    if (hasStatus(this, "defense_prep")) fireHook(this, "defense_prep", {}).forEach(function (it) { items.push(it); });
+    if (hasStatus(this, "job_market")) fireHook(this, "job_market", {}).forEach(function (it) { items.push(it); });
+    // At most one random event, rarely: less likely when something else already happened.
+    const busy = items.some(function (it) { return it.kind === "event"; }) ||
+      s.log.slice(s.turnLogStart || 0).some(function (e) { return e.kind === "good" || e.kind === "bad"; });
+    const ev = this.D.config.events;
+    if (this.rng.chance(busy ? (ev.busy_turn_event_chance || 0.03) : (ev.turn_event_chance || 0.12))) {
+      drawHook(this, "turn", {}, 1).forEach(function (it) { items.push(it); });
+    }
+    s.turnItems = s.turnItems.concat(items);
+    this.rollOpportunities();
+  }
+
+  // Extra options that come up for this week only, plus anything an event unlocked earlier.
+  rollOpportunities() {
+    const s = this.state;
+    const self = this;
+    const max = (this.D.config.opportunities && this.D.config.opportunities.max_per_week) || 2;
+    const picks = [];
+    (s.unlocks || []).filter(function (u) { return u.turn === s.turn; }).forEach(function (u) { picks.push({ id: u.id, ctx: u.ctx || {} }); });
+    s.unlocks = (s.unlocks || []).filter(function (u) { return u.turn > s.turn; });
+    const cands = this.rng.shuffle(this.D.opportunities);
+    for (let i = 0; i < cands.length && picks.length < max; i++) {
+      const o = cands[i];
+      if (picks.some(function (x) { return x.id === o.id; })) continue;
+      if (o.once && s.seen["opp:" + o.id] !== undefined) continue;
+      if (s.seen["opp:" + o.id] !== undefined && s.turn - s.seen["opp:" + o.id] < weeks(o.cooldown || 4)) continue;
+      const ctx = {};
+      if (!check(o.when, this, ctx)) continue;
+      if (!this.rng.chance(o.chance === undefined ? 0.05 : o.chance)) continue;
+      picks.push({ id: o.id, ctx: ctx });
+    }
+    picks.forEach(function (o) { s.seen["opp:" + o.id] = s.turn; });
+    s.weekOpps = picks;
   }
 
   resolveTurn() {
     const s = this.state;
     const cfg = this.D.config;
     const self = this;
-    const plan = s.plan || { picks: {}, weekend: "off", extras: {} };
+    const action = (s.plan && s.plan.action) || "recharge";
     const tally = { work: 0, self: 0, social: 0, exercise: 0, overtime: 0, projects: {} };
+    const K = 0.5;   // passive effects were tuned per two weeks; a turn is now one week
 
-    // Milestone choices and submissions first (deadline mode changes how the turn goes).
-    Object.keys(plan.extras || {}).forEach(function (id) { applyPlanExtra(self, id, plan.extras[id]); });
-    Object.keys(plan.picks || {}).forEach(function (id) { if (id.indexOf("apply_") === 0) applyPlanExtra(self, id, {}); });
+    // Deadlines and milestones first (deadline mode changes how the week goes).
+    if (action.indexOf("submit:") === 0) applyPlanExtra(this, action, { preprint: true });
+    else if (ACTION_EXTRAS.indexOf(action) >= 0) applyPlanExtra(this, action, {});
+    if (action.indexOf("crunch:") === 0) addStatus(this, "deadline_mode", 1);
+    let opp = null;
+    if (action.indexOf("opp:") === 0) {
+      const oid = action.slice(4);
+      opp = { def: this.D.opportunityById[oid], ctx: ((s.weekOpps || []).find(function (o) { return o.id === oid; }) || {}).ctx || {} };
+    }
 
     const fx = this.fixedDays();
     let eff = clamp(cfg.energy.efficiency_floor + cfg.energy.efficiency_slope * s.stats.energy, cfg.energy.efficiency_floor, 1);
@@ -383,13 +427,16 @@ export class Game {
     if (hasTrait(this, "early_bird")) eff *= 1.05;
     if (hasTrait(this, "parent")) eff *= 1.1;
 
+    let weekendWork = null;
     if (hasStatus(this, "on_internship")) {
-      for (let i = 0; i < 10; i++) addStat(this, "energy", this.roll(cfg.energy.workday));
-      addStat(this, "coding", 1.5);
-      addStat(this, "network", 1.2);
-      addStat(this, "presenting", 0.3);
-      addStat(this, "sanity", 2);
-      tally.work += 10;
+      for (let i = 0; i < 5; i++) addStat(this, "energy", this.roll(cfg.energy.workday));
+      addStat(this, "coding", action === "intern_all" ? 1.4 : 0.8);
+      addStat(this, "network", action === "intern_all" ? 1.2 : 0.6);
+      addStat(this, "presenting", 0.2);
+      if (action === "intern_all") { addStat(this, "energy", -6); addStat(this, "advisor_rel", 0); s.internshipEffort = (s.internshipEffort || 0) + 1; }
+      if (action === "intern_pace") addStat(this, "sanity", 3);
+      if (action.indexOf("intern_weekend:") === 0) weekendWork = "p:" + action.slice(15);
+      tally.work += 5;
     } else {
       // Fixed commitments cost Energy like work days.
       const fixedWork = fx.parts.courses + fx.parts.ta + fx.parts.meetings + fx.parts.defense;
@@ -401,95 +448,98 @@ export class Game {
         addStat(this, "writing", 0.2 * fx.parts.defense);
         addStat(this, "presenting", 0.2 * fx.parts.defense);
       }
-      const per = fx.perChoice;
-      const nProj = Object.keys(plan.picks).filter(function (k) { return k.indexOf("p:") === 0; }).length;
-      const effP = nProj > 2 ? eff * (1 - cfg.progress.switch_penalty * (nProj - 2)) : eff;
-      let used = 0;
-      Object.keys(plan.picks).forEach(function (k) {
-        const days = plan.picks[k] * per;
-        used += days;
-        const dayKey = k.indexOf("apply_") === 0 ? "career" : k;
-        for (let i = 0; i < days; i++) self.applyDay(dayKey, dayKey.indexOf("p:") === 0 ? effP : eff, false, tally);
-      });
-      // Whatever is left over (an odd day, or choices you didn't use) becomes rest.
-      for (let i = used; i < fx.free; i++) this.applyDay("rest", eff, false, tally);
-      if (hasTrait(this, "caffeine_powered") && s.stats.energy < 40) { addStat(this, "health", -1); }
+      // The week's free days all go to the one thing you chose.
+      let dayKey = "recharge";
+      let effD = eff;
+      if (action.indexOf("p:") === 0) dayKey = action;
+      else if (action.indexOf("submit:") === 0 || action.indexOf("crunch:") === 0) dayKey = "p:" + action.slice(action.indexOf(":") + 1);
+      else if (ACTION_EXTRAS.indexOf(action) >= 0) dayKey = action === "apply_fellowship" || action === "proposal" || action === "defense" ? "writing_day" : "career";
+      else if (action === "read") dayKey = "read";
+      else if (opp && opp.def) {
+        const kind = opp.def.days || "rest";
+        if (kind === "project") {
+          const pid = opp.ctx.projectId || (activeProjects(this)[0] || {}).id;
+          dayKey = pid ? "p:" + pid : "rest";
+          effD = eff * (opp.def.boost || 1);
+        } else dayKey = kind === "none" ? null : kind;
+      }
+      if (dayKey) for (let i = 0; i < fx.free; i++) this.applyDay(dayKey, effD, false, tally);
+      if (action.indexOf("crunch:") === 0) weekendWork = "p:" + action.slice(7);
+      if (hasTrait(this, "caffeine_powered") && s.stats.energy < 40) addStat(this, "health", -0.5);
     }
-    // Weekends: off, or two days of overtime on one thing.
-    const ot = plan.weekend && plan.weekend !== "off" ? 2 : 0;
-    for (let i = 0; i < ot; i++) this.applyDay(plan.weekend, eff, true, tally);
-    for (let i = 0; i < 4 - ot; i++) {
+    // Weekends: off, unless you crunched.
+    const ot = weekendWork ? 2 : 0;
+    for (let i = 0; i < ot; i++) this.applyDay(weekendWork, eff, true, tally);
+    for (let i = 0; i < 2 - ot; i++) {
       addStat(this, "energy", this.roll(cfg.energy.weekend_off));
       addStat(this, "sanity", cfg.sanity.weekend_off);
       addStat(this, "friends_rel", 0.5);
       tally.self++; tally.social++;
     }
+    if (opp && opp.def) {
+      const res = applyOutcome(this, opp.def, opp.ctx);
+      const line = res.text || fill(opp.def.label, this, opp.ctx) + ".";
+      this.log(line, "news");
+    }
     addStat(this, "energy", cfg.energy.baseline);
     addStat(this, "sanity", -(cfg.sanity.pressure || 0));
 
-    // Passive effects.
+    // Passive effects (per week).
     const tl = s.telemetry;
     tl.overtime_days += tally.overtime;
-    tl.overtime_streak = tally.overtime >= 2 ? tl.overtime_streak + 1 : 0;
+    tl.overtime_streak = tally.overtime >= 1 ? tl.overtime_streak + 1 : 0;
     tl.days_off_streak = tally.self === 0 ? tl.days_off_streak + 1 : 0;
     s.isolation = tally.social === 0 ? (s.isolation || 0) + 1 : 0;
-    if (s.isolation >= cfg.sanity.isolation_turns) addStat(this, "sanity", this.roll(cfg.sanity.isolation_hit) * (hasTrait(this, "social_butterfly") ? 1.3 : 1));
+    if (s.isolation >= weeks(cfg.sanity.isolation_turns)) addStat(this, "sanity", K * this.roll(cfg.sanity.isolation_hit) * (hasTrait(this, "social_butterfly") ? 1.3 : 1));
     s.noExercise = tally.exercise === 0 ? (s.noExercise || 0) + 1 : 0;
-    if (hasTrait(this, "gym_rat") && s.noExercise >= 3) addStat(this, "sanity", -2);
+    if (hasTrait(this, "gym_rat") && s.noExercise >= 6) addStat(this, "sanity", -1);
     const inPerson = s.advisor && !hasStatus(this, "at_conference") && !hasStatus(this, "on_internship") && !hasStatus(this, "sick") && !hasStatus(this, "on_leave");
     if (inPerson && s.advisor.archetype === "kind_funded") {
-      addStat(this, "sanity", this.roll("+2±1"));
-      addStat(this, "labmates_rel", 0.3);
+      addStat(this, "sanity", this.roll("+1±1"));
+      addStat(this, "labmates_rel", 0.15);
       tl.lab_meetings_in_person++;
     }
     if (s.advisor) {
-      if (s.advisor.archetype === "micromanager") addStat(this, "sanity", -1);
-      if (s.advisor.archetype === "famous_absent") addStat(this, "network", 0.4);
+      if (s.advisor.archetype === "micromanager") addStat(this, "sanity", -K);
+      if (s.advisor.archetype === "famous_absent") addStat(this, "network", 0.4 * K);
       const projDays = Object.keys(tally.projects).length;
-      if (activeProjects(this).length && !projDays && !hasStatus(this, "on_internship")) addStat(this, "advisor_rel", -0.6);
-      else if (projDays) addStat(this, "advisor_rel", 0.2);
+      if (activeProjects(this).length && !projDays && !hasStatus(this, "on_internship")) addStat(this, "advisor_rel", -0.3);
+      else if (projDays) addStat(this, "advisor_rel", 0.15);
     }
-    if (hasTrait(this, "cat_person")) addStat(this, "sanity", 1);
-    if (hasTrait(this, "optimist")) addStat(this, "sanity", 1);
-    if (hasTrait(this, "burnout_survivor")) addStat(this, "sanity", 0.5);
-    if (hasStatus(this, "post_rejection_blues")) addStat(this, "sanity", -2);
+    if (hasTrait(this, "cat_person")) addStat(this, "sanity", K);
+    if (hasTrait(this, "optimist")) addStat(this, "sanity", K);
+    if (hasTrait(this, "burnout_survivor")) addStat(this, "sanity", 0.5 * K);
+    if (hasStatus(this, "post_rejection_blues")) addStat(this, "sanity", -1);
     if (hasStatus(this, "deadline_mode")) addStat(this, "sanity", hasTrait(this, "deadline_junkie") ? -3 : -2);
-    if (hasStatus(this, "in_love")) addStat(this, "sanity", 2);
-    if (hasStatus(this, "on_leave")) addStat(this, "sanity", 4);
-    if (tally.overtime === 0) addStat(this, "health", cfg.health.calm_turn);
+    if (hasStatus(this, "in_love")) addStat(this, "sanity", 1);
+    if (hasStatus(this, "on_leave")) addStat(this, "sanity", 2);
+    if (tally.overtime === 0) addStat(this, "health", cfg.health.calm_turn * K);
 
     // Health and burnout.
     const t = tOf(s.turn);
-    let sickP = cfg.health.sick_base + cfg.health.sick_per_point * (100 - s.stats.health);
+    let sickP = (cfg.health.sick_base + cfg.health.sick_per_point * (100 - s.stats.health)) * K;
     if (t >= cfg.health.flu_season[0] && t <= cfg.health.flu_season[1]) sickP *= 2;
     if (!hasStatus(this, "sick") && this.rng.chance(sickP)) {
       addStatus(this, "sick", 2);
-      addStat(this, "energy", -20);
-      this.log("You catch something nasty. Next turn will be slow.", "bad");
+      addStat(this, "energy", -15);
+      this.log("You catch something nasty. The next week or two will be slow.", "bad");
     }
     if (s.stats.sanity <= 0 && !hasStatus(this, "burnout")) {
-      addStatus(this, "burnout", cfg.sanity.burnout_turns + 1);
+      addStatus(this, "burnout", weeks(cfg.sanity.burnout_turns) + 1);
       tl.burnouts++;
       s.stats.sanity = 15;
-      this.log("Burnout. You hit empty. For the next few turns you'll have half the choices and no weekend work. Rest. This happens to more people than will ever say so.", "bad");
+      this.log("Burnout. You hit empty. For the next several weeks you'll get half as much done and can't crunch. Rest. This happens to more people than will ever say so.", "bad");
     }
     if (s.stats.energy < 20 && !s.warnedEnergy) {
       s.warnedEnergy = true;
-      this.log("You're running on fumes: with Energy this low, everything gets less done. Rest and weekends off refill it.", "bad");
+      this.log("You're running on fumes: with Energy this low, everything gets less done. A week of recharging helps.", "bad");
     } else if (s.stats.energy > 50) s.warnedEnergy = false;
     if (s.stats.sanity < 25 && !s.warnedSanity && !hasStatus(this, "burnout")) {
       s.warnedSanity = true;
-      this.log("Sanity is low. Friends, hobbies, exercise and family restore it; at zero you burn out.", "bad");
+      this.log("Sanity is low. Recharging and the good things that come up (friends, trips, hobbies) restore it; at zero you burn out.", "bad");
     } else if (s.stats.sanity > 45) s.warnedSanity = false;
-
-    // Maybe one random event, less likely when something else already happened this turn.
-    const busy = s.endItems.some(function (it) { return it.kind === "event"; }) ||
-      s.log.slice(s.turnLogStart || 0).some(function (e) { return e.kind === "good" || e.kind === "bad"; });
-    const ev = cfg.events;
-    if (this.rng.chance(busy ? (ev.busy_turn_event_chance || 0.08) : (ev.turn_event_chance || 0.3))) {
-      drawHook(this, "turn", {}, 1).forEach(function (it) { s.endItems.push(it); });
-    }
   }
+
 
   finishTurn() {
     const s = this.state;
@@ -501,7 +551,7 @@ export class Game {
     rollMissedDeadlines(this);
     s.projects.forEach(function (p) { p.days = 0; });
     accrueCitations(this);
-    if (t === 26) yearlyLabmates(this, function (l) { self.log(l); });
+    if (wOf(s.turn) === TURNS) yearlyLabmates(this, function (l) { self.log(l); });
     this.maybeTip();
     s.telemetry.turns++;
     checkAchievements(this);
@@ -604,6 +654,17 @@ export class Game {
         s.careerPrep += 1;
         addStat(this, "presenting", 0.2);
         break;
+      case "recharge":
+        addStat(this, "energy", this.roll(cfg.energy.rest) - 1);
+        addStat(this, "sanity", this.roll("+2±1"));
+        addStat(this, "friends_rel", 1);
+        s.telemetry.rest_days++;
+        tally.self++; tally.social++;
+        break;
+      case "writing_day":
+        addStat(this, "writing", 0.5 * g * (1 - st.writing / 100) * 2);
+        if (hasStatus(this, "defense_prep")) s.readiness += 0.5;
+        break;
       case "rest":
         addStat(this, "energy", this.roll(cfg.energy.rest));
         s.telemetry.rest_days++;
@@ -641,7 +702,7 @@ export class Game {
     const s = this.state;
     const y = yearOf(s.turn);
     s.coauthorYears = s.coauthorYears || {};
-    if ((s.coauthorYears[y] || 0) >= 2 || !s.advisor || !this.rng.chance(p)) return;
+    if ((s.coauthorYears[y] || 0) >= 2 || !s.advisor || !this.rng.chance(p * 2)) return;
     s.coauthorYears[y] = (s.coauthorYears[y] || 0) + 1;
     const lm = s.labmates.filter(function (l) { return l.present !== false; });
     const who = lm.length ? this.rng.pick(lm).name : "A labmate";
@@ -653,7 +714,7 @@ export class Game {
     s.papers.push({
       id: "x" + s.nextId++, projectId: null, title: title, short: title.split(":")[0], type: "empirical", topic: topic.id,
       venueId: v.id, venueName: v.cycles[0].name, tier: v.tier, journal: false, cycle: 0,
-      submittedTurn: s.turn, reviewsTurn: s.turn + 5, decisionTurn: s.turn + this.rng.int(5, 9), conferenceTurn: null,
+      submittedTurn: s.turn, reviewsTurn: s.turn + 10, decisionTurn: s.turn + this.rng.int(10, 18), conferenceTurn: null,
       rebuttal: false, rr: false, round: 1, comps: { N: 60, S: 60, C: 60 },
       Q: 58 + this.rng.normal(0, 8), status: "under_review", reviews: null, preprint: false, firstAuthor: false,
       submissions: 1, citations: 0, citeMean: 0, pubTurn: null, breakout: 1, bonusCites: 0, scoreBonus: 0, promises: 0, coauthor: who
@@ -671,7 +732,7 @@ export class Game {
     const inSemester = sem === "fall" || sem === "spring";
     const course = inSemester && (y === 1 || (y === 2 && sem === "fall"));
     if (course) addStatus(this, "coursework", 1); else removeStatus(this, "coursework");
-    if (course && (t === 1 || t === 10)) {
+    if (course && (t === 1 || t === 10) && firstWeek(s.turn)) {
       this.log("This semester: " + this.rng.shuffle(COURSES).slice(0, y === 1 ? 2 : 1).join(" and ") + ".");
     }
     if (s.fellowshipYear === y) addStatus(this, "fellowship", 1); else removeStatus(this, "fellowship");
@@ -686,7 +747,7 @@ export class Game {
       if (ta) {
         s.telemetry.ta_semesters++;
         s.taCourse = this.rng.pick(TA_COURSES);
-        this.log("You're a TA for " + s.taCourse + " this semester. Two days a turn go to teaching.");
+        this.log("You're a TA for " + s.taCourse + " this semester. About a day a week goes to teaching.");
       }
     }
     if (inSemester && s.ta[key]) addStatus(this, "ta", 1); else removeStatus(this, "ta");
@@ -694,7 +755,7 @@ export class Game {
 
   maybeTip() {
     const s = this.state;
-    if (s.turn - s.lastTipTurn < (this.D.config.tip_spacing || 6)) return;
+    if (s.turn - s.lastTipTurn < weeks(this.D.config.tip_spacing || 6)) return;
     const self = this;
     const tips = this.D.tips.filter(function (tp) { return !s.tipsShown[tp.id] && self.D.phd101[tp.topic] && (!tp.when || check(tp.when, self, {})); });
     if (!tips.length) return;

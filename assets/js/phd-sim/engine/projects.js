@@ -1,6 +1,6 @@
 // Research projects: stages, daily work, hidden quality, and venue deadlines.
 import { clamp } from "./util.js";
-import { absTurn, yearOf, tOf, TURNS } from "./state.js";
+import { absTurn, yearOf, tOf, TURNS, weeks, weekDates } from "./state.js";
 import { hasTrait, hasStatus } from "./derived.js";
 
 function S(id, kind, comp, skill, need, extra) {
@@ -145,7 +145,7 @@ export function nextDeadline(G, venueId, fromTurn) {
   const y0 = yearOf(fromTurn);
   for (let y = y0; y <= y0 + 1; y++) {
     v.cycles.forEach(function (c, i) {
-      const at = absTurn(y, c.deadline);
+      const at = absTurn(y, c.deadline) + 1;   // the deadline falls in the second week of its period
       if (at >= fromTurn && (!best || at < best.turn)) best = { venueId: venueId, cycle: i, turn: at };
     });
   }
@@ -168,7 +168,7 @@ function remainingPoints(G, p) {
   let pts = 0;
   for (let i = p.stageIdx; i < stages.length; i++) {
     const st = stages[i];
-    if (st.kind === "wait") pts += 45 * ((st.wait[0] + st.wait[1]) / 2);
+    if (st.kind === "wait") pts += 22 * weeks((st.wait[0] + st.wait[1]) / 2);
     else pts += st.need;
   }
   return Math.max(0, pts - p.progress);
@@ -177,8 +177,9 @@ function remainingPoints(G, p) {
 export function autoTarget(G, p, opts) {
   opts = opts || {};
   const s = G.state;
-  const lead = Math.max(1, Math.ceil(remainingPoints(G, p) / 45));
-  const from = s.turn + Math.max(opts.minLead || 1, Math.min(lead, 30));
+  // About 22 progress points a week for a typical player who works on it most weeks.
+  const lead = Math.max(1, Math.ceil(remainingPoints(G, p) / 22));
+  const from = s.turn + Math.max(weeks(opts.minLead || 1), Math.min(lead, 60));
   const vs = venuesForType(G, p.type, { onlyWorkshops: opts.onlyWorkshops, includeJournals: false })
     .filter(function (v) { return opts.onlyWorkshops || v.tier !== "workshop" || p.type === "position"; });
   let options = vs.map(function (v) { return nextDeadline(G, v.id, from); }).filter(Boolean);
@@ -187,7 +188,7 @@ export function autoTarget(G, p, opts) {
   const soonest = options[0];
   if (!soonest) { p.target = null; return; }
   const tierRank = { top: 0, mid: 1, workshop: 2, journal: 3 };
-  const close = options.filter(function (o) { return o.turn <= soonest.turn + 3; });
+  const close = options.filter(function (o) { return o.turn <= soonest.turn + 6; });
   close.sort(function (a, b) {
     return tierRank[G.D.venueById[a.venueId].tier] - tierRank[G.D.venueById[b.venueId].tier] || a.turn - b.turn;
   });
@@ -254,7 +255,7 @@ export function workDay(G, p, eff, log) {
   if (hasTrait(G, "perfectionist")) rate *= 0.87;
   if (hasTrait(G, "procrastinator")) {
     const ttd = turnsToDeadline(G, p);
-    if (ttd !== null && ttd <= 1) rate *= 1.4;
+    if (ttd !== null && ttd <= 2) rate *= 1.4;
     else if (p.progress < stageNeed(G, p) * 0.5) rate *= 0.8;
   }
   if (hasTrait(G, "introvert") && (st.id === "lit" || st.id === "writing" || st.id === "revise")) rate *= 1.1;
@@ -302,7 +303,7 @@ export function advanceStage(G, p, log) {
   p.stageIdx = Math.min(p.stageIdx + 1, stages.length - 1);
   p.progress = 0;
   const next = currentStage(G, p);
-  if (next.kind === "wait") p.wait = G.rng.int(next.wait[0], next.wait[1]);
+  if (next.kind === "wait") p.wait = G.rng.int(weeks(next.wait[0]), weeks(next.wait[1]));
   if (log) log(p.short + ": " + STAGE_LABELS[done.id] + " done. Next: " + STAGE_LABELS[next.id] + ".");
   if (next.id === "writing" && !p.target) autoTarget(G, p);
 }
@@ -347,9 +348,7 @@ export function deadlineLabel(G, p) {
 }
 
 export function absToLabel(G, turn) {
-  const t = tOf(turn);
-  const row = G.D.calendar[t - 1];
-  return "Y" + yearOf(turn) + " " + (row ? row.dates : "T" + t);
+  return "Y" + yearOf(turn) + " " + weekDates(turn);
 }
 
 export { TURNS };

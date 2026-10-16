@@ -37,7 +37,10 @@ export function tele(G, key) {
     case "h_index": return hIndex(G);
     case "first_author_pubs": return firstAuthorPubs(G);
     case "coauthor_pubs": return acceptedPapers(G).filter(function (p) { return !p.firstAuthor; }).length;
-    case "turns": return s.turn;
+    // Turns and streaks are counted in weeks; content thresholds are in two-week periods.
+    case "turns": return Math.floor(s.turn / 2);
+    case "overtime_streak": return Math.floor((s.telemetry.overtime_streak || 0) / 2);
+    case "days_off_streak": return Math.floor((s.telemetry.days_off_streak || 0) / 2);
     default: return s.telemetry[key] || 0;
   }
 }

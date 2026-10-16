@@ -38,14 +38,12 @@ test("rng is deterministic and triangular rolls stay in range", () => {
 });
 
 function planFor(p, rng) {
-  const picks = {};
-  let left = p.slots;
-  const projects = p.actions.filter((a) => a.kind === "project");
-  if (projects.length && left > 0) { picks[projects[0].id] = Math.max(1, left - 1); left -= picks[projects[0].id]; }
-  if (left > 0) picks[rng.pick(["social", "rest", "read"])] = left;
-  const extras = {};
-  p.extras.forEach((x) => { extras[x.id] = true; });
-  return { picks, weekend: "off", extras };
+  const A = p.actions;
+  const submit = A.find((a) => a.id.indexOf("submit:") === 0);
+  const projects = A.filter((a) => a.kind === "project");
+  if (submit) return { action: submit.id };
+  if (rng.chance(0.25)) return { action: rng.pick(A).id };
+  return { action: projects.length ? projects[0].id : A[0].id };
 }
 
 function answerFor(p, rng) {
@@ -67,7 +65,7 @@ function bot(game, seed, untilTurn) {
     if (p.type === "ended") return game.state;
     if (p.type === "turn_end") continue;
     if (p.type === "plan") {
-      if (p.canStartProject && p.actions.filter((a) => a.kind === "project").length < 2) {
+      if (p.canStartProject && p.actions.filter((a) => a.kind === "project" || a.kind === "deadline").length < 2) {
         const np = game.requestNewProject();
         if (np) { game.answer(answerFor(np, rng)); continue; }
       }
@@ -92,14 +90,17 @@ test("traits are rolled at random, without contradictory pairs", () => {
   }
 });
 
-test("a turn plan cannot use more choices than the turn has", () => {
+test("each week takes exactly one action, and unknown actions fall back safely", () => {
   const g = new Game(D, {}, start("plan-1"));
   let p = g.step();
   const rng = new Rng("a");
   while (p.type !== "plan") { g.answer(answerFor(p, rng)); p = g.step(); }
-  assert.ok(g.submitPlan({ picks: { read: 99, social: 99 }, weekend: "off", extras: {} }));
-  const used = Object.values(g.state.plan.picks).reduce((a, b) => a + b, 0);
-  assert.ok(used <= p.slots);
+  const week = g.state.turn;
+  assert.ok(g.submitPlan({ action: "not-a-real-action" }));
+  assert.equal(g.state.plan.action, "recharge");
+  let q = g.step();
+  while (q.type !== "plan" && q.type !== "ended") { if (q.type !== "turn_end") g.answer(answerFor(q, rng)); q = g.step(); }
+  assert.equal(g.state.turn, week + 1);
 });
 
 test("the same seed and the same answers give the same PhD", () => {

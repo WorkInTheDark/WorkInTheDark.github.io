@@ -81,5 +81,7 @@ export function prepareData(raw) {
   D.reviews = src.reviews || { personas: [], concerns: [], meta: {} };
   D.personaById = indexBy(D.reviews.personas);
   D.qa = src.qa || { questions: [], members: [] };
+  D.opportunities = asList(src.opportunities);
+  D.opportunityById = indexBy(D.opportunities);
   return D;
 }

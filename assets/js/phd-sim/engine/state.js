@@ -2,7 +2,9 @@
 import { Rng } from "./rng.js";
 import { clamp, parseValue } from "./util.js";
 
-export const TURNS = 26;
+// One turn is one week; a year has 52. Content and the calendar still speak in "periods" of
+// two weeks (T1–T26), so tOf() returns the period and weeks() converts content durations.
+export const TURNS = 52;
 export const VISIBLE = ["energy", "sanity"];
 export const SKILLS = ["taste", "coding", "writing", "presenting", "knowledge"];
 export const RELS = ["advisor_rel", "labmates_rel", "family_rel", "friends_rel"];
@@ -40,12 +42,42 @@ export const ACTIVITIES = [
   { id: "family", label: "Call family", kind: "self", desc: "They miss you. You miss them.",
     arrows: [{ stat: "sanity", dir: "up", strength: 1 }, { stat: "energy", dir: "up", strength: 1 }] }
 ];
+ACTIVITIES.push({ id: "recharge", label: "Recharge", kind: "self", desc: "Sleep, see people, do nothing useful. It counts.",
+  arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
+ACTIVITIES.push({ id: "writing_day", label: "Write", kind: "work", desc: "Statements, proposals, chapters.",
+  arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "writing", dir: "up", strength: 1 }] });
+
+// The few things you can always do with a week. Everything else comes up as an opportunity.
+export const DEFAULT_ACTIONS = [
+  { id: "read", label: "Read and learn", desc: "A week with papers. Knowledge and research taste; sometimes an idea.",
+    arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "knowledge", dir: "up", strength: 1 }, { stat: "taste", dir: "up", strength: 1 }] },
+  { id: "recharge", label: "Recharge", desc: "Sleep, see people, do nothing useful. It counts.",
+    arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] }
+];
 export const ACTIVITY_BY_ID = {};
 ACTIVITIES.forEach(function (a) { ACTIVITY_BY_ID[a.id] = a; });
 
 export function yearOf(turn) { return Math.floor(turn / TURNS) + 1; }
-export function tOf(turn) { return (turn % TURNS) + 1; }
-export function absTurn(year, t) { return (year - 1) * TURNS + (t - 1); }
+export function wOf(turn) { return (turn % TURNS) + 1; }
+export function tOf(turn) { return Math.floor((turn % TURNS) / 2) + 1; }
+export function firstWeek(turn) { return turn % 2 === 0; }
+export function absTurn(year, t) { return (year - 1) * TURNS + (t - 1) * 2; }
+export function weeks(n) { return Math.max(0, Math.round((Number(n) || 0) * 2)); }
+// Splits a two-week amount of days across the two weeks of a period (3 -> 2 then 1).
+export function perWeek(days, turn) { return firstWeek(turn) ? Math.ceil(days / 2) : Math.floor(days / 2); }
+
+const MONTHS = ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"];
+const MONTH_DAYS = [30, 31, 30, 31, 31, 28, 31, 30, 31, 30, 31, 31];
+function dayToDate(d) {
+  let m = 0;
+  while (m < 11 && d >= MONTH_DAYS[m]) { d -= MONTH_DAYS[m]; m++; }
+  return { m: m, d: d + 1 };
+}
+export function weekDates(turn) {
+  const start = dayToDate(((turn % TURNS)) * 7);
+  const end = dayToDate(((turn % TURNS)) * 7 + 6);
+  return MONTHS[start.m] + " " + start.d + "\u2013" + (end.m === start.m ? "" : MONTHS[end.m] + " ") + end.d;
+}
 export function semesterOf(t) {
   if (t <= 8) return "fall";
   if (t === 9) return "break";
@@ -132,7 +164,7 @@ export function newRun(D, opts) {
       topics: topics,
       hiring: "neutral",
       models: [],
-      nextRelease: rng.int(4, 10),
+      nextRelease: rng.int(8, 20),
       modelCount: 0,
       cities: {}
     },

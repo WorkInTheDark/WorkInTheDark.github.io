@@ -22,7 +22,7 @@
 - { id: saw_it_coming, name: "Saw It Coming", desc: "A reviewer raised the flaw you'd already fixed." }
 - { id: persistence, name: "Fourth Time's the Charm", desc: "Resubmitted three times.", when: { telemetry: { resubmissions: ">=3" } } }
 # --- Pain
-- { id: all_nighter_streak, name: "All-Nighter Streak", desc: "Overtime four turns in a row.", when: { telemetry: { overtime_streak: ">=4" } } }
+- { id: all_nighter_streak, name: "All-Nighter Streak", desc: "Overtime eight weeks in a row.", when: { telemetry: { overtime_streak: ">=4" } } }
 - { id: overleaf_survivor, name: "Overleaf Is Down", desc: "Survived an outage on deadline day." }
 - { id: gpu_queue, name: "The GPU Queue", desc: "Survived a brutal queue." }
 - { id: irb_purgatory, name: "IRB Purgatory", desc: "Survived a very long IRB review." }
