@@ -201,13 +201,13 @@ Values are `"+7±3"` (a whole number rolled in [4, 10], peaked at 7), `"-5±2"`,
 
 | Target | Notes |
 |---|---|
-| `energy`, `sanity` | **Visible**, 0–100. Typical: small 2–4, medium 5–9, big 10–20 |
+| `energy`, `sanity`, `health` | **Visible**, 0–100. Typical: small 2–4, medium 5–9, big 10–20. Players see `sanity` as **Stress** (100 − sanity), so `sanity: "+5"` shows as "Stress −5": keep writing sanity as "up is good" |
 | `citations` | **Visible.** Bonus citations, usually 1–15 |
-| `health`, `taste`, `coding`, `writing`, `presenting`, `knowledge` | Hidden, 0–100. Skills move 1–4 typically, 5–8 for big moments |
+| `taste`, `coding`, `writing`, `presenting`, `knowledge` | Hidden skills, 0–100. Move 1–4 typically, 5–8 for big moments |
 | `advisor_rel`, `labmates_rel`, `family_rel`, `friends_rel`, `network` | Hidden, 0–100. Typical 2–6 |
-| `project.progress` | Bound project, current stage; a stage is 100. Typical 5–25 |
+| `project.progress` | Bound project, in points of its whole 0–100% bar (it can cross into the next phase, but stops at a wait and at 100%; setbacks stay within the current phase). Typical 4–15 |
 | `project.quality.N`, `.S`, `.C` | Novelty, Soundness, Clarity of the bound project. Typical 3–10 |
-| `project.delay` | Turns added to (or, if negative, removed from) a waiting stage, or a pause on a work stage |
+| `project.delay` | Periods (two weeks each) added to (or, if negative, removed from) a waiting phase, or put on hold for a work phase |
 | `project.pivot` | `true`: back to `idea`, keeps half its Novelty |
 | `project.abandon` | `true`: the project is dropped |
 | `paper.score` | Bound paper under review: added to every reviewer's score (0–100 scale; 5 ≈ half a point). Typical 2–8 |
@@ -216,7 +216,7 @@ Values are `"+7±3"` (a whole number rolled in [4, 10], peaked at 7), `"-5±2"`,
 | `days` / `days_next` | Free days gained (+) or lost (−) this week or next. Typical ±1 to ±3 |
 | `career_prep` | Points toward internship and job applications. Typical 1–3 |
 
-Arrows are derived automatically: for each visible target (`energy`, `sanity`, `citations`, `taste`, `coding`, `writing`, `presenting`, `knowledge`), the center of the value gives ↑ or ↓, and ↑↑ or ↓↓ when it is 10 or more. A check whose success and failure point opposite ways shows ↕.
+Arrows are derived automatically: for each visible target (`energy`, `sanity`, `health`, `citations`), the center of the value gives ↑ or ↓, and ↑↑ or ↓↓ when it is 10 or more. Sanity arrows are drawn as Stress, flipped, in the same color. A check whose success and failure point opposite ways shows ↕.
 
 ---
 

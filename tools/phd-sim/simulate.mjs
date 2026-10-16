@@ -6,13 +6,14 @@ import { dirname, join } from "node:path";
 import { prepareData, newRun, Game, firstAuthorPubs, totalCitations, hIndex } from "../../assets/js/phd-sim/engine/index.js";
 import { Rng } from "../../assets/js/phd-sim/engine/rng.js";
 import { TURNS } from "../../assets/js/phd-sim/engine/state.js";
-import { activeProjects } from "../../assets/js/phd-sim/engine/projects.js";
+import { activeProjects, overallPct, currentStage } from "../../assets/js/phd-sim/engine/projects.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const D = prepareData(JSON.parse(readFileSync(join(here, "out", "data.json"), "utf8")));
 const RUNS = parseInt(process.argv[2] || "200", 10);
 const POLICY = process.argv[3] || "mixed";
-const POLICIES = ["balanced", "workaholic", "slacker", "random"];
+// "pusher" and "swinger" keep one project at a time, to measure how long a project takes.
+const POLICIES = ["balanced", "workaholic", "slacker", "random", "pusher", "swinger"];
 
 // Picks one action for the week, the way each kind of player might.
 function pickAction(p, policy, rng, stats) {
@@ -23,17 +24,20 @@ function pickAction(p, policy, rng, stats) {
   const boostOpp = by("opportunity").find((a) => (a.arrows || []).some((x) => x.stat === "progress"));
   const submit = A.find((a) => a.id.indexOf("submit:") === 0);
   const crunch = A.find((a) => a.id.indexOf("crunch:") === 0);
-  const projects = by("project");
+  // Bots skip papers that are already finished and only waiting for a deadline.
+  const projects = by("project").filter((a) => a.label.indexOf("Polish") !== 0);
+  const litRead = A.find((a) => a.id === "read" && (a.arrows || []).some((x) => x.stat === "progress" && x.strength > 1));
+  const care = () => (stats.health < 40 && has("exercise") ? "exercise" : has("recharge") ? "recharge" : A[0].id);
   if (policy === "random") return rng.pick(A).id;
   if (policy === "slacker") {
     if (by("opportunity").length && rng.chance(0.8)) return rng.pick(by("opportunity")).id;
     if (submit && rng.chance(0.5)) return submit.id;
     if (by("milestone").length && rng.chance(0.25)) return by("milestone")[0].id;
-    if (rng.chance(0.45) || !projects.length) return has("recharge") ? "recharge" : A[0].id;
+    if (rng.chance(0.45) || !projects.length) return stats.health < 60 && has("exercise") ? "exercise" : has("recharge") ? "recharge" : A[0].id;
     return rng.pick(projects).id;
   }
   if (policy === "workaholic") {
-    if (stats.energy < 12 && has("recharge")) return "recharge";
+    if (stats.energy < 12 || stats.health < 20) return care();
     if (submit) return submit.id;
     if (crunch) return crunch.id;
     if (by("milestone").length) return by("milestone")[0].id;
@@ -41,18 +45,30 @@ function pickAction(p, policy, rng, stats) {
     if (projects.length) return projects[Math.floor(rng.next() * Math.min(2, projects.length))].id;
     return "read";
   }
+  if (policy === "pusher" || policy === "swinger") {
+    if (stats.energy < (policy === "pusher" ? 25 : 40) || stats.sanity < 30) return has("recharge") ? "recharge" : A[0].id;
+    if (stats.health < 40) return care();
+    if (submit) return submit.id;
+    if (by("milestone").length) return by("milestone")[0].id;
+    if (policy === "swinger" && rng.chance(0.45)) return rng.pick(A.filter((a) => a.kind === "core" || a.kind === "opportunity")).id;
+    if (litRead) return litRead.id;
+    if (boostOpp) return boostOpp.id;
+    return projects.length ? projects[0].id : has("read") ? "read" : A[0].id;
+  }
   // A reasonable player: research most weeks, reacting to the bars and to what comes up.
-  if (stats.energy < 30 && has("recharge")) return "recharge";
+  if (stats.energy < 35) return has("recharge") ? "recharge" : A[0].id;
+  if (stats.health < 45 && has("exercise")) return "exercise";
   if (stats.sanity < 40) return sanityOpp ? sanityOpp.id : has("recharge") ? "recharge" : A[0].id;
   if (submit) return submit.id;
   if (by("milestone").length) return by("milestone")[0].id;
   if (boostOpp) return boostOpp.id;
   if (sanityOpp && stats.sanity < 65 && rng.chance(0.6)) return sanityOpp.id;
   if (crunch && stats.energy > 55 && rng.chance(0.5)) return crunch.id;
-  if (rng.chance(0.1) && has("read")) return "read";
-  if (rng.chance(0.08) && has("recharge")) return "recharge";
+  if (litRead && rng.chance(0.8)) return litRead.id;
+  if (rng.chance(0.06) && has("read")) return "read";
   if (projects.length) {
-    const soon = projects.slice().sort((x, y) => (/deadline in (\d+)/.exec(x.desc) ? +/deadline in (\d+)/.exec(x.desc)[1] : 99) - (/deadline in (\d+)/.exec(y.desc) ? +/deadline in (\d+)/.exec(y.desc)[1] : 99));
+    const dl = (x) => { const m = /deadline in (\d+)/.exec(x.desc); return m ? +m[1] : 99; };
+    const soon = projects.slice().sort((x, y) => dl(x) - dl(y));
     return (rng.chance(0.7) ? soon[0] : rng.pick(projects)).id;
   }
   return has("read") ? "read" : A[0].id;
@@ -65,15 +81,10 @@ function answerPrompt(game, p, policy, rng) {
       if (p.forced || rng.chance(0.5)) return { action: "join", idx: rng.int(0, p.candidates.length - 1) };
       if (!p.rotatedThisTurn && rng.chance(0.4)) return { action: "rotate", idx: rng.int(0, p.candidates.length - 1) };
       return { action: "later" };
-    case "new_project": return { type: rng.pick(p.types).id, topic: rng.pick(p.topics).id };
     case "rebuttal": {
       const responses = {};
-      let slots = p.slots;
-      p.reviews.forEach((r) => r.concerns.forEach((c) => {
-        const opt = rng.pick(["clarify", "concede", "pushback", "experiment", "skip"]);
-        if (slots > 0 && opt !== "skip") { responses[c.key] = opt; slots--; }
-      }));
-      return { responses, flags: p.reviews.filter((r) => r.llm).map((r) => r.n - 1) };
+      p.reviews.forEach((r, i) => { const o = rng.pick(p.options.filter((x) => !x.llmOnly || r.llm)); if (rng.chance(0.5)) responses[i] = o.id; });
+      return { responses };
     }
     case "qa": {
       const answers = {};
@@ -105,18 +116,27 @@ for (let r = 0; r < RUNS; r++) {
   const rng = new Rng(seed + ":bot");
   const state = newRun(D, { seed, name: "Bot" });
   const game = new Game(D, meta, state);
-  let prompts = 0, guard = 0, sanSum = 0, sanN = 0, planTurns = 0;
+  let prompts = 0, guard = 0, sanSum = 0, sanN = 0, planTurns = 0, enSum = 0, hpSum = 0;
+  const doneAt = {};
   try {
     while (guard++ < 20000) {
       const p = game.step();
       if (p.type === "ended") break;
       if (p.type === "error") throw new Error("engine error state");
-      if (p.type === "turn_end") { sanSum += game.state.stats.sanity; sanN++; continue; }
+      if (p.type === "turn_end") {
+        sanSum += game.state.stats.sanity; enSum += game.state.stats.energy; hpSum += game.state.stats.health; sanN++;
+        // How long a project takes, from its start until the bar is full (or it's submitted).
+        game.state.projects.forEach((pr) => {
+          if (doneAt[pr.id] !== undefined || pr.source !== "player") return;
+          if (pr.status === "submitted" || pr.status === "done" || (pr.status === "active" && !pr.revise && overallPct(game, pr) >= 100)) doneAt[pr.id] = game.state.turn - pr.created;
+        });
+        continue;
+      }
       if (p.type === "plan") {
-        const projectsN = p.actions.filter((a) => a.kind === "project" || a.kind === "deadline").length;
-        if (p.canStartProject && projectsN < (policy === "slacker" ? 1 : 2) && rng.chance(0.5)) {
-          const np = game.requestNewProject();
-          if (np) { prompts++; game.answer({ type: rng.pick(np.types).id, topic: rng.pick(np.topics).id }); continue; }
+        const projectsN = activeProjects(game).filter((x) => !x.revise && overallPct(game, x) < 100).length;
+        const cap = policy === "slacker" || policy === "pusher" || policy === "swinger" ? 1 : 2;
+        if (p.canStartProject && projectsN < cap && rng.chance(0.5)) {
+          if (game.startNewProject()) continue;
         }
         planTurns++;
         const opps = p.actions.filter((a) => a.kind === "opportunity").length;
@@ -160,6 +180,7 @@ for (let r = 0; r < RUNS; r++) {
     cites: totalCitations(game), h: hIndex(game), burnouts: s.telemetry.burnouts, events: s.telemetry.events_seen,
     prompts, tiers, title: s.ending.title.id, advisor: s.advisor ? s.advisor.archetype : "none", quals: s.milestones.quals,
     proposal: s.milestones.proposal, uniqueRandom: seenRandom.length, sanity: sanN ? sanSum / sanN : 0, perTurn: prompts / Math.max(1, s.turn),
+    energy: sanN ? enSum / sanN : 0, health: hpSum / Math.max(1, sanN), projWeeks: Object.values(doneAt),
     qs: s.papers.filter((p) => p.firstAuthor && p.meta !== undefined).map((p) => ({ y: Math.floor(p.submittedTurn / TURNS) + 1, Q: p.Q, meta: p.meta, bonus: p.scoreBonus || 0, tier: p.tier, st: p.status, round: p.round }))
   });
 }
@@ -176,7 +197,9 @@ for (const pol of POLICY === "mixed" ? POLICIES : [POLICY]) {
     "  median years " + median(grads.map((x) => x.years)).toFixed(1) +
     "  pubs avg " + avg(R.map((x) => x.pubs)) + "  cites median " + median(R.map((x) => x.cites)) +
     "  h median " + median(R.map((x) => x.h)) + "  burnouts avg " + avg(R.map((x) => x.burnouts)) +
-    "  sanity avg " + avg(R.map((x) => x.sanity)) + "  events avg " + avg(R.map((x) => x.events)) + "  prompts avg " + avg(R.map((x) => x.prompts)) + "  pop-ups per turn " + avg(R.map((x) => Math.round(x.perTurn * 100) / 100)));
+    "  energy avg " + avg(R.map((x) => x.energy)) + "  stress avg " + avg(R.map((x) => 100 - x.sanity)) + "  health avg " + avg(R.map((x) => x.health)) +
+    "  pop-ups per week " + avg(R.map((x) => Math.round(x.perTurn * 100) / 100)) +
+    "  weeks per project (median) " + median([].concat(...R.map((x) => x.projWeeks))));
 }
 const all = results;
 const count = (key) => { const m = {}; all.forEach((x) => { m[x[key]] = (m[x[key]] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + " " + v).join(", "); };

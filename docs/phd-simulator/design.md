@@ -14,8 +14,9 @@ A browser game on the site, inspired by 《读博模拟器》, in which the play
 | Language | English |
 | Field | NLP × HCI (human-centered AI, clinical AI flavor) |
 | Turn length | **One week, one choice.** Each week you pick one thing to do and the week plays out right away: no multi-pick, no confirm button. A few choices are always there (each project, Read, Recharge); random happenings add "This week only" choices (section 4). Changed twice on 2026-10-16: first from a repeating two-week routine to a per-turn planner, then to this |
-| Visible stats | Energy, Sanity, Citations (+ h-index), Papers, and the five skills (made visible again 2026-10-16, since actions now train them directly) |
-| Hidden stats | Relationships, network, health |
+| Visible stats | Three bars to balance: **Energy**, **Stress** and **Health**, plus Citations (+ h-index) and Papers. Stress is the engine's `sanity` shown as 100 − sanity (2026-10-16, third round of feedback) |
+| Hidden stats | Skills (hidden again: the bars felt useless), relationships, network |
+| Projects | **One 0–100% progress bar per project**, with phases along it. About 4 months when you push, 6–8 when you alternate with other things. Kind and topic are assigned automatically. Waits (IRB, recruiting, annotation) are 1–3 weeks |
 | Character | Three traits rolled at random. No background or origin choice; those became traits (Industry Veteran, Career Switcher, Master's Head Start, International Student) (2026-10-16) |
 | Event frequency | About one pop-up every four to five weeks (random events at 9% a week, plus milestones, reviews and Q&As); routine news goes into the weekly report instead of pop-ups (2026-10-16) |
 | Not stats | Money and funding (funding becomes a hidden trait of the advisor) |
@@ -169,17 +170,18 @@ Changed twice on 2026-10-16 at Arthur's request. First the repeating routine and
 
   Two-week amounts from `config.yml` are split across a period's two weeks (rounded up in the first week, down in the second).
 - **All the remaining weekdays** go to the one thing you chose. You get fewer when you're sick (3 fewer) or burned out (half).
-- **Weekends are off** (+Energy, +Sanity), except when you crunch for a deadline.
+- **Weekends are off** (+Energy, −Stress), except when you crunch for a deadline.
 
 ### 4.2 What you can choose
 Only a few choices are always there, because most real activities don't fill a week:
-- **Work on "<project>"**, for each active project. It advances the current stage and trains that stage's skill.
-- **Read and learn:** knowledge and taste, and sometimes an idea.
-- **Recharge:** sleep, see people, do nothing useful. Restores Energy and Sanity.
+- **Work on "<project>"**, for each active project, unless it's waiting (IRB, recruiting, annotation) or on hold, when it has nothing to work on that week. At 100% it becomes **Polish "<project>"**: ready, waiting for its deadline, and more work only polishes the writing.
+- **Read and learn:** moves a project in **Related work** a lot (1.3× a work week on it, versus 0.8× for "Work on" in that phase) and every other project a little (about 1–2% a week). Sometimes an idea.
+- **Recharge:** about +20 Energy and −10 Stress for the week, on top of the weekend, however busy the week is.
+- **Get healthy:** gym, sleep, real meals. About +11 Health, +8 Energy, −4 Stress.
 
 Some choices come from the calendar and your progress:
-- **Deadline week:** "Polish and submit "<project>" to VENUE" replaces that project's work choice. It needs at least half a draft by the end of the week and always posts a preprint. If you skip it, the target rolls to the next deadline.
-- **One or two weeks before a deadline:** "Crunch on "<project>", weekend included". It adds deadline mode, two overtime days, and a big drain.
+- **Deadline week:** "Polish and submit "<project>" to VENUE" replaces that project's work choice. It needs at least half the writing done by the end of the week and always posts a preprint. If you skip it, the target rolls to the next deadline.
+- **One or two weeks before a deadline:** "Crunch on "<project>", weekend included". It adds deadline mode, two overtime days, and a big drain on all three bars.
 - **Milestones**, which use the week: apply for internships (Years 2–5, T2–T7) or a fellowship (Years 1–3, T3–T6), schedule the thesis proposal, start defense prep, or go on the job market.
 - **Internship weeks:** "Give it your all", "Keep a healthy pace", or "Spend the weekend on <project>".
 - **On leave:** only Recharge.
@@ -192,9 +194,9 @@ Everything else comes up as a **"This week only"** choice (`opportunities.yml`):
 - helping a labmate make their deadline, teaching this week's lectures
 - the thesis bootcamp during defense prep
 
-Each week every eligible opportunity rolls its `chance` (respecting `when`, `cooldown` and `once`), up to `opportunities.max_per_week` (2). Events can also unlock one with `unlock:` (for this week or next). About 28% of weeks offer at least one. If you don't take it, it's gone.
+Each week every eligible opportunity rolls its `chance` (respecting `when`, `cooldown` and `once`), up to `opportunities.max_per_week` (2). Events can also unlock one with `unlock:` (for this week or next). About 29% of weeks offer at least one. If you don't take it, it's gone.
 
-**Start a new project** is a free button, not a choice: it doesn't use up the week.
+**Start a new project** is a free button, not a choice: it doesn't use up the week, and the project's kind and topic are picked for you (section 8.1).
 
 Every choice shows arrows for its visible effects, never numbers. A quick double click can't spend two weeks: clicks in the first 0.4 seconds of a new week are ignored.
 
@@ -212,68 +214,83 @@ Every choice shows arrows for its visible effects, never numbers. A quick double
 2. **Your choice:** one click.
 3. **The week plays out:** days resolve, the opportunity's outcome applies, passive effects apply, and health and burnout are checked.
 4. **End of the week:** submissions and revisions are finalized, then citations, tips and achievements.
-5. **The report** ("Last week"): what you did, stat and skill changes, project progress, and news (decisions, conference trips, results, warnings).
+5. **The report** ("Last week"): what you did, Energy, Stress and Health changes, project progress, and news (decisions, conference trips, results, warnings).
 
 **Decisions that no longer pop up:**
 - Acceptances, rejections and revise-and-resubmits are reported, not asked about. A rejected paper automatically goes back to revision for the next deadline, and you can change its target or shelve it from the project card.
 - Conference trips happen automatically: you travel if there's money, otherwise there's a chance of a travel grant, otherwise you present remotely.
 
-### 4.4 Balance targets (from `simulate.mjs`, 600 runs)
-- A sensible bot (research most weeks, recharge when Energy < 30 or Sanity < 40, takes milestones and boosts) graduates about 90% of the time, with a median of about 4.4 years. Real players should land around year 5.
-- A workaholic bot burns out about 8 times and graduates later. A slacker bot graduates around year 6.5.
-- Pop-ups: about 0.22 per week.
+### 4.4 Balance targets
+The three bars push against "Work on" every week:
+
+| Week | Energy | Stress | Health |
+|---|---|---|---|
+| Work on a project | about −8 | about +2.5 | about −1 |
+| Read and learn | about −5 | about +2.5 | about −1 |
+| Recharge | about +22 | about −7 | 0 |
+| Get healthy | about +10 | about −2 | about +11 |
+| Crunch | about −26 | about +9 | about −5 |
+
+So you can work about three weeks for each Recharge week, and need a Get healthy week every couple of months. Below 60 Energy you work slower, at 100 Stress you burn out, and low Health means sick weeks.
+
+From `simulate.mjs` (900 runs) and a one-project probe:
+- A project you push on (work every week you can, resting only when a bar runs low) takes about **18 weeks** after Year 1 and about 22 weeks in Year 1, when classes take part of every week. Alternating with other things takes 6–8 months.
+- A sensible bot graduates about 90% of the time, with a median of about 4.6 years. A workaholic bot burns out about 3 times; a slacker bot graduates around year 5.7.
+- Top-venue acceptance is about 26% per decided first-author submission.
+- Pop-ups: about 0.25 per week.
 
 ## 5. Stats
+
+In this doc and in the content files, **"Sanity" is the engine's name for what players see as Stress** (Stress = 100 − sanity). "Sanity −6" in a table below shows up in the game as "Stress +6".
 
 ### 5.1 Visible
 
 | Stat | Range | What it is |
 |---|---|---|
-| **Energy** | 0–100 | Short-term fuel. Work days use it; rest and weekends restore it. Below 50, each day gets less done. |
-| **Sanity** | 0–100 | Mood and motivation in one. Mostly moved by events; social, hobby and family days restore it; isolation and overtime wear it down. |
+| **Energy** | 0–100 | Short-term fuel. Work uses it; Recharge and weekends restore it. Below 60, each day gets less done. |
+| **Stress** | 0–100 | The engine's `sanity`, shown as 100 − sanity. Builds with work, deadlines and rejections; Recharge and good things bring it down. At 100 you burn out. Content keeps "sanity up is good". |
+| **Health** | 0–100 | Wears down slowly at a desk, faster when you're exhausted (Energy < 25) or stressed (Stress > 70) and when you crunch. Below 35 you work 10% slower; low Health means more sick weeks. Get healthy rebuilds it. |
 | **Citations** | count, plus h-index | Grow from published papers and preprints (section 8.8). |
 | **Papers** | list | Accepted papers, plus what is under review. |
-| **Skills** | 0–100 each | Research taste, coding, writing, presenting, domain knowledge. They grow with what you choose. |
 
 ### 5.2 Hidden
 
 | Stat | Range | Start | What it affects |
 |---|---|---|---|
+| Skills (taste, coding, writing, presenting, knowledge) | 0–100 each | about 26–32 | Progress speed and paper quality; they grow with what you do |
 | Advisor relationship | 0–100 | 50 | Advisor support, letters, how meetings go |
 | Labmates | 0–100 | 50 | Help, co-authorships, lab events |
 | Family / partner | 0–100 | 60 | Support during bad events |
-| Friends | 0–100 | 40 | Sanity buffer, social events |
-| Network | 0–100 | by background | Internships, invitations, collaborations, job market |
-| Health | 0–100 | 80±10 | Chance of getting sick; recovery speed |
+| Friends | 0–100 | 40 | Stress buffer, social events |
+| Network | 0–100 | by trait | Internships, invitations, collaborations, job market |
 
-Stat ids used in data files: `energy`, `sanity`, `citations`, `taste`, `coding`, `writing`, `presenting`, `knowledge`, `advisor_rel`, `labmates_rel`, `family_rel`, `friends_rel`, `network`, `health`.
+Stat ids used in data files: `energy`, `sanity`, `health`, `citations`, `taste`, `coding`, `writing`, `presenting`, `knowledge`, `advisor_rel`, `labmates_rel`, `family_rel`, `friends_rel`, `network`.
 
 ### 5.3 Starting tuning values (all in `config.yml`)
 
 **Energy**
-- Weekday work day: `-3±1`. Overtime (weekend work) day: `-5±2`.
-- Rest day: `+8±2`. Exercise, Social, Hobby or Family day: `+5±2`. Weekend day off: `+6±2`.
-- Sleep baseline per week: `0`.
-- Target behavior: a normal work week (weekdays on, weekends off) costs about 3 Energy, so a Recharge week (about +30) is needed every two months or so. A crunch week costs about 25.
-- Efficiency multiplier: `clamp(0.4 + 0.012 × energy, 0.4, 1.0)`. At 50 or more you work at full speed; at 0, at 40%.
+- Research day `-3±1`; class, TA or meeting day `-2`; overtime (weekend) day `-5±2`; weekend day off `+4±1`; `-2` a week for life.
+- A Recharge week `+20±3` and a Get healthy week `+8±2`, as whole-week amounts that don't depend on how many free days the week had.
+- Efficiency multiplier: `clamp(0.35 + 0.011 × energy, 0.35, 1.0)`: full speed at 60 or more.
 
-**Sanity**
-- Social, Hobby or Family day: `+3±1`. Overtime day: `-1`.
-- Isolation: no Social or Family day for 3 turns in a row gives `-4±2` per turn until fixed.
-- Below 25: efficiency ×0.8, and "should I quit?" events become possible.
-- At 0: **Burnout** status for 3 turns (free days halved, no overtime allowed, Sanity recovers).
+**Stress** (stored as `sanity`, so the signs below are sanity changes)
+- Every work day `-0.5`, plus `-2.5` a week of background pressure; weekend days off `+1` each.
+- A Recharge week `+10±2`; a Get healthy week `+4±1`; social, hobby or family days from opportunities `+3±1`.
+- Overtime day `-1`. Isolation (no social time for 6 weeks) adds more.
+- Stress over 75: efficiency ×0.8, and "should I quit?" events become possible.
+- At 100: **Burnout** for 7 weeks (free days halved, no crunching).
 
-**Health (hidden)**
-- Overtime day `-1.5`; Exercise day `+2`; a turn with no overtime `+1`.
-- Chance of getting sick per turn: `0.02 + 0.004 × (100 − health)`, doubled in flu season.
+**Health**
+- `-1` a week with no exercise; `-1` more when the week ends with Energy under 25, and `-1` when it ends with Stress over 70; overtime day `-1.5`.
+- A Get healthy week `+11±2`; Recharge `+1`.
+- Weekly chance of getting sick: `(0.01 + 0.004 × (100 − health)) / 2`, doubled in flu season.
 
 **Skills (hidden)**
-- Each day of relevant work: `Δ = 1.2 × (1 − skill/100)`, so growth slows as skills rise.
+- Each day of relevant work: `Δ = 0.25 × (1 − skill/100)`, so growth slows as skills rise. They speed up progress and raise paper quality.
 - Events can add ranged boosts (`writing: "+7±3"`).
 
 **Relationships (hidden)**
-- Friends `-1` per turn without a Social day; Family `-0.5` per turn without a Family day (×1.5 for international students).
-- Advisor relationship moves with meeting outcomes, kept or broken commitments, progress against the advisor's expectations, and events.
+- Advisor relationship moves with weeks spent on projects (or not), kept or broken commitments, and events.
 
 ### 5.4 How hidden stats show up
 Players learn about hidden stats the way real students do, indirectly:
@@ -286,11 +303,11 @@ Players learn about hidden stats the way real students do, indirectly:
 ### 5.5 Rolled effects and arrows
 - `+7±3` rolls a whole number in [4, 10] from a triangular distribution peaking at 7, so most rolls land near the middle.
 - The roll is then scaled by traits and statuses (for instance, Resilient takes Sanity losses ×0.7) and clamped to the stat's range.
-- **Before choosing**, each choice shows arrows for its visible effects only (Energy, Sanity, Citations and the five skills), derived automatically from the sign of each effect's center:
+- **Before choosing**, each choice shows arrows for its visible effects only (Energy, Stress, Health, Citations, and project progress), derived automatically from the sign of each effect's center. Stress arrows point the other way from the sanity change, but keep its color: green is always good for you.
   - `↑` / `↓` for small effects, `↑↑` / `↓↓` when the center is 10 or more (pending confirmation, section 19).
   - `↕` when the outcome depends on a check and success and failure point in opposite directions.
   - Hidden effects never get an arrow; the choice wording hints at them.
-- **After choosing**, visible changes show the rolled number ("Sanity −6"); hidden changes appear only as result lines.
+- **After choosing**, visible changes show the rolled number ("Stress +6"); hidden changes, skills included, appear only as result lines.
 
 ### 5.6 Statuses
 Temporary effects with a duration, shown as chips under the stats.
@@ -430,29 +447,33 @@ Generated faculty for quals, proposal and defense, each with a field, a personal
 
 ### 8.1 Project types
 
-| Type | Stages | Main skills | Waiting time you can't speed up |
-|---|---|---|---|
-| Empirical NLP (method, model, analysis) | Idea → Lit review → Pilot → Experiments → Writing | Taste, coding, writing | Compute queue (by advisor funding) |
-| Human-centered study (interviews, surveys, user studies) | Idea → Lit review → Study design → IRB → Recruiting → Sessions → Analysis → Writing | Taste, domain, writing | IRB review, recruiting |
-| System + evaluation | Idea → Lit review → Build → IRB → Study → Analysis → Writing | Coding, domain, writing | IRB review, recruiting |
-| Dataset / benchmark | Idea → Lit review → Annotation design → Annotation → Baselines → Writing | Domain, coding, writing | Annotator turnaround |
-| Position / survey | Idea → Lit review (long) → Writing | Knowledge, writing | none |
+Each project is **one 0–100% progress bar**. Its phases sit along the bar, each with a share of it; waiting phases are pauses at a point on the bar.
 
-Type ids used in data files: `empirical`, `study`, `system`, `dataset`, `position`. Phase 1 ships the first two types; Phase 2 adds the rest.
+| Type | Phases (share of the bar) | Waits |
+|---|---|---|
+| Empirical NLP | Idea 8 → Related work 17 → Pilot 20 → Experiments 30 → Writing 25 | none |
+| Human-centered study | Idea 6 → Related work 14 → Study design 12 → IRB → Recruiting → Sessions 20 → Analysis 20 → Writing 28 | IRB 2–3 weeks, recruiting 1–2 |
+| System + evaluation | Idea 6 → Related work 14 → Build 28 → IRB → User study 16 → Analysis 12 → Writing 24 | IRB 2–3 weeks |
+| Dataset / benchmark | Idea 7 → Related work 15 → Guidelines 15 → Annotation → Baselines 33 → Writing 30 | annotation 2–3 weeks |
+| Position / survey | Idea 10 → Related work 45 → Writing 45 | none |
 
-**Waiting stages** (IRB, recruiting, annotation turnaround, compute queue) advance by calendar time rather than days: putting more days on them does nothing, which is exactly as frustrating and realistic as it sounds. Events can shorten or lengthen them.
+Type ids used in data files: `empirical`, `study`, `system`, `dataset`, `position`.
+
+**New projects pick their own kind and topic** (2026-10-16): Arthur found choosing them pointless, and hype meant nothing to players. The kind is weighted (empirical 3, study 2.5, system 2, dataset 1, position 0.7; Career Switchers lean toward studies), and the topic is one not already used by an active project. Hype still matters behind the scenes (citations, novelty, scoops).
+
+**Waiting phases** advance by calendar time rather than work. While a project waits (or is on hold after a setback), it has no "Work on" choice that week. Events can shorten or lengthen waits.
+
+**Revising:** after a rejection or a revise-and-resubmit, the bar sits at 80% and revising (a 20% phase) fills the rest.
 
 ### 8.2 Progress
-Each stage needs 100 progress points. Each day assigned to the project adds:
+Each day of work adds, in % of the whole bar:
 
 ```
-progress = stage_rate × efficiency(energy) × sanity_factor × skill_factor × roll(±20%)
-skill_factor = 0.6 + 0.8 × (relevant_skill / 100)       # 0.6–1.4
+progress = 3.0 × efficiency(energy) × skill_factor × modifiers × roll(±20%)
+skill_factor = 0.6 + 0.8 × (relevant_skill / 100)
 ```
 
-With `stage_rate ≈ 10`, an average student finishes a normal stage in about 10 days.
-
-**Context switching:** each project beyond the second worked on in the same turn costs 10% efficiency on all project days that turn.
+A full work week at full Energy after Year 1 (about 4.5 free days) is about 10%; in Year 1, with classes, about 6%. Related work moves 0.8× as fast with "Work on" and 1.3× with **Read and learn**; a reading day also adds 0.4% to every other project. Event effects on `project.progress` are points of the whole bar.
 
 ### 8.3 Quality
 Each project has three hidden quality components, 0–100:
@@ -469,7 +490,7 @@ Overall paper quality for reviewing: `Q = wN·N + wS·S + wC·C`, with venue-spe
 
 ### 8.4 Topics and hype
 - At run start, 6–8 research topics are drawn from a pool of about 30, for example LLM evaluation with clinicians, explanations for question answering, children's reading comprehension, mental-health language models, human-AI co-writing, annotator disagreement, decision support in the EHR.
-- Each topic has a **hype** level (0–100) that random-walks each turn, with shocks from world events.
+- Each topic has a **hype** level (0–100) that random-walks over time, with shocks from world events. Players don't see it (2026-10-16).
 - Hype affects citations (×0.5 to ×2), reviewer interest (Novelty bonus), competition (scoop risk), and internship and job fit.
 - **Scoops:** per-turn chance about `0.005 × hype / 50` for a project between Lit review and Writing. Severity is rolled: partial overlap, or the same idea.
 
@@ -536,21 +557,16 @@ Each concern has a severity (minor or major) and a validity (a real issue, or a 
 - The Methodologist: statistics, always statistics.
 - The Silent One: never reads the response.
 
-**The player's budget:**
-- **5 response slots**, standing in for the word limit.
-- **This turn's free days,** which can go to new experiments.
+**Responding (simplified 2026-10-16):** one response **per reviewer**, covering all of that reviewer's concerns, with **Clarify** as the default. There's no response limit; one dropdown per reviewer and one Submit button.
 
-**Responses to each concern:**
-
-| Response | Cost | Works best when |
-|---|---|---|
-| Clarify | 1 slot | The concern is a misreading (writing check) |
-| Concede and promise a fix | 1 slot | The concern is minor; the promise must be kept in camera-ready |
-| New result | 1 slot + 2–4 days + Energy | Soundness concerns; coding check; the new result can come out worse |
-| Push back politely | 1 slot | The concern is invalid and the persona is open-minded |
-| Skip | 0 | Minor concerns, or the Silent One |
-| Flag the review to the AC | 1 slot | The review looks LLM-written; chance the AC discounts it |
-| Passive-aggressive reply | 1 slot | Almost never; 2% legendary success, with an achievement |
+| Response | Works best when |
+|---|---|
+| Clarify (default) | The concerns are misreadings (writing check) |
+| Concede and promise fixes | The concerns are minor; the promises must be kept in camera-ready (days after acceptance) |
+| Run new experiments | Soundness concerns; coding check; the new results can come out worse. Costs 2 days this week and some Energy |
+| Push back politely | The concerns are invalid and the persona is open-minded |
+| Passive-aggressive reply | Almost never; 2% legendary success, with an achievement |
+| Flag it as LLM-written | Only offered when the review reads that way; 60% chance the area chair discounts it |
 
 **Resolution.**
 - Each reviewer's score moves by the sum of the response effects × the persona's openness, plus noise.

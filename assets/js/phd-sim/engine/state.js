@@ -5,14 +5,15 @@ import { clamp, parseValue } from "./util.js";
 // One turn is one week; a year has 52. Content and the calendar still speak in "periods" of
 // two weeks (T1–T26), so tOf() returns the period and weeks() converts content durations.
 export const TURNS = 52;
-export const VISIBLE = ["energy", "sanity"];
+// "sanity" is shown to the player as Stress (100 − sanity), so content keeps "up is good".
+export const VISIBLE = ["energy", "sanity", "health"];
 export const SKILLS = ["taste", "coding", "writing", "presenting", "knowledge"];
 export const RELS = ["advisor_rel", "labmates_rel", "family_rel", "friends_rel"];
-export const HIDDEN = SKILLS.concat(RELS, ["network", "health"]);
+export const HIDDEN = SKILLS.concat(RELS, ["network"]);
 export const STAT_IDS = VISIBLE.concat(HIDDEN);
 
 export const STAT_LABELS = {
-  energy: "Energy", sanity: "Sanity", citations: "Citations", health: "Health",
+  energy: "Energy", sanity: "Stress", citations: "Citations", health: "Health",
   taste: "Research taste", coding: "Coding", writing: "Writing", presenting: "Presenting",
   knowledge: "Domain knowledge", advisor_rel: "Advisor relationship", labmates_rel: "Labmates",
   family_rel: "Family", friends_rel: "Friends", network: "Network"
@@ -22,19 +23,19 @@ export const STAT_LABELS = {
 // `arrows` preview the visible effects (players never see numbers before choosing).
 export const ACTIVITIES = [
   { id: "read", label: "Read papers", kind: "work", desc: "Domain knowledge and research taste. Sometimes an idea.",
-    arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "knowledge", dir: "up", strength: 1 }, { stat: "taste", dir: "up", strength: 1 }] },
+    arrows: [{ stat: "energy", dir: "down", strength: 1 }] },
   { id: "network", label: "Network", kind: "work", desc: "Talks, emails, reading groups. People start to know your name.",
     arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "citations", dir: "up", strength: 1 }] },
   { id: "help", label: "Help labmates", kind: "work", desc: "Your lab likes you more. Sometimes it turns into a co-authorship.",
     arrows: [{ stat: "energy", dir: "down", strength: 1 }] },
   { id: "mentor", label: "Mentor your undergrad", kind: "work", desc: "Teaching is learning twice.",
-    arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "presenting", dir: "up", strength: 1 }] },
+    arrows: [{ stat: "energy", dir: "down", strength: 1 }] },
   { id: "career", label: "Practice talks and interviews", kind: "work", desc: "Presenting skills, and better odds on applications.",
-    arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "presenting", dir: "up", strength: 1 }] },
+    arrows: [{ stat: "energy", dir: "down", strength: 1 }] },
   { id: "rest", label: "Rest", kind: "self", desc: "Sleep in. Do nothing. It counts.",
     arrows: [{ stat: "energy", dir: "up", strength: 2 }] },
   { id: "exercise", label: "Exercise", kind: "self", desc: "Good for energy, mood, and the body you'll need in year five.",
-    arrows: [{ stat: "energy", dir: "up", strength: 1 }, { stat: "sanity", dir: "up", strength: 1 }] },
+    arrows: [{ stat: "health", dir: "up", strength: 2 }, { stat: "energy", dir: "up", strength: 1 }, { stat: "sanity", dir: "up", strength: 1 }] },
   { id: "social", label: "See friends", kind: "self", desc: "The best cure for the lab.",
     arrows: [{ stat: "sanity", dir: "up", strength: 2 }] },
   { id: "hobby", label: "Hobby", kind: "self", desc: "Something that has nothing to do with research.",
@@ -42,17 +43,19 @@ export const ACTIVITIES = [
   { id: "family", label: "Call family", kind: "self", desc: "They miss you. You miss them.",
     arrows: [{ stat: "sanity", dir: "up", strength: 1 }, { stat: "energy", dir: "up", strength: 1 }] }
 ];
-ACTIVITIES.push({ id: "recharge", label: "Recharge", kind: "self", desc: "Sleep, see people, do nothing useful. It counts.",
-  arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
+ACTIVITIES.push({ id: "recharge", label: "Recharge", kind: "self", desc: "Sleep in, see friends, do nothing useful. It counts.",
+  arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }] });
 ACTIVITIES.push({ id: "writing_day", label: "Write", kind: "work", desc: "Statements, proposals, chapters.",
-  arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "writing", dir: "up", strength: 1 }] });
+  arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
 
 // The few things you can always do with a week. Everything else comes up as an opportunity.
 export const DEFAULT_ACTIONS = [
-  { id: "read", label: "Read and learn", desc: "A week with papers. Knowledge and research taste; sometimes an idea.",
-    arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "knowledge", dir: "up", strength: 1 }, { stat: "taste", dir: "up", strength: 1 }] },
-  { id: "recharge", label: "Recharge", desc: "Sleep, see people, do nothing useful. It counts.",
-    arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] }
+  { id: "read", label: "Read and learn", desc: "A week with papers. Projects inch forward; sometimes you get an idea.",
+    arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }] },
+  { id: "recharge", label: "Recharge", desc: "Sleep in, see friends, do nothing useful. It counts.",
+    arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }] },
+  { id: "exercise", label: "Get healthy", desc: "Gym, sleep, real meals. Your back will thank you.",
+    arrows: [{ stat: "health", dir: "up", strength: 2 }, { stat: "energy", dir: "up", strength: 1 }, { stat: "sanity", dir: "up", strength: 1 }] }
 ];
 export const ACTIVITY_BY_ID = {};
 ACTIVITIES.forEach(function (a) { ACTIVITY_BY_ID[a.id] = a; });
@@ -63,8 +66,6 @@ export function tOf(turn) { return Math.floor((turn % TURNS) / 2) + 1; }
 export function firstWeek(turn) { return turn % 2 === 0; }
 export function absTurn(year, t) { return (year - 1) * TURNS + (t - 1) * 2; }
 export function weeks(n) { return Math.max(0, Math.round((Number(n) || 0) * 2)); }
-// Splits a two-week amount of days across the two weeks of a period (3 -> 2 then 1).
-export function perWeek(days, turn) { return firstWeek(turn) ? Math.ceil(days / 2) : Math.floor(days / 2); }
 
 const MONTHS = ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"];
 const MONTH_DAYS = [30, 31, 30, 31, 31, 28, 31, 30, 31, 30, 31, 31];
@@ -142,7 +143,7 @@ export function newRun(D, opts) {
   });
 
   const state = {
-    version: 2,
+    version: 3,
     seed: opts.seed,
     daily: !!opts.daily,
     rng: rng.state(),

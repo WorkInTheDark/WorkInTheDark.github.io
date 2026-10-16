@@ -1,7 +1,7 @@
 // The main game screen: header, stats and skills, this week's choices, last week's report, projects, calendar and log.
-import { esc, bar, plural, arrowsHtml } from "./common.js";
+import { esc, bar, plural, arrowsHtml, shownStat } from "./common.js";
 import {
-  STAT_LABELS, yearOf, tOf, weekDates, absTurn, weeks, PROJECT_TYPES, STAGE_LABELS, currentStage, stageNeed,
+  yearOf, tOf, weekDates, absTurn, weeks, PROJECT_TYPES, STAGE_LABELS, currentStage, overallPct,
   writingCompletion, deadlineLabel, venuesForType, absToLabel, totalCitations, hIndex, firstAuthorPubs
 } from "../engine/index.js";
 
@@ -30,30 +30,21 @@ export function hudHtml(G) {
   return '<section class="ps-hud" aria-label="Your stats">' +
     '<div class="ps-stats">' +
     '<div class="ps-meter"><div class="ps-meter-label"><span>Energy</span><b>' + Math.round(s.stats.energy) + "</b></div>" + bar(s.stats.energy, "ps-bar-energy") + "</div>" +
-    '<div class="ps-meter"><div class="ps-meter-label"><span>Sanity</span><b>' + Math.round(s.stats.sanity) + "</b></div>" + bar(s.stats.sanity, "ps-bar-sanity") + "</div>" +
+    '<div class="ps-meter"><div class="ps-meter-label"><span>Stress</span><b>' + Math.round(shownStat("sanity", s.stats.sanity)) + "</b></div>" + bar(shownStat("sanity", s.stats.sanity), "ps-bar-sanity", s.stats.sanity < 25) + "</div>" +
+    '<div class="ps-meter"><div class="ps-meter-label"><span>Health</span><b>' + Math.round(s.stats.health) + "</b></div>" + bar(s.stats.health, "ps-bar-health") + "</div>" +
     '<div class="ps-num"><b>' + totalCitations(G) + "</b>citations · h " + hIndex(G) + "</div>" +
     '<div class="ps-num"><b>' + pubs + (pending ? '<small class="ps-muted"> +' + pending + "</small>" : "") + "</b>papers</div>" +
     "</div>" +
-    '<div class="ps-skills" aria-label="Skills">' + ["taste", "coding", "writing", "presenting", "knowledge"].map(function (k) {
-      return '<div class="ps-skill"><div class="ps-meter-label"><span>' + esc(STAT_LABELS[k]) + "</span><b>" + Math.round(s.stats[k]) + "</b></div>" + bar(s.stats[k], "ps-bar-skill") + "</div>";
-    }).join("") + "</div>" +
     '<div class="ps-chips">' + adv + chips + "</div>" +
     "</section>";
 }
 
 function projectCard(G, p) {
   const st = currentStage(G, p);
-  const need = stageNeed(G, p);
-  const stages = PROJECT_TYPES[p.type].stages;
-  let progressText, pct;
-  if (st.kind === "wait") {
-    progressText = STAGE_LABELS[st.id] + ": waiting, about " + plural(Math.max(1, p.wait), "week") + " left";
-    pct = 0;
-  } else {
-    pct = Math.min(100, Math.round((p.progress / need) * 100));
-    progressText = STAGE_LABELS[st.id] + " " + pct + "%" + (p.pause > 0 ? " (paused " + plural(p.pause, "week") + ")" : "");
-  }
-  const stageNo = p.revise ? "" : " · stage " + (p.stageIdx + 1) + " of " + stages.length;
+  const pct = overallPct(G, p);
+  let progressText = pct + "% · " + (p.revise ? "Revising" : STAGE_LABELS[st.id]);
+  if (st.kind === "wait") progressText += ": waiting, about " + plural(Math.max(1, p.wait), "week") + " left";
+  else if (p.pause > 0) progressText += " (on hold for " + plural(p.pause, "week") + ")";
   let target = "";
   if (p.target && p.target.rrPaper) target = "Revision due in " + plural(Math.max(0, p.target.turn - G.state.turn), "week");
   else if (p.target && p.target.journalPaper) target = "Revision goes back when it's done";
@@ -73,8 +64,8 @@ function projectCard(G, p) {
   return '<div class="ps-card ps-project">' +
     '<div class="ps-spread"><h4>' + esc(p.short) + "</h4>" +
     '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="shelve" data-id="' + esc(p.id) + '" aria-label="Shelve this project">Shelve</button></div>' +
-    '<div class="ps-meta">' + esc(PROJECT_TYPES[p.type].label) + stageNo + ready + "</div>" +
-    '<div class="ps-progress" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="Stage progress"><span style="width:' + pct + '%"></span></div>' +
+    '<div class="ps-meta">' + esc(PROJECT_TYPES[p.type].label) + ready + "</div>" +
+    '<div class="ps-progress" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="Project progress"><span style="width:' + pct + '%"></span></div>' +
     '<div class="ps-meta">' + esc(progressText) + "</div>" +
     '<div class="ps-row" style="margin-top:.35rem">' + target + "</div>" +
     "</div>";
@@ -159,7 +150,8 @@ export function reportHtml(G, report) {
   if (!report) return "";
   const deltas = report.deltas.map(function (d) {
     const diff = d.to - d.from;
-    return '<span class="ps-delta ' + (diff > 0 ? "ps-delta-good" : "ps-delta-bad") + '">' + esc(d.label) + " " + d.from + " \u2192 " + d.to + "</span>";
+    const good = diff > 0;
+    return '<span class="ps-delta ' + (good ? "ps-delta-good" : "ps-delta-bad") + '">' + esc(d.label) + " " + shownStat(d.stat, d.from) + " \u2192 " + shownStat(d.stat, d.to) + "</span>";
   }).join("");
   const projects = report.projects.map(function (p) {
     return '<div class="ps-small"><b>' + esc(p.short) + ":</b> " + esc(p.from) + " \u2192 " + esc(p.to) + "</div>";
@@ -225,7 +217,7 @@ export function logHtml(G) {
 export function introHtml(G) {
   if (G.state.turn > 3) return "";
   return '<div class="ps-section"><div class="ps-note"><b>How a week works.</b> Pick one thing to do and the week plays out. ' +
-    "Your bars, skills and projects change, and sometimes something happens or a new option shows up for that week only. Watch Energy (it powers work) and Sanity (at zero you burn out).</div></div>";
+    "Your bars, skills and projects change, and sometimes something happens or a new option shows up for that week only. Balance Energy (it powers work), Stress (at 100 you burn out) and Health (low means sick weeks).</div></div>";
 }
 
 export function gameHtml(G, ui) {

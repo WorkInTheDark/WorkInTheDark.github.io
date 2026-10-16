@@ -4,7 +4,7 @@ import { STAT_IDS, weeks } from "./state.js";
 import { hasTrait } from "./derived.js";
 import { fill } from "./templating.js";
 import { unlock } from "./achievements.js";
-import { currentStage, stageNeed, advanceStage, withdrawRevision } from "./projects.js";
+import { currentStage, addProgress, withdrawRevision } from "./projects.js";
 
 const HIDDEN_LINES = {
   advisor_rel: ["Your advisor seems pleased.", "Your advisor seems a little cooler toward you."],
@@ -16,12 +16,11 @@ const HIDDEN_LINES = {
   coding: ["Your code feels less fragile than last month.", "Your code feels shakier."],
   writing: ["Your writing feels a little sharper.", "Your writing feels clumsier."],
   presenting: ["You feel steadier in front of a room.", "Presenting feels harder than it used to."],
-  knowledge: ["You understand the field a little better.", "You feel behind on the literature."],
-  health: ["You feel physically better.", "Your body files a complaint."]
+  knowledge: ["You understand the field a little better.", "You feel behind on the literature."]
 };
 
 // Stats the player can see: shown as numbers after a choice. Everything else is hinted.
-export const VISIBLE_KEYS = ["energy", "sanity", "citations", "taste", "coding", "writing", "presenting", "knowledge"];
+export const VISIBLE_KEYS = ["energy", "sanity", "health", "citations"];
 
 export function rollRange(G, v) {
   const p = parseValue(v);
@@ -50,7 +49,7 @@ export function addStat(G, id, amount) {
   if (typeof amount === "string") amount = rollRange(G, amount);
   amount = Number(amount);
   if (!isFinite(amount)) return 0;
-  if (id === "sanity" && amount < 0) amount = Math.round(amount * sanityLossScale(G));
+  if (id === "sanity" && amount < 0) amount = amount * sanityLossScale(G);
   const old = s.stats[id] || 0;
   s.stats[id] = clamp(old + amount, 0, 100);
   if (id === "sanity") s.telemetry.min_sanity = Math.min(s.telemetry.min_sanity, s.stats.sanity);
@@ -93,12 +92,8 @@ function projectEffect(G, key, raw, ctx, res, hidden) {
     const n = rollRange(G, raw);
     const st = currentStage(G, p);
     if (st.kind === "wait") return;
-    p.progress = Math.max(0, p.progress + n);
-    const need = stageNeed(G, p);
-    if (p.progress >= need) {
-      if (st.id === "writing" || st.id === "revise") p.progress = need;
-      else advanceStage(G, p, null);
-    }
+    // Content values are points of the whole progress bar.
+    addProgress(G, p, n, function (line) { res.notes.push(line); });
     res.visible.push({ stat: "progress", label: p.short, amount: n });
   } else if (sub.indexOf("quality.") === 0) {
     const c = sub.slice(8);

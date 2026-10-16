@@ -33,7 +33,7 @@ export function storageAvailable() {
   }
 }
 
-export function loadRun() { const r = read(RUN_KEY); return r && r.version === 2 ? r : null; }
+export function loadRun() { const r = read(RUN_KEY); return r && r.version === 3 ? r : null; }
 export function saveRun(state) { return write(RUN_KEY, state); }
 export function clearRun() { return write(RUN_KEY, null); }
 export function loadMeta() { return read(META_KEY) || { runs: 0, runsCompleted: 0, achievements: {}, seenRuns: {}, codex: {}, settings: {} }; }

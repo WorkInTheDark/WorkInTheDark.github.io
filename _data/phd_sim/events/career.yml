@@ -158,7 +158,7 @@
       text: "Good letters, sent on time. You triple-check every department name."
       effects: { career_prep: "+2", energy: "-5±2" }
     - label: "Apply only to your best 25"
-      text: "Fewer letters, more care. Your Sanity survives application season."
+      text: "Fewer letters, more care. Your stress level survives application season."
       effects: { career_prep: "+1", sanity: "+4±1" }
 
 - id: car_late_letters

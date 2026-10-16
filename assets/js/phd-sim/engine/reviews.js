@@ -6,13 +6,14 @@ import { hasTrait } from "./derived.js";
 import { weeks } from "./state.js";
 import { unlock } from "./achievements.js";
 
+// One response per reviewer, covering all of their concerns. Clarify is the default.
 export const RESPONSES = [
-  { id: "clarify", label: "Clarify", cost: 1, desc: "Point to what the paper already says. Works when they misread." },
-  { id: "concede", label: "Concede and promise a fix", cost: 1, desc: "Safe for minor points. You must deliver it in the camera-ready." },
-  { id: "experiment", label: "Run a new experiment", cost: 1, days: 2, desc: "Strong for soundness concerns. Costs 2 days and Energy; results can disappoint." },
-  { id: "pushback", label: "Push back politely", cost: 1, desc: "Good when they're wrong and open-minded. Risky otherwise." },
-  { id: "skip", label: "Skip", cost: 0, desc: "Save your word count." },
-  { id: "passive", label: "Passive-aggressive reply", cost: 1, desc: "Satisfying to write. Almost never a good idea." }
+  { id: "clarify", label: "Clarify", desc: "Point to what the paper already says. Works when they misread." },
+  { id: "concede", label: "Concede and promise fixes", desc: "Safe for minor points. You must deliver them in the camera-ready." },
+  { id: "experiment", label: "Run new experiments", days: 2, desc: "Strong for soundness concerns. Costs 2 days and Energy; results can disappoint." },
+  { id: "pushback", label: "Push back politely", desc: "Good when they're wrong and open-minded. Risky otherwise." },
+  { id: "passive", label: "Passive-aggressive reply", desc: "Satisfying to write. Almost never a good idea." },
+  { id: "flag", label: "Flag it as LLM-written", llmOnly: true, desc: "Ask the area chair to discount this review. Only offered when a review reads that way." }
 ];
 
 export function makePaper(G, p, opts) {
@@ -147,8 +148,6 @@ export function rebuttalPrompt(G, paper) {
     paperId: paper.id,
     title: "Author response: " + paper.short,
     venue: paper.venueName,
-    slots: G.D.config.reviews.rebuttal_slots,
-    freeDays: Math.max(0, 10 - (s.fixedDaysEstimate || 1) + s.dayAdj),
     reviews: paper.reviews.map(function (r, i) {
       return {
         n: i + 1,
@@ -181,7 +180,6 @@ function respond(G, paper, r, c, resp) {
       paper.promises++;
       return { d: c.severity === "minor" ? G.rng.triangular(4, 1) : 2, line: "They appreciate the honesty." };
     case "experiment":
-      G.state.stats.energy = clamp(G.state.stats.energy - 6, 0, 100);
       if (G.rng.chance(clamp(0.5 + (st.coding - 50) / 40, 0.1, 0.9))) {
         if (c.comp === "S" || c.comp === "fit") return { d: c.valid ? G.rng.triangular(8, 3) : 4, line: "The new results convince them." };
         return { d: 3, line: "Nice results, though not quite what they asked." };
@@ -200,33 +198,29 @@ function respond(G, paper, r, c, resp) {
   }
 }
 
+// answer.responses: { reviewerIndex: responseId }. Anything missing is a clarification.
 export function resolveRebuttal(G, paper, answer) {
   const s = G.state;
   const responses = (answer && answer.responses) || {};
-  const flags = (answer && answer.flags) || [];
-  let slots = G.D.config.reviews.rebuttal_slots;
   let days = 0;
   const out = [];
   paper.reviews.forEach(function (r, i) {
     const before = r.score;
     const lines = [];
     let delta = 0;
-    if (flags.indexOf(i) >= 0 && r.llm && slots > 0) {
-      slots--;
-      r.flagged = true;
-      lines.push(G.rng.chance(0.6) ? "The area chair agrees this review reads as LLM-written and discounts it." : "The area chair notes your concern.");
-      if (!lines[0].startsWith("The area chair agrees")) r.flagged = false;
+    let resp = responses[i] || "clarify";
+    if (!RESPONSES.some(function (x) { return x.id === resp; }) || (resp === "flag" && !r.llm)) resp = "clarify";
+    if (resp === "flag") {
+      r.flagged = G.rng.chance(0.6);
+      lines.push(r.flagged ? "The area chair agrees this review reads as LLM-written and discounts it." : "The area chair notes your concern.");
+    } else {
+      if (resp === "experiment") { days += 2; s.stats.energy = clamp(s.stats.energy - 6, 0, 100); }
+      r.concerns.forEach(function (c) {
+        const o = respond(G, paper, r, c, resp);
+        delta += r.silent ? 0 : o.d * (o.d > 0 ? r.openness : 1);
+        if (o.line && !r.silent && lines.indexOf(o.line) < 0) lines.push(o.line);
+      });
     }
-    r.concerns.forEach(function (c) {
-      let resp = responses[c.key] || "skip";
-      const def = RESPONSES.find(function (x) { return x.id === resp; }) || RESPONSES[4];
-      if (def.cost > slots) resp = "skip";
-      else slots -= def.cost;
-      if (resp === "experiment") days += 2;
-      const o = respond(G, paper, r, c, resp);
-      delta += r.silent ? 0 : o.d * (o.d > 0 ? r.openness : 1);
-      if (o.line && !r.silent) lines.push(o.line);
-    });
     if (r.silent) lines.push("No sign this reviewer read the response.");
     if (!r.silent && G.rng.chance(0.1)) { delta -= 4; lines.push("After reading the other reviews, they lower their score."); }
     r.raw += delta;

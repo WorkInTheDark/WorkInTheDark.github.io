@@ -4,14 +4,14 @@
 // step() advances to the next thing that needs the player; everything lives in serializable state.
 import { Rng } from "./rng.js";
 import { clamp, parseValue } from "./util.js";
-import { TURNS, yearOf, tOf, wOf, firstWeek, weeks, perWeek, semesterOf, semesterKey, ACTIVITY_BY_ID, ACTIVITIES, DEFAULT_ACTIONS, STAT_LABELS } from "./state.js";
+import { TURNS, yearOf, tOf, wOf, firstWeek, weeks, semesterOf, semesterKey, ACTIVITY_BY_ID, ACTIVITIES, DEFAULT_ACTIONS, STAT_LABELS } from "./state.js";
 import { hasStatus, hasTrait, totalCitations, firstAuthorPubs } from "./derived.js";
 import { check } from "./conditions.js";
 import { addStat, addStatus, removeStatus, applyOutcome } from "./effects.js";
 import { fill } from "./templating.js";
 import { arrowsFor } from "./events.js";
 import { drawHook, fireHook, presentEvent, resolveEvent, flavorLine } from "./events.js";
-import { activeProjects, workDay, tickProjects, autoTarget, setTarget, currentStage, stageNeed, withdrawRevision, rollMissedDeadlines, STAGE_LABELS, writingCompletion, deadlineLabel } from "./projects.js";
+import { activeProjects, workDay, readTrickle, tickProjects, autoTarget, setTarget, currentStage, stageNeed, overallPct, withdrawRevision, rollMissedDeadlines, STAGE_LABELS, PROJECT_TYPES, writingCompletion, deadlineLabel } from "./projects.js";
 import { accrueCitations } from "./citations.js";
 import { yearlyLabmates } from "./people.js";
 import { tickWorld } from "./world.js";
@@ -19,7 +19,7 @@ import { checkAchievements } from "./achievements.js";
 import { finalize } from "./endings.js";
 import { resolveRebuttal } from "./reviews.js";
 import {
-  buildSys, handleSys, answerMatching, answerQa, answerNewProject, newProjectPrompt, leavePrompt,
+  buildSys, handleSys, answerMatching, answerQa, leavePrompt, autoProject,
   queueMilestones, queuePapers, finishSubmissions, createProject, planExtras, applyPlanExtra
 } from "./milestones.js";
 
@@ -58,7 +58,7 @@ export class Game {
     if (s.player.traits.indexOf("head_start") >= 0) {
       const t = this.rng.pick(s.world.topics);
       const p = createProject(this, this.rng.chance(0.5) ? "empirical" : "study", t.id, { stageIdx: 1, seedQuality: 48, source: "masters" });
-      p.progress = 40;
+      p.progress = stageNeed(this, p) * 0.4;
       autoTarget(this, p);
       this.log("You bring a half-finished project from your Master's: “" + p.title + "”.");
     }
@@ -138,8 +138,6 @@ export class Game {
     } else if (p.type === "qa") {
       res = answerQa(this, resp);
       if (res) res.kind = "qa";
-    } else if (p.type === "new_project") {
-      res = answerNewProject(this, resp);
     }
     if (res && res.tip && this.D.phd101[res.tip]) res.tipLink = this.D.phd101[res.tip];
     this.save();
@@ -160,13 +158,15 @@ export class Game {
     }
   }
 
-  requestNewProject() {
+  // Starting a project doesn't use the week; its kind and topic are picked for you.
+  startNewProject() {
     const s = this.state;
     if (s.prompt || s.phase === "ended" || s.stage !== "plan" || !s.advisor) return null;
     if (activeProjects(this).length >= (this.D.config.progress.max_active_projects || 4)) return null;
-    s.prompt = newProjectPrompt(this, {});
-    s.prompt.ui = true;
-    return s.prompt;
+    const p = autoProject(this);
+    this.log("New project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ").", "news");
+    this.save();
+    return p;
   }
 
   requestLeave() {
@@ -198,10 +198,11 @@ export class Game {
     const f = { courses: 0, ta: 0, meetings: 0, defense: 0, family: 0, internship: 0 };
     if (hasStatus(this, "on_internship")) f.internship = 5;
     else if (!hasStatus(this, "on_leave")) {
-      if (hasStatus(this, "coursework")) f.courses = perWeek(yearOf(s.turn) === 1 ? cfg.courses_y1 : cfg.courses_y2, s.turn);
-      if (hasStatus(this, "ta")) f.ta = perWeek((t === 8 || t === 18) ? cfg.ta_peak : cfg.ta, s.turn);
-      if (s.advisor) f.meetings = perWeek(s.advisor.archetype === "micromanager" ? 2 : cfg.meetings, s.turn);
-      if (hasStatus(this, "defense_prep")) f.defense = perWeek(cfg.defense_prep, s.turn);
+      // Config amounts are per two weeks; every week gets exactly half, so weeks feel the same.
+      if (hasStatus(this, "coursework")) f.courses = (yearOf(s.turn) === 1 ? cfg.courses_y1 : cfg.courses_y2) / 2;
+      if (hasStatus(this, "ta")) f.ta = ((t === 8 || t === 18) ? cfg.ta_peak : cfg.ta) / 2;
+      if (s.advisor) f.meetings = (s.advisor.archetype === "micromanager" ? 2 : cfg.meetings) / 2;
+      if (hasStatus(this, "defense_prep")) f.defense = cfg.defense_prep / 2;
       if (hasTrait(this, "parent")) f.family = 1;
     }
     const total = f.courses + f.ta + f.meetings + f.defense + f.family + f.internship;
@@ -210,7 +211,7 @@ export class Game {
     const sick = hasStatus(this, "sick");
     if (sick) free = Math.max(0, free - 3);
     const burnout = hasStatus(this, "burnout");
-    if (burnout) free = Math.floor(free / 2);
+    if (burnout) free = free / 2;
     if (hasStatus(this, "on_internship")) free = 0;
     return { parts: f, total: total, adj: adj, sick: sick, burnout: burnout, free: free };
   }
@@ -225,9 +226,9 @@ export class Game {
     if (hasStatus(this, "on_internship")) {
       const co = s.internship && s.internship.accepted ? s.internship.accepted.company : "the internship";
       out.push({ id: "intern_all", kind: "core", label: "Give " + co + " your all", desc: "Long days, big impression. Skills and network grow faster.",
-        arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "coding", dir: "up", strength: 1 }] });
+        arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }] });
       out.push({ id: "intern_pace", kind: "core", label: "Keep a healthy pace", desc: "Do good work and leave at six.",
-        arrows: [{ stat: "sanity", dir: "up", strength: 1 }, { stat: "coding", dir: "up", strength: 1 }] });
+        arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
       activeProjects(this).slice(0, 2).forEach(function (p) {
         out.push({ id: "intern_weekend:" + p.id, kind: "core", label: "Spend the weekend on “" + p.short + "”", desc: "Your own research doesn't stop for the summer.",
           arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "progress", dir: "up", strength: 1 }] });
@@ -235,31 +236,46 @@ export class Game {
     } else if (!onLeave) {
       activeProjects(this).forEach(function (p) {
         const st = currentStage(self, p);
-        const pct = st.kind === "wait" ? null : Math.min(100, Math.round(p.progress / stageNeed(self, p) * 100));
+        const pct = overallPct(self, p);
         const ttd = p.target && p.target.turn !== null && p.target.turn !== undefined ? p.target.turn - s.turn : null;
         if (ttd === 0 && planExtras(self).some(function (x) { return x.id === "submit:" + p.id; })) {
           const pctW = Math.round(writingCompletion(self, p) * 100);
           out.push({ id: "submit:" + p.id, kind: "deadline", label: "Polish and submit “" + p.short + "” to " + deadlineLabel(self, p),
             desc: "Deadline this week. The draft is " + pctW + "% written; it needs at least half by the end of the week.",
-            arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }, { stat: "writing", dir: "up", strength: 1 }] });
+            arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }] });
           return;
         }
-        out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",
-          desc: STAGE_LABELS[st.id] + (st.kind === "wait" ? ": waiting (about " + Math.max(1, p.wait) + " more weeks). Working on it now does little." : " " + pct + "%") +
-            (ttd !== null && ttd > 0 && ttd <= 6 ? ". " + deadlineLabel(self, p) + " deadline in " + ttd + (ttd === 1 ? " week" : " weeks") + "." : ""),
-          arrows: st.kind === "wait" ? [{ stat: "energy", dir: "down", strength: 1 }] :
-            [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }, { stat: st.skill, dir: "up", strength: 1 }] });
+        // A project that's waiting (IRB, recruiting, annotation) or paused has nothing to work on this week.
+        if (st.kind === "wait" || p.pause > 0) return;
+        const dl = ttd !== null && ttd > 0 && ttd <= 6 ? " " + deadlineLabel(self, p) + " deadline in " + ttd + (ttd === 1 ? " week." : " weeks.") : "";
+        if (pct >= 100) {
+          out.push({ id: "p:" + p.id, kind: "project", label: "Polish “" + p.short + "”",
+            desc: "Ready." + (dl || " Waiting for the next deadline.") + " More work only polishes the writing.",
+            arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
+        } else {
+          out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",
+            desc: (p.revise ? "Revising" : STAGE_LABELS[st.id]) + " · " + pct + "%." + dl + (st.id === "lit" ? " Reading moves this phase faster." : ""),
+            arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: st.id === "lit" ? 1 : 2 }] });
+        }
         if (ttd !== null && ttd >= 1 && ttd <= 2 && st.kind !== "wait" && !fx.burnout) {
           out.push({ id: "crunch:" + p.id, kind: "deadline", label: "Crunch on “" + p.short + "”, weekend included",
             desc: "Deadline in " + ttd + (ttd === 1 ? " week" : " weeks") + ". Every day of the week and the weekend.",
-            arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }] });
+            arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }, { stat: "health", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }] });
         }
       });
       planExtras(this).forEach(function (x) {
         if (x.kind === "submit") return;
         out.push({ id: x.id, kind: "milestone", label: x.label, desc: x.desc, arrows: x.arrows || [] });
       });
-      DEFAULT_ACTIONS.forEach(function (a) { out.push({ id: a.id, kind: "core", label: a.label, desc: a.desc, arrows: a.arrows }); });
+      const lit = activeProjects(this).filter(function (p) { return !p.revise && currentStage(self, p).id === "lit" && !(p.pause > 0); });
+      DEFAULT_ACTIONS.forEach(function (a) {
+        let desc = a.desc, arrows = a.arrows;
+        if (a.id === "read" && lit.length) {
+          desc = "A week with papers. Moves the Related work of “" + lit[0].short + "”" + (lit.length > 1 ? " and " + (lit.length - 1) + " more" : "") + " a lot.";
+          arrows = [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }];
+        }
+        out.push({ id: a.id, kind: "core", label: a.label, desc: desc, arrows: arrows });
+      });
     } else {
       out.push({ id: "recharge", kind: "core", label: "Recharge", desc: "You're on leave. Rest is the job.", arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
     }
@@ -311,10 +327,10 @@ export class Game {
     const projects = {};
     s.projects.forEach(function (p) {
       const st = currentStage(self, p);
-      projects[p.id] = { status: p.status, stage: st.id, pct: st.kind === "wait" ? null : Math.min(100, Math.round(p.progress / stageNeed(self, p) * 100)) };
+      projects[p.id] = { status: p.status, stage: p.revise ? "revise" : st.id, wait: st.kind === "wait", pct: overallPct(self, p) };
     });
     return {
-      stats: { energy: s.stats.energy, sanity: s.stats.sanity, taste: s.stats.taste, coding: s.stats.coding, writing: s.stats.writing, presenting: s.stats.presenting, knowledge: s.stats.knowledge },
+      stats: { energy: s.stats.energy, sanity: s.stats.sanity, health: s.stats.health },
       citations: totalCitations(this),
       pubs: firstAuthorPubs(this),
       projects: projects
@@ -426,6 +442,7 @@ export class Game {
     if (hasStatus(this, "in_love")) eff *= 0.9;
     if (hasTrait(this, "early_bird")) eff *= 1.05;
     if (hasTrait(this, "parent")) eff *= 1.1;
+    if (s.stats.health < cfg.health.poor) eff *= cfg.health.poor_efficiency;
 
     let weekendWork = null;
     if (hasStatus(this, "on_internship")) {
@@ -440,8 +457,9 @@ export class Game {
     } else {
       // Fixed commitments cost Energy like work days.
       const fixedWork = fx.parts.courses + fx.parts.ta + fx.parts.meetings + fx.parts.defense;
-      for (let i = 0; i < fixedWork; i++) addStat(this, "energy", this.roll(cfg.energy.workday));
-      for (let i = 0; i < fx.parts.family; i++) this.applyDay("family", eff, false, tally);
+      addStat(this, "energy", this.roll(cfg.energy.fixed_day) * fixedWork);
+      addStat(this, "sanity", (cfg.sanity.work_day || 0) * fixedWork);
+      this.applyDays("family", eff, fx.parts.family, tally);
       if (fx.parts.courses) addStat(this, "knowledge", 0.3 * fx.parts.courses);
       if (fx.parts.defense) {
         s.readiness += 0.5 * fx.parts.defense;
@@ -455,6 +473,7 @@ export class Game {
       else if (action.indexOf("submit:") === 0 || action.indexOf("crunch:") === 0) dayKey = "p:" + action.slice(action.indexOf(":") + 1);
       else if (ACTION_EXTRAS.indexOf(action) >= 0) dayKey = action === "apply_fellowship" || action === "proposal" || action === "defense" ? "writing_day" : "career";
       else if (action === "read") dayKey = "read";
+      else if (action === "exercise") dayKey = "exercise";
       else if (opp && opp.def) {
         const kind = opp.def.days || "rest";
         if (kind === "project") {
@@ -463,7 +482,8 @@ export class Game {
           effD = eff * (opp.def.boost || 1);
         } else dayKey = kind === "none" ? null : kind;
       }
-      if (dayKey) for (let i = 0; i < fx.free; i++) this.applyDay(dayKey, effD, false, tally);
+      if (dayKey === "recharge" || dayKey === "exercise") this.restWeek(dayKey, fx.free, tally);
+      else if (dayKey) this.applyDays(dayKey, effD, fx.free, tally);
       if (action.indexOf("crunch:") === 0) weekendWork = "p:" + action.slice(7);
       if (hasTrait(this, "caffeine_powered") && s.stats.energy < 40) addStat(this, "health", -0.5);
     }
@@ -513,7 +533,10 @@ export class Game {
     if (hasStatus(this, "deadline_mode")) addStat(this, "sanity", hasTrait(this, "deadline_junkie") ? -3 : -2);
     if (hasStatus(this, "in_love")) addStat(this, "sanity", 1);
     if (hasStatus(this, "on_leave")) addStat(this, "sanity", 2);
-    if (tally.overtime === 0) addStat(this, "health", cfg.health.calm_turn * K);
+    // Health: desk weeks wear you down a little; exhaustion and stress wear it down faster.
+    if (tally.exercise === 0) addStat(this, "health", cfg.health.desk_week);
+    if (s.stats.energy < 25) addStat(this, "health", cfg.health.exhausted_week);
+    if (s.stats.sanity < 30) addStat(this, "health", cfg.health.stressed_week);
 
     // Health and burnout.
     const t = tOf(s.turn);
@@ -530,13 +553,17 @@ export class Game {
       s.stats.sanity = 15;
       this.log("Burnout. You hit empty. For the next several weeks you'll get half as much done and can't crunch. Rest. This happens to more people than will ever say so.", "bad");
     }
+    if (s.stats.health < 35 && !s.warnedHealth) {
+      s.warnedHealth = true;
+      this.log("Your health is slipping: you'll get sick more often and work a little slower. A week of gym, sleep and real meals helps.", "bad");
+    } else if (s.stats.health > 55) s.warnedHealth = false;
     if (s.stats.energy < 20 && !s.warnedEnergy) {
       s.warnedEnergy = true;
       this.log("You're running on fumes: with Energy this low, everything gets less done. A week of recharging helps.", "bad");
     } else if (s.stats.energy > 50) s.warnedEnergy = false;
     if (s.stats.sanity < 25 && !s.warnedSanity && !hasStatus(this, "burnout")) {
       s.warnedSanity = true;
-      this.log("Sanity is low. Recharging and the good things that come up (friends, trips, hobbies) restore it; at zero you burn out.", "bad");
+      this.log("Your stress is high. Recharging and the good things that come up (friends, trips, hobbies) bring it down; at 100 you burn out.", "bad");
     } else if (s.stats.sanity > 45) s.warnedSanity = false;
   }
 
@@ -576,7 +603,7 @@ export class Game {
     const before = s.before || this.snapshot();
     const after = this.snapshot();
     const deltas = [];
-    ["energy", "sanity", "taste", "coding", "writing", "presenting", "knowledge"].forEach(function (k) {
+    ["energy", "sanity", "health"].forEach(function (k) {
       const a = Math.round(before.stats[k]), b = Math.round(after.stats[k]);
       if (a !== b) deltas.push({ stat: k, label: STAT_LABELS[k], from: a, to: b });
     });
@@ -585,7 +612,7 @@ export class Game {
     s.projects.forEach(function (p) {
       const a = before.projects[p.id], b = after.projects[p.id];
       if (!b) return;
-      const label = function (x) { return x ? STAGE_LABELS[x.stage] + (x.pct === null ? " (waiting)" : " " + x.pct + "%") : "new"; };
+      const label = function (x) { return x ? x.pct + "% (" + STAGE_LABELS[x.stage] + (x.wait ? ", waiting" : "") + ")" : "new"; };
       if (!a || a.stage !== b.stage || a.pct !== b.pct || a.status !== b.status) {
         projects.push({ short: p.short, from: label(a), to: b.status === "submitted" ? "Submitted" : b.status === "done" ? "Published" : label(b) });
       }
@@ -601,6 +628,40 @@ export class Game {
 
   // ---- Days ------------------------------------------------------------------
 
+  // Recharge and Get healthy restore a whole week's worth however busy the week is: classes and
+  // TA still happen, but evenings, sleep and the gym are yours.
+  restWeek(kind, free, tally) {
+    const s = this.state;
+    const cfg = this.D.config;
+    if (kind === "recharge") {
+      addStat(this, "energy", this.roll(cfg.energy.recharge_week));
+      addStat(this, "sanity", this.roll(cfg.sanity.recharge_week));
+      addStat(this, "health", cfg.health.recharge_week);
+      addStat(this, "friends_rel", 2);
+      s.telemetry.rest_days += Math.round(free);
+      tally.self += 2; tally.social++;
+    } else {
+      addStat(this, "energy", this.roll(cfg.energy.exercise_week));
+      addStat(this, "health", this.roll(cfg.health.exercise_week) * (hasTrait(this, "gym_rat") ? 1.3 : 1));
+      addStat(this, "sanity", this.roll(cfg.sanity.exercise_week));
+      s.telemetry.exercise_days += Math.round(free);
+      tally.self += 2; tally.exercise += 2;
+    }
+  }
+
+  // n can be fractional (4.5 days): the last part-day counts for its fraction of everything.
+  applyDays(key, eff, n, tally) {
+    const whole = Math.floor(n + 1e-9);
+    for (let i = 0; i < whole; i++) this.applyDay(key, eff, false, tally);
+    const frac = n - whole;
+    if (frac < 0.05) return;
+    const st = this.state.stats;
+    const before = {};
+    Object.keys(st).forEach(function (k) { before[k] = st[k]; });
+    this.applyDay(key, eff * frac, false, tally);
+    Object.keys(st).forEach(function (k) { st[k] = before[k] + (st[k] - before[k]) * frac; });
+  }
+
   applyDay(key, eff, overtime, tally) {
     const s = this.state;
     const cfg = this.D.config;
@@ -612,7 +673,9 @@ export class Game {
     if (work) {
       let e = overtime ? (hasTrait(this, "night_owl") ? this.roll("-3±1") : this.roll(cfg.energy.overtime)) : this.roll(cfg.energy.workday);
       if (key === "network" && hasTrait(this, "introvert")) e -= 1;
+      if (key === "read") e += cfg.energy.read_relief || 0;
       addStat(this, "energy", e);
+      addStat(this, "sanity", cfg.sanity.work_day || 0);
       if (overtime) { addStat(this, "sanity", cfg.sanity.overtime_day); addStat(this, "health", cfg.health.overtime_day); tally.overtime++; }
       tally.work++;
     }
@@ -627,13 +690,21 @@ export class Game {
       return;
     }
     switch (key) {
-      case "read":
+      case "read": {
+        // Reading is how Related work gets done; every other project inches forward.
+        const self = this;
+        const logLine = function (line) { self.log(line); };
+        activeProjects(this).forEach(function (p) {
+          if (!p.revise && currentStage(self, p).id === "lit") { workDay(self, p, eff, logLine, { reading: true }); tally.projects[p.id] = true; }
+          else readTrickle(self, p, logLine);
+        });
         st.knowledge = clamp(st.knowledge + g * (1 - st.knowledge / 100), 0, 100);
         st.taste = clamp(st.taste + 0.5 * g * (1 - st.taste / 100), 0, 100);
         s.telemetry.reading_days++;
         if (hasStatus(this, "quals_prep")) s.readiness += 0.6;
         if (this.rng.chance(0.04 + st.taste / 1500)) { s.telemetry.ideas++; this.log("While reading, you have an idea worth keeping."); }
         break;
+      }
       case "network": {
         let n = this.roll("+1±1") * (hasTrait(this, "social_butterfly") ? 1.5 : 1);
         addStat(this, "network", Math.max(0.5, n));
@@ -656,7 +727,8 @@ export class Game {
         break;
       case "recharge":
         addStat(this, "energy", this.roll(cfg.energy.rest) - 1);
-        addStat(this, "sanity", this.roll("+2±1"));
+        addStat(this, "sanity", this.roll(cfg.sanity.recharge_day));
+        addStat(this, "health", cfg.health.rest_day);
         addStat(this, "friends_rel", 1);
         s.telemetry.rest_days++;
         tally.self++; tally.social++;
@@ -667,11 +739,12 @@ export class Game {
         break;
       case "rest":
         addStat(this, "energy", this.roll(cfg.energy.rest));
+        addStat(this, "health", cfg.health.rest_day);
         s.telemetry.rest_days++;
         tally.self++;
         break;
       case "exercise":
-        addStat(this, "energy", this.roll(cfg.energy.light));
+        addStat(this, "energy", this.roll(cfg.energy.exercise));
         addStat(this, "health", cfg.health.exercise_day * (hasTrait(this, "gym_rat") ? 2 : 1));
         addStat(this, "sanity", 1);
         s.telemetry.exercise_days++;

@@ -85,7 +85,7 @@ function boundObjectsExist(G, ctx) {
 export function arrowsFor(choice) {
   const outs = choice.check ? [choice.success || {}, choice.failure || {}] : [choice];
   const out = [];
-  ["energy", "sanity", "citations", "taste", "coding", "writing", "presenting", "knowledge"].forEach(function (stat) {
+  ["energy", "sanity", "health", "citations"].forEach(function (stat) {
     const signs = [];
     let mag = 0;
     outs.forEach(function (o) {

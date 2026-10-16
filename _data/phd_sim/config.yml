@@ -14,21 +14,32 @@ start:
   network: 15
   skills: { taste: 26, coding: 32, writing: 28, presenting: 28, knowledge: 26 }
 
+# A work week (weekends off) nets about -8 Energy; a Recharge week about +28, whatever else is on.
 energy:
-  workday: "-3±1"
+  workday: "-3±1"        # a day of research
+  fixed_day: "-2"        # a day of classes, TA duty or meetings
+  recharge_week: "+20±3" # a whole Recharge week, on top of the weekend
+  exercise_week: "+8±2"  # a whole Get healthy week
   overtime: "-5±2"
   rest: "+8±2"
-  light: "+5±2"          # exercise, social, hobby, family
-  weekend_off: "+6±2"
-  baseline: 0            # sleep, per week (a normal work week with weekends off nets about -3)
-  efficiency_floor: 0.4  # efficiency = clamp(floor + slope * energy, floor, 1)
-  efficiency_slope: 0.012
+  light: "+5±2"          # social, hobby, family
+  exercise: "+3±1"
+  weekend_off: "+4±1"
+  baseline: -2           # per week: errands, bad sleep, life
+  read_relief: 1         # a reading day costs 1 less than other work
+  efficiency_floor: 0.35 # efficiency = clamp(floor + slope * energy, floor, 1): full speed at 60+
+  efficiency_slope: 0.011
 
+# Shown to the player as Stress = 100 − sanity.
 sanity:
   self_day: "+3±1"       # social, hobby, family
+  recharge_day: "+3±1"   # opportunities that are rest days
+  recharge_week: "+10±2"
+  exercise_week: "+4±1"
   exercise_day: "+1"
   weekend_off: "+1"
-  pressure: 3.5          # the background weight of being a PhD student, every week
+  pressure: 2.5          # the background weight of being a PhD student, every week
+  work_day: -0.5         # every work day (classes and TA included) adds a little Stress
   overtime_day: -1
   isolation_turns: 3
   isolation_hit: "-4±2"
@@ -36,21 +47,32 @@ sanity:
   low_efficiency: 0.8
   burnout_turns: 3
 
+# Visible. Desk weeks wear it down slowly; a "Get healthy" week brings back about +10.
 health:
   overtime_day: -1.5
-  exercise_day: 2
-  calm_turn: 1
-  sick_base: 0.02
+  exercise_day: 3
+  rest_day: 0.5
+  recharge_week: 1
+  exercise_week: "+11±2"
+  desk_week: -1          # a week with no exercise day
+  exhausted_week: -1     # a week ending with Energy under 25
+  stressed_week: -1      # a week ending with Stress over 70
+  poor: 35               # below this, work is slower
+  poor_efficiency: 0.9
+  sick_base: 0.01        # weekly chance of getting sick: (base + per_point × (100 − health)) / 2
   sick_per_point: 0.004
   flu_season: [8, 14]
 
 skills:
   growth: 0.25           # per relevant day: growth * (1 - skill / 100)
 
+# A project is one 0–100% bar: about 4 months when you push, 6–8 when you alternate with other things.
 progress:
-  rate: 5.0              # points per day before multipliers; a stage needs ~100
+  rate: 3.0              # % of the bar per work day before multipliers
   roll: 0.2              # ±20% per day
-  switch_penalty: 0.1    # per project beyond the second in one turn
+  read_lit: 1.3          # reading during Related work, relative to working on it
+  work_lit: 0.8          # "Work on" during Related work
+  read_trickle: 0.4      # % per reading day for projects in other phases
   max_active_projects: 4
 
 quality:
@@ -78,7 +100,6 @@ reviews:
   ac_sigma: 8
   findings_band: 7
   rr_band: 10
-  rebuttal_slots: 5
 
 citations:
   venue_base: { top: 55, journal: 40, mid: 32, findings: 25, workshop: 10 }
@@ -88,7 +109,7 @@ citations:
 opportunities:
   max_per_week: 2          # "this week only" options rolled each week (plus any an event unlocked)
 
-fixed_days:                # days per two weeks; split across the two weeks (3 -> 2 then 1)
+fixed_days:                # days per two weeks; each week gets exactly half (1.5 days of classes a week)
   courses_y1: 3
   courses_y2: 2
   ta: 2

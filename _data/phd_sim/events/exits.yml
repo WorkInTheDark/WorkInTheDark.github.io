@@ -44,8 +44,8 @@
   title: "The Family Business"
   category: exit
   rarity: uncommon
-  weight: 3
-  when: { year: [1, 6], semester: [break] }
+  weight: 4
+  when: { year: [1, 6], turn: [7, 9] }
   text:
     - "Over holiday dinner, your uncle asks, again, when you'll come home and help run the family business. This year he has a spreadsheet."
   choices:

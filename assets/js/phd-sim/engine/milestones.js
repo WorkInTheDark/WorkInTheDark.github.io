@@ -10,7 +10,7 @@ import { fill } from "./templating.js";
 import { genCandidates, makeAdvisor, genLabmates, genCommittee } from "./people.js";
 import {
   PROJECT_TYPES, STAGE_LABELS, newProjectObject, activeProjects, autoTarget, components, weakestComp,
-  writingCompletion, isReady, deadlineLabel, venuesForType, nextDeadline
+  writingCompletion, isReady, deadlineLabel, venuesForType, nextDeadline, stageNeed
 } from "./projects.js";
 import { makePaper, generateReviews, rebuttalPrompt, resolveRebuttal, decide, metaLine, nextResubmitTarget } from "./reviews.js";
 import { setCiteMean, rollBreakout } from "./citations.js";
@@ -104,27 +104,6 @@ export function answerMatching(G, resp) {
 
 // ---- Projects ---------------------------------------------------------------
 
-export function newProjectPrompt(G, opts) {
-  const s = G.state;
-  const ideas = Math.min(3, s.telemetry.ideas || 0);
-  return {
-    type: "new_project",
-    title: opts && opts.title || "Start a new project",
-    text: (opts && opts.text) || "Pick the kind of project and the topic. Hot topics get more attention, and more competition.",
-    cancellable: !(opts && opts.required),
-    ideaBonus: ideas,
-    types: Object.keys(PROJECT_TYPES).map(function (k) {
-      const t = PROJECT_TYPES[k];
-      return {
-        id: k, label: t.label,
-        stages: t.stages.map(function (st) { return STAGE_LABELS[st.id] + (st.kind === "wait" ? " (wait)" : ""); }).join(" → "),
-        bonus: k === "study" && s.player.background === "switcher"
-      };
-    }),
-    topics: s.world.topics.map(function (t) { return { id: t.id, name: t.name, hype: Math.round(t.hype) }; })
-  };
-}
-
 export function createProject(G, type, topicId, opts) {
   const s = G.state;
   opts = opts || {};
@@ -136,11 +115,18 @@ export function createProject(G, type, topicId, opts) {
   return p;
 }
 
-export function answerNewProject(G, resp) {
-  if (!resp || resp.cancel) return null;
-  const p = createProject(G, resp.type, resp.topic, {});
+// New projects pick their own kind and topic: the choice that matters is how you spend your weeks.
+const TYPE_WEIGHTS = { empirical: 3, study: 2.5, system: 2, dataset: 1, position: 0.7 };
+export function autoProject(G) {
+  const s = G.state;
+  const switcher = s.player.traits.indexOf("career_switcher") >= 0;
+  const type = G.rng.weighted(Object.keys(TYPE_WEIGHTS), function (k) { return TYPE_WEIGHTS[k] * (k === "study" && switcher ? 1.5 : 1); });
+  const busy = activeProjects(G).map(function (p) { return p.topic; });
+  const free = s.world.topics.filter(function (t) { return busy.indexOf(t.id) < 0; });
+  const topic = G.rng.pick(free.length ? free : s.world.topics);
+  const p = createProject(G, type, topic.id, {});
   autoTarget(G, p);
-  return { text: "New project: “" + p.title + "”.", visible: [], hidden: [], notes: ["It now shows up in your choices each week."] };
+  return p;
 }
 
 function firstProjectPrompt(G) {
@@ -464,15 +450,13 @@ export function buildSys(G, item) {
   switch (item.sys) {
     case "welcome":
       return notice("Welcome to your PhD, " + s.player.name,
-        "It's September. You have five years, give or take, to become an expert in something nobody fully understands yet. Each turn is one week: choose one thing to do with it, keep an eye on Energy and Sanity, and remember: everyone else is also figuring it out.");
+        "It's September. You have five years, give or take, to become an expert in something nobody fully understands yet. Each turn is one week: choose one thing to do with it, keep an eye on Energy, Stress and Health, and remember: everyone else is also figuring it out.");
     case "matching":
       if (s.advisor) return null;
       return matchingPrompt(G);
     case "first_project":
       if (activeProjects(G).length) return null;
       return firstProjectPrompt(G);
-    case "new_project":
-      return newProjectPrompt(G, d);
     case "submit": {
       const p = proj(G, d.projectId);
       if (!p || p.status !== "active") return null;
@@ -590,8 +574,7 @@ export function handleSys(G, prompt, choice) {
         autoTarget(G, p);
         return empty("You inherit “" + p.title + "”, its code, and its mysteries.");
       }
-      s.turnItems.unshift({ kind: "sys", sys: "new_project", data: { required: true, title: "Your first project" } });
-      return null;
+      { const p = autoProject(G); return empty("Your first project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")."); }
     case "submit": {
       const p = proj(G, d.projectId);
       if (!p) return null;
@@ -748,7 +731,7 @@ export function handleSys(G, prompt, choice) {
       return empty("You decline. Next year, then.");
     }
     case "idle_nudge":
-      if (choice === 0) s.turnItems.unshift({ kind: "sys", sys: "new_project", data: { title: "Your next project" } });
+      if (choice === 0) { const p = autoProject(G); return empty("New project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")."); }
       return null;
     case "leave": {
       const id = d.ids[choice];
@@ -950,7 +933,7 @@ function internshipPaper(G, company) {
   const s = G.state;
   const topic = G.rng.pick(s.world.topics);
   const p = createProject(G, "empirical", topic.id, { stageIdx: 4, seedQuality: 50 + s.stats.coding / 5, bonusN: 2, source: "internship" });
-  p.progress = 100;
+  p.progress = stageNeed(G, p);
   p.q.C.s = 40 + s.stats.writing * 0.5; p.q.C.n = 1;
   autoTarget(G, p, { minLead: 1 });
 }

@@ -16,6 +16,7 @@
   --ps-warn: #9a6200;
   --ps-energy: #23845a;
   --ps-sanity: #6d4fd1;
+  --ps-health: #c2570c;
   --ps-common: #6b7280;
   --ps-uncommon: #1d7a52;
   --ps-rare: #2563eb;
@@ -44,6 +45,7 @@ html[data-theme='dark'] .ps-app {
   --ps-warn: #e3b341;
   --ps-energy: #4cc38a;
   --ps-sanity: #a78bfa;
+  --ps-health: #fb923c;
   --ps-common: #a1a1aa;
   --ps-uncommon: #4ade80;
   --ps-rare: #8db0f6;
@@ -115,13 +117,14 @@ html[data-theme='dark'] .ps-app {
   background: var(--ps-bg); border-bottom: 1px solid var(--ps-line);
   padding: 0.55rem 0 0.6rem; margin-bottom: 0.9rem;
 }
-.ps-stats { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 0.75rem; align-items: center; }
+.ps-stats { display: grid; grid-template-columns: 1fr 1fr 1fr auto auto; gap: 0.75rem; align-items: center; }
 .ps-meter { min-width: 0; }
 .ps-meter-label { display: flex; justify-content: space-between; font-size: 0.82rem; }
 .ps-bar { height: 8px; border-radius: 99px; background: var(--ps-line); overflow: hidden; margin-top: 3px; }
 .ps-bar > span { display: block; height: 100%; border-radius: 99px; transition: width 0.4s ease; }
 .ps-bar-energy > span { background: var(--ps-energy); }
 .ps-bar-sanity > span { background: var(--ps-sanity); }
+.ps-bar-health > span { background: var(--ps-health); }
 .ps-bar-low > span { background: var(--ps-bad); }
 .ps-num { text-align: center; font-size: 0.82rem; line-height: 1.2; }
 .ps-num b { display: block; font-size: 1.05rem; }
@@ -133,12 +136,6 @@ html[data-theme='dark'] .ps-app {
 .ps-actions .ps-btn { min-width: 9rem; justify-content: center; }
 
 /* Skills */
-.ps-skills { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.6rem; margin-top: 0.5rem; }
-.ps-skill .ps-meter-label { font-size: 0.74rem; color: var(--ps-muted); }
-.ps-skill .ps-meter-label b { color: var(--ps-text); }
-.ps-bar-skill { height: 5px; }
-.ps-bar-skill > span { background: var(--ps-accent-solid); }
-.ps-bar-skill.ps-bar-low > span { background: var(--ps-accent-solid); opacity: 0.6; }
 
 /* The turn planner */
 .ps-actions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.5rem; }
@@ -183,7 +180,6 @@ html[data-theme='dark'] .ps-app {
 .ps-step:hover { background: var(--ps-wash); }
 .ps-stepper output { min-width: 2rem; text-align: center; font-weight: 600; }
 .ps-plan-sum { font-size: 0.85rem; margin: 0.25rem 0 0.5rem; }
-.ps-over { color: var(--ps-bad); }
 
 /* Calendar and log */
 .ps-cal { display: grid; gap: 0.25rem; font-size: 0.85rem; }
@@ -252,14 +248,11 @@ html[data-theme='dark'] .ps-app {
 .ps-review blockquote { margin: 0.3rem 0 0.5rem; padding: 0 0 0 0.6rem; border-left: 3px solid var(--ps-line); font-style: italic; color: var(--ps-muted); font-size: 0.9rem; }
 .ps-concern { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.3rem; padding: 0.4rem 0; border-top: 1px dashed var(--ps-line); font-size: 0.9rem; }
 .ps-concern .ps-sev { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ps-muted); }
-.ps-slots { position: sticky; top: -1.1rem; background: var(--ps-card); padding: 0.4rem 0; z-index: 1; font-size: 0.9rem; border-bottom: 1px solid var(--ps-line); margin-bottom: 0.6rem; }
 .ps-q { border-top: 1px dashed var(--ps-line); padding: 0.6rem 0; }
 .ps-q-who { font-size: 0.8rem; color: var(--ps-muted); }
 .ps-strats { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.4rem; }
 .ps-strat { font: inherit; font-size: 0.82rem; cursor: pointer; padding: 0.3rem 0.6rem; border-radius: 99px; border: 1px solid var(--ps-line); background: var(--ps-bg); color: var(--ps-text); }
 .ps-strat[aria-pressed="true"] { border-color: var(--ps-accent); background: var(--ps-tint); color: var(--ps-accent); font-weight: 600; }
-.ps-hype { display: inline-block; width: 48px; height: 6px; border-radius: 99px; background: var(--ps-line); vertical-align: middle; margin-left: 0.35rem; overflow: hidden; }
-.ps-hype span { display: block; height: 100%; background: var(--ps-legendary); }
 
 /* End card and codex */
 .ps-end { max-width: 760px; margin: 0 auto; }
@@ -283,7 +276,6 @@ html[data-theme='dark'] .ps-app {
 
 @media (max-width: 760px) {
   .ps-layout { grid-template-columns: minmax(0, 1fr); }
-  .ps-skills { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .ps-actions-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .ps-plan-foot { position: sticky; bottom: 0; z-index: 4; background: var(--ps-card); margin: 0.6rem -1rem -0.9rem; padding: 0.6rem 1rem; border-top: 1px solid var(--ps-line); border-radius: 0 0 var(--ps-radius) var(--ps-radius); }
   .ps-hud { position: static; }

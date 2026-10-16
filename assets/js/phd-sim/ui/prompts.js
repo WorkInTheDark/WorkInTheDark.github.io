@@ -20,7 +20,7 @@ function choiceButtons(choices) {
 
 export function promptClass(p) {
   if (p.type === "event") return "ps-rarity-" + p.rarity;
-  return "ps-rarity-system" + (p.type === "rebuttal" || p.type === "qa" || p.type === "matching" || p.type === "new_project" ? " ps-wide" : "");
+  return "ps-rarity-system" + (p.type === "rebuttal" || p.type === "qa" || p.type === "matching" ? " ps-wide" : "");
 }
 
 export function eventHtml(p) {
@@ -52,54 +52,24 @@ export function matchingHtml(p) {
     (p.forced ? "" : '<div class="ps-foot"><button class="ps-btn" data-action="later">Decide later</button></div>');
 }
 
-export function newProjectHtml(p, sel) {
-  return '<div class="ps-kicker">New project</div><h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" +
-    '<p class="ps-text">' + esc(p.text) + (p.ideaBonus ? " You have " + p.ideaBonus + " idea" + (p.ideaBonus > 1 ? "s" : "") + " saved from reading: the new project starts with a head start on novelty." : "") + "</p>" +
-    '<h4>Kind of project</h4><div class="ps-grid">' + p.types.map(function (t) {
-      return '<button class="ps-pick" data-action="pick-type" data-id="' + esc(t.id) + '" aria-pressed="' + (sel.type === t.id) + '"><strong>' + esc(t.label) +
-        (t.bonus ? ' <span class="ps-tagchip">your strength</span>' : "") + "</strong><span>" + esc(t.stages) + "</span></button>";
-    }).join("") + "</div>" +
-    '<h4 style="margin-top:.8rem">Topic</h4><div class="ps-grid">' + p.topics.map(function (t) {
-      return '<button class="ps-pick" data-action="pick-topic" data-id="' + esc(t.id) + '" aria-pressed="' + (sel.topic === t.id) + '"><strong>' + esc(t.name) + "</strong>" +
-        '<span>Hype <span class="ps-hype" aria-label="hype ' + t.hype + ' of 100"><span style="width:' + t.hype + '%"></span></span></span></button>';
-    }).join("") + "</div>" +
-    '<div class="ps-foot">' + (p.cancellable ? '<button class="ps-btn" data-action="cancel-project">Cancel</button>' : "") +
-    '<button class="ps-btn ps-btn-primary" data-action="create-project"' + (sel.type && sel.topic ? "" : " disabled") + ">Start project</button></div>";
-}
-
+// One response per reviewer (Clarify unless you change it), then submit.
 export function rebuttalHtml(p, sel) {
-  const used = slotsUsed(p, sel);
-  const days = Object.keys(sel.responses).filter(function (k) { return sel.responses[k] === "experiment"; }).length * 2;
-  const over = used > p.slots;
+  const exp = p.reviews.filter(function (r, i) { return sel.responses[i] === "experiment"; }).length * 2;
   return '<div class="ps-kicker">Author response · ' + esc(p.venue) + '</div><h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" +
-    '<p class="ps-text">Reviews are in. You have room to answer ' + p.slots + " concerns. Pick a response for the ones that matter; reviewers differ in how open they are, and their tone gives hints.</p>" +
-    '<div class="ps-slots" aria-live="polite"><b' + (over ? ' class="ps-over"' : "") + ">" + used + " / " + p.slots + "</b> responses used" +
-    (days ? " · new experiments cost " + days + " days" : "") + "</div>" +
+    '<p class="ps-text">Reviews are in. Choose one response for each reviewer. Their tone gives hints about what they\u2019ll respond to.</p>' +
     p.reviews.map(function (r, ri) {
+      const cur = sel.responses[ri] || "clarify";
+      const opts = p.options.filter(function (o) { return !o.llmOnly || r.llm; });
       return '<div class="ps-review"><div class="ps-review-head"><b>Reviewer ' + r.n + "</b><span>Score " + r.score + "/5 · confidence " + r.confidence + "/5</span></div>" +
         "<blockquote>" + esc(r.opener) + "</blockquote>" +
-        r.concerns.map(function (c) {
-          const cur = sel.responses[c.key] || "skip";
-          return '<div class="ps-concern"><div><span class="ps-sev">' + esc(c.severity) + "</span> " + esc(c.text) + "</div>" +
-            '<label class="ps-meta">Response <select class="ps-select" data-action="respond" data-key="' + esc(c.key) + '">' +
-            p.options.map(function (o) { return '<option value="' + o.id + '"' + (cur === o.id ? " selected" : "") + ">" + esc(o.label) + (o.cost ? "" : " (free)") + "</option>"; }).join("") +
-            "</select></label></div>";
-        }).join("") +
-        (r.llm ? '<label class="ps-meta" style="display:block;margin-top:.4rem"><input type="checkbox" data-action="flag" data-i="' + ri + '"' + (sel.flags.indexOf(ri) >= 0 ? " checked" : "") +
-          "> This review reads like it was written by an LLM. Flag it to the area chair (uses 1 response).</label>" : "") +
-        "</div>";
+        "<ul class=\"ps-small\">" + r.concerns.map(function (c) { return "<li>" + esc(c.text) + "</li>"; }).join("") + "</ul>" +
+        '<label class="ps-meta">Your response <select class="ps-select" data-action="respond" data-i="' + ri + '">' +
+        opts.map(function (o) { return '<option value="' + o.id + '"' + (cur === o.id ? " selected" : "") + ">" + esc(o.label) + "</option>"; }).join("") +
+        "</select></label></div>";
     }).join("") +
     '<details class="ps-small"><summary>What the responses do</summary><ul>' + p.options.map(function (o) { return "<li><b>" + esc(o.label) + ":</b> " + esc(o.desc) + "</li>"; }).join("") + "</ul></details>" +
-    '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="submit-rebuttal"' + (over ? " disabled" : "") + ">Submit the response</button></div>";
-}
-
-export function slotsUsed(p, sel) {
-  let n = sel.flags.length;
-  Object.keys(sel.responses).forEach(function (k) {
-    const o = p.options.find(function (x) { return x.id === sel.responses[k]; });
-    if (o) n += o.cost;
-  });
-  return n;
+    (exp ? '<p class="ps-meta">New experiments will cost ' + exp + " days this week.</p>" : "") +
+    '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="submit-rebuttal">Submit the response</button></div>';
 }
 
 export function qaHtml(p, sel) {

@@ -3,7 +3,7 @@ import { prepareData, newRun, rollTraits, Game, newSeed, storage } from "../engi
 import { Rng } from "../engine/rng.js";
 import { prefersReducedMotion, esc } from "./common.js";
 import { gameHtml } from "./gameview.js";
-import { eventHtml, sysHtml, matchingHtml, newProjectHtml, rebuttalHtml, qaHtml, resultHtml, promptClass, slotsUsed } from "./prompts.js";
+import { eventHtml, sysHtml, matchingHtml, rebuttalHtml, qaHtml, resultHtml, promptClass } from "./prompts.js";
 import { titleHtml, setupHtml, helpHtml, codexHtml, endHtml, summaryText, drawCard } from "./screens.js";
 
 export class App {
@@ -53,7 +53,6 @@ export class App {
       if (p.type === "event") inner = eventHtml(p);
       else if (p.type === "sys") inner = sysHtml(p);
       else if (p.type === "matching") inner = matchingHtml(p);
-      else if (p.type === "new_project") inner = newProjectHtml(p, this.psel);
       else if (p.type === "rebuttal") inner = rebuttalHtml(p, this.psel);
       else if (p.type === "qa") inner = qaHtml(p, this.psel);
       if (this.modal.result) {
@@ -182,9 +181,8 @@ export class App {
 
   showPrompt(p, ui) {
     this.modal = { prompt: p, result: null, fresh: true, ui: !!ui };
-    if (p.type === "rebuttal") this.psel = { responses: {}, flags: [] };
+    if (p.type === "rebuttal") this.psel = { responses: {} };
     else if (p.type === "qa") this.psel = { answers: {} };
-    else if (p.type === "new_project") this.psel = { type: null, topic: null };
     else this.psel = {};
     this.keepScroll = true;
     this.render();
@@ -261,19 +259,24 @@ export class App {
       case "shelve":
         if (window.confirm("Shelve this project? You can't bring it back.")) { this.game.shelveProject(id); this.persist(); this.keepScroll = true; this.render(); }
         break;
-      case "new-project": { const p = this.game.requestNewProject(); if (p) this.showPrompt(p, true); break; }
+      case "new-project": {
+        const p = this.game.startNewProject();
+        if (p) {
+          this.persist();
+          this.flashToast("New project: " + p.short);
+          this.setPlan(this.game.planPrompt());
+          this.keepScroll = true; this.render();
+        }
+        break;
+      }
       case "leave": { const p = this.game.requestLeave(); if (p) this.showPrompt(p, true); break; }
       case "choose": this.answer({ choice: i }); break;
       case "join": this.answer({ action: "join", idx: i }); break;
       case "rotate": this.answer({ action: "rotate", idx: i }); break;
       case "later": this.answer({ action: "later" }); break;
-      case "pick-type": this.psel.type = id; this.keepDialogScroll = true; this.render(); break;
-      case "pick-topic": this.psel.topic = id; this.keepDialogScroll = true; this.render(); break;
-      case "cancel-project": this.game.answer({ cancel: true }); this.modal = null; this.persist(); this.afterPrompt(true); break;
-      case "create-project": if (this.psel.type && this.psel.topic) this.answer({ type: this.psel.type, topic: this.psel.topic }); break;
       case "strat": this.psel.answers[key] = id; this.keepDialogScroll = true; this.focusSel = '[data-action="strat"][data-key="' + key + '"][data-id="' + id + '"]'; this.render(); break;
       case "submit-qa": this.answer({ answers: this.psel.answers }); break;
-      case "submit-rebuttal": if (slotsUsed(this.modal.prompt, this.psel) <= this.modal.prompt.slots) this.answer({ responses: this.psel.responses, flags: this.psel.flags }); break;
+      case "submit-rebuttal": this.answer({ responses: this.psel.responses }); break;
       case "continue": this.continueAfterResult(); break;
       case "copy-summary": {
         const text = summaryText(this.ending) + " " + location.href;
@@ -303,14 +306,9 @@ export class App {
     if (!a) return;
     if (a === "target") { this.game.setTarget(el.getAttribute("data-id"), el.value); this.persist(); this.setPlan(this.game.planPrompt()); this.keepScroll = true; this.render(); }
     else if (a === "respond") {
-      const k = el.getAttribute("data-key");
-      if (el.value === "skip") delete this.psel.responses[k]; else this.psel.responses[k] = el.value;
-      this.keepDialogScroll = true; this.focusSel = '[data-action="respond"][data-key="' + k + '"]'; this.render();
-    } else if (a === "flag") {
-      const idx = parseInt(el.getAttribute("data-i"), 10);
-      const pos = this.psel.flags.indexOf(idx);
-      if (el.checked && pos < 0) this.psel.flags.push(idx); else if (!el.checked && pos >= 0) this.psel.flags.splice(pos, 1);
-      this.keepDialogScroll = true; this.focusSel = '[data-action="flag"][data-i="' + idx + '"]'; this.render();
+      const ri = el.getAttribute("data-i");
+      this.psel.responses[ri] = el.value;
+      this.keepDialogScroll = true; this.focusSel = '[data-action="respond"][data-i="' + ri + '"]'; this.render();
     }
   }
 
@@ -321,8 +319,6 @@ export class App {
       const btns = this.root.querySelectorAll(".ps-dialog .ps-choice");
       const b = btns[parseInt(e.key, 10) - 1];
       if (b) { e.preventDefault(); b.click(); }
-    } else if (e.key === "Escape" && this.modal.prompt.type === "new_project" && this.modal.prompt.cancellable && !this.modal.result) {
-      this.game.answer({ cancel: true }); this.modal = null; this.persist(); this.afterPrompt(true);
     }
   }
 }

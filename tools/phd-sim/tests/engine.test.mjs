@@ -7,7 +7,8 @@ import { dirname, join } from "node:path";
 import { parseValue, compare } from "../../../assets/js/phd-sim/engine/util.js";
 import { Rng } from "../../../assets/js/phd-sim/engine/rng.js";
 import { prepareData, newRun, rollTraits, Game } from "../../../assets/js/phd-sim/engine/index.js";
-import { activeProjects } from "../../../assets/js/phd-sim/engine/projects.js";
+import { activeProjects, overallPct, addProgress, currentStage, PROJECT_TYPES } from "../../../assets/js/phd-sim/engine/projects.js";
+import { resolveRebuttal } from "../../../assets/js/phd-sim/engine/reviews.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const D = prepareData(JSON.parse(readFileSync(join(here, "..", "out", "data.json"), "utf8")));
@@ -48,8 +49,7 @@ function planFor(p, rng) {
 
 function answerFor(p, rng) {
   if (p.type === "matching") return { action: "join", idx: rng.int(0, p.candidates.length - 1) };
-  if (p.type === "new_project") return { type: rng.pick(p.types).id, topic: rng.pick(p.topics).id };
-  if (p.type === "rebuttal") return { responses: {}, flags: [] };
+  if (p.type === "rebuttal") return { responses: {} };
   if (p.type === "qa") return { answers: Object.fromEntries(p.questions.map((q) => [q.key, "direct"])) };
   if (p.type === "sys" && p.sys === "leave") return { choice: p.choices.length - 1 };
   return { choice: (p.choices[rng.int(0, p.choices.length - 1)] || {}).i || 0 };
@@ -65,10 +65,7 @@ function bot(game, seed, untilTurn) {
     if (p.type === "ended") return game.state;
     if (p.type === "turn_end") continue;
     if (p.type === "plan") {
-      if (p.canStartProject && p.actions.filter((a) => a.kind === "project" || a.kind === "deadline").length < 2) {
-        const np = game.requestNewProject();
-        if (np) { game.answer(answerFor(np, rng)); continue; }
-      }
+      if (p.canStartProject && game.state.projects.filter((x) => x.status === "active").length < 2 && game.startNewProject()) continue;
       game.submitPlan(planFor(p, rng));
       continue;
     }
@@ -101,6 +98,85 @@ test("each week takes exactly one action, and unknown actions fall back safely",
   let q = g.step();
   while (q.type !== "plan" && q.type !== "ended") { if (q.type !== "turn_end") g.answer(answerFor(q, rng)); q = g.step(); }
   assert.equal(g.state.turn, week + 1);
+});
+
+// Plays until the first week with an advisor and an active project.
+function gameWithProject(seed) {
+  const g = new Game(D, {}, start(seed));
+  const rng = new Rng(seed);
+  for (let i = 0; i < 3000; i++) {
+    const p = g.step();
+    if (p.type === "plan" && g.state.advisor) {
+      if (!activeProjects(g).length) g.startNewProject();
+      return g;
+    }
+    if (p.type === "plan") { g.submitPlan(planFor(p, rng)); continue; }
+    if (p.type !== "turn_end") g.answer(answerFor(p, rng));
+  }
+  throw new Error("no advisor");
+}
+
+test("every project kind's phases fill exactly one 0-100% bar", () => {
+  Object.keys(PROJECT_TYPES).forEach((k) => {
+    const total = PROJECT_TYPES[k].stages.reduce((n, st) => n + st.need, 0);
+    assert.equal(total, 100, k);
+  });
+});
+
+test("progress moves through phases on one bar, stops at waits and caps at 100%", () => {
+  const g = gameWithProject("bar-1");
+  const p = activeProjects(g)[0];
+  p.type = "study"; p.stageIdx = 0; p.progress = 0; p.revise = false; p.pause = 0;
+  addProgress(g, p, 10);
+  assert.equal(overallPct(g, p), 10);
+  assert.equal(currentStage(g, p).id, "lit");
+  addProgress(g, p, 50);
+  assert.equal(currentStage(g, p).id, "irb", "stops at the IRB wait");
+  assert.equal(overallPct(g, p), 32);
+  assert.ok(p.wait >= 2 && p.wait <= 3, "IRB waits 2-3 weeks");
+  p.stageIdx = PROJECT_TYPES.study.stages.length - 1; p.progress = 0;
+  addProgress(g, p, 500);
+  assert.equal(overallPct(g, p), 100);
+});
+
+test("a week of reading moves Related work much more than other phases", () => {
+  const lit = gameWithProject("read-1");
+  const a = activeProjects(lit)[0];
+  a.type = "empirical"; a.stageIdx = 1; a.progress = 0; a.revise = false; a.pause = 0;
+  lit.submitPlan({ action: "read" });
+  lit.resolveTurn();
+  const other = gameWithProject("read-1");
+  const b = activeProjects(other)[0];
+  b.type = "empirical"; b.stageIdx = 3; b.progress = 0; b.revise = false; b.pause = 0;
+  other.submitPlan({ action: "read" });
+  other.resolveTurn();
+  const litGain = overallPct(lit, a) - 8;   // Related work starts after the 8% idea phase
+  const otherGain = overallPct(other, b) - 45;
+  assert.ok(otherGain <= 3, "other phases inch forward: " + otherGain);
+  assert.ok(litGain >= otherGain + 2, "related work moves a lot: " + litGain + " vs " + otherGain);
+});
+
+test("new projects pick their own kind and topic, without a prompt", () => {
+  const g = gameWithProject("new-1");
+  const before = activeProjects(g).length;
+  const p = g.startNewProject();
+  assert.ok(p && PROJECT_TYPES[p.type]);
+  assert.equal(activeProjects(g).length, before + 1);
+  assert.equal(g.state.prompt, null);
+});
+
+test("the rebuttal takes one response per reviewer and defaults to clarifying", () => {
+  const g = gameWithProject("reb-1");
+  const paper = {
+    promises: 0, reviews: [0, 1, 2].map((i) => ({ raw: 50, score: 3, openness: 1, silent: false, llm: i === 2,
+      concerns: [{ key: "c" + i, valid: false, severity: "minor", comp: "C" }] }))
+  };
+  const res = resolveRebuttal(g, paper, { responses: { 1: "concede", 2: "flag" } });
+  assert.equal(res.reviews.length, 3);
+  assert.equal(paper.promises, 1, "only reviewer 2 got a concession");
+  assert.ok(paper.reviews[2].flagged !== undefined, "the LLM-looking review can be flagged");
+  const res2 = resolveRebuttal(g, { promises: 0, reviews: [{ raw: 50, score: 3, openness: 1, llm: false, concerns: [{ key: "x", valid: false, severity: "minor", comp: "C" }] }] }, { responses: { 0: "flag" } });
+  assert.ok(!/area chair/.test(res2.reviews[0].lines.join(" ")), "flagging a normal review falls back to clarifying");
 });
 
 test("the same seed and the same answers give the same PhD", () => {

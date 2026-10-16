@@ -43,12 +43,13 @@ export function setupHtml(app) {
 export function helpHtml() {
   return '<div class="ps-spread"><h2>How to play</h2><button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="back">Back</button></div><div class="ps-card">' +
     "<p><b>Each turn is one week.</b> Classes, TA duty and meetings take some of it; you choose <b>one thing</b> to do with the rest, and the week plays out as soon as you choose.</p>" +
-    "<p>A few choices are always there: work on a project, read, or recharge. Other things come up: a writing retreat, a friend in town, an empty GPU cluster, the holidays. Those show up under <b>This week only</b> and are gone if you don't take them.</p>" +
-    "<p>After each week, the <b>report</b> shows how your bars, skills and projects changed, and what happened. Now and then something happens that needs a decision.</p>" +
-    "<p><b>Energy</b> powers work: below 50, everything gets less done. <b>Sanity</b> is your mood and motivation; at zero you burn out for a few weeks. Recharging and the good things that come up bring them back. Weekends are off unless you crunch for a deadline.</p>" +
-    "<p>Your <b>skills</b> grow with what you do: reading builds knowledge and taste, project work builds the skill each stage needs. Relationships, network and health stay <b>hidden</b>, like in real life; watch for hints. Everything is revealed at the end.</p>" +
-    "<p>Choices show <b>arrows</b> (\u2191 up, \u2193 down, doubled when big, \u2195 when it depends on how it goes). Numbers only appear after you choose.</p>" +
-    "<p><b>Projects</b> move through stages. Some stages just take calendar time (IRB review, recruiting, annotation). In a deadline week, a <b>Polish and submit</b> choice appears; you need at least half a draft. Skip it and the paper waits for the next deadline. Reviews are noisy. Rebuttals help.</p>" +
+    "<p>A few choices are always there: work on a project, read and learn, recharge, or get healthy. Other things come up: a writing retreat, a friend in town, an empty GPU cluster, the holidays. Those show up under <b>This week only</b> and are gone if you don't take them.</p>" +
+    "<p>After each week, the <b>report</b> shows how your bars and projects changed, and what happened. Now and then something happens that needs a decision.</p>" +
+    "<p>Three bars to balance. <b>Energy</b> powers work: a normal work week costs about 9, and below 60 everything gets less done. <b>Stress</b> builds with work, deadlines and rejections; at 100 you burn out for a few weeks. <b>Health</b> wears down slowly at a desk, faster when you're exhausted or stressed; when it's low you get sick more often. <b>Recharge</b> brings Energy back and Stress down; <b>Get healthy</b> rebuilds Health. Weekends are off unless you crunch for a deadline.</p>" +
+    "<p>Your skills, relationships and network are <b>hidden</b>, like in real life; watch for hints. Everything is revealed at the end.</p>" +
+    "<p>Choices show <b>arrows</b> (\u2191 up, \u2193 down, doubled when big, \u2195 when it depends on how it goes). Green is good for you, red is bad. Numbers only appear after you choose.</p>" +
+    "<p>Each <b>project</b> is one progress bar that moves through phases. Related work is mostly reading, so a week of <b>Read and learn</b> moves it faster. Some phases just take calendar time (IRB review, recruiting, annotation): the project waits a few weeks and you do something else. New projects get their kind and topic on their own. In a deadline week, a <b>Polish and submit</b> choice appears; you need at least half a draft. Skip it and the paper waits for the next deadline.</p>" +
+    "<p>When reviews arrive, you choose <b>one response per reviewer</b> (Clarify unless you change it). Reviews are noisy. Responses help.</p>" +
     "<p><b>To graduate</b> you pass quals, propose your thesis, publish at least three first-author papers, spend about three months preparing, and defend. Or don't: leaving is never losing.</p>" +
     "<p>Your progress saves in this browser. The <b>Codex</b> remembers everything you've discovered across runs.</p></div>";
 }
@@ -107,7 +108,7 @@ export function endHtml(app) {
   const e = app.ending;
   const n = e.numbers;
   const L = e.statLabels;
-  const hidden = ["taste", "coding", "writing", "presenting", "knowledge", "advisor_rel", "labmates_rel", "family_rel", "friends_rel", "network", "health"];
+  const hidden = ["taste", "coding", "writing", "presenting", "knowledge", "advisor_rel", "labmates_rel", "family_rel", "friends_rel", "network"];
   return '<div class="ps-end"><div class="ps-end-head"><div class="ps-kicker">' + (e.graduated ? "Graduated" : "Left the PhD") + " · " + esc(e.group) + "</div>" +
     "<h2>" + esc(e.name) + '</h2><div class="ps-end-title">' + esc(e.title.name) + "</div>" +
     (e.title.desc ? '<div class="ps-muted ps-small">' + esc(e.title.desc) + "</div>" : "") + "</div>" +

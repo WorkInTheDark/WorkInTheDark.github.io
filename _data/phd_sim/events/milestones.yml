@@ -376,7 +376,7 @@
     - "{paper} is still under review at {venue}. The decision is due in the middle of your defense prep, and your defense date depends on it."
   choices:
     - label: "Refresh the portal every hour"
-      text: "The portal does not change. Your Sanity does."
+      text: "The portal does not change. Your stress level does."
       effects: { sanity: "-6±2", energy: "-3±1" }
     - label: "Write the thesis as if it's accepted"
       text: "The last chapter assumes the best. Writing it calms you more than refreshing ever did."
