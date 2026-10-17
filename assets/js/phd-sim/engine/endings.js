@@ -24,7 +24,21 @@ export function profile(G) {
 
 function offerBars(G) {
   const o = G.D.config.offers || {};
-  return { tenure: o.tenure_track_score || 64, famous: o.famous_postdoc_score || 45 };
+  return {
+    tenure: o.tenure_track_score || 64, famous: o.famous_postdoc_score || 45,
+    frontier: o.frontier_lab_score || 80, frontierCoding: o.frontier_lab_coding || 65,
+    uxPapers: o.ux_hci_papers || 0, clinicalChance: o.clinical_chance || 1, journalistWriting: o.journalist_writing || 0
+  };
+}
+
+// Accepted first-author papers from human-centered projects (studies and systems).
+function hciPapers(G) {
+  const s = G.state;
+  return acceptedPapers(G).filter(function (pp) {
+    if (!pp.firstAuthor) return false;
+    const pr = s.projects.find(function (q) { return q.id === pp.projectId; });
+    return pr && (pr.type === "study" || pr.type === "system");
+  }).length;
 }
 
 function offer(G, id) {
@@ -52,12 +66,12 @@ export function computeOffers(G, tracks) {
     if (s.player.origin === "international" && P.academic >= 42 && rollA(0.5)) out.push("faculty_back_home");
   }
   if (has("industry")) {
-    if (P.industry >= 80 && st.coding >= 65 && roll(0.5)) out.push("frontier_lab");
+    if (P.industry >= bar.frontier && st.coding >= bar.frontierCoding && roll(0.7)) out.push("frontier_lab");
     if (P.industry >= 60 && roll(0.6)) out.push("bigtech_rs");
     if (P.industry >= 40 && roll(0.8)) out.push("applied_scientist");
     if (st.coding >= 45 && roll(0.85)) out.push("ml_engineer");
     if (s.flags.quant_recruiter && st.coding >= 55 && roll(0.7)) out.push("quant");
-    if ((s.telemetry.study_projects || 0) >= 2 && roll(0.7)) out.push("ux_researcher");
+    if ((s.telemetry.study_projects || 0) >= 2 && hciPapers(G) >= bar.uxPapers && roll(0.6)) out.push("ux_researcher");
     if (s.flags.return_offer) out.push("return_offer");
   }
   if (has("startup")) {
@@ -66,9 +80,9 @@ export function computeOffers(G, tracks) {
   }
   if (has("other")) {
     if (s.flags.policy_interest) out.push("policy_fellow");
-    if (s.flags.science_writer || st.writing >= 72) out.push("science_journalist");
+    if (s.flags.science_writer && st.writing >= bar.journalistWriting) out.push("science_journalist");
     if (s.flags.video_fame || (st.presenting >= 70 && hasTrait(G, "extremely_online"))) out.push("ai_youtuber");
-    if (s.flags.clinical_partner) out.push("clinical_informatics");
+    if (s.flags.clinical_partner && hciPapers(G) >= 1 && roll(bar.clinicalChance)) out.push("clinical_informatics");
   }
   if (!out.length) out.push(st.coding >= 35 ? "ml_engineer" : "applied_scientist");
   const uniq = [];

@@ -827,13 +827,16 @@ export function queueMilestones(G) {
     s.careerPrep = 0;
   }
   if (s.internship && s.internship.accepted && s.internship.accepted.year === y) {
-    if (t === 20 && !s.internship.accepted.started) { s.internship.accepted.started = true; addStatus(G, "on_internship", span(6)); log(G, "Your internship at " + s.internship.accepted.company + " starts. Weekends are still yours." + stressHit(G, 3), "news"); }
+    if (t === 20 && !s.internship.accepted.started) { s.internship.accepted.started = true; s.internship.accepted.effortAtStart = s.internshipEffort || 0; addStatus(G, "on_internship", span(6)); log(G, "Your internship at " + s.internship.accepted.company + " starts. Weekends are still yours." + stressHit(G, 3), "news"); }
     if (t === 26 && !s.internship.accepted.done) {
       s.internship.accepted.done = true;
       s.telemetry.internships++;
       s.flags.interned = true;
       const lines = [];
-      if (G.rng.chance(0.3 + s.stats.coding / 300)) { s.flags.return_offer = true; lines.push("They offer you a full-time return offer, whenever you're ready."); }
+      // A return offer goes to interns who gave it their all (config offers.return_base / return_per_all_in).
+      const oc = G.D.config.offers || {};
+      const allIn = (s.internshipEffort || 0) - (s.internship.accepted.effortAtStart || 0);
+      if (G.rng.chance((oc.return_base === undefined ? 0.3 : oc.return_base) + (oc.return_per_all_in || 0) * allIn)) { s.flags.return_offer = true; lines.push("They offer you a full-time return offer, whenever you're ready."); }
       if (G.rng.chance(0.4)) {
         lines.push("Your internship project turns into a paper you can submit.");
         internshipPaper(G, s.internship.accepted.company);

@@ -131,6 +131,13 @@ graduation_pubs: 3
 offers:
   tenure_track_score: 91      # tenure-track: only the top 10% of profiles can get it (then a 50% roll)
   famous_postdoc_score: 80    # postdoc in a famous lab: the top 25% (then a 70% roll)
+  frontier_lab_score: 121     # frontier lab: industry score of about the top 15% of graduates (then a 70% roll)
+  frontier_lab_coding: 75
+  return_base: 0.04           # return offer after an internship: base + per_all_in x turns you gave it your all (max 6)
+  return_per_all_in: 0.025
+  ux_hci_papers: 2            # UX researcher: two accepted first-author study or system papers (then a 60% roll)
+  journalist_writing: 60      # science journalist: the magazine-piece event, and Writing at least this
+  clinical_chance: 0.25       # clinical informatics: a clinical partner and an accepted HCI paper, then this roll
 defense_prep_turns: 6
 quals_turn: 18           # quals at T18 of year 1 or 2 (rolled per run)
 quals_prep_turns: 4      # "Prepare for quals" is on offer this many turns (8 weeks) before the exam
