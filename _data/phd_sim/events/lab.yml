@@ -28,7 +28,7 @@
   title: "Better Than the Reviewers"
   category: lab
   rarity: common
-  when: { project: { stage: writing } }
+  when: { project: { stage: consolidation } }
   text:
     - "You ask {labmate} for a quick read of {project}. Their comments are sharper than any review you've ever received, and much nicer."
   choices:
@@ -358,7 +358,7 @@
   title: "Helpful Discussions"
   category: lab
   rarity: common
-  when: { project: { stage: [writing, revise] } }
+  when: { project: { stage: [consolidation, revise] } }
   text:
     - "{labmate} asks to be an author on {project}. Their contribution, in their words: \"helpful discussions\". You remember one discussion. It was about lunch."
   choices:
@@ -387,7 +387,7 @@
   category: lab
   rarity: uncommon
   arc: author_order
-  when: { year: [2, 7], project: { stage: [writing, revise] } }
+  when: { year: [2, 7], project: { stage: [consolidation, revise] } }
   text:
     - "{labmate} and {labmate2} both worked on {project}, and both expect to be second author. The author line in the draft has changed eleven times today. You haven't touched it once."
   choices:
@@ -588,7 +588,7 @@
   title: "Nothing Compiles"
   category: lab
   rarity: common
-  when: { project: { stage: [writing, revise] } }
+  when: { project: { stage: [consolidation, revise] } }
   text:
     - "Someone updated one package in the lab's shared paper template. Now nobody's paper compiles, and three labmates have deadlines next week."
   choices:

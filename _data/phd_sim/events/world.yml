@@ -103,7 +103,7 @@
   category: world
   rarity: uncommon
   when:
-    project: { type: empirical, stage: [experiments, writing] }
+    project: { type: empirical, stage: [experiments, consolidation] }
   text:
     - "A field-wide online debate breaks out: does the benchmark behind {project} measure anything at all? The top post has {roll:900-3000} replies."
   choices:
@@ -359,7 +359,7 @@
   rarity: common
   when:
     has_advisor: true
-    project: { stage: [experiments, analysis, writing] }
+    project: { stage: [experiments, analysis, consolidation] }
   text:
     - "Your target venues adopt a new reproducibility checklist: random seeds, compute hours, code links and the exact prompts you used. For {project}, you can answer about half."
   choices:

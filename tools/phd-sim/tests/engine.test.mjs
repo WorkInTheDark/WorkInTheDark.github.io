@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { parseValue, compare } from "../../../assets/js/phd-sim/engine/util.js";
 import { Rng } from "../../../assets/js/phd-sim/engine/rng.js";
 import { prepareData, newRun, rollTraits, Game } from "../../../assets/js/phd-sim/engine/index.js";
-import { activeProjects, addProgress, rollStages, currentStage, stageNeed, fieldOf, autoTarget, venuesFor, PROJECT_TYPES } from "../../../assets/js/phd-sim/engine/projects.js";
+import { activeProjects, rollStages, currentStage, stageChance, fieldOf, autoTarget, venuesFor, PROJECT_TYPES } from "../../../assets/js/phd-sim/engine/projects.js";
 import { resolveRebuttal } from "../../../assets/js/phd-sim/engine/reviews.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -115,52 +115,54 @@ function gameWithProject(seed) {
   throw new Error("no advisor");
 }
 
-test("every project kind's phases fill exactly one 0-100% bar", () => {
+test("every project kind ends in Consolidation, with no Writing stage", () => {
   Object.keys(PROJECT_TYPES).forEach((k) => {
-    const total = PROJECT_TYPES[k].stages.reduce((n, st) => n + st.need, 0);
-    assert.equal(total, 100, k);
+    const st = PROJECT_TYPES[k].stages;
+    assert.equal(st[st.length - 1].id, "consolidation", k);
+    assert.ok(!st.some((x) => x.id === "writing"), k);
+    st.filter((x) => x.kind === "work").forEach((x) => assert.ok(x.chance > 0 && x.chance < 1, k + "/" + x.id));
   });
 });
 
-test("stages only change at the end of a turn: done work always advances, partial work might", () => {
+test("each turn of work is one try at the stage's set chance", () => {
   const g = gameWithProject("stage-1");
   const p = activeProjects(g)[0];
-  p.type = "study"; p.stageIdx = 1; p.progress = 0; p.revise = false; p.pause = 0; p.ready = false;
-  addProgress(g, p, 500);
-  assert.equal(currentStage(g, p).id, "lit", "no advance mid-turn");
-  assert.equal(p.progress, stageNeed(g, p), "progress caps at the stage's need");
-  rollStages(g);
-  assert.equal(currentStage(g, p).id, "design", "all the work done: the stage completes");
-  rollStages(g);
-  assert.equal(currentStage(g, p).id, "design", "no work this turn: it stays");
-  addProgress(g, p, 500); rollStages(g);
-  assert.equal(currentStage(g, p).id, "irb");
-  assert.ok(p.wait >= 1 && p.wait <= 2, "IRB waits one or two turns (2-4 weeks)");
-  p.stageIdx = PROJECT_TYPES.study.stages.length - 1; p.progress = 0;
-  addProgress(g, p, 500); rollStages(g);
-  assert.ok(p.ready, "a finished draft is ready to submit");
-  let advanced = 0;
-  for (let i = 0; i < 200; i++) {
-    p.stageIdx = 2; p.progress = 0; p.ready = false;
-    addProgress(g, p, stageNeed(g, p) * 0.5); rollStages(g);
-    if (p.stageIdx === 3) advanced++;
-  }
-  assert.ok(advanced > 40 && advanced < 160, "half the work: sometimes yes, sometimes no (" + advanced + "/200)");
+  const full = D.config.progress.full_turn;
+  const tries = (stageIdx, n) => {
+    let moved = 0;
+    for (let i = 0; i < n; i++) {
+      p.type = "empirical"; p.stageIdx = stageIdx; p.revise = false; p.pause = 0; p.ready = false; p.nudge = 0;
+      p.turnEffort = full; rollStages(g);
+      if (p.stageIdx > stageIdx || p.ready) moved++;
+    }
+    return moved / n;
+  };
+  const idea = tries(0, 2000), pilot = tries(2, 2000), exp = tries(3, 2000);
+  assert.ok(Math.abs(idea - 0.8) < 0.04, "Idea moves on about 80% of turns: " + idea);
+  assert.ok(Math.abs(pilot - 0.6) < 0.04, "Pilot about 60%: " + pilot);
+  assert.ok(Math.abs(exp - 0.5) < 0.04, "Experiments about 50%: " + exp);
+  p.stageIdx = 1; p.turnEffort = 0; rollStages(g);
+  assert.equal(p.stageIdx, 1, "no work this turn: no try");
+  p.type = "study"; p.stageIdx = 2; p.turnEffort = full * 2; p.nudge = 0.5; rollStages(g);
+  if (currentStage(g, p).id === "irb") assert.ok(p.wait >= 1 && p.wait <= 2, "IRB waits one or two turns (2-4 weeks)");
+  p.type = "empirical"; p.stageIdx = 4; p.ready = false; p.nudge = 0.3; p.turnEffort = full * 1.3;
+  for (let i = 0; i < 20 && !p.ready; i++) { p.turnEffort = full; rollStages(g); }
+  assert.ok(p.ready, "finishing Consolidation makes the paper ready");
 });
 
-test("a turn of reading moves Related work much more than other stages", () => {
+test("a turn of reading counts more toward Related work than toward other stages", () => {
   const lit = gameWithProject("read-1");
   const a = activeProjects(lit)[0];
-  a.type = "empirical"; a.stageIdx = 1; a.progress = 0; a.revise = false; a.pause = 0; a.ready = false;
+  a.type = "empirical"; a.stageIdx = 1; a.revise = false; a.pause = 0; a.ready = false; a.turnEffort = 0;
   lit.submitPlan({ action: "read" });
   lit.resolveTurn();
   const other = gameWithProject("read-1");
   const b = activeProjects(other)[0];
-  b.type = "empirical"; b.stageIdx = 3; b.progress = 0; b.revise = false; b.pause = 0; b.ready = false;
+  b.type = "empirical"; b.stageIdx = 3; b.revise = false; b.pause = 0; b.ready = false; b.turnEffort = 0;
   other.submitPlan({ action: "read" });
   other.resolveTurn();
-  assert.ok(b.progress <= 5, "other stages inch forward: " + b.progress);
-  assert.ok(a.progress >= b.progress + 5, "related work moves a lot: " + a.progress + " vs " + b.progress);
+  assert.ok(b.turnEffort < 1, "other stages get a small chance: " + b.turnEffort);
+  assert.ok(a.turnEffort > b.turnEffort * 5, "related work gets a real try: " + a.turnEffort + " vs " + b.turnEffort);
 });
 
 test("two papers due in the same turn can both be submitted", () => {
@@ -171,7 +173,7 @@ test("two papers due in the same turn can both be submitted", () => {
   const ps = activeProjects(g).slice(0, 2);
   ps.forEach((p) => {
     p.type = "empirical"; p.field = "nlp"; p.stageIdx = PROJECT_TYPES.empirical.stages.length - 1;
-    p.progress = stageNeed(g, p); p.ready = true; p.revise = false; p.pause = 0;
+    p.ready = true; p.revise = false; p.pause = 0;
     p.target = { venueId: "arr", cycle: 0, turn: due };
   });
   g.submitPlan({ action: "read" });

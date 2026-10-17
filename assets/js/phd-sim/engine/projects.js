@@ -3,52 +3,54 @@ import { clamp } from "./util.js";
 import { absTurn, yearOf, tOf, TURNS, span, turnDates } from "./state.js";
 import { hasTrait, hasStatus } from "./derived.js";
 
-function S(id, kind, comp, skill, need, extra) {
-  const st = { id: id, kind: kind, comp: comp, skill: skill, need: need };
+function S(id, kind, comp, skill, chance, extra) {
+  const st = { id: id, kind: kind, comp: comp, skill: skill, chance: chance };
   if (extra) for (const k in extra) st[k] = extra[k];
   return st;
 }
 
-// A project moves through named stages. Work builds hidden progress in the current stage
-// (`need` points); at the end of each turn the stage either completes (a roll that gets likelier
-// the more you've done, certain once you've done it all) or stays. "Wait" stages (IRB, recruiting,
-// annotation) just take time: `wait` in turns (two weeks each).
+// A project moves through named stages. Each turn you work on it, the current stage gets one try
+// at its set `chance` (Arthur's design, 2026-10-16): success moves to the next stage, failure
+// stays. A short or tired turn lowers the chance; a full one, a crunch or a boost raises it a
+// little. "Wait" stages (IRB, recruiting, annotation) just take time: `wait` in turns.
+// There's no Writing stage: you write all along, and the last stage, Consolidation, pulls it
+// together into one paper and tailors it to the venue.
 export const PROJECT_TYPES = {
   empirical: {
     label: "Empirical NLP",
-    stages: [S("idea", "work", "N", "taste", 8), S("lit", "work", "N", "knowledge", 17),
-      S("pilot", "work", "S", "coding", 20), S("experiments", "work", "S", "coding", 30, { compute: true }),
-      S("writing", "work", "C", "writing", 25)]
+    stages: [S("idea", "work", "N", "taste", 0.8), S("lit", "work", "N", "knowledge", 0.7),
+      S("pilot", "work", "S", "coding", 0.6), S("experiments", "work", "S", "coding", 0.5, { compute: true }),
+      S("consolidation", "work", "C", "writing", 0.6)]
   },
   study: {
     label: "Human-centered study",
-    stages: [S("idea", "work", "N", "taste", 6), S("lit", "work", "N", "knowledge", 14),
-      S("design", "work", "S", "knowledge", 12), S("irb", "wait", null, null, 0, { wait: [1, 2] }),
-      S("recruiting", "wait", null, null, 0, { wait: [1, 1] }), S("sessions", "work", "S", "presenting", 20),
-      S("analysis", "work", "S", "knowledge", 20, { stats: true }), S("writing", "work", "C", "writing", 28)]
+    stages: [S("idea", "work", "N", "taste", 0.8), S("lit", "work", "N", "knowledge", 0.7),
+      S("design", "work", "S", "knowledge", 0.65), S("irb", "wait", null, null, 0, { wait: [1, 2] }),
+      S("recruiting", "wait", null, null, 0, { wait: [1, 1] }), S("sessions", "work", "S", "presenting", 0.55),
+      S("analysis", "work", "S", "knowledge", 0.6, { stats: true }), S("consolidation", "work", "C", "writing", 0.6)]
   },
   system: {
     label: "System + evaluation",
-    stages: [S("idea", "work", "N", "taste", 6), S("lit", "work", "N", "knowledge", 14),
-      S("build", "work", "S", "coding", 28), S("irb", "wait", null, null, 0, { wait: [1, 2] }),
-      S("study", "work", "S", "presenting", 16), S("analysis", "work", "S", "knowledge", 12, { stats: true }),
-      S("writing", "work", "C", "writing", 24)]
+    stages: [S("idea", "work", "N", "taste", 0.8), S("lit", "work", "N", "knowledge", 0.7),
+      S("build", "work", "S", "coding", 0.5), S("irb", "wait", null, null, 0, { wait: [1, 2] }),
+      S("study", "work", "S", "presenting", 0.55), S("analysis", "work", "S", "knowledge", 0.6, { stats: true }),
+      S("consolidation", "work", "C", "writing", 0.6)]
   },
   dataset: {
     label: "Dataset / benchmark",
-    stages: [S("idea", "work", "N", "taste", 7), S("lit", "work", "N", "knowledge", 15),
-      S("guidelines", "work", "S", "knowledge", 15), S("annotation", "wait", null, null, 0, { wait: [1, 2] }),
-      S("baselines", "work", "S", "coding", 33), S("writing", "work", "C", "writing", 30)]
+    stages: [S("idea", "work", "N", "taste", 0.8), S("lit", "work", "N", "knowledge", 0.7),
+      S("guidelines", "work", "S", "knowledge", 0.65), S("annotation", "wait", null, null, 0, { wait: [1, 2] }),
+      S("baselines", "work", "S", "coding", 0.5), S("consolidation", "work", "C", "writing", 0.6)]
   },
   position: {
     label: "Position / survey",
-    stages: [S("idea", "work", "N", "taste", 10), S("lit", "work", "N", "knowledge", 45),
-      S("writing", "work", "C", "writing", 45)]
+    stages: [S("idea", "work", "N", "taste", 0.8), S("lit", "work", "N", "knowledge", 0.5),
+      S("consolidation", "work", "C", "writing", 0.55)]
   }
 };
 
 // After a rejection or a revise-and-resubmit, the project goes back to one Revising stage.
-export const REVISE_STAGE = S("revise", "work", "C", "writing", 20);
+export const REVISE_STAGE = S("revise", "work", "C", "writing", 0.6);
 
 // Which community a paper is for: NLP papers go to NLP venues, HCI papers to HCI venues.
 export const FIELD_LABELS = { nlp: "NLP", hci: "HCI", ml: "ML" };
@@ -57,7 +59,7 @@ export function fieldOf(p) {
 }
 
 export const STAGE_LABELS = {
-  idea: "Idea", lit: "Related work", pilot: "Pilot", experiments: "Experiments", writing: "Writing",
+  idea: "Idea", lit: "Related work", pilot: "Pilot", experiments: "Experiments", consolidation: "Consolidation",
   design: "Study design", irb: "IRB review", recruiting: "Recruiting", sessions: "Study sessions",
   analysis: "Analysis", build: "Building", study: "User study", guidelines: "Annotation guidelines",
   annotation: "Annotation", baselines: "Baselines", revise: "Revising"
@@ -69,69 +71,85 @@ export function currentStage(G, p) {
   return stages[Math.min(p.stageIdx, stages.length - 1)];
 }
 
-export function stageNeed(G, p) {
-  return currentStage(G, p).need;
+export function stageChance(G, p) {
+  return currentStage(G, p).chance || 0;
 }
 
-// Adds hidden progress to the current stage (negative for setbacks). Stages only change at the
-// end of the turn, in rollStages.
-export function addProgress(G, p, pts) {
-  const st = currentStage(G, p);
-  if (st.kind === "wait") return;
-  p.progress = clamp(p.progress + pts, 0, stageNeed(G, p));
-  if (pts > 0) p.turnPts = (p.turnPts || 0) + pts;
+function finalStage(st) { return st.id === "consolidation" || st.id === "revise"; }
+
+// Events can tip the odds of a project's next stage roll (n percentage points, kept within ±30).
+export function nudgeOdds(G, p, n) {
+  if (currentStage(G, p).kind === "wait") return;
+  p.nudge = clamp((p.nudge || 0) + n / 100, -0.3, 0.3);
 }
 
-// End of turn: each project you moved forward either completes its stage or stays in it. The
-// chance grows with the work done in the stage, and it's certain once the work is all there.
+// The chance a turn of work finishes the current stage: the stage's set chance for a normal full
+// turn. A short or tired turn keeps at least half of it (a busy Year 1 turn, about 80%); extra
+// effort like a crunch adds at most 15%.
+export function turnChance(G, p, effort) {
+  const full = G.D.config.progress.full_turn || 6.5;
+  const r = Math.max(0, effort / full);
+  const f = r <= 1 ? 0.5 + 0.5 * r : 1 + 0.5 * Math.min(r - 1, 0.3);
+  return clamp(stageChance(G, p) * f + (p.nudge || 0), 0, 0.95);
+}
+
+const CHANCE_WORDS = [[0.8, "very likely"], [0.6, "likely"], [0.45, "about even"], [0.3, "unlikely"], [0, "a long shot"]];
+export function chanceWord(c) {
+  for (let i = 0; i < CHANCE_WORDS.length; i++) if (c >= CHANCE_WORDS[i][0]) return CHANCE_WORDS[i][1];
+  return "a long shot";
+}
+
+// End of turn: each project you worked on gets one try at finishing its stage.
 export function rollStages(G, log) {
   activeProjects(G).forEach(function (p) {
     const st = currentStage(G, p);
-    const worked = (p.turnPts || 0) > 0;
-    p.turnPts = 0;
-    if (worked) p.lastWorked = G.state.turn;
-    if (!worked || st.kind === "wait" || p.ready) return;
-    const frac = p.progress / stageNeed(G, p);
-    if (frac < 1 && !G.rng.chance(Math.pow(frac, G.D.config.progress.roll_curve || 1.5))) return;
-    if (st.id === "writing" || st.id === "revise") {
+    const effort = p.turnEffort || 0;
+    p.turnEffort = 0;
+    if (effort <= 0 || st.kind === "wait" || p.ready) return;
+    p.lastWorked = G.state.turn;
+    const c = turnChance(G, p, effort);
+    p.nudge = 0;
+    if (!G.rng.chance(c)) { p.stuck = (p.stuck || 0) + 1; return; }
+    p.stuck = 0;
+    if (finalStage(st)) {
       p.ready = true;
-      if (log) log(p.short + ": " + (p.revise ? "the revision is done." : "the draft is done.") + " Ready to submit.");
+      if (log) log(p.short + ": " + (p.revise ? "the revision is done." : "it all comes together.") + " Ready to submit.");
     } else {
       advanceStage(G, p, log);
     }
   });
 }
 
-// For display: where a project stands, without numbers.
+// For display: where a project stands, in words.
 export function stageInfo(G, p) {
   const st = currentStage(G, p);
   const stages = PROJECT_TYPES[p.type].stages;
-  const frac = st.kind === "wait" ? 0 : p.progress / stageNeed(G, p);
   let hint = "";
   if (st.kind === "wait") hint = "waiting, about " + Math.max(1, p.wait) * 2 + " weeks";
   else if (p.pause > 0) hint = "on hold for " + p.pause * 2 + " weeks";
   else if (p.ready) hint = "ready to submit";
-  else hint = frac < 0.35 ? "just started" : frac < 0.75 ? "making progress" : "nearly there";
+  else hint = chanceWord(stageChance(G, p)) + " to finish in a full turn of work";
   return {
     label: p.revise ? STAGE_LABELS.revise : STAGE_LABELS[st.id],
     n: p.revise ? stages.length : Math.min(p.stageIdx, stages.length - 1) + 1,
     of: stages.length,
     hint: hint,
-    ready: !!p.ready && (st.id === "writing" || st.id === "revise"),
-    wait: st.kind === "wait"
+    ready: !!p.ready && finalStage(st),
+    wait: st.kind === "wait",
+    stuck: p.stuck || 0
   };
 }
 
-// Submittable: the draft (or the revision) is done, or at least a rough draft exists.
+// Submittable: in Consolidation (or Revising), finished or not. A finished paper reads better.
 export function isReady(G, p) {
-  const st = currentStage(G, p);
-  return (st.id === "writing" || st.id === "revise") && (!!p.ready || p.progress >= stageNeed(G, p) * 0.4);
+  return finalStage(currentStage(G, p));
 }
 
+// How finished the paper is, for clarity: done, being pulled together, or not there yet.
 export function writingCompletion(G, p) {
   const st = currentStage(G, p);
-  if (st.id !== "writing" && st.id !== "revise") return 0;
-  return p.ready ? 1 : clamp(p.progress / stageNeed(G, p), 0, 1);
+  if (!finalStage(st)) return 0;
+  return p.ready ? 1 : 0.5;
 }
 
 function shortTitle(title) {
@@ -229,15 +247,15 @@ export function turnsToDeadline(G, p) {
 }
 
 // Roughly how many turns until a project is ready, for picking a realistic first target.
-const TYPICAL_PACE = 12;   // % of the bar per turn for someone who works on it most turns
 function remainingTurns(G, p) {
-  if (p.revise) return Math.max(0, REVISE_STAGE.need - p.progress) / TYPICAL_PACE;
+  if (p.ready) return 0;
+  if (p.revise) return 1 / REVISE_STAGE.chance;
   const stages = PROJECT_TYPES[p.type].stages;
   let w = 0;
   for (let i = p.stageIdx; i < stages.length; i++) {
     const st = stages[i];
     if (st.kind === "wait") w += i === p.stageIdx ? Math.max(0, p.wait) : (st.wait[0] + st.wait[1]) / 2;
-    else w += (i === p.stageIdx ? Math.max(0, st.need - p.progress) : st.need) / TYPICAL_PACE;
+    else w += 1.3 / st.chance;   // a few rest turns in between
   }
   return w;
 }
@@ -281,7 +299,7 @@ export function components(G, p) {
   let C = avg(p.q.C, 35);
   let Sv = avg(p.q.S, p.type === "position" ? (N + C) / 2 - 3 : 35);
   const st = currentStage(G, p);
-  if (st.id === "writing") C *= cfg.writing_floor + (1 - cfg.writing_floor) * writingCompletion(G, p);
+  if (st.id === "consolidation") C *= cfg.writing_floor + (1 - cfg.writing_floor) * writingCompletion(G, p);
   if (s.advisor) {
     const a = s.advisor.params;
     const adj = (a.stds - 3) * 1 + (a.avail - 3) * 1;
@@ -316,24 +334,23 @@ export function workDay(G, p, eff, log, opts) {
   const st = currentStage(G, p);
   p.days = (p.days || 0) + 1;
   if (st.kind === "wait" || p.pause > 0) return;
-  // Related work is mostly reading: a week of reading moves it faster than "working on it".
+  // Related work is mostly reading: a turn of reading counts for more than "working on it".
   if (st.id === "lit") eff *= opts && opts.reading ? cfg.progress.read_lit : cfg.progress.work_lit;
+  // How much this day counts toward the turn's try at finishing the stage (a full turn is about 6.5).
   const skill = s.stats[st.skill] || 0;
-  let rate = cfg.progress.rate * eff * (0.6 + 0.8 * skill / 100);
-  rate *= 1 + (G.rng.next() * 2 - 1) * cfg.progress.roll;
-  if (hasTrait(G, "perfectionist")) rate *= 0.87;
+  let day = eff * (0.6 + 0.8 * skill / 100);
+  if (hasTrait(G, "perfectionist")) day *= 0.87;
   if (hasTrait(G, "procrastinator")) {
     const ttd = turnsToDeadline(G, p);
-    if (ttd !== null && ttd <= 1) rate *= 1.4;
-    else if (p.progress < stageNeed(G, p) * 0.5) rate *= 0.8;
+    day *= ttd !== null && ttd <= 1 ? 1.4 : 0.85;
   }
-  if (hasTrait(G, "introvert") && (st.id === "lit" || st.id === "writing" || st.id === "revise")) rate *= 1.1;
-  if (s.advisor && st.compute) rate *= FUND_COMPUTE[s.advisor.params.fund - 1];
-  if (s.advisor && (st.id === "writing" || st.id === "revise")) {
-    rate *= AVAIL_WRITING[s.advisor.params.avail - 1];
-    if (s.advisor.archetype === "kind_funded") rate *= 0.97;   // meticulous about every figure
+  if (hasTrait(G, "introvert") && (st.id === "lit" || st.id === "consolidation" || st.id === "revise")) day *= 1.1;
+  if (s.advisor && st.compute) day *= FUND_COMPUTE[s.advisor.params.fund - 1];
+  if (s.advisor && (st.id === "consolidation" || st.id === "revise")) {
+    day *= AVAIL_WRITING[s.advisor.params.avail - 1];
+    if (s.advisor.archetype === "kind_funded") day *= 0.97;   // meticulous about every figure
   }
-  addProgress(G, p, rate);
+  p.turnEffort = (p.turnEffort || 0) + day;
 
   let dayQ = cfg.quality.base + cfg.quality.per_skill * skill;
   if (hasTrait(G, "perfectionist")) dayQ *= 1.1;
@@ -350,6 +367,8 @@ export function workDay(G, p, eff, log, opts) {
   } else {
     p.q[st.comp].s += dayQ;
     p.q[st.comp].n += 1;
+    // You write all along, not just at the end: every stage adds to the paper's clarity.
+    if (st.comp !== "C") { p.q.C.s += dayQ * 0.4; p.q.C.n += 0.4; }
   }
 
   let g = cfg.skills.growth * (1 - skill / 100);
@@ -358,24 +377,23 @@ export function workDay(G, p, eff, log, opts) {
 
 }
 
-// A reading day nudges projects that aren't in Related work forward a little.
+// A reading day gives projects that aren't in Related work a small chance of moving too.
 export function readTrickle(G, p) {
   const st = currentStage(G, p);
   if (st.kind === "wait" || p.pause > 0 || p.revise || p.ready) return;
-  addProgress(G, p, G.D.config.progress.read_trickle || 0.4);
+  p.turnEffort = (p.turnEffort || 0) + (G.D.config.progress.read_trickle || 0.05);
 }
 
 export function advanceStage(G, p, log) {
   const stages = PROJECT_TYPES[p.type].stages;
   const done = currentStage(G, p);
   p.stageIdx = Math.min(p.stageIdx + 1, stages.length - 1);
-  p.progress = 0;
   p.ready = false;
   const next = currentStage(G, p);
   if (next.kind === "wait") p.wait = G.rng.int(next.wait[0], next.wait[1]);
   if (log) log(p.short + ": " + STAGE_LABELS[done.id] + " is done. On to " + STAGE_LABELS[next.id] +
     (next.kind === "wait" ? " (about " + p.wait * 2 + " weeks)" : "") + ".");
-  if (next.id === "writing" && !p.target) autoTarget(G, p);
+  if (next.id === "consolidation" && !p.target) autoTarget(G, p);
 }
 
 // A project pivoted or shelved mid-revision withdraws the paper waiting on that revision.

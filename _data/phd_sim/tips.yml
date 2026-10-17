@@ -14,7 +14,7 @@
 - { id: t_reading, topic: "Paper Reading", text: "Not every paper deserves a full read. Learn which ones do.", when: { telemetry: { reading_days: ">=15" } } }
 - { id: t_selflearn, topic: "Self-Learning Skills", text: "The best methods teacher is a paper you admire. Reverse-engineer how they did it.", when: { project: { stage: [pilot, design, build, guidelines] } } }
 - { id: t_meeting, topic: "Project Meeting", text: "Walk into advisor meetings with answers, and walk out with better ones.", when: { has_advisor: true, year: [1, 2] } }
-- { id: t_writing, topic: "Paper Writing 101", text: "Every paragraph should earn its place. If you can delete it and nothing breaks, delete it.", when: { project: { stage: writing } } }
+- { id: t_writing, topic: "Paper Writing 101", text: "Every paragraph should earn its place. If you can delete it and nothing breaks, delete it.", when: { project: { stage: consolidation } } }
 - { id: t_communicate, topic: "How to Communicate", text: "Write for the reviewer who is tired, rushed, and reading your paper fourth today.", when: { telemetry: { submissions: ">=1" } } }
 - { id: t_ten, topic: "Judy's Ten Questions", text: "Before you start a project, try answering ten hard questions about it. If you can't, that's the project.", when: { project: { stage: idea } } }
 - { id: t_rq, topic: "Research Question", text: "If you can't state your research question in one sentence, you don't have one yet.", when: { project: { stage: [idea, lit] } } }

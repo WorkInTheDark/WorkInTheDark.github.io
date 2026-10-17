@@ -141,7 +141,7 @@ export function newRun(D, opts) {
   });
 
   const state = {
-    version: 4,
+    version: 5,
     seed: opts.seed,
     daily: !!opts.daily,
     rng: rng.state(),

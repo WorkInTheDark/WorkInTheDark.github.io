@@ -120,7 +120,7 @@ An "Only this turn" focus choice. It appears beside the everyday choices for one
 - id: opp_writing_retreat                 # unique, starts with opp_
   label: "Join the writing retreat for “{project}”"   # the button; tokens allowed
   reason: "The department's writing retreat has a seat."   # why it's here this turn (shown under the label)
-  when: { project: { stage: [writing, revise] } }          # conditions (section 4); a project condition binds {project}
+  when: { project: { stage: [consolidation, revise] } }          # conditions (section 4); a project condition binds {project}
   chance: 0.06                            # per eligible turn (default 0.05)
   cooldown: 8                             # turns before it can come up again (default 4)
   once: true                              # optional: at most once per run
@@ -224,7 +224,7 @@ Values are `"+7±3"` (a whole number rolled in [4, 10], peaked at 7), `"-5±2"`,
 | `citations` | **Visible.** Bonus citations, usually 1–15 |
 | `taste`, `coding`, `writing`, `presenting`, `knowledge` | Hidden skills, 0–100. Move 1–4 typically, 5–8 for big moments |
 | `advisor_rel`, `labmates_rel`, `family_rel`, `friends_rel`, `network` | Hidden, 0–100. Typical 2–6 |
-| `project.progress` | Bound project: hidden progress points in its current stage (a stage needs 6–45). It never changes the stage directly; it makes the end-of-turn stage roll likelier (or, if negative, less likely). Typical 4–15 |
+| `project.progress` | Bound project: nudges the odds of its next stage try by this many percentage points (kept within ±30), for example `"+10±3"` makes the next try 10 points likelier. It never moves the stage directly. Typical 4–15 |
 | `project.quality.N`, `.S`, `.C` | Novelty, Soundness, Clarity of the bound project. Typical 3–10 |
 | `project.delay` | Turns added to (or, if negative, removed from) a waiting phase, or put on hold for a work phase |
 | `project.pivot` | `true`: back to `idea`, keeps half its Novelty |

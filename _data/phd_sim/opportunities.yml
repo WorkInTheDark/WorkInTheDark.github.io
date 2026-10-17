@@ -67,7 +67,7 @@
 - id: opp_writing_retreat
   label: "Join the writing retreat for “{project}”"
   reason: "The department's writing retreat has a seat: a quiet room, coffee, and no meetings."
-  when: { project: { stage: [writing, revise] } }
+  when: { project: { stage: [consolidation, revise] } }
   chance: 0.108
   cooldown: 8
   days: project

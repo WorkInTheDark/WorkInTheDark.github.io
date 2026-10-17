@@ -4,7 +4,7 @@ import { STAT_IDS, span, WEEKS_PER_TURN } from "./state.js";
 import { hasTrait } from "./derived.js";
 import { fill } from "./templating.js";
 import { unlock } from "./achievements.js";
-import { currentStage, addProgress, withdrawRevision } from "./projects.js";
+import { currentStage, nudgeOdds, withdrawRevision } from "./projects.js";
 
 const HIDDEN_LINES = {
   advisor_rel: ["Your advisor seems pleased.", "Your advisor seems a little cooler toward you."],
@@ -92,8 +92,8 @@ function projectEffect(G, key, raw, ctx, res, hidden) {
     const n = rollRange(G, raw);
     const st = currentStage(G, p);
     if (st.kind === "wait") return;
-    // Content values are points of hidden progress in the current stage (a stage needs about 8–45).
-    addProgress(G, p, n);
+    // Content values tip the odds of the project's next stage roll, in percentage points.
+    nudgeOdds(G, p, n);
     res.visible.push({ stat: "progress", label: p.short, amount: n });
   } else if (sub.indexOf("quality.") === 0) {
     const c = sub.slice(8);
@@ -109,7 +109,7 @@ function projectEffect(G, key, raw, ctx, res, hidden) {
     res.visible.push({ stat: "delay", label: p.short, amount: Math.round(n) * WEEKS_PER_TURN });
   } else if (sub === "pivot") {
     withdrawRevision(G, p);
-    p.stageIdx = 0; p.progress = 0; p.revise = false; p.ready = false;
+    p.stageIdx = 0; p.revise = false; p.ready = false;
     p.q.S = { s: 0, n: 0 }; p.q.C = { s: 0, n: 0 };
     p.bonus.N = p.bonus.N * 0.5;
     p.target = null;

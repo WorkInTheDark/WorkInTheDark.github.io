@@ -338,7 +338,7 @@
   cooldown: 16
   when:
     has_advisor: true
-    project: { type: system, stage: [build, irb, study, analysis, writing] }
+    project: { type: system, stage: [build, irb, study, analysis, consolidation] }
   text:
     - "The dean tours the building tomorrow, and {advisor} has promised a live demo of {project}. It has not run since Tuesday."
   choices:
@@ -560,7 +560,7 @@
   cooldown: 16
   when:
     has_advisor: true
-    project: { type: [study, system], stage: [sessions, study, analysis, writing] }
+    project: { type: [study, system], stage: [sessions, study, analysis, consolidation] }
   text:
     - "Finance needs a signed receipt for each of the 40 gift cards you gave participants in {project}. The participants are now all over the country."
   choices:

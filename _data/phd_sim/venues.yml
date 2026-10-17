@@ -10,7 +10,7 @@
   findings: true
   types: [empirical, dataset, position]
   weights: { N: 0.3, S: 0.45, C: 0.25 }
-  threshold: 76
+  threshold: 78
   cycles:
     - { deadline: 3,  name: NAACL, reviews_in: 5, rebuttal: true, decision_in: 8, conference_in: 13 }
     - { deadline: 12, name: ACL,   reviews_in: 5, rebuttal: true, decision_in: 8, conference_in: 11 }
@@ -22,7 +22,7 @@
   revise_resubmit: true
   types: [study, system, position]
   weights: { N: 0.4, S: 0.3, C: 0.3 }
-  threshold: 76
+  threshold: 78
   cycles:
     - { deadline: 1, name: CHI, reviews_in: 4, rebuttal: false, decision_in: 4, revision_due_in: 7, final_in: 9, conference_in: 16 }
 - id: neurips
@@ -31,7 +31,7 @@
   tier: top
   types: [empirical, dataset]
   weights: { N: 0.4, S: 0.45, C: 0.15 }
-  threshold: 77
+  threshold: 79
   cycles:
     - { deadline: 19, name: NeurIPS, reviews_in: 6, rebuttal: true, decision_in: 9, conference_in: 15 }
 - id: iclr
@@ -40,7 +40,7 @@
   tier: top
   types: [empirical]
   weights: { N: 0.4, S: 0.45, C: 0.15 }
-  threshold: 77
+  threshold: 79
   cycles:
     - { deadline: 3, name: ICLR, reviews_in: 3, rebuttal: true, decision_in: 8, conference_in: 15 }
 - id: iui

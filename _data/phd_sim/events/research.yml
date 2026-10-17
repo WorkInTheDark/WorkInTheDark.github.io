@@ -31,7 +31,7 @@
   arc: scooped
   when:
     has_advisor: true
-    project: { type: empirical, stage: [experiments, writing], turns_to_deadline: "<=2" }
+    project: { type: empirical, stage: [experiments, consolidation], turns_to_deadline: "<=2" }
   text:
     - "An arXiv alert, two weeks before your deadline: a new paper from {biglab} does almost exactly what {project} does. Same task, same idea, nicer figures."
     - "{labmate} drops a link in the lab chat: \"isn't this yours??\" It is. Someone else's version of {project}, posted two weeks before your deadline."
@@ -72,7 +72,7 @@
   arc: scooped
   when:
     has_advisor: true
-    project: { type: empirical, stage: [experiments, writing] }
+    project: { type: empirical, stage: [experiments, consolidation] }
   text:
     - "Decision time for {project}. The other paper is already making the rounds, and your deadline hasn't moved."
   choices:
@@ -179,7 +179,7 @@
   category: research
   rarity: uncommon
   when:
-    project: { type: empirical, stage: [experiments, writing], turns_to_deadline: "<=1" }
+    project: { type: empirical, stage: [experiments, consolidation], turns_to_deadline: "<=1" }
   text:
     - "{biglab} releases {model} the week before your deadline. Zero-shot, with no training at all, it beats the system you spent months fine-tuning."
   choices:
@@ -247,7 +247,7 @@
   title: "Same Name, Different Model"
   category: research
   when:
-    project: { type: empirical, stage: [experiments, writing] }
+    project: { type: empirical, stage: [experiments, consolidation] }
   text:
     - "You rerun last month's evaluation through the {biglab} API. Every number has moved by two points. Same model name, no announcement."
   choices:
@@ -406,7 +406,7 @@
   title: "The Ablation"
   category: research
   when:
-    project: { type: empirical, stage: [experiments, writing] }
+    project: { type: empirical, stage: [experiments, consolidation] }
   text:
     - "Your ablation is back. Removing the main component, the one in your paper's title, changes the score by 0.1."
   choices:
@@ -430,7 +430,7 @@
   category: research
   rarity: uncommon
   when:
-    project: { type: empirical, stage: [experiments, writing] }
+    project: { type: empirical, stage: [experiments, consolidation] }
   text:
     - "Months of work, and the clever method loses to the simple baseline on every dataset. Publish it anyway?"
   choices:
@@ -1156,7 +1156,7 @@
   when:
     has_advisor: true
     milestone: { proposal: passed }
-    project: { stage: [experiments, analysis, writing] }
+    project: { stage: [experiments, analysis, consolidation] }
   text:
     - "You reread your thesis proposal for the first time in a year. The question on page 2 and the question {project} is answering are distant cousins at best."
   choices:
@@ -1180,7 +1180,7 @@
   title: "Just in Case"
   category: research
   when:
-    project: { type: empirical, stage: [experiments, writing] }
+    project: { type: empirical, stage: [experiments, consolidation] }
   text:
     - "Four datasets, and the results are clear. But what if a reviewer asks about a fifth? You open its download page, \"just to look\"."
   choices:
@@ -1223,7 +1223,7 @@
   title: "Grading Its Siblings"
   category: research
   when:
-    project: { type: empirical, stage: [experiments, writing] }
+    project: { type: empirical, stage: [experiments, consolidation] }
   text:
     - "Your LLM judge rates outputs from its own model family {roll:8-15} points higher, even when you hide which system wrote what. It's grading its siblings."
   choices:
@@ -1429,7 +1429,7 @@
   when:
     has_advisor: true
     flags_any: [clinical_partner]
-    project: { stage: [analysis, writing] }
+    project: { stage: [analysis, consolidation] }
   text:
     - "Your clinical collaborator reads the {project} draft: \"Great work! In medicine, the person with the clinical insight is first author. I assume that's me?\""
   choices:
@@ -1617,7 +1617,7 @@
   title: "That's Not What I Meant"
   category: research
   when:
-    project: { type: [study, system], stage: [analysis, writing] }
+    project: { type: [study, system], stage: [analysis, consolidation] }
   text:
     - "You share your findings with a participant, as promised. They reply within the hour: \"That's not what I meant. At all.\" Your favorite theme is built on their quote."
   choices:
@@ -1822,7 +1822,7 @@
   category: research
   when:
     has_advisor: true
-    project: { type: [study, system], stage: writing }
+    project: { type: [study, system], stage: consolidation }
   text:
     - "Your discussion section lists 11 design implications. {advisor} reads it and leaves one comment: \"Three. Readers remember three.\""
   choices:
@@ -1922,7 +1922,7 @@
   title: "Lost in Evaluation"
   category: research
   when:
-    project: { type: empirical, stage: [experiments, writing] }
+    project: { type: empirical, stage: [experiments, consolidation] }
   text:
     - "Your multilingual evaluation includes {roll:200-300} outputs in a language nobody in the lab reads. The automatic score says they're fine. You have no way to know."
   choices:
@@ -1966,7 +1966,7 @@
   category: research
   when:
     has_advisor: true
-    project: { type: empirical, stage: [experiments, writing] }
+    project: { type: empirical, stage: [experiments, consolidation] }
   text:
     - "Your model cites a paper that doesn't exist and credits it to {advisor}. The title sounds exactly like something {advisor} would write. You check twice."
   choices:
@@ -2038,7 +2038,7 @@
   title: "End of Life"
   category: research
   when:
-    project: { type: empirical, stage: [experiments, writing] }
+    project: { type: empirical, stage: [experiments, consolidation] }
   text:
     - "{biglab} announces that the model your paper evaluates will be retired next month. Soon, nobody will be able to reproduce a single number in it."
   choices:
@@ -2107,7 +2107,7 @@
   title: "Shorter, Please"
   category: research
   when:
-    project: { type: empirical, stage: [experiments, writing] }
+    project: { type: empirical, stage: [experiments, consolidation] }
   text:
     - "Your human raters prefer the baseline. You read their comments: \"shorter\", \"shorter\", \"got to the point\", \"shorter\"."
   choices:
@@ -2132,7 +2132,7 @@
   title: "Cell 212"
   category: research
   when:
-    project: { stage: [experiments, baselines, writing] }
+    project: { stage: [experiments, baselines, consolidation] }
   text:
     - "Your best result came from a notebook with 400 cells, run out of order over three weeks. Cell 212 depends on cell 388. You don't remember why."
   choices:

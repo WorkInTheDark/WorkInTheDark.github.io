@@ -63,7 +63,7 @@
     any:
       - { turn: [7, 8] }
       - { turn: [17, 18] }
-    project: { stage: writing, turns_to_deadline: "<=1" }
+    project: { stage: consolidation, turns_to_deadline: "<=1" }
   text:
     - "Your final exam and the deadline for {project} land in the same week. Both insist they are the priority."
   choices:

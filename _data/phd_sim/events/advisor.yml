@@ -242,7 +242,7 @@
   title: "Caught in the Middle"
   category: advisor
   rarity: uncommon
-  when: { has_advisor: true, project: { stage: [analysis, writing] } }
+  when: { has_advisor: true, project: { stage: [analysis, consolidation] } }
   text:
     - "{advisor} wants {project} framed as a methods paper. Your collaborator wants a findings paper. Both email you, separately, within the same minute."
   choices:
@@ -292,7 +292,7 @@
   title: "Comments on Version 2"
   category: advisor
   rarity: common
-  when: { has_advisor: true, advisor_not: [kind_funded, micromanager], project: { stage: [writing, revise] } }
+  when: { has_advisor: true, advisor_not: [kind_funded, micromanager], project: { stage: [consolidation, revise] } }
   text:
     - "{advisor} finally sends comments on your draft of {project}. They are on version 2. You are on version 5."
   choices:

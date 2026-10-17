@@ -74,7 +74,7 @@
   title: "Figure, Version Four"
   category: legion
   rarity: common
-  when: { advisor: [micromanager], project: { stage: writing } }
+  when: { advisor: [micromanager], project: { stage: consolidation } }
   text:
     - "{advisor} rewrites your figure captions, again. Overnight, they also rewrite the figure. The colors are now their favorite colors."
   choices:
@@ -423,7 +423,7 @@
   title: "Ten Seeds and a Test"
   category: legion
   rarity: common
-  when: { advisor: [methods_purist], project: { type: empirical, stage: [experiments, writing] } }
+  when: { advisor: [methods_purist], project: { type: empirical, stage: [experiments, consolidation] } }
   text:
     - "Your new method beats the baseline by 1.2 points. {advisor} won't believe it until you run ten seeds and a significance test."
   choices:
@@ -485,7 +485,7 @@
   title: "87 Comments"
   category: legion
   rarity: uncommon
-  when: { advisor: [kind_funded], project: { stage: writing } }
+  when: { advisor: [kind_funded], project: { stage: consolidation } }
   text:
     - "Your draft of {project} comes back with 87 comments. Every one is polite. Every one is right. Several are about a single comma."
   choices:
@@ -519,7 +519,7 @@
   title: "Not Borderline"
   category: legion
   rarity: uncommon
-  when: { advisor: [kind_funded], project: { stage: writing, turns_to_deadline: "<=1" }, stat: { advisor_rel: ">=40" } }
+  when: { advisor: [kind_funded], project: { stage: consolidation, turns_to_deadline: "<=1" }, stat: { advisor_rel: ">=40" } }
   text:
     - "{advisor} reads the draft of {project} and says: \"We could submit this. But it's a borderline paper, and you can do better than borderline.\""
   choices:
@@ -614,7 +614,7 @@
   title: "Read the Same Day"
   category: legion
   rarity: common
-  when: { advisor: [kind_funded], project: { stage: writing } }
+  when: { advisor: [kind_funded], project: { stage: consolidation } }
   text:
     - "You send {advisor} your draft at 2 pm, expecting comments next week. At 6 pm it's back, read end to end, with a summary on page 1."
   choices:
@@ -683,7 +683,7 @@
   title: "One Circled Word"
   category: legion
   rarity: common
-  when: { advisor: [kind_funded], project: { stage: writing } }
+  when: { advisor: [kind_funded], project: { stage: consolidation } }
   text:
     - "Your draft comes back with a single comment: a circled orphan word at the end of the abstract."
   choices:
@@ -701,7 +701,7 @@
   title: "Title Case or Sentence Case"
   category: legion
   rarity: common
-  when: { advisor: [kind_funded], project: { stage: writing } }
+  when: { advisor: [kind_funded], project: { stage: consolidation } }
   text:
     - "Half your section headings are in Title Case and half are in Sentence case. {advisor} would like them consistent before the meeting."
   choices:
@@ -724,7 +724,7 @@
   title: "Round Four"
   category: legion
   rarity: common
-  when: { advisor: [kind_funded], project: { stage: writing } }
+  when: { advisor: [kind_funded], project: { stage: consolidation } }
   text:
     - "The axis labels in Figure 2 are 6 pt, so the figure goes back for its fourth round."
   choices:
@@ -791,7 +791,7 @@
   title: "12:07 am"
   category: legion
   rarity: common
-  when: { advisor: [kind_funded], project: { stage: writing } }
+  when: { advisor: [kind_funded], project: { stage: consolidation } }
   text:
     - "You send a draft at 11:50 pm. At 12:07 am, 30 comments arrive, ending with: \"No need to reply until Monday.\""
   choices:
@@ -983,7 +983,7 @@
   title: "To Understand How You Work"
   category: legion
   rarity: common
-  when: { advisor: [micromanager], project: { stage: [writing, revise] } }
+  when: { advisor: [micromanager], project: { stage: [consolidation, revise] } }
   text:
     - "{advisor} asks for the full edit history of your draft of {project}, \"just to understand how you work\". It shows every 2 am session, and every hour of nothing."
   choices:
@@ -1006,7 +1006,7 @@
   title: "A Comment on Every Sentence"
   category: legion
   rarity: common
-  when: { advisor: [micromanager], project: { stage: writing } }
+  when: { advisor: [micromanager], project: { stage: consolidation } }
   text:
     - "Your draft of {project} comes back with a comment on every sentence. The references have comments too. Reference 14 has three."
   choices:
@@ -1077,7 +1077,7 @@
   title: "Same Deadline, Two Papers"
   category: legion
   rarity: common
-  when: { advisor: [hungry_ap], project: { stage: writing, turns_to_deadline: "<=2" } }
+  when: { advisor: [hungry_ap], project: { stage: consolidation, turns_to_deadline: "<=2" } }
   text:
     - "{advisor} is submitting their own paper to the same deadline as {project}. \"Could you run a few experiments on mine too? You're so fast.\""
   choices:
@@ -1241,7 +1241,7 @@
   title: "Unlimited Compute, Limited Lawyers"
   category: legion
   rarity: common
-  when: { advisor: [industry_joint], project: { stage: writing } }
+  when: { advisor: [industry_joint], project: { stage: consolidation } }
   text:
     - "Thanks to {advisor}'s company, your compute for {project} was unlimited. Now every result needs legal review before you can submit. Legal estimates six to eight weeks."
   choices:
@@ -1388,7 +1388,7 @@
   title: "Page 13 of the Appendix"
   category: legion
   rarity: common
-  when: { advisor: [methods_purist], project: { stage: writing } }
+  when: { advisor: [methods_purist], project: { stage: consolidation } }
   text:
     - "The four-page short paper on {project} now has a twelve-page statistics appendix. {advisor} is drafting page 13."
   choices:
@@ -1411,7 +1411,7 @@
   title: "Significant, or Just Exciting?"
   category: legion
   rarity: common
-  when: { advisor: [methods_purist], project: { stage: [experiments, analysis, writing] } }
+  when: { advisor: [methods_purist], project: { stage: [experiments, analysis, consolidation] } }
   text:
     - "You show a 2.1-point gain on {project}, and lab meeting cheers. {advisor} waits for the cheering to stop. \"Is it significant, or just exciting?\""
   choices:

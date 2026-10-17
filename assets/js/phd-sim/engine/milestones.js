@@ -10,7 +10,7 @@ import { fill } from "./templating.js";
 import { genCandidates, makeAdvisor, genLabmates, genCommittee } from "./people.js";
 import {
   PROJECT_TYPES, STAGE_LABELS, newProjectObject, activeProjects, autoTarget, components, weakestComp,
-  writingCompletion, isReady, deadlineLabel, venuesFor, nextDeadline, stageNeed, stageInfo
+  writingCompletion, isReady, deadlineLabel, venuesFor, nextDeadline, stageInfo
 } from "./projects.js";
 import { makePaper, generateReviews, rebuttalPrompt, resolveRebuttal, decide, metaLine, nextResubmitTarget } from "./reviews.js";
 import { setCiteMean, rollBreakout } from "./citations.js";
@@ -118,7 +118,6 @@ export function createProject(G, type, topicId, opts) {
   const ideas = Math.min(3, s.telemetry.ideas || 0);
   const p = newProjectObject(G, type, topicId, { bonusN: opts.bonusN !== undefined ? opts.bonusN : ideas * 3, stageIdx: opts.stageIdx, seedQuality: opts.seedQuality, source: opts.source });
   if (opts.bonusN === undefined) s.telemetry.ideas = Math.max(0, (s.telemetry.ideas || 0) - ideas);
-  if (opts.progress) p.progress = opts.progress;
   s.projects.push(p);
   return p;
 }
@@ -662,13 +661,13 @@ export function handleSys(G, prompt, choice) {
       if (o === "findings") {
         if (choice === 0) { acceptPaper(G, pp, true); return empty("Findings it is. A publication is a publication."); }
         rejectPaper(G, pp);
-        if (p) { p.status = "active"; p.revise = true; p.progress = 0; p.ready = false; nextResubmitTarget(G, p, false); }
+        if (p) { p.status = "active"; p.revise = true; p.ready = false; nextResubmitTarget(G, p, false); }
         return empty("You withdraw and start revising.");
       }
       if (o === "revise" || o === "major_revision") {
         if (choice === 0 && p) {
           pp.status = "revise_resubmit";
-          p.status = "active"; p.revise = true; p.progress = 0; p.ready = false;
+          p.status = "active"; p.revise = true; p.ready = false;
           if (pp.journal) p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: null, journalPaper: pp.id };
           else {
             const c = G.D.venueById[pp.venueId].cycles[pp.cycle];
@@ -678,7 +677,7 @@ export function handleSys(G, prompt, choice) {
           return empty("Revision mode. Every reviewer comment is now a to-do item.");
         }
         rejectPaper(G, pp);
-        if (p) { p.status = "active"; p.revise = true; p.progress = 0; p.ready = false; nextResubmitTarget(G, p, false); }
+        if (p) { p.status = "active"; p.revise = true; p.ready = false; nextResubmitTarget(G, p, false); }
         return empty("You withdraw it and look for another venue.");
       }
       // Rejected (or desk rejected): sanity hit then a plan.
@@ -688,7 +687,7 @@ export function handleSys(G, prompt, choice) {
       const dd = addStat(G, "sanity", hit);
       if (p) {
         if (choice === 2) { p.status = "shelved"; return { text: "You shelve it. It still taught you something.", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [] }; }
-        p.status = "active"; p.revise = true; p.progress = 0; p.ready = false;
+        p.status = "active"; p.revise = true; p.ready = false;
         nextResubmitTarget(G, p, choice === 1);
        
         return { text: "Back to the draft. Next stop: " + (deadlineLabel(G, p) || "the next deadline") + ".", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [], tip: s.telemetry.rejections === 1 ? "Critique-Centric Feedback" : null };
@@ -896,7 +895,7 @@ export function planExtras(G) {
   if (y <= 3 && t >= 3 && t <= 6 && !s.flags.fellowship_won && !(s.fellowship && s.fellowship.year === y)) {
     out.push({ id: "apply_fellowship", kind: "apply", slot: true, label: "Apply for a fellowship",
       desc: "A year without TA duty if you win. Results in February.",
-      arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "writing", dir: "up", strength: 1 }] });
+      arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
   }
   if (m.proposal === "pending" && m.quals === "passed" && !m.proposalAt && t !== 9 &&
     y >= (cfg.proposal_min_year || 3) && firstAuthorPubs(G) >= (cfg.proposal_min_pubs || 2)) {
@@ -965,7 +964,6 @@ function internshipPaper(G, company) {
   const s = G.state;
   const topic = G.rng.pick(s.world.topics);
   const p = createProject(G, "empirical", topic.id, { stageIdx: 4, seedQuality: 50 + s.stats.coding / 5, bonusN: 2, source: "internship" });
-  p.progress = stageNeed(G, p);
   p.ready = true;
   p.q.C.s = 40 + s.stats.writing * 0.5; p.q.C.n = 1;
   autoTarget(G, p, { minLead: 1 });
@@ -1042,7 +1040,7 @@ function autoReject(G, pp) {
   const p = proj(G, pp.projectId);
   const scores = pp.reviews ? " Scores: " + pp.reviews.map(function (r) { return r.score; }).join(", ") + "." : "";
   if (p) {
-    p.status = "active"; p.revise = true; p.progress = 0; p.ready = false;
+    p.status = "active"; p.revise = true; p.ready = false;
     nextResubmitTarget(G, p, false);
     log(G, (pp.deskReject ? "Desk rejected at " : "Rejected at ") + pp.venueName + ": \u201c" + pp.short + "\u201d." + scores + stress +
       " You'll revise it for " + (deadlineLabel(G, p) || "the next deadline") + " (change the target or shelve it in Projects).", "bad");
@@ -1056,7 +1054,7 @@ function autoRevise(G, pp) {
   const p = proj(G, pp.projectId);
   if (!p) { rejectPaper(G, pp); return; }
   pp.status = "revise_resubmit";
-  p.status = "active"; p.revise = true; p.progress = 0; p.ready = false;
+  p.status = "active"; p.revise = true; p.ready = false;
   if (pp.journal) p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: null, journalPaper: pp.id };
   else {
     const c = G.D.venueById[pp.venueId].cycles[pp.cycle];
@@ -1068,7 +1066,7 @@ function autoRevise(G, pp) {
 
 function isReadyish(G, p) {
   const st = PROJECT_TYPES[p.type].stages[p.stageIdx];
-  return p.revise || (st && st.id === "writing" && writingCompletion(G, p) >= 0.25);
+  return p.revise || (st && st.id === "consolidation");
 }
 
 // End of turn: finalize submissions and revisions.

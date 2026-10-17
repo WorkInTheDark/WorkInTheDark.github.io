@@ -67,16 +67,14 @@ health:
 skills:
   growth: 0.25           # per relevant day: growth * (1 - skill / 100)
 
-# Projects move through named stages: about 4 months when you push, 6–8 when you alternate.
-# Work builds hidden progress in a stage (a stage needs 6–45 points); at the end of each turn the
-# stage completes with chance (done / need) ^ roll_curve, or for sure once all the work is done.
+# Projects move through named stages, each with a set chance of finishing per turn of work
+# (in projects.js). A normal full turn gets exactly that chance; a short or tired turn keeps
+# 50–100% of it (chance × (0.5 + 0.5 × effort / full_turn)); a crunch adds at most 15%.
 progress:
-  rate: 3.6              # points per work day before multipliers
-  roll_curve: 1.5
-  roll: 0.2              # ±20% per day
+  full_turn: 6.5         # effective work days that count as a full turn (a normal turn after Year 1)
   read_lit: 1.3          # reading during Related work, relative to working on it
   work_lit: 0.8          # "Work on" during Related work
-  read_trickle: 0.4      # % per reading day for projects in other phases
+  read_trickle: 0.05     # effort per reading day for projects in other stages
   max_active_projects: 4
 
 quality:

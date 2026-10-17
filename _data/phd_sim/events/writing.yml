@@ -529,7 +529,7 @@
         effects: { energy: "-6±2", sanity: "-3±1", health: "-2±1" }
 
 # ===========================================================================
-# Writing stage (hook: turn)
+# Consolidation stage (hook: turn)
 # ===========================================================================
 
 - id: wri_figure_one
@@ -537,7 +537,7 @@
   category: writing
   rarity: common
   when:
-    project: { stage: writing }
+    project: { stage: consolidation }
   text:
     - "Figure 1 for {project} is on its third day. It has been a pipeline diagram, a comic strip, and a pipeline diagram again."
     - "You've spent three days on Figure 1. It's a box, an arrow, and another box, and it's still not right."
@@ -562,7 +562,7 @@
   category: writing
   rarity: common
   when:
-    project: { stage: writing }
+    project: { stage: consolidation }
   text:
     - "You open intro_v7.tex. Then, out of curiosity, intro_v1.tex. Version one was better."
     - "The seventh rewrite of the introduction to {project} is done. You reread the first one, and it was better."
@@ -593,7 +593,7 @@
   repeatable: true
   cooldown: 26
   when:
-    project: { stage: [experiments, analysis, baselines, writing], turns_to_deadline: "<=1" }
+    project: { stage: [experiments, analysis, baselines, consolidation], turns_to_deadline: "<=1" }
   text:
     - "Surprise: the abstract for {project} is due a week before the paper. The experiments aren't finished, so neither is the story."
     - "The submission site wants a title and abstract for {project} by Friday, a week before the full paper. You have a title."
@@ -621,7 +621,7 @@
   repeatable: true
   cooldown: 26
   when:
-    project: { stage: writing }
+    project: { stage: consolidation }
   text:
     - "The related work section of {project} is now two pages long. It cites {roll:80-110} papers, including one you've only read the title of."
     - "You meant to write one paragraph of related work for {project}. It's two pages now, with subsections."
@@ -691,7 +691,7 @@
   category: writing
   rarity: uncommon
   when:
-    project: { stage: writing }
+    project: { stage: consolidation }
   text:
     - "This year's conference template is out. You paste in the draft of {project}, and nothing compiles: {roll:40-90} errors, all about a package you've never heard of."
   choices:

@@ -34,7 +34,7 @@ export function deltasHtml(list) {
     let label = DELTA_LABEL[d.stat];
     let good = d.amount > 0;
     if (d.stat === "sanity") d = { stat: d.stat, amount: -d.amount };
-    if (d.stat === "progress") label = (d.label || "Project") + " progress (%)";
+    if (d.stat === "progress") label = (d.label || "Project") + ": odds of finishing its stage next turn (%)";
     if (d.stat === "delay") { label = (d.label || "Project") + " delay (weeks)"; good = d.amount < 0; }
     const n = Math.round(d.amount * 10) / 10;
     return '<span class="ps-delta ' + (good ? "ps-delta-good" : "ps-delta-bad") + '">' + esc(label) + " " + (n > 0 ? "+" : "−") + Math.abs(n) + "</span>";

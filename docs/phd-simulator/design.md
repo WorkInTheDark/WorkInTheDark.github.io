@@ -16,7 +16,7 @@ A browser game on the site, inspired by 《读博模拟器》, in which the play
 | Turn length | **Two weeks: one focus click, then what comes up.** You pick the turn's focus (a project, Read and learn, Recharge, or an "only this turn" option), then answer the turn's updates and events, and sometimes a side activity. No multi-pick, no confirm button (section 4). History, all 2026-10-16: a repeating two-week routine, then a two-week planner with several picks, then one click per week, then this, after Arthur replayed the original 读博模拟器 (a month per turn: one to-do pick, then several event screens) |
 | Visible stats | Three bars to balance: **Energy**, **Stress** and **Health**, plus Citations (+ h-index) and Papers. Stress is the engine's `sanity` shown as 100 − sanity. New tasks (reviews, grading, a rebuttal) and bad news (rejections) raise Stress; many events now cost Health. "Get healthy" was dropped as a duplicate of Recharge |
 | Hidden stats | Skills (hidden again: the bars felt useless), relationships, network |
-| Projects | **Named stages, like the original game** (2026-10-16): each turn of work either completes the current stage or doesn't. About 4 months when you push, 6–8 when you alternate. Kind and topic are assigned automatically. Waits (IRB, recruiting, annotation) are 2–4 weeks. **NLP papers go only to NLP venues (plus NeurIPS and ICLR), HCI papers only to HCI venues.** Each paper due gets its own deadline card, so two papers can be submitted in one turn |
+| Projects | **Named stages with set chances** (Arthur, 2026-10-16): each turn of work is one try at finishing the current stage (Idea 80%, Related work 70%, Pilot 60%, Experiments 50%...), with no hidden progress. **No Writing stage**: you write all along, and the last stage, Consolidation, pulls it into one paper. Kind and topic are assigned automatically. Waits (IRB, recruiting, annotation) are 2–4 weeks. **NLP papers go only to NLP venues (plus NeurIPS and ICLR), HCI papers only to HCI venues.** Each paper due gets its own deadline card |
 | Character | Three traits rolled at random. No background or origin choice; those became traits (Industry Veteran, Career Switcher, Master's Head Start, International Student) (2026-10-16) |
 | Event frequency | **Usually one event a turn, sometimes two or none** (two more often than none: 15% / 60% / 25%). Updates that need an answer (reviews, decisions, milestones) count toward it. A side-activity card comes up in about a third of turns. Routine news goes into the report |
 | Not stats | Money and funding (funding becomes a hidden trait of the advisor) |
@@ -424,33 +424,36 @@ Generated faculty for quals, proposal and defense, each with a field, a personal
 
 ### 8.1 Project types
 
-Each project moves through **named stages** (2026-10-16, adapted from the original game). Work builds hidden progress in the current stage; at the end of each turn the stage completes with chance `(done / need) ^ 1.5`, or for sure once all the work is in, and otherwise stays. At most one stage a turn. The card shows the stage path (finished stages ticked, current in bold) and a hint: just started, making progress, nearly there. When Writing completes, the paper is **ready to submit**. The `need` column below is each stage's work, in points.
+Each project moves through **named stages** (2026-10-16, Arthur's design). Each turn you work on a project is **one try** at finishing its current stage, at that stage's set chance. Success moves to the next stage; failure stays, and the card counts the tries. There's no hidden progress.
 
-| Type | Stages (work needed) | Waits |
-|---|---|---|
-| Empirical NLP | Idea 8 → Related work 17 → Pilot 20 → Experiments 30 → Writing 25 | none |
-| Human-centered study | Idea 6 → Related work 14 → Study design 12 → IRB → Recruiting → Sessions 20 → Analysis 20 → Writing 28 | IRB 2–4 weeks, recruiting 2 |
-| System + evaluation | Idea 6 → Related work 14 → Build 28 → IRB → User study 16 → Analysis 12 → Writing 24 | IRB 2–4 weeks |
-| Dataset / benchmark | Idea 7 → Related work 15 → Guidelines 15 → Annotation → Baselines 33 → Writing 30 | annotation 2–4 weeks |
-| Position / survey | Idea 10 → Related work 45 → Writing 45 | none |
+**There's no Writing stage, on purpose.** Arthur tells his students to write early, and a final "Writing" stage would teach the opposite. You write all along (every stage's work adds to the paper's clarity), and the last stage, **Consolidation**, pulls the results, related work and drafts into one paper and tailors it to the venue. When Consolidation succeeds, the paper is **ready to submit**. A paper still in Consolidation can be submitted, but it reads rougher.
 
-Type ids used in data files: `empirical`, `study`, `system`, `dataset`, `position`.
+| Type | Field | Stages (chance per turn of work) | Waits |
+|---|---|---|---|
+| Empirical NLP | NLP | Idea 80% → Related work 70% → Pilot 60% → Experiments 50% → Consolidation 60% | none |
+| Human-centered study | HCI | Idea 80% → Related work 70% → Study design 65% → IRB → Recruiting → Study sessions 55% → Analysis 60% → Consolidation 60% | IRB 2–4 weeks, recruiting 2 |
+| System + evaluation | HCI | Idea 80% → Related work 70% → Building 50% → IRB → User study 55% → Analysis 60% → Consolidation 60% | IRB 2–4 weeks |
+| Dataset / benchmark | NLP | Idea 80% → Related work 70% → Annotation guidelines 65% → Annotation → Baselines 50% → Consolidation 60% | annotation 2–4 weeks |
+| Position / survey | either | Idea 80% → Related work 50% → Consolidation 55% | none |
 
-**New projects pick their own kind and topic** (2026-10-16): Arthur found choosing them pointless, and hype meant nothing to players. The kind is weighted (empirical 3, study 2.5, system 2, dataset 1, position 0.7; Career Switchers lean toward studies), and the topic is one not already used by an active project. Hype still matters behind the scenes (citations, novelty, scoops).
+Revising after a rejection or a revise-and-resubmit is one stage at 60%. Type ids used in data files: `empirical`, `study`, `system`, `dataset`, `position`; stage ids are the lowercase names (`consolidation`, `lit` for Related work).
 
-**Waiting phases** advance by calendar time rather than work. While a project waits (or is on hold after a setback), it has no "Work on" choice that turn. Events can shorten or lengthen waits.
+**New projects pick their own kind and topic**; see the field rules in section 3.3.
 
-**Revising:** after a rejection or a revise-and-resubmit, the bar sits at 80% and revising (a 20% phase) fills the rest.
+**Waiting stages** advance by calendar time rather than work. While a project waits (or is on hold after a setback), it has no "Work on" choice that turn.
 
-### 8.2 Progress
-Each day of work adds, in % of the whole bar:
+### 8.2 The odds each turn
 
 ```
-progress = 3.6 × efficiency(energy) × skill_factor × modifiers × roll(±20%)
-skill_factor = 0.6 + 0.8 × (relevant_skill / 100)
+chance = stage chance × factor + event nudges                              (at most 95%)
+factor = 0.5 + 0.5 × effort / 6.5   for a short or tired turn (never below half)
+       = up to 1.15                 for extra effort, like a crunch
+effort = Σ over the turn's work days of efficiency(energy) × skill_factor × modifiers
 ```
 
-A full work turn at full Energy after Year 1 (about 9 free days) is about 27 points, enough to finish most stages; in Year 1, with classes, about 16. With rest turns, waits and events, a pushed project takes about 18–20 weeks. Related work moves 0.8× as fast with "Work on" and 1.3× with **Read and learn**; a reading day also adds 0.4 points to every other project. Event effects on `project.progress` are points in the current stage.
+A normal full turn after Year 1 (about 9 free days at decent Energy) counts as a full try, at the stage's chance, so the odds stay close to the numbers in the table. A busy Year 1 turn with classes keeps about 80% of the chance; exhaustion, sickness and burnout lower it; a crunch, a writing retreat or an empty GPU cluster raise it a little. Related work counts 1.3× when you **Read and learn** and 0.8× with "Work on". A reading turn also gives other projects a small try (about 5–10%). Events with `project.progress: n` nudge the next try by n percentage points. The choice text says how likely this turn is to finish the stage, in words ("likely", "about even").
+
+Measured: working on one project every turn, a project is ready in a median of about 22 weeks (16–26 for the middle half; empirical projects near 16–18 weeks, studies longer because of IRB and recruiting). With rest turns in between, about 6 months.
 
 ### 8.3 Quality
 Each project has three hidden quality components, 0–100:
@@ -459,7 +462,7 @@ Each project has three hidden quality components, 0–100:
 - **Clarity (C):** from writing days (writing skill).
 
 Each component is the average relevant skill applied over that stage's days, times how complete the stage was:
-- Writing can be cut short: a rough draft (at least 40% of the Writing work) can be submitted, but Clarity is capped by how finished it is. **Rushing shows up in reviews.**
+- A paper can be submitted while still in Consolidation, but its Clarity is capped until Consolidation is done. **Rushing shows up in reviews.**
 - Submission becomes possible once Writing reaches 50%.
 - A strict advisor may block a submission whose quality is below their bar.
 

@@ -11,7 +11,7 @@ import { addStat, addStatus, removeStatus, applyOutcome } from "./effects.js";
 import { fill } from "./templating.js";
 import { arrowsFor } from "./events.js";
 import { drawHook, fireHook, presentEvent, resolveEvent, flavorLine } from "./events.js";
-import { activeProjects, workDay, readTrickle, tickProjects, rollStages, autoTarget, setTarget, currentStage, stageNeed, stageInfo, isReady, withdrawRevision, rollMissedDeadlines, STAGE_LABELS, PROJECT_TYPES, writingCompletion, deadlineLabel } from "./projects.js";
+import { activeProjects, workDay, readTrickle, tickProjects, rollStages, autoTarget, setTarget, currentStage, stageInfo, turnChance, chanceWord, isReady, withdrawRevision, rollMissedDeadlines, STAGE_LABELS, PROJECT_TYPES, writingCompletion, deadlineLabel } from "./projects.js";
 import { accrueCitations } from "./citations.js";
 import { yearlyLabmates } from "./people.js";
 import { tickWorld } from "./world.js";
@@ -62,7 +62,6 @@ export class Game {
     if (s.player.traits.indexOf("head_start") >= 0) {
       const t = this.rng.pick(s.world.topics);
       const p = createProject(this, this.rng.chance(0.5) ? "empirical" : "study", t.id, { stageIdx: 1, seedQuality: 48, source: "masters" });
-      p.progress = stageNeed(this, p) * 0.4;
       autoTarget(this, p);
       this.log("You bring a half-finished project from your Master's: “" + p.title + "”.");
     }
@@ -242,9 +241,13 @@ export class Game {
       out.push({ id: "recharge", kind: "core", label: "Take a few days off", desc: "Use your vacation days. Rest the rest of the time.",
         arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
     } else if (!onLeave) {
+      // Roughly how much this turn's free days would count, for "how likely is this stage to finish".
+      const cfgE = this.D.config.energy;
+      const effNow = clamp(cfgE.efficiency_floor + cfgE.efficiency_slope * s.stats.energy, cfgE.efficiency_floor, 1);
       activeProjects(this).forEach(function (p) {
         const st = currentStage(self, p);
         const info = stageInfo(self, p);
+        const odds = chanceWord(turnChance(self, p, fx.free * effNow * 0.9 * (st.id === "lit" ? self.D.config.progress.work_lit : 1)));
         const ttd = p.target && p.target.turn !== null && p.target.turn !== undefined ? p.target.turn - s.turn : null;
         // A project that's waiting (IRB, recruiting, annotation) or on hold has nothing to work on this turn.
         if (st.kind === "wait" || p.pause > 0) return;
@@ -256,7 +259,8 @@ export class Game {
             arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
         } else {
           out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",
-            desc: info.label + ", stage " + info.n + " of " + info.of + " (" + info.hint + ")." + dl + (st.id === "lit" ? " Reading moves this stage faster." : ""),
+            desc: info.label + ", stage " + info.n + " of " + info.of + ". Finishing it this turn: " + odds + "." +
+              (info.stuck ? " (" + info.stuck + (info.stuck === 1 ? " try" : " tries") + " so far.)" : "") + dl + (st.id === "lit" ? " Reading is better for this stage." : ""),
             arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: st.id === "lit" ? 1 : 2 }] });
         }
         if (ttd === 1 && !info.ready && !fx.burnout) {
@@ -391,7 +395,7 @@ export class Game {
     activeProjects(this).forEach(function (p) {
       if (!p.target || p.target.rrPaper || p.target.journalPaper) return;
       // A deadline this turn: a card to submit or skip (one per paper, so two can go in together).
-      if (p.target.turn === s.turn && (currentStage(self, p).id === "writing" || p.revise)) {
+      if (p.target.turn === s.turn && isReady(self, p)) {
         items.push({ kind: "sys", sys: "submit", data: { projectId: p.id } });
       }
       // A deadline two weeks out with the paper far from done weighs on you.
