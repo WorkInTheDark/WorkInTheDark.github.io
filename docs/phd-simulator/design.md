@@ -910,26 +910,15 @@ Episode URLs are `/phd101/<chapter>.<episode>/`, and chapters get renumbered, so
 7. **End card.**
 8. **Codex and achievements.**
 
-### 14.2 Main turn screen
+### 14.2 Main turn screen (redesigned 2026-10-16)
 
-```
-Year 2 · Oct 13–26 · Fall                     [Codex] [How to play] [Leave] [Menu]
-Energy ███████░░░ 68   Sanity █████░░░░░ 52   Citations 37 (h 3)   Papers 2 +1
-Taste ▃ 41  Coding ▅ 55  Writing ▄ 47  Presenting ▃ 38  Knowledge ▅ 52
-[Advisor: the Dark Angel] [TA]
+Modeled on the original game, where one box holds every message and choice, and everything fits on one screen. On a desktop the game fills the window below the site's navbar (the page title steps aside while playing), so nothing needs page scrolling; long lists scroll inside their own panel.
 
-LAST TURN: Y2 SEP 29–OCT 12
-  Energy 75 → 68   Writing 45 → 47   Citations 31 → 37
-  Beyond Accuracy: Writing 40% → 62%
-  Reviews are in for "Who Reads the Explanation?": 3, 4, 2 out of 5.
-
-THIS TURN                                                        ● ● ○ ○
-  Choose 4 things to do these two weeks (the rest goes to TA duty).
-  [Work on "Beyond Accuracy" ×2]  [Read papers]  [See friends]  [Rest] ...
-  Weekends: [Off (recover) ▾]
-  Also this turn:  ☑ Submit "Beyond Accuracy" to ACL   ☐ Apply for a fellowship
-  [Same as last turn]                                         [End turn ▸]
-```
+- **Top bar (one line):** date and semester, the Energy / Stress / Health bars, papers and citations, and How to play, Codex, Log, Leave, Menu.
+- **Main box (left):** first, **last turn** in a few lines: what you did, the bar changes, and up to four things that happened (stage changes, decisions, bad news), plus a PhD 101 tip if there was one. Then **this turn's choices**, one row each, numbered for the keyboard: label, a short line (stage and odds, deadline), arrows. **Events and updates appear in this same box** instead of a pop-up over a busy page, with the rarity color as a thin line on top.
+- **Right column:** **Projects** (each with its stage chips: done ✓, current filled, waiting dashed; the target and the deadline; the venue picker and Shelve tucked under "Target and options"; papers under review and published below), **You** (advisor, every active status explained in words with time left, traits), **Coming up** (the next four dated things).
+- **Log:** behind the Log button, as an overlay.
+- **Narrower screens:** one column, page scrolls normally; phone tested at 375 px.
 
 ### 14.3 Event card
 

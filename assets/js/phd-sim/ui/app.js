@@ -2,7 +2,7 @@
 import { prepareData, newRun, rollTraits, Game, newSeed, storage } from "../engine/index.js";
 import { Rng } from "../engine/rng.js";
 import { prefersReducedMotion, esc } from "./common.js";
-import { gameHtml } from "./gameview.js";
+import { gameHtml, logHtml, orderedActions } from "./gameview.js";
 import { eventHtml, sysHtml, matchingHtml, rebuttalHtml, qaHtml, resultHtml, promptClass } from "./prompts.js";
 import { titleHtml, setupHtml, helpHtml, codexHtml, endHtml, summaryText, drawCard } from "./screens.js";
 
@@ -26,6 +26,7 @@ export class App {
     root.addEventListener("change", function (e) { self.onChange(e); });
     root.addEventListener("input", function (e) { if (e.target.id === "ps-name" && self.setup) self.setup.name = e.target.value; });
     document.addEventListener("keydown", function (e) { self.onKey(e); });
+    window.addEventListener("resize", function () { self.fit(); });
     this.render();
   }
 
@@ -38,42 +39,71 @@ export class App {
 
   // ---- Rendering ------------------------------------------------------------
 
+  // The current event or update, drawn inside the main box (or null).
+  promptInner() {
+    if (!this.modal) return null;
+    const p = this.modal.prompt;
+    let inner = "";
+    if (p.type === "event") inner = eventHtml(p);
+    else if (p.type === "sys") inner = sysHtml(p);
+    else if (p.type === "matching") inner = matchingHtml(p);
+    else if (p.type === "rebuttal") inner = rebuttalHtml(p, this.psel);
+    else if (p.type === "qa") inner = qaHtml(p, this.psel);
+    if (this.modal.result) {
+      // Keep the question visible, replace the choices with the outcome.
+      inner = inner.replace(/<div class="ps-choices">[\s\S]*$/, "");
+      if (p.type !== "event" && p.type !== "sys") inner = '<div class="ps-kicker">Result</div><h3 id="ps-dialog-title">' + esc(p.title || "") + "</h3>";
+      inner += resultHtml(this.modal.result, p, this.modal.achievements);
+    }
+    return inner;
+  }
+
   render() {
     let body = "";
+    const inGame = this.screen === "game" && this.game;
     if (this.screen === "title") body = titleHtml(this);
     else if (this.screen === "setup") body = setupHtml(this);
     else if (this.screen === "help") body = helpHtml();
     else if (this.screen === "codex") body = codexHtml(this);
     else if (this.screen === "end") body = endHtml(this);
-    else if (this.screen === "game" && this.game) body = gameHtml(this.game, this);
-    let modal = "";
-    if (this.modal) {
-      const p = this.modal.prompt;
-      let inner = "";
-      if (p.type === "event") inner = eventHtml(p);
-      else if (p.type === "sys") inner = sysHtml(p);
-      else if (p.type === "matching") inner = matchingHtml(p);
-      else if (p.type === "rebuttal") inner = rebuttalHtml(p, this.psel);
-      else if (p.type === "qa") inner = qaHtml(p, this.psel);
-      if (this.modal.result) {
-        // Keep the question visible, replace the choices with the outcome.
-        inner = inner.replace(/<div class="ps-choices">[\s\S]*$/, "");
-        if (p.type !== "event" && p.type !== "sys") inner = '<div class="ps-kicker">Result</div><h3 id="ps-dialog-title">' + esc(p.title || "") + "</h3>";
-        inner += resultHtml(this.modal.result, p, this.modal.achievements);
-      }
-      modal = '<div class="ps-modal"><div class="ps-dialog ' + promptClass(p) + '" role="dialog" aria-modal="true" aria-labelledby="ps-dialog-title">' + inner + "</div></div>";
-    }
+    else if (inGame) body = gameHtml(this.game, this, this.promptInner(), this.modal ? promptClass(this.modal.prompt) : "");
+    // The log is the only thing that opens over the screen.
+    const overlay = inGame && this.logOpen
+      ? '<div class="ps-modal" data-action="close-log"><div class="ps-dialog ps-wide" role="dialog" aria-modal="true" aria-labelledby="ps-dialog-title">' + logHtml(this.game) + "</div></div>"
+      : "";
     const scrollY = window.scrollY;
-    const dialogScroll = this.root.querySelector(".ps-dialog") ? this.root.querySelector(".ps-dialog").scrollTop : 0;
-    this.root.innerHTML = '<div class="ps-app"><div class="ps-screen"' + (this.modal ? ' inert aria-hidden="true"' : "") + ">" + body + "</div>" + modal +
+    const old = { stage: this.root.querySelector(".ps-stage"), side: this.root.querySelector(".ps-side") };
+    const keep = { stage: old.stage ? old.stage.scrollTop : 0, side: old.side ? old.side.scrollTop : 0 };
+    this.root.innerHTML = '<div class="ps-app"><div class="ps-screen"' + (overlay ? ' inert aria-hidden="true"' : "") + ">" + body + "</div>" + overlay +
       (this.toast ? '<div class="ps-toast" role="status">' + esc(this.toast) + "</div>" : "") + "</div>";
-    document.body.style.overflow = this.modal ? "hidden" : "";
+    document.body.style.overflow = overlay ? "hidden" : "";
     if (this.keepScroll) window.scrollTo(0, scrollY);
-    const dlg = this.root.querySelector(".ps-dialog");
-    if (dlg && this.keepDialogScroll) dlg.scrollTop = dialogScroll;
+    const stage = this.root.querySelector(".ps-stage");
+    const side = this.root.querySelector(".ps-side");
+    if (stage && this.keepDialogScroll) stage.scrollTop = keep.stage;
+    if (side) side.scrollTop = keep.side;
     this.keepScroll = false;
     this.keepDialogScroll = false;
+    this.fit();
     this.restoreFocus();
+  }
+
+  // On wide screens the game fills the window below the site's navbar, so nothing needs page
+  // scrolling; long lists scroll inside their own panel.
+  fit() {
+    const game = this.root.querySelector(".ps-game");
+    if (!game) return;
+    const nav = document.querySelector("#navbar, nav.navbar.fixed-top");
+    const navH = nav && getComputedStyle(nav).position === "fixed" ? nav.offsetHeight : 0;
+    game.style.setProperty("--ps-avail", Math.max(520, window.innerHeight - navH - 16) + "px");
+  }
+
+  // Bring the game to the top of the window (below the navbar) when play starts.
+  scrollToGame() {
+    const nav = document.querySelector("#navbar, nav.navbar.fixed-top");
+    const navH = nav && getComputedStyle(nav).position === "fixed" ? nav.offsetHeight : 0;
+    const top = this.root.getBoundingClientRect().top + window.scrollY - navH - 8;
+    if (window.innerWidth >= 900) window.scrollTo(0, Math.max(0, top));
   }
 
   restoreFocus() {
@@ -118,8 +148,10 @@ export class App {
     this.screen = "game";
     this.achShown = {};
     this.report = null;
+    this.logOpen = false;
     this.persist();
     this.advance();
+    this.scrollToGame();
   }
 
   resume() {
@@ -127,9 +159,11 @@ export class App {
     this.screen = "game";
     const s = this.game.state;
     this.report = s.report || null;
+    this.logOpen = false;
     if (s.phase === "ended") { this.finish(); return; }
-    if (s.prompt) { this.showPrompt(s.prompt, !!s.prompt.ui); return; }
-    this.advance();
+    if (s.prompt) this.showPrompt(s.prompt, !!s.prompt.ui);
+    else this.advance();
+    this.scrollToGame();
   }
 
   // Runs the game forward until it needs the player: a prompt, or the next turn's focus.
@@ -253,7 +287,9 @@ export class App {
       case "title": this.savedRun = this.game && this.game.state.phase !== "ended" ? this.game.state : storage.loadRun(); this.screen = "title"; this.render(); break;
       case "help": this.prev = this.screen; this.screen = "help"; this.render(); break;
       case "codex": this.prev = this.screen; this.screen = "codex"; this.render(); break;
-      case "back": this.screen = this.prev || "title"; this.render(); break;
+      case "back": this.screen = this.prev || "title"; this.render(); if (this.screen === "game") this.scrollToGame(); break;
+      case "log": this.logOpen = true; this.render(); break;
+      case "close-log": if (e.target === el || el.tagName === "BUTTON") { this.logOpen = false; this.keepScroll = true; this.render(); } break;
       case "start": this.startRun(); break;
       case "do": this.doAction(id); break;
       case "shelve":
@@ -315,12 +351,19 @@ export class App {
   }
 
   onKey(e) {
-    if (!this.modal || e.altKey || e.ctrlKey || e.metaKey) return;
-    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT")) return;
-    if (!this.modal.result && /^[1-4]$/.test(e.key)) {
-      const btns = this.root.querySelectorAll(".ps-dialog .ps-choice");
-      const b = btns[parseInt(e.key, 10) - 1];
+    if (e.altKey || e.ctrlKey || e.metaKey || this.screen !== "game") return;
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA")) return;
+    if (this.logOpen) { if (e.key === "Escape") { this.logOpen = false; this.render(); } return; }
+    if (!/^[1-9]$/.test(e.key)) return;
+    const n = parseInt(e.key, 10) - 1;
+    // Number keys pick the numbered choice: an event's choices, or this turn's focus.
+    if (this.modal) {
+      if (this.modal.result) return;
+      const b = this.root.querySelectorAll(".ps-dialog .ps-choice")[n];
       if (b) { e.preventDefault(); b.click(); }
+    } else if (this.plan) {
+      const a = orderedActions(this.plan)[n];
+      if (a) { e.preventDefault(); this.doAction(a.id); }
     }
   }
 }

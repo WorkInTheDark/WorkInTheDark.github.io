@@ -251,21 +251,20 @@ export class Game {
         const ttd = p.target && p.target.turn !== null && p.target.turn !== undefined ? p.target.turn - s.turn : null;
         // A project that's waiting (IRB, recruiting, annotation) or on hold has nothing to work on this turn.
         if (st.kind === "wait" || p.pause > 0) return;
-        const dl = ttd === 0 ? " " + deadlineLabel(self, p) + " deadline this turn." :
-          ttd !== null && ttd > 0 && ttd <= 3 ? " " + deadlineLabel(self, p) + " deadline in " + ttd * WEEKS_PER_TURN + " weeks." : "";
+        const dl = ttd === 0 ? " \u00b7 " + deadlineLabel(self, p) + " this turn" :
+          ttd !== null && ttd > 0 && ttd <= 3 ? " \u00b7 " + deadlineLabel(self, p) + " in " + ttd * WEEKS_PER_TURN + " weeks" : "";
         if (info.ready) {
           out.push({ id: "p:" + p.id, kind: "project", label: "Polish “" + p.short + "”",
-            desc: "Ready to submit." + (dl || " Waiting for the next deadline.") + " More work only polishes the writing.",
+            desc: "Ready to submit" + (dl || " \u00b7 waiting for a deadline") + " \u00b7 polishing improves the writing",
             arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
         } else {
           out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",
-            desc: info.label + ", stage " + info.n + " of " + info.of + ". Finishing it this turn: " + odds + "." +
-              (info.stuck ? " (" + info.stuck + (info.stuck === 1 ? " try" : " tries") + " so far.)" : "") + dl + (st.id === "lit" ? " Reading is better for this stage." : ""),
+            desc: info.label + ": " + odds + " to finish this turn" + dl + (st.id === "lit" ? " \u00b7 reading is better here" : ""),
             arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: st.id === "lit" ? 1 : 2 }] });
         }
         if (ttd === 1 && !info.ready && !fx.burnout) {
           out.push({ id: "crunch:" + p.id, kind: "deadline", label: "Crunch on “" + p.short + "”, weekends included",
-            desc: "Deadline in 2 weeks. Every day, weekends too.",
+            desc: deadlineLabel(self, p) + " in 2 weeks \u00b7 every day, weekends too",
             arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }, { stat: "health", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }] });
         }
       });

@@ -1,127 +1,110 @@
-// The main game screen: header and bars, this turn's focus choices, last turn's report, projects, calendar and log.
+// The main game screen, laid out to fit one window (like the original game's single box):
+// a one-line top bar; on the left, the main box where this turn's focus choices and every event
+// appear; on the right, your projects (with their stages), your status, and what's coming up.
 import { esc, bar, plural, arrowsHtml, shownStat } from "./common.js";
 import {
-  yearOf, tOf, turnDates, absTurn, span, WEEKS_PER_TURN, PROJECT_TYPES, STAGE_LABELS, FIELD_LABELS, fieldOf, currentStage, stageInfo,
+  yearOf, tOf, turnDates, absTurn, span, WEEKS_PER_TURN, PROJECT_TYPES, STAGE_LABELS, FIELD_LABELS, fieldOf, stageInfo,
   deadlineLabel, venuesFor, absToLabel, totalCitations, hIndex, firstAuthorPubs
 } from "../engine/index.js";
 
-function dateLine(G) {
-  const s = G.state;
-  const t = tOf(s.turn);
-  const row = G.D.calendar[t - 1] || {};
-  const sem = { fall: "Fall", spring: "Spring", summer: "Summer", break: "Winter break" }[row.semester] || "";
-  const note = row.note || "";
-  return '<div class="ps-date">Year ' + yearOf(s.turn) + " · " + esc(turnDates(s.turn)) + " <small>· " + esc(sem) + (note ? " · " + esc(note) : "") + "</small></div>";
+// Short stage names for the step chips on project cards.
+const STEP = {
+  idea: "Idea", lit: "Related work", pilot: "Pilot", experiments: "Experiments", consolidation: "Consolidation",
+  design: "Design", irb: "IRB", recruiting: "Recruiting", sessions: "Sessions", analysis: "Analysis",
+  build: "Build", study: "User study", guidelines: "Guidelines", annotation: "Annotation", baselines: "Baselines"
+};
+
+function weeksText(turns) {
+  return turns <= 0 ? "this turn" : plural(turns * WEEKS_PER_TURN, "week");
 }
 
-export function hudHtml(G) {
+// ---- Top bar --------------------------------------------------------------------------------
+
+function meter(label, value, cls, low) {
+  return '<div class="ps-meter"><div class="ps-meter-label"><span>' + label + "</span><b>" + Math.round(value) + "</b></div>" + bar(value, cls, low) + "</div>";
+}
+
+function topBarHtml(G) {
   const s = G.state;
-  const D = G.D;
-  const pubs = firstAuthorPubs(G);
+  const row = G.D.calendar[tOf(s.turn) - 1] || {};
+  const sem = { fall: "Fall", spring: "Spring", summer: "Summer", break: "Winter break" }[row.semester] || "";
   const pending = s.papers.filter(function (p) { return p.status === "under_review" || p.status === "revise_resubmit"; }).length;
-  const chips = s.statuses.filter(function (st) { return D.statusById[st.id]; }).map(function (st) {
-    const def = D.statusById[st.id];
-    const timed = ["coursework", "ta", "fellowship"].indexOf(st.id) < 0 && st.turns < 20;
-    return '<span class="ps-chip" title="' + esc(def.desc) + '">' + esc(def.name) + (timed ? " · " + st.turns : "") + "</span>";
-  }).join("");
-  const adv = s.advisor ? '<span class="ps-chip ps-chip-accent" title="' + esc("Prof. " + s.advisor.first + " " + s.advisor.surname + " · " + s.advisor.label) + '">Advisor: ' +
-    esc(s.advisor.nick) + "</span>" : "";
-  return '<section class="ps-hud" aria-label="Your stats">' +
-    '<div class="ps-stats">' +
-    '<div class="ps-meter"><div class="ps-meter-label"><span>Energy</span><b>' + Math.round(s.stats.energy) + "</b></div>" + bar(s.stats.energy, "ps-bar-energy") + "</div>" +
-    '<div class="ps-meter"><div class="ps-meter-label"><span>Stress</span><b>' + Math.round(shownStat("sanity", s.stats.sanity)) + "</b></div>" + bar(shownStat("sanity", s.stats.sanity), "ps-bar-sanity", s.stats.sanity < 25) + "</div>" +
-    '<div class="ps-meter"><div class="ps-meter-label"><span>Health</span><b>' + Math.round(s.stats.health) + "</b></div>" + bar(s.stats.health, "ps-bar-health") + "</div>" +
-    '<div class="ps-num"><b>' + totalCitations(G) + "</b>citations · h " + hIndex(G) + "</div>" +
-    '<div class="ps-num"><b>' + pubs + (pending ? '<small class="ps-muted"> +' + pending + "</small>" : "") + "</b>papers</div>" +
+  return '<header class="ps-topbar">' +
+    '<div class="ps-when"><b>Year ' + yearOf(s.turn) + " · " + esc(turnDates(s.turn)) + "</b><span>" + esc(sem) + (row.note && row.note !== sem ? " · " + esc(row.note) : "") + "</span></div>" +
+    '<div class="ps-meters" aria-label="Your bars">' +
+    meter("Energy", s.stats.energy, "ps-bar-energy") +
+    meter("Stress", shownStat("sanity", s.stats.sanity), "ps-bar-sanity", s.stats.sanity < 25) +
+    meter("Health", s.stats.health, "ps-bar-health") +
     "</div>" +
-    '<div class="ps-chips">' + adv + chips + "</div>" +
+    '<div class="ps-score"><span><b>' + firstAuthorPubs(G) + "</b>" + (pending ? '<i>+' + pending + "</i>" : "") + " papers</span>" +
+    "<span><b>" + totalCitations(G) + "</b> citations</span></div>" +
+    '<nav class="ps-tools" aria-label="Game menu">' +
+    '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="help">How to play</button>' +
+    '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="codex">Codex</button>' +
+    '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="log">Log</button>' +
+    '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="leave">Leave</button>' +
+    '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="title">Menu</button>' +
+    "</nav></header>";
+}
+
+// ---- The main box: last turn, then this turn's choices ----------------------------------------
+
+const HAPPENED_ICON = { good: "✓", bad: "!", news: "•", stage: "→" };
+
+// The few things worth seeing from last turn; everything else is in the log.
+function recapHtml(G, report) {
+  if (!report) return "";
+  const deltas = report.deltas.map(function (d) {
+    const diff = Math.round(shownStat(d.stat, d.to) - shownStat(d.stat, d.from));
+    if (!diff) return "";
+    const good = d.to > d.from;
+    return '<span class="ps-delta ' + (good ? "ps-delta-good" : "ps-delta-bad") + '">' + esc(d.label) + " " + (diff > 0 ? "+" : "−") + Math.abs(diff) + "</span>";
+  }).join("");
+  const items = [];
+  report.projects.forEach(function (p) {
+    if (!p.from) return;
+    items.push({ kind: p.to === "Ready to submit" || p.to === "Submitted" || p.to === "Published" ? "good" : "stage", text: p.short + ": " + p.from + " → " + p.to });
+  });
+  report.news.forEach(function (e) {
+    if (e.kind === "good" || e.kind === "bad" || e.kind === "news") items.push({ kind: e.kind, text: e.text });
+  });
+  const tip = report.news.find(function (e) { return e.kind === "tip"; });
+  const flavor = report.news.find(function (e) { return e.kind === "flavor"; });
+  const shown = items.slice(0, 4);
+  const more = items.length - shown.length;
+  return '<section class="ps-recap" aria-live="polite">' +
+    '<div class="ps-recap-head"><span class="ps-kicker">Last turn · ' + esc(absToLabel(G, report.turn).replace(/^Y\d+ /, "")) + "</span>" +
+    (report.plan && report.plan.label ? '<span class="ps-recap-did">You: ' + esc(report.plan.label) + "</span>" : "") + "</div>" +
+    (deltas ? '<div class="ps-deltas">' + deltas + "</div>" : "") +
+    (shown.length ? '<ul class="ps-happened">' + shown.map(function (it) {
+      return '<li class="ps-h-' + it.kind + '"><span aria-hidden="true">' + HAPPENED_ICON[it.kind] + "</span>" + esc(it.text) + "</li>";
+    }).join("") + "</ul>" : "") +
+    (tip ? '<p class="ps-recap-tip">' + esc(tip.text) + ' <a href="' + esc(tip.url) + '" target="_blank" rel="noopener">' + esc(tip.title) + " →</a></p>" : "") +
+    (!shown.length && flavor ? '<p class="ps-recap-flavor">' + esc(flavor.text) + "</p>" : "") +
+    (more > 0 ? '<button class="ps-linkbtn" data-action="log">' + more + " more in the log</button>" : "") +
     "</section>";
 }
 
-// Where a project stands: its stages in order, the finished ones ticked, the current one in bold.
-function stagePath(G, p) {
-  const stages = PROJECT_TYPES[p.type].stages;
-  if (p.revise) return "<b>Revising</b> for the next deadline";
-  return stages.map(function (st, i) {
-    const name = esc(STAGE_LABELS[st.id]);
-    if (i < p.stageIdx) return '<span class="ps-muted">\u2713 ' + name + "</span>";
-    if (i === p.stageIdx) return "<b>" + name + "</b>";
-    return '<span class="ps-muted">' + name + "</span>";
-  }).join(" \u2192 ");
+const ORDER = ["deadline", "opportunity", "project", "milestone", "core"];
+
+function optionHtml(a, n) {
+  return '<button class="ps-opt ps-opt-' + a.kind + '" data-action="do" data-id="' + esc(a.id) + '">' +
+    (n <= 9 ? '<span class="ps-key" aria-hidden="true">' + n + "</span>" : "") +
+    '<span class="ps-opt-main"><span class="ps-opt-label">' + esc(a.label) +
+    (a.kind === "opportunity" ? ' <span class="ps-pill">only this turn</span>' : "") + "</span>" +
+    (a.desc ? '<span class="ps-opt-desc">' + esc(a.desc) + "</span>" : "") + "</span>" +
+    arrowsHtml(a.arrows) + "</button>";
 }
 
-function projectCard(G, p) {
-  const info = stageInfo(G, p);
-  const progressText = (info.ready ? "Ready to submit" : "Stage " + info.n + " of " + info.of + ": " + info.label + " (" + info.hint + ")");
-  let target = "";
-  if (p.target && p.target.rrPaper) target = "Revision due in " + plural(Math.max(0, p.target.turn - G.state.turn) * WEEKS_PER_TURN, "week");
-  else if (p.target && p.target.journalPaper) target = "Revision goes back when it's done";
-  else {
-    const venues = venuesFor(G, p, { includeJournals: true });
-    const opts = venues.map(function (v) {
-      const sel = p.target && p.target.venueId === v.id ? " selected" : "";
-      return '<option value="' + esc(v.id) + '"' + sel + ">" + esc(v.short || v.name) + " (" + esc(v.tier) + ")</option>";
-    }).join("");
-    const ttd = p.target ? p.target.turn - G.state.turn : null;
-    const none = p.target ? "" : '<option value="" selected disabled>Choose a venue</option>';
-    target = '<label class="ps-meta">Target <select class="ps-select" data-action="target" data-id="' + esc(p.id) + '">' + none + opts + "</select></label>" +
-      (p.target ? ' <span class="ps-meta">' + esc(deadlineLabel(G, p)) + " deadline " + (ttd === 0 ? "<b>this turn</b>" : "in " + plural(ttd * WEEKS_PER_TURN, "week")) + "</span>" : "");
-  }
-  const ready = info.ready ? ' <span class="ps-tag">ready</span>' : "";
-  return '<div class="ps-card ps-project">' +
-    '<div class="ps-spread"><h4>' + esc(p.short) + "</h4>" +
-    '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="shelve" data-id="' + esc(p.id) + '" aria-label="Shelve this project">Shelve</button></div>' +
-    '<div class="ps-meta">' + esc(PROJECT_TYPES[p.type].label) + " \u00b7 " + esc(FIELD_LABELS[fieldOf(p)]) + ready + "</div>" +
-    '<div class="ps-small" style="margin:.3rem 0">' + stagePath(G, p) + "</div>" +
-    '<div class="ps-meta">' + esc(progressText) + "</div>" +
-    '<div class="ps-row" style="margin-top:.35rem">' + target + "</div>" +
-    "</div>";
+// Choices in display order: deadlines, this-turn-only, projects, milestones, everyday.
+export function orderedActions(plan) {
+  const out = [];
+  ORDER.forEach(function (k) { plan.actions.forEach(function (a) { if (a.kind === k) out.push(a); }); });
+  return out;
 }
 
-export function boardHtml(G) {
-  const s = G.state;
-  const active = s.projects.filter(function (p) { return p.status === "active"; });
-  const under = s.papers.filter(function (p) { return p.status === "under_review" || p.status === "revise_resubmit"; });
-  const pubs = s.papers.filter(function (p) { return p.status === "accepted"; });
-  const canNew = !!s.advisor && active.length < (G.D.config.progress.max_active_projects || 4);
-  let html = '<div class="ps-section"><h3 class="ps-section-title">Projects</h3>';
-  html += active.length ? active.map(function (p) { return projectCard(G, p); }).join("") :
-    '<p class="ps-muted ps-small">' + (s.advisor ? "No active projects. Start one with the button above." : "Choose an advisor first.") + "</p>";
-  html += "</div>";
-  if (under.length) {
-    html += '<div class="ps-section"><h3 class="ps-section-title">Under review</h3><div class="ps-card">' + under.map(function (p) {
-      const left = Math.max(0, p.decisionTurn - s.turn);
-      return '<div class="ps-paper"><span class="ps-tag">' + esc(p.venueName) + "</span>" + esc(p.short) +
-        (p.firstAuthor ? "" : ' <span class="ps-muted">(co-author)</span>') +
-        '<div class="ps-meta">' + (p.status === "revise_resubmit" ? "Revision in progress" : "Decision in " + plural(left * WEEKS_PER_TURN, "week")) + "</div></div>";
-    }).join("") + "</div></div>";
-  }
-  if (pubs.length) {
-    html += '<details class="ps-section"><summary class="ps-section-title">Publications (' + pubs.length + ")</summary><div class=\"ps-card\">" + pubs.map(function (p) {
-      return '<div class="ps-paper"><span class="ps-tag">' + esc(p.venueName) + "</span>" + esc(p.title) +
-        '<div class="ps-meta">' + (p.firstAuthor ? "First author" : "Co-author") + " · " + plural(Math.round(p.citations || 0) + (p.bonusCites || 0), "citation") + "</div></div>";
-    }).join("") + "</div></details>";
-  }
-  return html;
-}
-
-const GROUPS = [
-  { kind: "deadline", title: "Deadline" },
-  { kind: "opportunity", title: "Only this turn" },
-  { kind: "project", title: "Research" },
-  { kind: "milestone", title: "Milestones" },
-  { kind: "core", title: "Anytime" }
-];
-
-function actionButton(a) {
-  return '<div class="ps-act' + (a.kind === "project" || a.kind === "deadline" ? " ps-act-project" : "") + (a.kind === "opportunity" ? " ps-act-apply" : "") + '">' +
-    '<button class="ps-act-main" data-action="do" data-id="' + esc(a.id) + '">' +
-    '<span class="ps-act-label">' + esc(a.label) + "</span>" +
-    (a.desc ? '<span class="ps-act-desc">' + esc(a.desc) + "</span>" : "") + arrowsHtml(a.arrows) + "</button></div>";
-}
-
-// The turn's focus: one click. The turn's updates and events come right after.
-export function planHtml(G, plan) {
+function planStageHtml(G, ui) {
+  const plan = ui.plan;
   const fx = plan.days;
   const parts = fx.parts;
   const fixed = [];
@@ -129,51 +112,115 @@ export function planHtml(G, plan) {
   if (parts.ta) fixed.push("TA duty");
   if (parts.defense) fixed.push("defense prep");
   if (parts.family) fixed.push("family");
-  let head;
-  if (plan.internship) head = "You're at your internship. How will you spend these two weeks?";
-  else if (plan.onLeave) head = "You're on leave. Research can wait.";
-  else head = "What will you focus on these two weeks?" + (fixed.length ? " (" + esc(fixed.join(", ")) + " take part of them.)" : "");
-  if (fx.sick) head += " You're sick, so you'll get less done.";
-  if (fx.burnout) head += " You're burned out: half speed, and no weekend work.";
-  let html = '<div class="ps-section ps-plan"><h3 class="ps-section-title">This turn</h3><div class="ps-card">' +
-    '<p class="ps-small" style="margin-bottom:.6rem">' + head + "</p>";
-  GROUPS.forEach(function (g) {
-    const list = plan.actions.filter(function (a) { return a.kind === g.kind; });
-    if (!list.length) return;
-    html += '<div class="ps-meta" style="margin:.5rem 0 .3rem"><b>' + g.title + "</b></div>" +
-      '<div class="ps-actions-grid">' + list.map(actionButton).join("") + "</div>";
-  });
-  if (plan.canStartProject) {
-    html += '<div style="margin-top:.7rem"><button class="ps-btn ps-btn-sm" data-action="new-project">+ Start a new project</button> ' +
-      '<span class="ps-meta">Doesn\u2019t use up the turn, but it\u2019s a big new commitment.</span> ' +
-      arrowsHtml([{ stat: "sanity", dir: "down", strength: plan.newProjectStress >= 10 ? 2 : 1 }]) + "</div>";
+  let sub = "";
+  if (plan.internship) sub = "You're at your internship.";
+  else if (plan.onLeave) sub = "You're on leave. Research can wait.";
+  else if (fixed.length) sub = fixed.join(", ").replace(/^./, function (c) { return c.toUpperCase(); }) + " take part of the time.";
+  if (fx.sick) sub += " You're sick: fewer days.";
+  if (fx.burnout) sub += " You're burned out: half speed.";
+  const first = G.state.turn <= 1 ? '<p class="ps-hint">Pick one thing to focus on for these two weeks. Then whatever happens this turn shows up here, one card at a time. Keep Energy up, Stress down and Health up.</p>' : "";
+  const opts = orderedActions(plan);
+  return recapHtml(G, ui.report) +
+    '<section class="ps-plan" aria-labelledby="ps-plan-q">' +
+    '<h2 id="ps-plan-q" class="ps-plan-q">What will you focus on these two weeks?</h2>' +
+    (sub ? '<p class="ps-plan-sub">' + esc(sub) + "</p>" : "") + first +
+    '<div class="ps-opts">' + opts.map(function (a, i) { return optionHtml(a, i + 1); }).join("") + "</div>" +
+    "</section>";
+}
+
+// ---- Right column: projects, status, coming up -----------------------------------------------
+
+function stepsHtml(p) {
+  const stages = PROJECT_TYPES[p.type].stages;
+  if (p.revise) return '<ol class="ps-steps"><li class="ps-step-done">' + (p.ready ? "Revised" : "Draft") + '</li><li class="' + (p.ready ? "ps-step-done" : "ps-step-now") + '">Revising</li></ol>';
+  return '<ol class="ps-steps">' + stages.map(function (st, i) {
+    let cls = "";
+    if (i < p.stageIdx || (p.ready && i === p.stageIdx)) cls = "ps-step-done";
+    else if (i === p.stageIdx) cls = st.kind === "wait" ? "ps-step-wait" : "ps-step-now";
+    return '<li class="' + cls + '"' + (st.kind === "wait" ? ' title="Takes calendar time, not work"' : "") + ">" + esc(STEP[st.id] || STAGE_LABELS[st.id]) + "</li>";
+  }).join("") + "</ol>";
+}
+
+function projectCard(G, p, locked) {
+  const info = stageInfo(G, p);
+  const s = G.state;
+  let where;
+  if (p.target && p.target.rrPaper) where = "Revision due in " + weeksText(Math.max(0, p.target.turn - s.turn));
+  else if (p.target && p.target.journalPaper) where = "Revision goes back when it's done";
+  else if (p.target) where = deadlineLabel(G, p) + " in " + weeksText(Math.max(0, p.target.turn - s.turn));
+  else where = "No target yet";
+  let state;
+  if (info.ready) state = "Ready to submit";
+  else if (info.wait) state = info.label + ": " + info.hint;
+  else if (p.pause > 0) state = info.label + ": " + info.hint;
+  else state = info.label + " · " + info.hint.replace(" to finish in a full turn of work", " each turn") + (info.stuck ? " · " + plural(info.stuck, "try") + " so far" : "");
+  let targetCtl = "";
+  if (!(p.target && (p.target.rrPaper || p.target.journalPaper))) {
+    const venues = venuesFor(G, p, { includeJournals: true });
+    targetCtl = '<label class="ps-meta">Aim for <select class="ps-select" data-action="target" data-id="' + esc(p.id) + '"' + (locked ? " disabled" : "") + ">" +
+      (p.target ? "" : '<option value="" selected disabled>Choose a venue</option>') +
+      venues.map(function (v) {
+        return '<option value="' + esc(v.id) + '"' + (p.target && p.target.venueId === v.id ? " selected" : "") + ">" + esc(v.short || v.name) + " (" + esc(v.tier) + ")</option>";
+      }).join("") + "</select></label>";
   }
-  html += "</div></div>";
-  return html;
+  return '<article class="ps-proj' + (info.ready ? " ps-proj-ready" : "") + '">' +
+    '<div class="ps-proj-head"><b title="' + esc(p.title) + '">' + esc(p.short) + "</b><span>" + esc(where) + "</span></div>" +
+    '<div class="ps-proj-kind">' + esc(PROJECT_TYPES[p.type].label) + " · " + esc(FIELD_LABELS[fieldOf(p)]) + "</div>" +
+    stepsHtml(p) +
+    '<div class="ps-proj-state">' + esc(state) + "</div>" +
+    '<details class="ps-proj-more"><summary>Target and options</summary><div class="ps-row">' + targetCtl +
+    '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="shelve" data-id="' + esc(p.id) + '"' + (locked ? " disabled" : "") + ">Shelve project</button></div></details>" +
+    "</article>";
 }
 
-const KIND_CLASS = { good: "ps-news-good", bad: "ps-news-bad", news: "ps-news", tip: "ps-tip", achievement: "ps-ach", flavor: "ps-flavor" };
-
-export function reportHtml(G, report) {
-  if (!report) return "";
-  const deltas = report.deltas.map(function (d) {
-    const diff = d.to - d.from;
-    const good = diff > 0;
-    return '<span class="ps-delta ' + (good ? "ps-delta-good" : "ps-delta-bad") + '">' + esc(d.label) + " " + shownStat(d.stat, d.from) + " \u2192 " + shownStat(d.stat, d.to) + "</span>";
-  }).join("");
-  const projects = report.projects.map(function (p) {
-    return '<div class="ps-small"><b>' + esc(p.short) + ":</b> " + (p.from ? esc(p.from) + " \u2192 " : "") + esc(p.to) + "</div>";
-  }).join("");
-  const news = report.news.filter(function (e) { return e.kind !== "line" || /\bdone\b|Next:/.test(e.text) === false; }).map(function (e) {
-    if (e.kind === "tip") return '<p class="ps-tip ps-small">' + esc(e.text) + ' <a href="' + esc(e.url) + '" target="_blank" rel="noopener">Read: ' + esc(e.title) + " \u2192</a></p>";
-    return '<p class="ps-small ' + (KIND_CLASS[e.kind] || "") + '">' + esc(e.text) + "</p>";
-  }).join("");
-  const did = report.plan && report.plan.label ? '<p class="ps-small"><b>You:</b> ' + esc(report.plan.label) + "</p>" : "";
-  return '<div class="ps-section ps-report" aria-live="polite"><h3 class="ps-section-title">Last turn: ' + esc(absToLabel(G, report.turn)) + "</h3>" +
-    '<div class="ps-card">' + did + (deltas ? '<div class="ps-deltas">' + deltas + "</div>" : "") + projects + news + "</div></div>";
+function projectsHtml(G, ui) {
+  const s = G.state;
+  const active = s.projects.filter(function (p) { return p.status === "active"; });
+  const under = s.papers.filter(function (p) { return p.status === "under_review"; });
+  const pubs = s.papers.filter(function (p) { return p.status === "accepted"; });
+  const plan = ui.plan;
+  const canNew = plan && plan.canStartProject && !ui.modal;
+  let html = '<section class="ps-panel ps-panel-projects"><div class="ps-panel-head"><h3>Projects</h3>' +
+    (canNew ? '<button class="ps-btn ps-btn-sm" data-action="new-project" title="Doesn’t use up the turn, but it’s a big new commitment">+ New ' +
+      arrowsHtml([{ stat: "sanity", dir: "down", strength: plan.newProjectStress >= 10 ? 2 : 1 }]) + "</button>" : "") + "</div>";
+  html += active.length ? active.map(function (p) { return projectCard(G, p, !!ui.modal); }).join("") :
+    '<p class="ps-empty">' + (s.advisor ? "No active projects. Start one with + New." : "Choose an advisor first.") + "</p>";
+  if (under.length) {
+    html += '<div class="ps-sub">Under review</div><ul class="ps-mini">' + under.map(function (p) {
+      return "<li><b>" + esc(p.venueName) + "</b> " + esc(p.short) + (p.firstAuthor ? "" : " (co-author)") + '<span class="ps-muted"> · decision in ' + weeksText(Math.max(0, p.decisionTurn - s.turn)) + "</span></li>";
+    }).join("") + "</ul>";
+  }
+  if (pubs.length) {
+    html += '<details class="ps-pubs"><summary>Published (' + pubs.length + ")</summary><ul class=\"ps-mini\">" + pubs.map(function (p) {
+      return "<li><b>" + esc(p.venueName) + "</b> " + esc(p.short) + '<span class="ps-muted"> · ' + (p.firstAuthor ? "first author" : "co-author") + " · " + plural(Math.round(p.citations || 0) + (p.bonusCites || 0), "citation") + "</span></li>";
+    }).join("") + "</ul></details>";
+  }
+  return html + "</section>";
 }
 
-export function calendarHtml(G) {
+// Every tag explained in words: the advisor, your traits, and anything temporary.
+function statusHtml(G) {
+  const s = G.state;
+  const D = G.D;
+  const rows = [];
+  s.statuses.forEach(function (st) {
+    const def = D.statusById[st.id];
+    if (!def) return;
+    const timed = ["coursework", "ta", "fellowship"].indexOf(st.id) < 0 && st.turns < 20;
+    rows.push("<li><b>" + esc(def.name) + "</b><span>" + esc(def.desc) + (timed ? " (" + weeksText(st.turns) + " left)" : "") + "</span></li>");
+  });
+  const traits = (s.player.traits || []).map(function (id) {
+    const t = D.traitById[id];
+    return t ? '<span class="ps-trait" title="' + esc(t.up + (t.down ? " / " + t.down : "")) + '">' + esc(t.name) + "</span>" : "";
+  }).join("");
+  const adv = s.advisor ? '<div class="ps-advisor">Advisor: <b>' + esc(s.advisor.nick) + "</b> " +
+    '<span class="ps-muted">Prof. ' + esc(s.advisor.surname) + ", “" + esc(s.advisor.tagline) + "”</span></div>" : '<div class="ps-advisor ps-muted">No advisor yet.</div>';
+  return '<section class="ps-panel"><div class="ps-panel-head"><h3>You</h3></div>' + adv +
+    (rows.length ? '<ul class="ps-statuses">' + rows.join("") + "</ul>" : "") +
+    (traits ? '<div class="ps-traits">' + traits + "</div>" : "") + "</section>";
+}
+
+function comingHtml(G) {
   const s = G.state;
   const ev = [];
   s.projects.forEach(function (p) {
@@ -192,17 +239,20 @@ export function calendarHtml(G) {
   if (m.quals !== "passed" && s.advisor) ev.push({ turn: absTurn(qy, G.D.config.quals_turn || 18), text: "Quals" });
   if (m.proposalAt && m.proposal === "pending") ev.push({ turn: m.proposalAt, text: "Thesis proposal" });
   if (m.defenseAt) ev.push({ turn: m.defenseAt, text: "Defense" });
-  const upcoming = ev.filter(function (e) { return e.turn >= s.turn && e.turn < s.turn + span(10); }).sort(function (a, b) { return a.turn - b.turn; }).slice(0, 7);
-  return '<div class="ps-section"><h3 class="ps-section-title">Coming up</h3><div class="ps-card ps-cal">' +
-    (upcoming.length ? upcoming.map(function (e) {
-      const d = e.turn - s.turn;
-      return "<div><b>" + (d === 0 ? "This turn" : "In " + plural(d * WEEKS_PER_TURN, "week")) + "</b><span>" + esc(e.text) + "</span></div>";
-    }).join("") : '<span class="ps-muted">Nothing scheduled in the next few weeks.</span>') + "</div></div>";
+  const upcoming = ev.filter(function (e) { return e.turn >= s.turn && e.turn < s.turn + span(10); }).sort(function (a, b) { return a.turn - b.turn; }).slice(0, 4);
+  if (!upcoming.length) return "";
+  return '<section class="ps-panel"><div class="ps-panel-head"><h3>Coming up</h3></div><ul class="ps-cal">' + upcoming.map(function (e) {
+    return "<li><b>" + (e.turn === s.turn ? "This turn" : "In " + weeksText(e.turn - s.turn)) + "</b><span>" + esc(e.text) + "</span></li>";
+  }).join("") + "</ul></section>";
 }
+
+// ---- Log (opened from the top bar) --------------------------------------------------------------
+
+const KIND_CLASS = { good: "ps-news-good", bad: "ps-news-bad", news: "ps-news", tip: "ps-tip", achievement: "ps-ach", flavor: "ps-flavor" };
 
 export function logHtml(G) {
   const s = G.state;
-  const recent = s.log.slice(-60);
+  const recent = s.log.slice(-120);
   const byTurn = {};
   const order = [];
   recent.forEach(function (e) {
@@ -210,31 +260,26 @@ export function logHtml(G) {
     byTurn[e.turn].push(e);
   });
   order.reverse();
-  const body = order.slice(0, 8).map(function (t) {
+  const body = order.map(function (t) {
     return '<div class="ps-log-turn">' + esc(absToLabel(G, t)) + "</div>" + byTurn[t].map(function (e) {
-      if (e.kind === "tip") {
-        return '<p class="ps-tip">' + esc(e.text) + ' <a href="' + esc(e.url) + '" target="_blank" rel="noopener">Read: ' + esc(e.title) + " →</a></p>";
-      }
+      if (e.kind === "tip") return '<p class="ps-tip">' + esc(e.text) + ' <a href="' + esc(e.url) + '" target="_blank" rel="noopener">Read: ' + esc(e.title) + " →</a></p>";
       return '<p class="' + (KIND_CLASS[e.kind] || "") + '">' + esc(e.text) + "</p>";
     }).join("");
   }).join("");
-  return '<div class="ps-section"><h3 class="ps-section-title">Log</h3><div class="ps-card ps-log" aria-live="polite">' +
-    (body || '<p class="ps-muted">Your story starts here.</p>') + "</div></div>";
+  return '<div class="ps-spread"><h3 id="ps-dialog-title">Log</h3><button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="close-log">Close</button></div>' +
+    '<div class="ps-log">' + (body || '<p class="ps-muted">Your story starts here.</p>') + "</div>";
 }
 
-export function introHtml(G) {
-  if (G.state.turn > 2) return "";
-  return '<div class="ps-section"><div class="ps-note"><b>How a turn works.</b> A turn is two weeks. Pick what to focus on, then deal with what comes up: usually one event, sometimes updates like reviews, now and then a side activity. ' +
-    "Then the two weeks play out. Balance Energy (it powers work), Stress (at 100 you burn out) and Health (low means sick weeks).</div></div>";
-}
+// ---- The whole screen -----------------------------------------------------------------------
 
-export function gameHtml(G, ui) {
-  return '<div class="ps-top">' + dateLine(G) +
-    '<div class="ps-row"><button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="codex">Codex</button>' +
-    '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="help">How to play</button>' +
-    '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="leave">Leave the PhD</button>' +
-    '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="title">Menu</button></div></div>' +
-    hudHtml(G) +
-    '<div class="ps-layout"><div>' + introHtml(G) + reportHtml(G, ui.report) + (ui.plan ? planHtml(G, ui.plan) : "") + boardHtml(G) + "</div>" +
-    "<div>" + calendarHtml(G) + logHtml(G) + "</div></div>";
+// promptInner: the current event or update, shown in the main box instead of the turn's choices.
+export function gameHtml(G, ui, promptInner, promptCls) {
+  const stage = promptInner
+    ? '<div class="ps-dialog ' + (promptCls || "") + '" role="region" aria-labelledby="ps-dialog-title">' + promptInner + "</div>"
+    : (ui.plan ? planStageHtml(G, ui) : "");
+  return '<div class="ps-game">' + topBarHtml(G) +
+    '<div class="ps-main">' +
+    '<main class="ps-stage">' + stage + "</main>" +
+    '<aside class="ps-side">' + projectsHtml(G, ui) + statusHtml(G) + comingHtml(G) + "</aside>" +
+    "</div></div>";
 }
