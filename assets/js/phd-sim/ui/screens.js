@@ -67,7 +67,7 @@ export function codexHtml(app) {
     }).join("") + "</div></div>";
   html += '<div class="ps-section"><h3 class="ps-section-title">Advisors met</h3><div class="ps-card"><ul class="ps-codex-list">' + D.archetypes.map(function (a) {
     const met = cx.advisors && cx.advisors[a.id];
-    return met ? "<li><b>" + esc(a.nick) + "</b> (" + esc(a.label) + "): " + esc(a.tagline) + "</li>" : '<li class="ps-unknown">???</li>';
+    return met ? "<li><b>" + esc(a.label) + "</b>: " + esc(a.tagline) + "</li>" : '<li class="ps-unknown">???</li>';
   }).join("") + "</ul></div></div>";
   html += '<div class="ps-section"><h3 class="ps-section-title">Achievements · ' + Object.keys(ach).length + " / " + D.achievements.length + '</h3><div class="ps-card"><ul class="ps-codex-list">' +
     D.achievements.map(function (a) {
@@ -104,7 +104,7 @@ export function endHtml(app) {
       .map(function (x) { return "<div><b>" + esc(x[1]) + "</b>" + esc(x[0]) + "</div>"; }).join("") + "</div></div>" +
     '<div class="ps-section"><h3 class="ps-section-title">The hidden numbers, revealed</h3><div class="ps-card ps-reveal">' +
     hidden.map(function (k) { return '<div><div class="ps-meter-label"><span>' + esc(L[k]) + "</span><b>" + n.stats[k] + "</b></div>" + bar(n.stats[k]) + "</div>"; }).join("") + "</div></div>" +
-    (e.advisor ? '<p class="ps-small ps-muted">Advisor: ' + esc(e.advisor.name) + ", known as " + esc(e.advisor.nick) + " (" + esc(e.advisor.label) + ").</p>" : "") +
+    (e.advisor ? '<p class="ps-small ps-muted">Advisor: ' + esc(e.advisor.name) + " (" + esc(e.advisor.label) + ").</p>" : "") +
     (e.papers.length ? '<details class="ps-section"><summary class="ps-section-title">Papers (' + e.papers.length + ')</summary><div class="ps-card">' + e.papers.map(function (p) {
       return '<div class="ps-paper"><span class="ps-tag">' + esc(p.venue) + "</span>" + esc(p.title) + '<div class="ps-meta">' + esc(p.status.replace("_", " ")) + (p.first ? "" : " · co-author") + " · " + p.cites + " citations</div></div>";
     }).join("") + "</div></details>" : "") +

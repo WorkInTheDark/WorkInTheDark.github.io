@@ -104,7 +104,7 @@ function firstProjectPrompt(G) {
   const senior = s.labmates.slice().sort(function (a, b) { return b.year - a.year; })[0];
   const adv = s.advisor;
   return sys("first_project", "Welcome to the lab",
-    "Your advisor is Prof. " + adv.surname + ". Students call them " + adv.nick + ": \u201c" + adv.tagline + "\u201d " +
+    "Your advisor is Prof. " + adv.surname + " (" + adv.label + "): \u201c" + adv.tagline + "\u201d " +
     (senior ? senior.name : "A senior student") + " is graduating and leaves a half-finished project. Take it over, or start your own?",
     [{ label: "Take over the half-finished project", desc: "A head start, but someone else's design choices." },
       { label: "Start your own project", desc: "Your idea, from scratch." }],
@@ -133,7 +133,7 @@ function questionPrompt(G, p) {
   const comps = components(G, p);
   const weak = weakestComp(comps);
   return sys("the_question", "The Question",
-    "Two weeks before the deadline, " + (G.state.advisor ? G.state.advisor.nick : "your advisor") + " reads “" + p.short + "” and asks one question: “" + COMP_WORDS[weak].question + "”",
+    "Two weeks before the deadline, " + (G.state.advisor ? "Prof. " + G.state.advisor.surname : "your advisor") + " reads “" + p.short + "” and asks one question: “" + COMP_WORDS[weak].question + "”",
     [{ label: "Fix it this turn", desc: "Work on the paper this turn and the fix goes in." },
       { label: "Note it and keep going", desc: "There's only so much time." }],
     { projectId: p.id, comp: weak });
@@ -346,6 +346,9 @@ export function answerQa(G, resp) {
     // Played automatically, answers are sensible but not inspired: preparation and skill decide.
     let fit = resp && resp.auto ? 5 : BEST[q.kind] && BEST[q.kind].indexOf(strat) >= 0 ? 15 : strat === "stall" ? -10 : -12;
     let p = clamp(0.5 + (skill + prep + fit - (q.difficulty || 55)) / 40, 0.05, 0.95);
+    // Quals are mostly about preparing: unprepared, about a coin flip; two turns of prep, very likely.
+    const qo = G.D.config.quals_odds;
+    if (stage === "quals" && qo) p = clamp(qo.base + qo.per_prep * prep + (skill - 40) / 200 + (s.milestones.quals === "failed_once" ? qo.retake || 0 : 0), 0.05, 0.95);
     if (strat === "stall") p = Math.max(p, 0.25);
     const ok = G.rng.chance(p);
     if (ok) wins++;
@@ -772,7 +775,8 @@ export function queueMilestones(G) {
   // Quals at T18 of the quals year (retake the following year).
   const qualsYear = m.quals === "failed_once" ? m.qualsYear + 1 : m.qualsYear;
   if (m.quals !== "passed" && y === qualsYear && s.advisor) {
-    if (t === cfg.quals_turn - 6) { addStatus(G, "quals_prep", span(6)); s.readiness = 0; log(G, "Quals are in twelve weeks. Reading papers now counts as preparation." + stressHit(G, 6), "news"); }
+    const prepTurns = cfg.quals_prep_turns || 4;
+    if (t === cfg.quals_turn - prepTurns) { addStatus(G, "quals_prep", span(prepTurns)); s.readiness = 0; log(G, "Quals are in " + prepTurns * WEEKS_PER_TURN + " weeks. You can spend turns preparing." + stressHit(G, 6), "news"); }
     if (t === cfg.quals_turn) items.push({ kind: "sys", sys: "qa", data: { stage: "quals" } });
   }
 
@@ -865,6 +869,12 @@ export function planExtras(G) {
     out.push({ id: "apply_fellowship", kind: "apply", slot: true, label: "Apply for a fellowship",
       desc: "A year without TA duty \u00b7 results in February",
       arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
+  }
+  if (hasStatus(G, "quals_prep") && m.quals !== "passed") {
+    const r = s.readiness || 0;
+    out.push({ id: "quals_prep", kind: "milestone", label: "Prepare for quals",
+      desc: r < 4 ? "Not ready yet" : r < 9 ? "Getting there" : r < 14 ? "Almost ready" : "As ready as you'll be",
+      arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "quals", dir: "up", strength: 2 }] });
   }
   if (m.proposal === "pending" && m.quals === "passed" && !m.proposalAt && t !== 9 &&
     y >= (cfg.proposal_min_year || 3) && firstAuthorPubs(G) >= (cfg.proposal_min_pubs || 2)) {
@@ -990,7 +1000,7 @@ export function queuePapers(G) {
     }
     if (pp.status === "accepted" && pp.conferenceTurn === s.turn) autoConference(G, pp);
   });
-  // The Dark Angel's question comes the week before a deadline.
+  // The Kind and Funded advisor's question comes the week before a deadline.
   activeProjects(G).forEach(function (p) {
     if (!p.target || p.target.rrPaper || p.target.journalPaper) return;
     const ttd = p.target.turn - s.turn;

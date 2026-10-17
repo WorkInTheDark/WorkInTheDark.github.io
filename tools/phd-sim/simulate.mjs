@@ -18,13 +18,14 @@ const POLICIES = ["balanced", "workaholic", "slacker", "random", "pusher", "swin
 // Picks one action for the week, the way each kind of player might.
 function pickAction(p, policy, rng, stats) {
   const A = p.actions;
-  const by = (kind) => A.filter((a) => a.kind === kind);
+  // Bots prepare for quals on about half of the turns it's offered.
+  const skipQuals = rng.chance(0.5);
+  const by = (kind) => A.filter((a) => a.kind === kind && !(skipQuals && a.id === "quals_prep"));
   const has = (id) => A.some((a) => a.id === id);
   const sanityOpp = by("opportunity").find((a) => (a.arrows || []).some((x) => x.stat === "sanity" && x.dir === "up"));
   const boostOpp = by("opportunity").find((a) => (a.arrows || []).some((x) => x.stat === "progress"));
   const crunch = A.find((a) => a.id.indexOf("crunch:") === 0);
-  // Bots skip papers that are already finished and only waiting for a deadline.
-  const projects = by("project").filter((a) => a.label.indexOf("Polish") !== 0);
+  const projects = by("project");
   const litRead = A.find((a) => a.id === "read" && (a.arrows || []).some((x) => x.stat === "progress" && x.strength > 1));
   const care = () => (has("recharge") ? "recharge" : A[0].id);
   if (policy === "random") return rng.pick(A).id;

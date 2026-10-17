@@ -161,7 +161,7 @@ export function finalize(G, endingId) {
       return { title: p.title, venue: p.venueName, tier: p.tier, status: p.status, cites: paperCitations(p), first: p.firstAuthor };
     }),
     achievements: Object.keys(s.runAchievements || {}),
-    advisor: s.advisor ? { nick: s.advisor.nick, label: s.advisor.label, name: "Prof. " + s.advisor.surname } : null
+    advisor: s.advisor ? { label: s.advisor.label, name: "Prof. " + s.advisor.surname } : null
   };
   const meta = G.meta;
   meta.codex = meta.codex || {};

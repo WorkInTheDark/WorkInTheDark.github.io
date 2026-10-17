@@ -44,8 +44,8 @@
 # --- Advisor
 - { id: found_the_dark_angel, name: "Found the Unicorn", desc: "Got the Kind and Funded advisor." }
 - { id: the_one_that_got_away, name: "The One That Got Away", desc: "The Kind and Funded advisor took another student the year you started.", secret: true }
-- { id: bubble_tea_regular, name: "Bubble Tea Regular", desc: "20 in-person lab meetings with the Dark Angel.", when: { advisor: [kind_funded], telemetry: { lab_meetings_in_person: ">=20" } } }
-- { id: no_orphans, name: "No Orphans", desc: "A paper the Dark Angel couldn't find a single orphan word in." }
+- { id: bubble_tea_regular, name: "Bubble Tea Regular", desc: "20 in-person lab meetings with the Kind and Funded advisor.", when: { advisor: [kind_funded], telemetry: { lab_meetings_in_person: ">=20" } } }
+- { id: no_orphans, name: "No Orphans", desc: "A paper your Kind and Funded advisor found no orphan words in." }
 - { id: ten_questions, name: "Ten Questions, Ten Answers", desc: "Aced Judy Olson's ten questions.", secret: true }
 - { id: advisor_whisperer, name: "Advisor Whisperer", desc: "Your advisor relationship reached 90.", when: { stat: { advisor_rel: ">=90" } } }
 # --- Milestones

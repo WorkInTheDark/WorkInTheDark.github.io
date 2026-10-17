@@ -28,7 +28,7 @@ const WORK_DAYS = ["read", "network", "help", "mentor", "career", "project", "wr
 const PRE_SYS = ["first_project"];
 // System prompts that count as one of the turn's "things that happen".
 const PROMPT_SYS = ["submit", "rebuttal", "qa", "qa_result", "offers", "final_offers", "internship_offer", "the_question", "decision", "conference", "fellowship_apply", "internship_apply", "job_market_start"];
-const ACTION_EXTRAS = ["apply_internship", "apply_fellowship", "proposal", "defense", "job_market"];
+const ACTION_EXTRAS = ["apply_internship", "apply_fellowship", "proposal", "defense", "job_market", "quals_prep"];
 
 function oppArrows(def) {
   const base = (ACTIVITY_BY_ID[def.days || "rest"] || { arrows: [] }).arrows || [];
@@ -250,16 +250,12 @@ export class Game {
         if (st.kind === "wait" || p.pause > 0) return;
         const dl = ttd === 0 ? " \u00b7 " + deadlineLabel(self, p) + " now" :
           ttd !== null && ttd > 0 && ttd <= 3 ? " \u00b7 " + deadlineLabel(self, p) + " " + ttd * WEEKS_PER_TURN + "w" : "";
-        if (info.ready) {
-          out.push({ id: "p:" + p.id, kind: "project", label: "Polish “" + p.short + "”",
-            desc: "Ready" + dl + " \u00b7 polishing reads better",
-            arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
-        } else {
-          out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",
-            desc: info.label + " \u00b7 " + odds + dl + (st.id === "lit" ? " \u00b7 reading is faster" : ""),
-            arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: st.id === "lit" ? 1 : 2 }] });
-        }
-        if (ttd === 1 && !info.ready && !fx.burnout) {
+        // A finished paper just waits for its deadline card; there's nothing left to do on it.
+        if (info.ready) return;
+        out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",
+          desc: info.label + " \u00b7 " + odds + dl + (st.id === "lit" ? " \u00b7 reading is faster" : ""),
+          arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: st.id === "lit" ? 1 : 2 }] });
+        if (ttd === 1 && !fx.burnout) {
           out.push({ id: "crunch:" + p.id, kind: "deadline", label: "Crunch on “" + p.short + "”, weekends included",
             desc: deadlineLabel(self, p) + " 2w \u00b7 weekends too",
             arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }, { stat: "health", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }] });
@@ -432,6 +428,8 @@ export class Game {
       if (s.seen["opp:" + o.id] !== undefined && s.turn - s.seen["opp:" + o.id] < span(o.cooldown || 4)) continue;
       const ctx = {};
       if (!check(o.when, this, ctx)) continue;
+      // Project time on a paper that's already finished would change nothing.
+      if (o.days === "project" && ctx.projectId && s.projects.some(function (p) { return p.id === ctx.projectId && p.ready; })) continue;
       if (!this.rng.chance(o.chance === undefined ? 0.05 : o.chance)) continue;
       picks.push({ id: o.id, ctx: ctx });
     }
@@ -502,6 +500,7 @@ export class Game {
       let effD = eff;
       if (action.indexOf("p:") === 0) dayKey = action;
       else if (action.indexOf("crunch:") === 0) dayKey = "p:" + action.slice(7);
+      else if (action === "quals_prep") dayKey = "quals_study";
       else if (ACTION_EXTRAS.indexOf(action) >= 0) dayKey = action === "apply_fellowship" || action === "proposal" || action === "defense" ? "writing_day" : "career";
       else if (action === "read") dayKey = "read";
       else if (opp && opp.def) {
@@ -646,9 +645,9 @@ export class Game {
       if (!b) return;
       const label = function (x) { return x ? (x.ready ? "Ready to submit" : x.stage) : "new"; };
       if (!a || a.stage !== b.stage || a.ready !== b.ready || a.status !== b.status) {
-        projects.push({ short: p.short, from: label(a), to: b.status === "submitted" ? "Submitted" : b.status === "done" ? "Published" : label(b) });
+        projects.push({ id: p.id, short: p.short, from: label(a), to: b.status === "submitted" ? "Submitted" : b.status === "done" ? "Published" : label(b) });
       } else if (p.lastWorked === s.turn && p.status === "active" && !b.ready) {
-        projects.push({ short: p.short, from: null, to: "still in " + b.stage + " (" + b.hint + ")" });
+        projects.push({ id: p.id, short: p.short, from: null, to: "still in " + b.stage + " (" + b.hint + ")" });
       }
     });
     return {
@@ -728,7 +727,7 @@ export class Game {
         st.knowledge = clamp(st.knowledge + g * (1 - st.knowledge / 100), 0, 100);
         st.taste = clamp(st.taste + 0.5 * g * (1 - st.taste / 100), 0, 100);
         s.telemetry.reading_days++;
-        if (hasStatus(this, "quals_prep")) s.readiness += 0.6;
+        if (hasStatus(this, "quals_prep")) s.readiness += 0.3;
         if (this.rng.chance(0.04 + st.taste / 1500)) { s.telemetry.ideas++; this.log("While reading, you have an idea worth keeping."); }
         break;
       }
@@ -759,6 +758,11 @@ export class Game {
         addStat(this, "friends_rel", 1);
         s.telemetry.rest_days++;
         tally.self++; tally.social++;
+        break;
+      case "quals_study":
+        // Mock exams and the reading list: this is what the committee's questions test.
+        s.readiness += (cfg.quals_prep_per_day || 1.5) * Math.max(0.5, eff);
+        st.knowledge = clamp(st.knowledge + 0.5 * g * (1 - st.knowledge / 100), 0, 100);
         break;
       case "writing_day":
         addStat(this, "writing", 0.5 * g * (1 - st.writing / 100) * 2);

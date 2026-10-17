@@ -46,6 +46,8 @@ ACTIVITIES.push({ id: "recharge", label: "Recharge", kind: "self", desc: "Sleep 
   arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }, { stat: "health", dir: "up", strength: 1 }] });
 ACTIVITIES.push({ id: "writing_day", label: "Write", kind: "work", desc: "Statements, proposals, chapters.",
   arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
+ACTIVITIES.push({ id: "quals_study", label: "Prepare for quals", kind: "work", desc: "Practice questions, the reading list, mock exams.",
+  arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
 
 // The few things you can always focus a turn on. Everything else comes up as an opportunity.
 export const DEFAULT_ACTIONS = [

@@ -1,90 +1,68 @@
 # Advisor archetypes. Parameters are 1–5: fund(ing), avail(ability), kind(ness), stds (standards), fame, stab(ility).
-# The nickname and tagline are what players see; the label is used in the Codex.
+# Players see "Prof. <surname> (<label>)" and the tagline. (Legion nicknames were removed 2026-10-17.)
 archetypes:
   - id: famous_absent
     label: Famous but Absent
-    nick: the White Scar
-    legion: V
     tagline: "Brilliant, famous, and always somewhere else."
     params: { fund: 4, avail: 1, kind: 3, stds: 4, fame: 5, stab: 3 }
     lab_size: 6
     weight: 1
   - id: micromanager
     label: Micromanager
-    nick: the Imperial Fist
-    legion: VII
     tagline: "Checks every detail. Every. Single. One."
     params: { fund: 3, avail: 5, kind: 2, stds: 4, fame: 3, stab: 4 }
     lab_size: 4
     weight: 1
   - id: hungry_ap
     label: Hungry Assistant Prof
-    nick: the Blood Angel
-    legion: IX
     tagline: "New, ambitious, and hungry for papers."
     params: { fund: 3, avail: 4, kind: 4, stds: 4, fame: 2, stab: 2 }
     lab_size: 2
     weight: 1
   - id: kind_unfunded
     label: Kind but Unfunded
-    nick: the Raven Guard
-    legion: XIX
     tagline: "Fights for their students on almost no budget."
     params: { fund: 1, avail: 4, kind: 5, stds: 3, fame: 2, stab: 4 }
     lab_size: 3
     weight: 1
   - id: grant_machine
     label: Grant Machine
-    nick: the Ultramarine
-    legion: XIII
     tagline: "Always funded. Always writing grant reports."
     params: { fund: 5, avail: 2, kind: 3, stds: 3, fame: 4, stab: 4 }
     lab_size: 8
     weight: 1
   - id: visionary
     label: The Visionary
-    nick: the Thousand Son
-    legion: XV
     tagline: "Big ideas, and a new one every week."
     params: { fund: 3, avail: 3, kind: 3, stds: 2, fame: 4, stab: 3 }
     lab_size: 5
     weight: 1
   - id: industry_joint
     label: Industry Joint
-    nick: the Iron Hand
-    legion: X
     tagline: "Half professor, half tech company."
     params: { fund: 4, avail: 2, kind: 3, stds: 3, fame: 4, stab: 2 }
     lab_size: 4
     weight: 1
   - id: near_retirement
     label: Near Retirement
-    nick: the Space Wolf
-    legion: VI
     tagline: "A legend of the field, counting down to retirement."
     params: { fund: 2, avail: 3, kind: 4, stds: 2, fame: 4, stab: 1 }
     lab_size: 2
     weight: 1
   - id: serial_founder
     label: Serial Founder
-    nick: the Alpha Legionnaire
-    legion: XX
     tagline: "Three startups, and nobody is sure which one is real."
     params: { fund: 3, avail: 2, kind: 3, stds: 2, fame: 3, stab: 2 }
     lab_size: 3
     weight: 1
   - id: methods_purist
     label: Methods Purist
-    nick: the Iron Warrior
-    legion: IV
     tagline: "No result survives without ten seeds and a significance test."
     params: { fund: 3, avail: 3, kind: 3, stds: 5, fame: 3, stab: 5 }
     lab_size: 4
     weight: 1
   - id: kind_funded
     label: Kind and Funded
-    nick: the Dark Angel
-    legion: I
     tagline: "Kind, well funded, and never satisfied with borderline work."
     params: { fund: 5, avail: 4, kind: 5, stds: 5, fame: 3, stab: 4 }
     lab_size: 5
@@ -96,7 +74,7 @@ archetypes:
       - "Replies at strange hours, midnight included, always adding \"no need to reply until Monday\"."
       - "Buys bubble tea for everyone who comes to lab meeting in person."
 
-# Two of these are drawn for every advisor except the Dark Angel.
+# Two of these are drawn for every advisor except Kind and Funded.
 quirks:
   - "Replies to email at 3 am."
   - "Loves Gantt charts."

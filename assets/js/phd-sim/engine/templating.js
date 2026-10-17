@@ -35,7 +35,7 @@ export function fill(text, G, ctx) {
     switch (key) {
       case "player": out = s.player.name; break;
       case "advisor": out = s.advisor ? "Prof. " + s.advisor.surname : "a professor"; break;
-      case "advisor.nick": out = s.advisor ? s.advisor.nick : "your future advisor"; break;
+      case "advisor.nick": out = s.advisor ? "Prof. " + s.advisor.surname : "your future advisor"; break; // old name for {advisor}
       case "labmate": out = labmatePick(G, ctx, "labmate"); break;
       case "labmate2": out = labmatePick(G, ctx, "labmate2", labmatePick(G, ctx, "labmate")); break;
       case "senior": {

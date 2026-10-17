@@ -26,7 +26,7 @@ A browser game on the site, inspired by 《读博模拟器》, in which the play
 | Advisor | **Assigned on day one, no matching screen** (Arthur, 2026-10-16: choosing didn't change the game enough to earn the screen). The welcome card introduces them (section 7.2) |
 | Committee Q&A | **Plays out on its own** (2026-10-16): picking answer strategies barely mattered and broke the flow. Prep (reading days, proposal work) is what you control; the card shows each question with ✓ or ✗ |
 | Look | **A small game window inside the page** (760 × 560 on desktop), with its own palette and a rounded display font. No How to play, no Log (section 14.2) |
-| Advisor nicknames | Space Marine Legion names, one Legion per archetype (section 7.1) |
+| Advisor nicknames | **Removed** (Arthur, 2026-10-17: they didn't do anything). Advisors are "Prof. Surname" with a plain archetype label and tagline (section 7.1) |
 | Graduation | Passing the defense. The defense needs at least 3 publications and 3 months of preparation (section 3.4) |
 | Tone | No serious topics (section 16.3) |
 | Placement | Its own navbar tab, right after PhD 101 (section 15.7) |
@@ -131,7 +131,7 @@ ARR rejections can be resubmitted to a later cycle with previous reviews attache
 ### 3.4 Program structure and graduation
 - **Coursework:** Year 1 fall and spring, Year 2 fall.
 - **Advisor:** assigned on Year 1 T1 (section 7.2).
-- **Quals:** Year 1 T18 or Year 2 T18 (program variant rolled per run). One retake allowed.
+- **Quals:** Year 1 T18 or Year 2 T18 (program variant rolled per run). One retake allowed. **Prepare for quals** (2026-10-17) is a focus choice for the 8 weeks before the exam; see section 9.2 for the odds.
 - **Thesis proposal:** a window from Year 3 T20 to Year 4 T18. Requires at least 2 first-author papers and a committee.
 - **Annual progress review:** every T18 (section 5.4).
 - **Graduation = passing the defense.** There is no separate advisor-specific paper bar.
@@ -178,14 +178,14 @@ All the remaining weekdays go to the focus. You get 5 fewer when you're sick, an
 
 ### 4.2 Focus choices
 A few are always there:
-- **Work on "<project>"**, for each active project, unless it's waiting (IRB, recruiting, annotation) or on hold. At 100% it becomes **Polish "<project>"**: ready, waiting for its deadline, and more work only polishes the writing.
+- **Work on "<project>"**, for each active project, unless it's waiting (IRB, recruiting, annotation) or on hold. A finished paper has no work choice (Polish was removed, 2026-10-17: it changed nothing); it waits for its deadline card.
 - **Read and learn:** moves a project in **Related work** a lot (1.3× working on it, versus 0.8× for "Work on" in that phase) and every other project a little. Sometimes an idea.
 - **Recharge:** about +28 Energy, −18 Stress and +4 Health for the turn, on top of the weekends, however busy the turn is. It's the one rest choice; "Get healthy" was dropped because it duplicated it.
 
 Some come from the calendar and your progress:
-- **Deadlines don't use the focus.** In a deadline turn, each paper due gets its own card among the turn's updates: submit (with or without a preprint) or skip. Two papers due together can both go in. A rough draft can be submitted; a finished one reads better. A finished paper's work choice becomes "Polish <project>".
+- **Deadlines don't use the focus.** In a deadline turn, each paper due gets its own card among the turn's updates: submit (with or without a preprint) or skip. Two papers due together can both go in. A rough draft can be submitted; a finished one reads better.
 - **The turn before a deadline:** "Crunch on "<project>", weekends included" (deadline mode, four overtime days, a big drain on all three bars).
-- **Milestones**, which take the turn's focus: internship or fellowship applications, scheduling the proposal, starting defense prep, the job market.
+- **Milestones**, which take the turn's focus: **Prepare for quals** (the last 8 weeks before quals; its line says how ready you are, from "Not ready yet" to "As ready as you'll be"), internship or fellowship applications, scheduling the proposal, starting defense prep, the job market.
 - **Internship turns:** "Give it your all" (big drain, better return-offer odds), "Keep a healthy pace" (about Energy-neutral, a little Stress relief), "Spend the weekends on <project>", or "Take a few days off" (a Recharge).
 - **On leave:** only Recharge.
 
@@ -324,7 +324,7 @@ Changed on 2026-10-16: there is no background or origin choice, and no trait pic
 ## 7. People
 
 ### 7.1 Advisor archetypes
-Each archetype has a Legion nickname, six hidden parameters on a 1–5 scale, and two random quirks from a pool of about 30 (Appendix D). The Dark Angel instead always has its four fixed quirks (section 7.3).
+Each archetype has six hidden parameters on a 1–5 scale, and two random quirks from a pool of about 30 (Appendix D). The Dark Angel instead always has its four fixed quirks (section 7.3).
 
 | Archetype | Fund | Avail | Kind | Stds | Fame | Stab | Upside | Catch |
 |---|---|---|---|---|---|---|---|---|
@@ -340,59 +340,20 @@ Each archetype has a Legion nickname, six hidden parameters on a 1–5 scale, an
 | Methods Purist | 3 | 3 | 3 | 5 | 3 | 5 | Rock-solid papers | Slow; stats interrogations |
 | ★ **Kind and Funded** | 5 | 4 | 5 | 5 | 3 | 4 | Real support, stable funding | High standards, lots of critique |
 
-#### Legion nicknames
-Every advisor is known in the department by a Space Marine Legion name.
+#### Names (Legion nicknames removed 2026-10-17)
+Players see **Prof. {surname}**, the archetype's plain **label** (for example "Grant Machine") and its one-line **tagline**. Event text uses `{advisor}` ("Ask Prof. Dubois to email their PI").
 
-**Plain-language rule:** the Legion name is the only Warhammer 40,000 reference a player ever sees. Each nickname always appears together with a plain one-line **tagline**, and the tagline carries the meaning. So someone who has never heard of the setting loses nothing, and someone who has gets an extra joke. The rule applies everywhere:
-- Event text, quirks, result lines and the Codex never use lore terms (Codex Astartes, Red Thirst, Inner Circle, Long Fang, visions, and so on).
-- Lore may shape a personality behind the scenes, but never as a word the player has to decode.
-
-The advisor card reads, for example: *Prof. {surname} · "the Ultramarine" · Always funded. Always writing grant reports.*
-
-The welcome card on day one (section 7.2) gives the nickname and tagline as what the students call your advisor.
-
-| Archetype | Nickname | Tagline (shown in game) | Why this Legion (design only, never shown) |
-|---|---|---|---|
-| Famous but Absent | the White Scar | Brilliant, famous, and always somewhere else. | Always off hunting somewhere far away |
-| Micromanager | the Imperial Fist | Checks every detail. Every. Single. One. | Fortifies and inspects every wall |
-| Hungry Assistant Prof | the Blood Angel | New, ambitious, and hungry for papers. | The Red Thirst |
-| Kind but Unfunded | the Raven Guard | Fights for their students on almost no budget. | Fights for its people with almost nothing left |
-| Grant Machine | the Ultramarine | Always funded. Always writing grant reports. | Five hundred worlds of logistics and paperwork |
-| The Visionary | the Thousand Son | Big ideas, and a new one every week. | Sees visions; plans change accordingly |
-| Industry Joint | the Iron Hand | Half professor, half tech company. | Half flesh, half machine |
-| Near Retirement | the Space Wolf | A legend of the field, counting down to retirement. | A grey-haired Long Fang |
-| Serial Founder | the Alpha Legionnaire | Three startups, and nobody is sure which one is real. | Many heads, hidden plans |
-| Methods Purist | the Iron Warrior | No result survives without ten seeds and a significance test. | Siege mathematics; never satisfied |
-| ★ Kind and Funded (Arthur) | **the Dark Angel** | Kind, well funded, and never satisfied with borderline work. | The First Legion, and a nod to WorkInTheDark |
-
-Spare Legions for future archetypes:
-- **Salamanders (XVIII):** the most humane Legion, for a future kind archetype.
-- **Emperor's Children (III):** the perfectionist about figure aesthetics.
-- **Death Guard (XIV):** the advisor who has outlasted every dean.
-- **Sons of Horus (XVI):** the charismatic rising star.
-- **Word Bearers (XVII):** preaches one pet theory.
-
-Night Lords (VIII) and World Eaters (XII) are left out on purpose: their lore is terror and rage, which reads as an abusive advisor and breaks the no-serious-topics rule.
-
-Quirks and signature events stay plain. For example, "your draft comes back with a comment on every sentence" for the Imperial Fist, or "they won't accept a result without ten seeds" for the Iron Warrior. Each Legion's signature event candidates are in `event-ideas.md`, section G.
-
-What the parameters do:
-- **Funding:** chance of a TA semester (Fund 1: 80%, 2: 60%, 3: 35%, 4: 15%, 5: 5%); conference travel approval; compute (experiment speed for empirical projects).
-- **Availability:** how often meetings happen and how much they help; how fast blocked work gets unblocked.
-- **Kindness:** Sanity effects of advisor events; how failures are received.
-- **Standards:** whether the advisor blocks a submission below a quality bar; whether they allow starting defense prep with the third paper still under review; a quality bonus. The graduation bar itself is the same for everyone (section 3.4).
-- **Fame:** letters, network gains, the job market, a small citation multiplier.
-- **Stability:** the yearly chance of an "advisor is leaving" arc.
+Each archetype used to have a Space Marine Legion nickname (the Dark Angel for Kind and Funded, as a nod to WorkInTheDark). Arthur removed them because they didn't do anything in the game. The event file `events/legion.yml` and its `leg_` ids keep their names; its events show as "Advisor".
 
 ### 7.2 Your advisor (assigned on day one, 2026-10-16)
-- Three candidates are still drawn from the pool, and one of them takes you. There is no matching screen: the welcome card names your advisor, their Legion nickname and the students' one-line rumor, then asks about your first project.
+- Three candidates are still drawn from the pool, and one of them takes you. There is no matching screen: the welcome card names your advisor, their archetype and its tagline, then asks about your first project.
 - **Why:** with matching, the choice didn't change enough of the game to be worth a screen and a week of rotations (Arthur). The advisor still shapes the run through their archetype (funding, events, how they react).
 - **The One That Got Away** (achievement): the Kind and Funded advisor was among the three candidates but took someone else.
 - Later arcs can force or allow a switch (advisor leaves, irreparable conflict); a new advisor is then drawn the same way.
 - *Old design (replaced):* choose among three by T8, with rumors about 70% accurate and lab rotations to learn more.
 
 ### 7.3 The Kind and Funded advisor (Arthur)
-- **Shown as:** the Dark Angel (I), through `{advisor.nick}`. The archetype label is "Kind and Funded".
+- **Shown as:** Prof. {surname} (Kind and Funded). (It was "the Dark Angel" until the nicknames were removed.)
 - **Rarity:** weighted so that it appears among the three candidates in about 1 run in 12.
 - **Achievements:** "Found the Unicorn" for choosing it; "The One That Got Away" for being offered it and choosing someone else.
 - **Signature events,** each echoing a PhD 101 episode:
@@ -563,7 +524,7 @@ Each concern has a severity (minor or major) and a validity (a real issue, or a 
 
 | Mini-game | Phase | Sketch |
 |---|---|---|
-| Committee Q&A (quals, proposal, defense) | 2 | **Automatic since 2026-10-16.** 3–5 committee members ask questions drawn from your projects' weak spots; each answer lands or not from hidden skills and prep days, and one card lists the questions with ✓ / ✗ and the result. (Answer strategies were cut: they barely mattered and broke the flow.) |
+| Committee Q&A (quals, proposal, defense) | 2 | **Automatic since 2026-10-16.** 3–5 committee members ask questions drawn from your projects' weak spots; each answer lands or not from hidden skills and prep days, and one card lists the questions with ✓ / ✗ and the result. (Answer strategies were cut: they barely mattered and broke the flow.) **Quals odds (2026-10-17)** are mostly preparation: each answer lands with 0.20 + 0.045 × readiness (max 15) + (skill − 40) / 200, plus 0.12 on the retake; you pass with half right. "Prepare for quals" adds about 1.5 readiness per free day, reading during the prep window 0.3. Measured first-try pass: about 68% with no prep, 90% after one turn, 94% after two. |
 | Poster session | 3 | 6 visitor slots (famous prof, curious student, recruiter, the person who explains your poster to you, a competitor); choose the pitch length; outcomes: network, job leads, citations |
 | Job talk and interviews | 3 | Talk structure choices, Q&A, one-on-ones; feeds offers |
 | Deadline night | 3 | 12 hours left, a task list (fix Figure 2, rerun an ablation, write the limitations, trim to the page limit, fix the bibliography) and random disasters (Overleaf compile timeout, a co-author edits main.tex at 11:58 pm); affects quality and desk-reject risk |
@@ -709,7 +670,7 @@ A `check: { stat, vs, spread }` makes a choice uncertain: `P(success) = clamp(0.
 
 ### 11.4 Templating
 Event text can use tokens filled from the run's generated world:
-- People: `{player.name}`, `{advisor.nick}`, `{advisor.name}`, `{labmate}`, `{labmate.senior}`, `{mentee}`, `{committee}`
+- People: `{player.name}`, `{advisor}` (Prof. Surname; `{advisor.nick}` is an old alias), `{advisor.name}`, `{labmate}`, `{labmate.senior}`, `{mentee}`, `{committee}`
 - Work: `{project}`, `{project.topic}`, `{paper}`, `{venue}`
 - World: `{city}`, `{model}` (the latest fictional frontier model), `{biglab}` (a fictional lab)
 - Counters: `{counter.x}`, with filters such as `|ordinal` and `|plural`
@@ -917,8 +878,8 @@ Arthur: the full-height layout was too tall, had too much text, and felt like a 
 
 - **Size:** 760 px wide at most, 560 px tall on desktop; long content scrolls inside the middle. On phones the window grows with its content and the page scrolls.
 - **Top strip (dark indigo):** a calendar badge (Year N, date), three icon gauges (⚡ Energy, 😣 Stress, ❤️ Health) with tick marks, 📄 papers and ✦ citations, and two icon buttons (🚪 Leave, ☰ Menu).
-- **Middle, the scene:** either the card that needs an answer (event, deadline, decision, committee, rebuttal), or this turn's choices as **tiles** (icon, label, one short line, arrows, number key). Above the tiles, last turn as **chips**: the bar changes, up to two things that happened (stage moves, good or bad news; on a quiet turn, a flavor one-liner), and a senior student's tip with its PhD 101 link when there is one.
-- **Bottom, the tray:** chips for the advisor, statuses, upcoming quals / proposal / defense (within 16 weeks), and papers under review (details on hover); then one **tracker** per project (name, a dot per stage: done, now with a pulse, waiting dashed; the stage and deadline) and a **+ New project** tracker with its Stress arrow. Clicking a tracker opens the project close-up in the scene (all stages, the target venue, Shelve).
+- **Middle, the scene:** either the card that needs an answer (event, deadline, decision, committee, rebuttal), or this turn's choices as **tiles** (icon, label, one short line, arrows, number key). Above the tiles, last turn as **chips**: the bar changes, up to two things that happened (good or bad news; on a quiet turn, a flavor one-liner). Project changes are not repeated here (2026-10-17): the tracker that changed glows instead, and a senior student's tip with its PhD 101 link when there is one.
+- **Bottom, the tray:** chips for the advisor (Prof. Surname), statuses, and upcoming quals / proposal / defense (within 16 weeks); then one **tracker** per project (name, a dot per stage: done, now with a pulse, waiting dashed; the stage and deadline) and a **+ New project** tracker with its Stress arrow. Clicking a tracker opens the project close-up in the scene (all stages, the target venue, Shelve). **A submitted paper stays in the tray** as a dashed "letter": a venue stamp, a striped bar that fills until the decision, "Under review" (or the review scores once they're in) and the weeks to the decision.
 - **Cut:** How to play, the Log, the advisor matching screen, committee answer pickers, and most explanatory text. Descriptions are a few words ("Idea · likely · ACL 4w").
 
 ### 14.3 Event card
@@ -1073,7 +1034,7 @@ No analytics by default.
   - no mental-health crises, self-harm or politics
 
   Burnout appears only as a recoverable game status, framed lightly, with a link to the wellbeing chapter. Visa trouble is paperwork and delays, never policy.
-- **Fan reference:** the Legion nicknames are Games Workshop names, used as a non-commercial fan nod. Names only: no logos, artwork or iconography.
+- **Fan reference:** none since 2026-10-17 (the Legion nicknames were removed).
 - Every event offers at least one choice that is reasonable, not just a least-bad one.
 
 ---

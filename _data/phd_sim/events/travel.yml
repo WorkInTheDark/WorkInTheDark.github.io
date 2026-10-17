@@ -27,7 +27,7 @@
         effects: { energy: "-5±2", sanity: "-5±2" }
         flag_set: [visa_failed]
         achievement: remote_presenter
-    - label: "Ask {advisor.nick} for a support letter"
+    - label: "Ask {advisor} for a support letter"
       check: { stat: advisor_rel, vs: 50, spread: 20 }
       success:
         text: "The letter works. The consulate moves your appointment up by three weeks."

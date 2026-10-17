@@ -174,7 +174,7 @@
     - label: "Widen your search"
       text: "You add twelve more places and a few you'd never considered. It's a long weekend of cover letters."
       effects: { days: -2, career_prep: "+3", sanity: "-3±1" }
-    - label: "Ask {advisor.nick} about a postdoc"
+    - label: "Ask {advisor} about a postdoc"
       text: "Your advisor has a few ideas and a few names. Suddenly the year ahead looks less frozen."
       effects: { advisor_rel: "+2±1", sanity: "+3±1", career_prep: "+1" }
       flag_set: [postdoc_backup]
@@ -201,7 +201,7 @@
     - label: "Take both calls"
       text: "Two calls, two friendly recruiters, two promising next steps."
       effects: { days: -1, career_prep: "+3", network: "+3±1", energy: "-3±1" }
-    - label: "Ask {advisor.nick} which one fits"
+    - label: "Ask {advisor} which one fits"
       requires: { has_advisor: true }
       text: "Your advisor knows someone on one of the teams. Your reply now sounds much better informed."
       effects: { advisor_rel: "+2±1", career_prep: "+2" }

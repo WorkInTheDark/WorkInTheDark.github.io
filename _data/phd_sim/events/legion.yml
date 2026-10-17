@@ -1,6 +1,6 @@
 # PhD Simulator: advisor-specific signature events (event-ideas.md, section G;
 # design.md section 7.3 for the Kind and Funded advisor).
-# Plain-language rule: no lore. The nickname appears only through {advisor.nick}.
+# Plain-language rule: no lore. (Advisors had Legion nicknames until 2026-10-17; the file name stayed.)
 
 # --- Famous but Absent ------------------------------------------------------
 
@@ -202,7 +202,7 @@
   rarity: common
   when: { advisor: [grant_machine] }
   text:
-    - "A 40-page lab handbook arrives, with a procedure for everything, including how to name your files. Students call your advisor {advisor.nick} for a reason."
+    - "A 40-page lab handbook arrives, with a procedure for everything, including how to name your files."
   choices:
     - label: "Read it cover to cover"
       text: "Your files now follow the naming rules. Your code feels less fragile already."

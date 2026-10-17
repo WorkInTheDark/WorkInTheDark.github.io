@@ -13,7 +13,7 @@
 - { id: defense_prep,         name: "Defense prep",         desc: "Part of every week goes to the thesis and slides." }
 - { id: coursework,           name: "Coursework",           desc: "Classes take fixed days." }
 - { id: ta,                   name: "TA",                   desc: "Teaching takes fixed days." }
-- { id: quals_prep,           name: "Quals prep",           desc: "Reading days count toward quals readiness." }
+- { id: quals_prep,           name: "Quals prep",           desc: "Quals are coming. “Prepare for quals” raises your odds." }
 - { id: proposal_prep,        name: "Proposal prep",        desc: "Project days count toward proposal readiness." }
 - { id: job_market,           name: "On the market",        desc: "Applications and interviews." }
 - { id: at_conference,        name: "At a conference",      desc: "Away for the conference." }

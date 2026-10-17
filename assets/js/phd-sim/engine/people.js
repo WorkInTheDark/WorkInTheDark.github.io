@@ -43,8 +43,6 @@ export function makeAdvisor(G, cand) {
   return {
     archetype: a.id,
     label: a.label,
-    nick: a.nick,
-    legion: a.legion,
     tagline: a.tagline,
     first: cand.first,
     surname: cand.surname,

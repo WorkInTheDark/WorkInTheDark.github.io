@@ -37,7 +37,7 @@ const STATUSES = new Set(D.statuses.map((s) => s.id));
 const ACHIEVEMENTS = new Set(D.achievements.map((a) => a.id));
 const TOPICS = new Set(Object.keys(D.phd101));
 const ENDINGS = new Set(D.endings.map((e) => e.id));
-const TOKENS = ["player", "advisor", "advisor.nick", "labmate", "labmate2", "senior", "mentee", "project", "project.topic", "paper", "venue", "city", "company", "model", "biglab", "committee", "roll", "topic", "fake_prior"];
+const TOKENS = ["player", "advisor", "labmate", "labmate2", "senior", "mentee", "project", "project.topic", "paper", "venue", "city", "company", "model", "biglab", "committee", "roll", "topic", "fake_prior"];
 
 function checkCond(where, c) {
   if (c === undefined || c === null) return;

@@ -138,7 +138,7 @@
 - text: "You meet someone whose papers you've cited six times. You forget their name instantly."
   when: { status_any: [at_conference] }
 
-# Advisors (plain wording; the nickname appears only through events)
+# Advisors (plain wording)
 - text: "Your advisor replies at 12:40 am: \"Great figure. No need to reply until Monday.\""
   when: { advisor: [kind_funded] }
 - text: "Your advisor buys bubble tea for everyone who came to lab meeting in person."

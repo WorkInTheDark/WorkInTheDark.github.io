@@ -58,7 +58,7 @@
     flags_all: [offline_week]
     has_advisor: true
   text:
-    - "You open your laptop after the lake: {roll:100-140} unread emails and nine messages from {advisor.nick}. The last one says \"Never mind, figured it out.\""
+    - "You open your laptop after the lake: {roll:100-140} unread emails and nine messages from {advisor}. The last one says \"Never mind, figured it out.\""
   choices:
     - label: "Answer every single one today"
       text: "By midnight, inbox zero. The lake already feels like a dream."
@@ -157,7 +157,7 @@
     project: { stage_kind: work }
     stat: { sanity: "<60" }
   text:
-    - "Your meeting with {advisor.nick} about {project} goes unexpectedly well. Thirty minutes in, you remember why you wanted to do this project."
+    - "Your meeting with {advisor} about {project} goes unexpectedly well. Thirty minutes in, you remember why you wanted to do this project."
   choices:
     - label: "Ride the momentum all weekend"
       text: "Two long days of focused work. Tired, but the project is moving again."

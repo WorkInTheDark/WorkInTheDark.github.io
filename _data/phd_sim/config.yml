@@ -125,6 +125,9 @@ ta_chance_by_funding: [0.8, 0.6, 0.35, 0.15, 0.05]
 graduation_pubs: 3
 defense_prep_turns: 6
 quals_turn: 18           # quals at T18 of year 1 or 2 (rolled per run)
+quals_prep_turns: 4      # "Prepare for quals" is on offer this many turns (8 weeks) before the exam
+quals_prep_per_day: 1.5  # readiness per free day spent preparing (the exam counts up to 15)
+quals_odds: { base: 0.2, per_prep: 0.045, retake: 0.12 }  # chance each quals answer lands: base + per_prep x readiness (max 15) + (skill - 40) / 200, + retake on the second try
 proposal_prep_turns: 4
 proposal_min_pubs: 2
 proposal_min_year: 3

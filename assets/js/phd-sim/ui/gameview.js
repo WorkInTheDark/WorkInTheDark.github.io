@@ -29,7 +29,7 @@ function actionIcon(G, a) {
   }
   return {
     read: "\u{1F4DA}", recharge: "\u{1F6CC}", intern_all: "\u{1F4BC}", intern_pace: "\u{1F33F}", apply_internship: "\u{1F4EE}",
-    apply_fellowship: "\u{1F4DD}", proposal: "\u{1F3A4}", defense: "\u{1F393}", job_market: "\u{1F4BC}"
+    apply_fellowship: "\u{1F4DD}", proposal: "\u{1F3A4}", defense: "\u{1F393}", job_market: "\u{1F4BC}", quals_prep: "\u{1F4DD}"
   }[a.id] || "•";
 }
 
@@ -86,11 +86,8 @@ function recapHtml(G, report) {
     if (!diff) return "";
     return '<span class="ps-delta ' + (d.to > d.from ? "ps-delta-good" : "ps-delta-bad") + '">' + icon[d.stat] + (diff > 0 ? "+" : "−") + Math.abs(diff) + "</span>";
   }).join("");
+  // Project changes show on their trackers in the tray, not here.
   const items = [];
-  report.projects.forEach(function (p) {
-    if (p.from === "new") items.push({ cls: "stage", text: "New: " + p.short });
-    else if (p.from) items.push({ cls: "stage", text: p.short + " → " + p.to });
-  });
   report.news.forEach(function (e) { if (e.kind === "good" || e.kind === "bad") items.push({ cls: e.kind, text: e.text }); });
   // a quiet turn still gets its one-liner
   const flavor = report.news.find(function (e) { return e.kind === "flavor"; });
@@ -138,7 +135,7 @@ function inspectHtml(G, p) {
 
 // ---- Tray: project trackers and what's affecting you ------------------------------------------
 
-function trackerHtml(G, p, locked) {
+function trackerHtml(G, p, locked, moved) {
   const s = G.state;
   const info = stageInfo(G, p);
   const stages = p.revise ? [{ id: "revise", kind: "work" }] : PROJECT_TYPES[p.type].stages;
@@ -149,18 +146,34 @@ function trackerHtml(G, p, locked) {
   }).join("");
   const due = p.target && p.target.turn !== null && p.target.turn !== undefined ? (p.target.rrPaper ? "R&R" : deadlineLabel(G, p)) + " " + weeksShort(p.target.turn - s.turn) : "";
   const state = info.ready ? "Ready ✨" : info.wait ? info.label + " ⏳" : info.label;
-  return '<button class="ps-tracker' + (info.ready ? " ps-tracker-ready" : "") + '" data-action="inspect" data-id="' + esc(p.id) + '"' + (locked ? " disabled" : "") +
+  return '<button class="ps-tracker' + (info.ready ? " ps-tracker-ready" : "") + (moved ? " ps-tracker-moved" : "") + '" data-action="inspect" data-id="' + esc(p.id) + '"' + (locked ? " disabled" : "") +
     ' title="' + esc(p.title + " — " + (info.ready ? "ready to submit" : info.label + ", " + info.hint)) + '">' +
     '<span class="ps-tracker-name"><span aria-hidden="true">' + KIND_ICON[p.type] + "</span> " + esc(p.short) + "</span>" +
     '<span class="ps-dots" aria-label="Stage ' + info.n + " of " + info.of + '">' + dots + "</span>" +
     '<span class="ps-tracker-foot"><span>' + esc(state) + "</span>" + (due ? "<span>" + esc(due) + "</span>" : "") + "</span></button>";
 }
 
+// A submitted paper waits in the tray like a letter in the mail: the venue, and a bar that fills
+// until the decision.
+function reviewTrackerHtml(G, p, moved) {
+  const s = G.state;
+  const pp = s.papers.find(function (x) { return x.id === p.paperId; });
+  if (!pp) return "";
+  const total = Math.max(1, pp.decisionTurn - pp.submittedTurn);
+  const pct = Math.round(100 * Math.min(1, Math.max(0, (s.turn - pp.submittedTurn) / total)));
+  const left = pp.decisionTurn - s.turn;
+  const state = pp.reviews ? "Reviews: " + pp.reviews.map(function (r) { return r.score; }).join(" ") : pp.round > 1 ? "Revision sent" : "Under review";
+  return '<div class="ps-tracker ps-tracker-review' + (moved ? " ps-tracker-moved" : "") + '" title="' + esc(p.title + " — " + pp.venueName + ", decision in " + weeksShort(left)) + '">' +
+    '<span class="ps-tracker-name"><span aria-hidden="true">\u{1F4E8}</span> ' + esc(p.short) + "</span>" +
+    '<span class="ps-mail"><span class="ps-stamp">' + esc(pp.venueName) + '</span><span class="ps-wait" aria-hidden="true"><i style="width:' + pct + '%"></i></span></span>' +
+    '<span class="ps-tracker-foot"><span>' + esc(state) + "</span><span>" + (left > 0 ? "decision " + weeksShort(left) : "decision now") + "</span></span></div>";
+}
+
 function statusChips(G) {
   const s = G.state;
   const D = G.D;
   const chips = [];
-  if (s.advisor) chips.push('<span class="ps-chip ps-chip-adv" title="' + esc("Prof. " + s.advisor.surname + ": " + s.advisor.tagline) + '">\u{1F9D1}‍\u{1F3EB} ' + esc(s.advisor.nick.replace(/^the /, "")) + "</span>");
+  if (s.advisor) chips.push('<span class="ps-chip ps-chip-adv" title="' + esc(s.advisor.label + ": " + s.advisor.tagline) + '">\u{1F9D1}‍\u{1F3EB} Prof. ' + esc(s.advisor.surname) + "</span>");
   const PREP = { quals_prep: "Quals", proposal_prep: "Proposal", defense_prep: "Defense" };
   const prepTip = {};
   s.statuses.forEach(function (st) {
@@ -180,23 +193,24 @@ function statusChips(G) {
   next.filter(function (x) { return x[1] >= s.turn && x[1] - s.turn <= 8; }).forEach(function (x) {
     chips.push('<span class="ps-chip ps-chip-soon"' + (prepTip[x[0]] ? ' title="' + esc(prepTip[x[0]]) + '"' : "") + ">\u{1F393} " + x[0] + " " + weeksShort(x[1] - s.turn) + "</span>");
   });
-  const under = s.papers.filter(function (p) { return p.status === "under_review"; });
-  if (under.length) {
-    chips.push('<span class="ps-chip" title="' + esc(under.map(function (p) { return p.venueName + ": " + p.short + " (decision in " + weeksShort(p.decisionTurn - s.turn) + ")"; }).join("\n")) + '">\u{1F4E8} ' + under.length + " under review</span>");
-  }
   return chips.join("");
 }
 
 function trayHtml(G, ui) {
   const s = G.state;
   const active = s.projects.filter(function (p) { return p.status === "active"; });
+  const inReview = s.projects.filter(function (p) { return p.status === "submitted"; });
   const canNew = ui.plan && ui.plan.canStartProject && !ui.modal;
+  // Trackers that changed last turn get a short glow (only on the turn's planning screen).
+  const moved = {};
+  if (ui.report && ui.plan) ui.report.projects.forEach(function (x) { if (x.from && x.id) moved[x.id] = true; });
   return '<footer class="ps-tray">' +
     '<div class="ps-chips">' + statusChips(G) + "</div>" +
-    '<div class="ps-trackers">' + active.map(function (p) { return trackerHtml(G, p, !!ui.modal); }).join("") +
+    '<div class="ps-trackers">' + active.map(function (p) { return trackerHtml(G, p, !!ui.modal, moved[p.id]); }).join("") +
+    inReview.map(function (p) { return reviewTrackerHtml(G, p, moved[p.id]); }).join("") +
     (canNew ? '<button class="ps-tracker ps-tracker-new" data-action="new-project" title="Doesn’t use the turn. Adds Stress.">+ New project ' +
       arrowsHtml([{ stat: "sanity", dir: "down", strength: ui.plan.newProjectStress >= 10 ? 2 : 1 }]) + "</button>" : "") +
-    (!active.length && !canNew ? '<span class="ps-tray-empty">No projects yet.</span>' : "") +
+    (!active.length && !inReview.length && !canNew ? '<span class="ps-tray-empty">No projects yet.</span>' : "") +
     "</div></footer>";
 }
 

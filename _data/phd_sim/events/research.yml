@@ -48,7 +48,7 @@
         effects: { energy: "-4±2", sanity: "-8±3" }
         flag_set: [scoop_same]
         schedule: { event: res_scooped_2, in: [1, 1], chance: 1.0 }
-    - label: "Forward it to {advisor.nick}: \"???\""
+    - label: "Forward it to {advisor}: \"???\""
       check: { stat: advisor_rel, vs: 45, spread: 20 }
       success:
         text: "Ten minutes later, your advisor replies: \"Breathe. They miss something important. Let's talk tomorrow.\" You breathe."
@@ -589,7 +589,7 @@
       effects: { sanity: "-3±1", energy: "+3±1", project.delay: 2 }
       counter: { resched: +1 }
       schedule: { event: res_clinicians_wait, in: [2, 3], chance: 1.0 }
-    - label: "Ask {advisor.nick} to email their PI"
+    - label: "Ask {advisor} to email their PI"
       check: { stat: advisor_rel, vs: 50, spread: 20 }
       success:
         text: "Two polite lines from your advisor to their PI. By morning, three slots appear, all before the deadline. Your advisor seems glad to help."
@@ -1090,7 +1090,7 @@
     - label: "Cut the plan in half, carefully"
       text: "You keep the experiments that answer the question and drop the ones that decorate it. A tighter paper."
       effects: { sanity: "-2±1", taste: "+2±1", project.quality.S: "-3±1", project.quality.C: "+3±1" }
-    - label: "Ask {advisor.nick} for more budget"
+    - label: "Ask {advisor} for more budget"
       check: { stat: advisor_rel, vs: 55, spread: 20 }
       success:
         text: "Your advisor finds a forgotten line in an old grant. The plan survives, and you owe that grant a progress report."
@@ -1167,7 +1167,7 @@
     - label: "Steer the project back"
       text: "You trim the parts that wandered off. Less exciting, but your committee will recognize it."
       effects: { project.progress: "-8±3", project.quality.S: "+4±2", project.quality.N: "-2±1", sanity: "-2±1" }
-    - label: "Ask {advisor.nick} which one to keep"
+    - label: "Ask {advisor} which one to keep"
       check: { stat: advisor_rel, vs: 50, spread: 20 }
       success:
         text: "\"Drift is how research works,\" your advisor says. \"Just write down why.\" You feel much lighter."
@@ -1441,7 +1441,7 @@
       failure:
         text: "They're polite and unconvinced. The thread grows to 31 emails."
         effects: { sanity: "-5±2", network: "-2±1" }
-    - label: "Ask {advisor.nick} to handle it"
+    - label: "Ask {advisor} to handle it"
       check: { stat: advisor_rel, vs: 50, spread: 20 }
       success:
         text: "Your advisor and theirs talk for ten minutes. You stay first author. Nobody tells you what was said."
@@ -1545,7 +1545,7 @@
   text:
     - "Participant 14 signs for the last gift card. You need 28. The budget assumed $25 cards; you've been handing out $50."
   choices:
-    - label: "Ask {advisor.nick} for more"
+    - label: "Ask {advisor} for more"
       check: { stat: advisor_rel, vs: 50, spread: 20 }
       success:
         text: "Your advisor sighs, finds the money and asks you to check the next budget twice. Fair."
@@ -1743,7 +1743,7 @@
     - label: "Report the unbalanced order"
       text: "One honest sentence in the method section. A reviewer will count, but you counted first."
       effects: { sanity: "+2±1", writing: "+1", project.quality.S: "-2±1" }
-    - label: "Ask {advisor.nick} if 23 is basically 24"
+    - label: "Ask {advisor} if 23 is basically 24"
       check: { stat: advisor_rel, vs: 55, spread: 20 }
       success:
         text: "Your advisor laughs, then helps you rerun the analysis with order as a factor. It holds."
@@ -1973,7 +1973,7 @@
     - label: "Add a citation check to your evaluation"
       text: "Every reference now gets checked against a real database. 14% are invented. That's a result."
       effects: { energy: "-4±2", days: -1, coding: "+1", project.quality.S: "+5±2", project.quality.N: "+2±1" }
-    - label: "Show {advisor.nick}"
+    - label: "Show {advisor}"
       check: { stat: advisor_rel, vs: 45, spread: 20 }
       success:
         text: "Your advisor laughs, then asks, \"Should I write it?\" You're not sure they're joking."
@@ -2019,7 +2019,7 @@
   text:
     - "You wake up to an email from billing. At 1 am your retry loop hit a rate limit, and retried, and retried. The lab's API budget for the month is gone."
   choices:
-    - label: "Tell {advisor.nick} right away"
+    - label: "Tell {advisor} right away"
       check: { stat: advisor_rel, vs: 45, spread: 20 }
       success:
         text: "\"Thanks for telling me first. It happens.\" Your advisor moves some money around. You could hug them."

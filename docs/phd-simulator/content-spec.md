@@ -13,7 +13,7 @@ The exact contract between the YAML content in `_data/phd_sim/` and the game eng
    - Event text: 1–3 sentences, ideally under 280 characters.
    - Choice labels: 48 characters or fewer, starting with a verb or a short quoted reply.
    - Result text: 200 characters or fewer.
-3. **Plain language.** Anyone who has never heard of Warhammer must understand every line. The Legion names (the Dark Angel, the Ultramarine, …) appear **only** through the `{advisor.nick}` token, never in prose, and never as lore (no Codex Astartes, Red Thirst, Inner Circle, Long Fang, visions, heresy…). Academic jargon a CS PhD student knows is fine (ablation, IRB, camera-ready, ARR).
+3. **Plain language.** Anyone who has never heard of Warhammer must understand every line. Advisors no longer have Legion nicknames (removed 2026-10-17): refer to them with `{advisor}` ("Prof. Surname") or "your advisor", and never use lore (no Codex Astartes, Red Thirst, Inner Circle, Long Fang, visions, heresy…). Academic jargon a CS PhD student knows is fine (ablation, IRB, camera-ready, ARR).
 4. **No serious topics.**
    - Not allowed: illness beyond colds, flu and sprains; grief; family emergencies; harassment, abuse or discrimination; mental-health crises; self-harm; politics or policy.
    - Allowed: burnout, but only as a light, recoverable game state.
@@ -33,7 +33,7 @@ The exact contract between the YAML content in `_data/phd_sim/` and the game eng
 | `events/writing.yml` | Writing and submission | `wri_` |
 | `events/reviews.yml` | Events around reviews and decisions | `rev_` |
 | `events/advisor.yml` | Any-advisor events | `adv_` |
-| `events/legion.yml` | Advisor-specific (Legion) events | `leg_` |
+| `events/legion.yml` | Advisor-specific events (the file kept its old name) | `leg_` |
 | `events/lab.yml` | Labmates | `lab_` |
 | `events/milestones.yml` | Courses, quals, proposal, defense | `mil_` |
 | `events/teaching.yml` | TA life | `tea_` |
@@ -272,19 +272,19 @@ Events with `trigger: scheduled` are never drawn. They fire only through `schedu
 `rejection_hardened`, `burnout_survivor`, `cat_person`, `deadline_junkie`
 
 ### 7.3 Advisor archetype ids
-| Id | Archetype | Nickname |
-|---|---|---|
-| `famous_absent` | Famous but Absent | the White Scar |
-| `micromanager` | Micromanager | the Imperial Fist |
-| `hungry_ap` | Hungry Assistant Prof | the Blood Angel |
-| `kind_unfunded` | Kind but Unfunded | the Raven Guard |
-| `grant_machine` | Grant Machine | the Ultramarine |
-| `visionary` | The Visionary | the Thousand Son |
-| `industry_joint` | Industry Joint | the Iron Hand |
-| `near_retirement` | Near Retirement | the Space Wolf |
-| `serial_founder` | Serial Founder | the Alpha Legionnaire |
-| `methods_purist` | Methods Purist | the Iron Warrior |
-| `kind_funded` | Kind and Funded | the Dark Angel |
+| Id | Archetype |
+|---|---|
+| `famous_absent` | Famous but Absent |
+| `micromanager` | Micromanager |
+| `hungry_ap` | Hungry Assistant Prof |
+| `kind_unfunded` | Kind but Unfunded |
+| `grant_machine` | Grant Machine |
+| `visionary` | The Visionary |
+| `industry_joint` | Industry Joint |
+| `near_retirement` | Near Retirement |
+| `serial_founder` | Serial Founder |
+| `methods_purist` | Methods Purist |
+| `kind_funded` | Kind and Funded |
 
 ---
 
@@ -343,7 +343,7 @@ Use a tip only where the episode genuinely fits; at most one per event.
 |---|---|
 | `{player}` | The player's first name |
 | `{advisor}` | "Prof. Surname" |
-| `{advisor.nick}` | "the Dark Angel", etc. |
+| `{advisor.nick}` | Old alias of `{advisor}`; don't use in new content |
 | `{labmate}`, `{labmate2}` | Two different current labmates |
 | `{senior}` | The most senior labmate |
 | `{mentee}` | Your mentee, or a new student |
