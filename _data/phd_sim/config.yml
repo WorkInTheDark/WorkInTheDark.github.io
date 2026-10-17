@@ -54,8 +54,8 @@ health:
   overtime_day: -1.5
   exercise_day: 3
   rest_day: 0.5
-  recharge_turn: "+4±1"
-  desk_turn: -2          # a turn with no exercise
+  recharge_turn: "+7±2"  # Recharge is the reliable way back (was +4: health only went down)
+  desk_turn: -1.5        # a turn with no exercise
   exhausted_turn: -2     # a turn ending with Energy under 25
   stressed_turn: -2      # a turn ending with Stress over 70
   poor: 35               # below this, work is slower
@@ -88,7 +88,7 @@ turn:
   traits: 3                # random traits per new PhD
 
 events:
-  per_turn: [0.15, 0.6, 0.25]   # chance of 0, 1 or 2 things happening in a turn (updates count toward it)
+  per_turn: [0.25, 0.6, 0.15]   # chance of 0, 1 or 2 things happening in a turn (updates count toward it; was 15/60/25 until 2026-10-17)
   rarity: { common: 10, uncommon: 4, rare: 1.2, legendary: 0.3 }
   novelty: { never: 2.5, last_run: 0.25, two_runs: 0.5, this_run: 0.25 }
   balance_window: 6

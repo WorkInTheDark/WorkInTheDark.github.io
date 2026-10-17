@@ -63,12 +63,12 @@ export class App {
     else if (this.screen === "end") body = endHtml(this);
     else if (this.screen === "game" && this.game) body = gameHtml(this.game, this, this.promptInner(), this.modal ? promptClass(this.modal.prompt) : "");
     const scrollY = window.scrollY;
-    const oldScene = this.root.querySelector(".ps-scene");
+    const oldScene = this.root.querySelector(".ps-overlay") || this.root.querySelector(".ps-scene");
     const keepScene = oldScene ? oldScene.scrollTop : 0;
     this.root.innerHTML = '<div class="ps-app ps-app-' + this.screen + '"><div class="ps-screen">' + body + "</div>" +
       (this.toast ? '<div class="ps-toast" role="status">' + esc(this.toast) + "</div>" : "") + "</div>";
     if (this.keepScroll) window.scrollTo(0, scrollY);
-    const scene = this.root.querySelector(".ps-scene");
+    const scene = this.root.querySelector(".ps-overlay") || this.root.querySelector(".ps-scene");
     if (scene && this.keepDialogScroll) scene.scrollTop = keepScene;
     this.keepScroll = false;
     this.keepDialogScroll = false;
@@ -182,6 +182,10 @@ export class App {
 
   showPrompt(p, ui) {
     this.modal = { prompt: p, result: null, fresh: true, ui: !!ui };
+    // The cards seen so far this turn, for the pop-up's "where am I" strip.
+    const turn = this.game.state.turn;
+    if (!this.trail || this.trail.turn !== turn) this.trail = { turn: turn, items: [] };
+    this.trail.items.push({ title: p.title || "Update", event: p.type === "event" });
     if (p.type === "rebuttal") this.psel = { responses: {} };
     else this.psel = {};
     this.keepScroll = true;

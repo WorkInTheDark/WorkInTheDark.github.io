@@ -18,7 +18,7 @@ A browser game on the site, inspired by 《读博模拟器》, in which the play
 | Hidden stats | Skills (hidden again: the bars felt useless), relationships, network |
 | Projects | **Named stages with set chances** (Arthur, 2026-10-16): each turn of work is one try at finishing the current stage (Idea 80%, Related work 70%, Pilot 60%, Experiments 50%...), with no hidden progress. **No Writing stage**: you write all along, and the last stage, Consolidation, pulls it into one paper. Kind and topic are assigned automatically. Waits (IRB, recruiting, annotation) are 2–4 weeks. **NLP papers go only to NLP venues (plus NeurIPS and ICLR), HCI papers only to HCI venues.** Each paper due gets its own deadline card |
 | Character | Three traits rolled at random. No background or origin choice; those became traits (Industry Veteran, Career Switcher, Master's Head Start, International Student) (2026-10-16) |
-| Event frequency | **Usually one event a turn, sometimes two or none** (two more often than none: 15% / 60% / 25%). Updates that need an answer (reviews, decisions, milestones) count toward it. A side-activity card comes up in about a third of turns. Routine news goes into the report |
+| Event frequency | **Usually one event a turn, sometimes two or none** (25% / 60% / 15% since 2026-10-17; it was 15 / 60 / 25, and Arthur found the turn's events could make players lose track). Updates that need an answer (reviews, decisions, milestones) count toward it. A side-activity card comes up in about a third of turns. Routine news goes into the report |
 | Not stats | Money and funding (funding becomes a hidden trait of the advisor) |
 | Effects | Rolled within a range, written `+7±3` |
 | Before choosing | Arrows only, never numbers |
@@ -121,10 +121,12 @@ Real venue names, approximate dates. These are game timings, not authoritative d
 | ARR cycle C → EACL/next ACL | T3 | T8, 1-turn response | T11 | T15–T17 |
 | CHI | T1 | T5: reject or Revise & Resubmit | T10 | T16–T18 |
 | IUI | T3 | T8 | T11 | T15–T17 |
+| UIST (2026-10-17) | T16 | T21, 1-turn response | T23 | T4 (next fall) |
+| CSCW (2026-10-17), two cycles | T11 and T24 | 8 weeks: reject or Revise & Resubmit | revision 16 weeks after submission, final 22 | about 40 weeks after submission |
 | Workshops | rolling | short | 3–4 turns after | with their main venue |
 | Journals (TACL, TOCHI) | any time | 6–12 turns, revision rounds | | presentation optional |
 
-**Venues by field (2026-10-16):** a paper only goes to its own field's venues. NLP (empirical, dataset, NLP position papers): ARR (NAACL, ACL, EMNLP), COLING, NLP workshops, TACL, and the top machine learning conferences NeurIPS (empirical, dataset) and ICLR (empirical). HCI (studies, systems, HCI position papers): CHI, IUI, HCI workshops, TOCHI. AMIA was removed as neither NLP nor HCI; NeurIPS and ICLR were removed and then brought back for NLP papers at Arthur's request. Project titles come from the matching field too (`topics.yml` has `titles: { nlp: [...], hci: [...] }`).
+**Venues by field (2026-10-16):** a paper only goes to its own field's venues. NLP (empirical, dataset, NLP position papers): ARR (NAACL, ACL, EMNLP), COLING, NLP workshops, TACL, and the top machine learning conferences NeurIPS (empirical, dataset) and ICLR (empirical). HCI (studies, systems, HCI position papers): CHI, UIST, CSCW, IUI, HCI workshops, TOCHI. **UIST and CSCW were added 2026-10-17** so HCI papers don't wait most of a year for CHI: HCI deadlines now fall in January and July (CSCW), April (UIST), September (CHI) and October (IUI). AMIA was removed as neither NLP nor HCI; NeurIPS and ICLR were removed and then brought back for NLP papers at Arthur's request. Project titles come from the matching field too (`topics.yml` has `titles: { nlp: [...], hci: [...] }`).
 
 ARR rejections can be resubmitted to a later cycle with previous reviews attached, as in reality.
 
@@ -180,7 +182,7 @@ All the remaining weekdays go to the focus. You get 5 fewer when you're sick, an
 A few are always there:
 - **Work on "<project>"**, for each active project, unless it's waiting (IRB, recruiting, annotation) or on hold. A finished paper has no work choice (Polish was removed, 2026-10-17: it changed nothing); it waits for its deadline card.
 - **Read and learn:** moves a project in **Related work** a lot (1.3× working on it, versus 0.8× for "Work on" in that phase) and every other project a little. Sometimes an idea.
-- **Recharge:** about +28 Energy, −18 Stress and +4 Health for the turn, on top of the weekends, however busy the turn is. It's the one rest choice; "Get healthy" was dropped because it duplicated it.
+- **Recharge:** about +28 Energy, −18 Stress and **+7 Health** (it was +4, 2026-10-17: Health could only go down) for the turn, on top of the weekends, however busy the turn is. It's the one rest choice; "Get healthy" was dropped because it duplicated it.
 
 Some come from the calendar and your progress:
 - **Deadlines don't use the focus.** In a deadline turn, each paper due gets its own card among the turn's updates: submit (with or without a preprint) or skip. Two papers due together can both go in. A rough draft can be submitted; a finished one reads better.
@@ -196,7 +198,7 @@ And some come up for **this turn only** (`opportunities.yml`): the holidays at h
 ### 4.3 What comes up
 - **Before the focus:** only your first project, on Year 1 T1 (the advisor is assigned at the same moment).
 - **After the focus**, in order: milestones and Q&As on their dates (quals, proposal, defense), reviews arriving with the rebuttal, decisions, conference trips, internship and job offers, the Dark Angel's Question, world news hooks, scheduled arc follow-ups, then **random events**.
-- **How many events:** each turn rolls a target of 0, 1 or 2 "things that happen" (15% / 60% / 25%). Updates that need an answer count toward it, so a turn with reviews gets fewer random events. Hook events (deadline, after a decision, conference) come on top, at their own chances.
+- **How many events:** each turn rolls a target of 0, 1 or 2 "things that happen" (25% / 60% / 15%). Updates that need an answer count toward it, so a turn with reviews gets fewer random events. Hook events (deadline, after a decision, conference) come on top, at their own chances.
 - **Side activities** (`side.yml`): in about 30% of turns (45% when Health or Stress is in trouble), a card offers two or three small things for an evening or a weekend: the gym, a run club, yoga, a doctor's visit, cooking, an early bedtime, board games, dinner with friends, a hike, a concert, a hobby, coffee with a visiting speaker, a reading group, helping a labmate debug, a visiting friend or parents, a nearby workshop. Options that help a bar in trouble are three times as likely. They don't take the focus; a few cost a day. "Not this time" is always there.
 - **Stress from new work and bad news:** reviews arriving (Stress up by how bad they are, plus the rebuttal to write), rejections (about +10, +13 for a desk reject), revise-and-resubmit (+5), a new TA semester (+4), quals announced (+6), scheduling the proposal (+5), starting defense prep (+6), the job market (+5), starting a project (+6, plus 3 for each project already on your plate; the button shows it), applications (+2), and a deadline two weeks away with the paper under 85% (+3). The log says "Stress +N" for each.
 
@@ -445,13 +447,14 @@ Overall paper quality for reviewing: `Q = wN·N + wS·S + wC·C`, with venue-spe
 - Authorship order can be negotiated in events (with consequences for labmate relationships).
 
 ### 8.6 Venues and decisions
-- **Tiers:** Top (ACL, EMNLP, NAACL, CHI, NeurIPS, ICLR), Mid (COLING, IUI), Findings, Workshops, Journals (TACL, TOCHI).
+- **Tiers:** Top (ACL, EMNLP, NAACL, CHI, UIST, CSCW, NeurIPS, ICLR), Mid (COLING, IUI), Findings, Workshops, Journals (TACL, TOCHI).
 - **Review model:**
   - Each of 3 reviewers scores `Q + persona_bias + noise(σ = 12)`, mapped to the venue's scale.
   - An area chair or meta-reviewer combines the scores, the rebuttal effects and some noise, and compares against the venue threshold.
-- **Possible outcomes:** accept, Findings (ARR only), reject, Revise & Resubmit (CHI, journals), desk reject (page limit, anonymity, formatting events).
+- **Possible outcomes:** accept, Findings (ARR only), reject, Revise & Resubmit (CHI, CSCW, journals), desk reject (page limit, anonymity, formatting events).
 - **Thresholds are tuned** so that top-venue acceptance is roughly 25% at Q = 60, 60% at Q = 75 and 85% at Q = 85 (targets, section 17).
-- **Resubmission:** a rejected paper can be revised (a Revise stage, with quality gains for addressing the earlier concerns) and resubmitted. ARR resubmissions carry their old reviews.
+- **Resubmission:** a rejected paper can be revised (a Revise stage, with quality gains for addressing the earlier concerns) and resubmitted, **any number of times**. ARR resubmissions carry their old reviews.
+- **Rejections are a card (2026-10-17).** Arthur thought rejected papers disappeared: they came back silently as a different-looking tracker. Now every first-author rejection (and desk reject) shows a card with the scores and three choices: **Revise and resubmit** (it names the next deadline), **Send it to a workshop**, or **Shelve it**. The tracker keeps all its finished stage dots plus a Revise dot and says which try it is ("Revising · try 2"); the project close-up lists every submission (venue, outcome, scores).
 
 ### 8.7 Preprints and camera-ready
 - **Posting to arXiv** at submission brings citations earlier and some scoop protection, plus a small chance of anonymity drama.
@@ -878,7 +881,8 @@ Arthur: the full-height layout was too tall, had too much text, and felt like a 
 
 - **Size:** 760 px wide at most, 560 px tall on desktop; long content scrolls inside the middle. On phones the window grows with its content and the page scrolls.
 - **Top strip (dark indigo):** a calendar badge (Year N, date), three icon gauges (⚡ Energy, 😣 Stress, ❤️ Health) with tick marks, 📄 papers and ✦ citations, and two icon buttons (🚪 Leave, ☰ Menu).
-- **Middle, the scene:** either the card that needs an answer (event, deadline, decision, committee, rebuttal), or this turn's choices as **tiles** (icon, label, one short line, arrows, number key). Above the tiles, last turn as **chips**: the bar changes, up to two things that happened (good or bad news; on a quiet turn, a flavor one-liner). Project changes are not repeated here (2026-10-17): the tracker that changed glows instead, and a senior student's tip with its PhD 101 link when there is one.
+- **Middle, the scene:** this turn's choices as **tiles** (icon, label, one short line, arrows, number key). Above the tiles, last turn as **chips**: the bar changes, up to two things that happened (good or bad news; on a quiet turn, a flavor one-liner). Project changes are not repeated here (2026-10-17): the tracker that changed glows instead, and a senior student's tip with its PhD 101 link when there is one.
+- **Pop-ups (2026-10-17):** anything that comes up during the turn (random events, deadlines, decisions, the committee, the rebuttal) **pops up over the game** with a dimmed backdrop, so it never reads as one of the turn's choices. Random events stand out further: a burst of rays in the rarity color behind them, a bouncy pop-in, a **picture** for their category with a "Random event" ribbon (2–3 pictures per category, picked by event id; style in `art-style.md`). Updates slide up without a picture. Above every pop-up, a **turn strip** keeps you oriented: the dates, "This turn: <your focus>", and a dot per card so far this turn (diamonds for random events).
 - **Bottom, the tray:** chips for the advisor (Prof. Surname), statuses, and upcoming quals / proposal / defense (within 16 weeks); then one **tracker** per project (name, a dot per stage: done, now with a pulse, waiting dashed; the stage and deadline) and a **+ New project** tracker with its Stress arrow. Clicking a tracker opens the project close-up in the scene (all stages, the target venue, Shelve). **A submitted paper stays in the tray** as a dashed "letter": a venue stamp, a striped bar that fills until the decision, "Under review" (or the review scores once they're in) and the weeks to the decision.
 - **Cut:** How to play, the Log, the advisor matching screen, committee answer pickers, and most explanatory text. Descriptions are a few words ("Idea · likely · ACL 4w").
 

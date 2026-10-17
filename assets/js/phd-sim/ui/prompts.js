@@ -12,6 +12,18 @@ const CATEGORY_ICON = {
   lab: "\u{1F9EA}", milestone: "\u{1F393}", teaching: "\u{1F34E}", career: "\u{1F4BC}", travel: "\u2708\uFE0F", world: "\u{1F30D}",
   life: "\u{1F3E0}", wellbeing: "\u{1F33F}", exit: "\u{1F6AA}"
 };
+// Event pictures: 2–3 per category, picked by the event id so an event always shows the same one.
+const ART = new URL("../../../phd-sim/art/", import.meta.url).href;
+const ART_COUNT = { research: 3, data: 3, writing: 3, reviews: 3, advisor: 3, lab: 3, milestone: 3, teaching: 3, career: 3, travel: 3, world: 3, life: 3, wellbeing: 3, exit: 2 };
+function artHtml(p) {
+  const cat = p.category === "legion" ? "advisor" : p.category;
+  const n = ART_COUNT[cat];
+  if (!n) return "";
+  let h = 0;
+  String(p.id || p.title || "").split("").forEach(function (ch) { h = (h * 31 + ch.charCodeAt(0)) >>> 0; });
+  return '<div class="ps-art"><img src="' + ART + cat + "-" + (h % n + 1) + '.svg" alt="" width="320" height="128"><span class="ps-ribbon">Random event</span></div>';
+}
+
 const SYS_KICKER = {
   notice: ["\u{1F4CC}", "Notice"], side: ["\u{1F388}", "On the side"], submit: ["\u{1F4E4}", "Deadline"], qa_result: ["\u{1F393}", "Committee"],
   first_project: ["\u{1F9EA}", "Year 1"], decision: ["\u{1F4E8}", "Decision"], conference: ["\u2708\uFE0F", "Conference"], leave: ["\u{1F6AA}", "Crossroads"]
@@ -34,7 +46,7 @@ export function promptClass(p) {
 
 export function eventHtml(p) {
   const rarity = p.rarity !== "common" ? ' · <span class="ps-r-' + esc(p.rarity) + '">' + esc(p.rarity) + "</span>" : "";
-  return '<div class="ps-kicker"><span class="ps-kicker-icon" aria-hidden="true">' + (CATEGORY_ICON[p.category] || "\u2022") + "</span>" + esc(CATEGORY[p.category] || p.category) + rarity + "</div>" +
+  return artHtml(p) + '<div class="ps-kicker"><span class="ps-kicker-icon" aria-hidden="true">' + (CATEGORY_ICON[p.category] || "\u2022") + "</span>" + esc(CATEGORY[p.category] || p.category) + rarity + "</div>" +
     '<h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" +
     '<p class="ps-text">' + esc(p.text) + "</p>" + choiceButtons(p.choices);
 }

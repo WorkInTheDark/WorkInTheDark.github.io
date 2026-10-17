@@ -174,9 +174,12 @@ function decisionPrompt(G, pp, outcome) {
         { label: "Withdraw it", desc: "Try another venue instead." }],
       { paperId: pp.id, outcome: outcome });
   }
+  const pr = proj(G, pp.projectId);
+  const next = pr && pr.target && pr.target.turn !== null && pr.target.turn !== undefined ?
+    "Next: " + deadlineLabel(G, pr) + " in " + Math.max(1, pr.target.turn - G.state.turn) * WEEKS_PER_TURN + " weeks" : "Address the reviews and try again";
   return sys("decision", (pp.deskReject ? "Desk rejected: " : "Rejected: ") + pp.short,
-    (pp.deskReject ? "It never reached reviewers. " : head + " ") + "What now?",
-    [{ label: "Revise for the next deadline", desc: "Address the reviews and try again." },
+    (pp.deskReject ? "It never reached reviewers. " : head + " ") + "You can revise it and submit again, as many times as it takes.",
+    [{ label: "Revise and resubmit", desc: next + "." },
       { label: "Send it to a workshop", desc: "Lower bar, smaller audience." },
       { label: "Shelve it", desc: "Some papers aren't meant to be." }],
     { paperId: pp.id, outcome: "reject" });
@@ -958,7 +961,7 @@ export function queuePapers(G) {
       pp.deskPending = false;
       pp.deskReject = true;
       unlock(G, "desk_rejected");
-      autoReject(G, pp);
+      queueRejection(G, pp, items);
       return;
     }
     if (pp.status === "under_review" && pp.rebuttal && pp.reviewsTurn === s.turn && !pp.reviews && pp.firstAuthor) {
@@ -995,7 +998,7 @@ export function queuePapers(G) {
       } else if (outcome === "revise" || outcome === "major_revision") {
         autoRevise(G, pp);
       } else {
-        autoReject(G, pp);
+        queueRejection(G, pp, items);
       }
     }
     if (pp.status === "accepted" && pp.conferenceTurn === s.turn) autoConference(G, pp);
@@ -1009,23 +1012,14 @@ export function queuePapers(G) {
   return items;
 }
 
-function autoReject(G, pp) {
-  const s = G.state;
+// A rejection is its own card: the project comes back as "Revising", aimed at the next deadline,
+// and you choose to revise, go to a workshop, or shelve it. Papers can be resubmitted any number of times.
+function queueRejection(G, pp, items) {
   rejectPaper(G, pp);
-  let hit = G.rng.triangular(pp.deskReject ? -13 : -10, 3);
-  if (hasTrait(G, "rejection_hardened")) hit = Math.round(hit / 2);
-  if (hasTrait(G, "perfectionist")) hit = Math.round(hit * 1.3);
-  const stress = stressHit(G, hit);
   const p = proj(G, pp.projectId);
-  const scores = pp.reviews ? " Scores: " + pp.reviews.map(function (r) { return r.score; }).join(", ") + "." : "";
-  if (p) {
-    p.status = "active"; p.revise = true; p.ready = false;
-    nextResubmitTarget(G, p, false);
-    log(G, (pp.deskReject ? "Desk rejected at " : "Rejected at ") + pp.venueName + ": \u201c" + pp.short + "\u201d." + scores + stress +
-      " You'll revise it for " + (deadlineLabel(G, p) || "the next deadline") + " (change the target or shelve it in Projects).", "bad");
-  } else {
-    log(G, "Rejected at " + pp.venueName + ": \u201c" + pp.short + "\u201d." + scores + stress, "bad");
-  }
+  if (p) { p.status = "active"; p.revise = true; p.ready = false; nextResubmitTarget(G, p, false); }
+  log(G, (pp.deskReject ? "Desk rejected at " : "Rejected at ") + pp.venueName + ": \u201c" + pp.short + "\u201d.", "news");
+  items.push({ kind: "sys", sys: "decision", data: { paperId: pp.id, outcome: "reject" } });
 }
 
 function autoRevise(G, pp) {

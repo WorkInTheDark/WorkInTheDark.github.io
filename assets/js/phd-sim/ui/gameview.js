@@ -124,13 +124,25 @@ function inspectHtml(G, p) {
   const when = p.target && p.target.turn !== null && p.target.turn !== undefined ? (p.target.rrPaper ? "Revision due in " : deadlineLabel(G, p) + " deadline in ") + plural(Math.max(0, p.target.turn - s.turn) * WEEKS_PER_TURN, "week") : "";
   return '<div class="ps-inspect ps-enter"><div class="ps-card-kicker">' + KIND_ICON[p.type] + " " + esc(PROJECT_TYPES[p.type].label) + " · " + esc(FIELD_LABELS[fieldOf(p)]) + "</div>" +
     "<h3>" + esc(p.title) + "</h3>" +
-    '<ol class="ps-path">' + (p.revise ? '<li class="ps-path-now">Revising</li>' : stages.map(function (st, i) {
-      const cls = i < p.stageIdx || (p.ready && i === p.stageIdx) ? "ps-path-done" : i === p.stageIdx ? (st.kind === "wait" ? "ps-path-wait" : "ps-path-now") : "";
+    '<ol class="ps-path">' + stages.map(function (st, i) {
+      const cls = p.revise || i < p.stageIdx || (p.ready && i === p.stageIdx) ? "ps-path-done" : i === p.stageIdx ? (st.kind === "wait" ? "ps-path-wait" : "ps-path-now") : "";
       return '<li class="' + cls + '">' + esc(STAGE_LABELS[st.id]) + (st.kind === "wait" ? " ⏳" : "") + "</li>";
-    }).join("")) + "</ol>" +
+    }).join("") + (p.revise ? '<li class="' + (p.ready ? "ps-path-done" : "ps-path-now") + '">Revise</li>' : "") + "</ol>" +
+    historyHtml(G, p) +
     '<p class="ps-inspect-state">' + esc(info.ready ? "Ready to submit." : info.label + ": " + info.hint + "." + (info.stuck ? " " + plural(info.stuck, "try") + " so far." : "")) + (when ? " " + esc(when) + "." : "") + "</p>" +
     '<div class="ps-inspect-ctl">' + targetCtl + '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="shelve" data-id="' + esc(p.id) + '">Shelve</button></div>' +
     '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="close-inspect">Back</button></div></div>';
+}
+
+// Every submission of this project so far, newest first.
+function historyHtml(G, p) {
+  const OUT = { rejected: "rejected", accepted: "accepted", under_review: "under review", revise_resubmit: "revise and resubmit" };
+  const subs = G.state.papers.filter(function (x) { return x.projectId === p.id && x.firstAuthor; }).reverse();
+  if (!subs.length) return "";
+  return '<ul class="ps-history">' + subs.map(function (x) {
+    const scores = x.reviews ? " (" + x.reviews.map(function (r) { return r.score; }).join(", ") + ")" : "";
+    return '<li class="ps-history-' + esc(x.status) + '">' + esc(x.venueName) + ": " + esc((x.deskReject ? "desk " : "") + (OUT[x.status] || x.status)) + esc(scores) + "</li>";
+  }).join("") + "</ul>";
 }
 
 // ---- Tray: project trackers and what's affecting you ------------------------------------------
@@ -138,14 +150,17 @@ function inspectHtml(G, p) {
 function trackerHtml(G, p, locked, moved) {
   const s = G.state;
   const info = stageInfo(G, p);
-  const stages = p.revise ? [{ id: "revise", kind: "work" }] : PROJECT_TYPES[p.type].stages;
-  const idx = p.revise ? 0 : p.stageIdx;
+  const base = PROJECT_TYPES[p.type].stages;
+  // A rejected paper keeps its finished stages and gets one more: Revise.
+  const stages = p.revise ? base.concat([{ id: "revise", kind: "work" }]) : base;
+  const idx = p.revise ? base.length : p.stageIdx;
   const dots = stages.map(function (st, i) {
     const cls = i < idx || (p.ready && i === idx) ? "ps-dot-done" : i === idx ? (st.kind === "wait" ? "ps-dot-wait" : "ps-dot-now") : "";
     return '<i class="' + cls + '" title="' + esc(STAGE_LABELS[st.id] || st.id) + '"></i>';
   }).join("");
   const due = p.target && p.target.turn !== null && p.target.turn !== undefined ? (p.target.rrPaper ? "R&R" : deadlineLabel(G, p)) + " " + weeksShort(p.target.turn - s.turn) : "";
-  const state = info.ready ? "Ready ✨" : info.wait ? info.label + " ⏳" : info.label;
+  const tries = p.revise && p.submissions ? " · try " + (p.submissions + 1) : "";
+  const state = (info.ready ? "Ready ✨" : info.wait ? info.label + " ⏳" : info.label) + tries;
   return '<button class="ps-tracker' + (info.ready ? " ps-tracker-ready" : "") + (moved ? " ps-tracker-moved" : "") + '" data-action="inspect" data-id="' + esc(p.id) + '"' + (locked ? " disabled" : "") +
     ' title="' + esc(p.title + " — " + (info.ready ? "ready to submit" : info.label + ", " + info.hint)) + '">' +
     '<span class="ps-tracker-name"><span aria-hidden="true">' + KIND_ICON[p.type] + "</span> " + esc(p.short) + "</span>" +
@@ -216,10 +231,36 @@ function trayHtml(G, ui) {
 
 // ---- The whole screen -------------------------------------------------------------------------
 
+// ---- Pop-ups: whatever comes up during the turn, over the game ---------------------------------
+
+// Where you are in the turn: the dates, the focus you picked, and the cards so far.
+function turnStripHtml(G, ui) {
+  const s = G.state;
+  const planned = s.plan && s.stage !== "start_items" && s.stage !== "turn_start" && s.stage !== "plan";
+  const focus = planned ? actionIcon(G, { id: s.plan.action, kind: s.plan.action.indexOf("opp:") === 0 ? "opportunity" : "" }) + " " + s.plan.label : "Start of the turn";
+  const trail = ui.trail && ui.trail.turn === s.turn ? ui.trail.items : [];
+  const dots = trail.map(function (it, i) {
+    return '<i class="' + (i < trail.length - 1 ? "ps-trail-done" : "ps-trail-now") + (it.event ? " ps-trail-event" : "") + '" title="' + esc(it.title) + '"></i>';
+  }).join("");
+  return '<div class="ps-turnstrip"><span class="ps-turnstrip-date">\u{1F4C5} ' + esc(turnDates(s.turn)) + "</span>" +
+    '<span class="ps-turnstrip-focus">' + (planned ? "This turn: " : "") + "<b>" + esc(focus) + "</b></span>" +
+    (dots ? '<span class="ps-trail" aria-label="Card ' + trail.length + ' this turn">' + dots + "</span>" : "") + "</div>";
+}
+
+function popupHtml(G, ui, promptInner, promptCls) {
+  const p = ui.modal && ui.modal.prompt;
+  const isEvent = p && p.type === "event";
+  const anim = ui.modal && ui.modal.fresh && !ui.modal.result ? (isEvent ? " ps-pop" : " ps-rise") : "";
+  return '<div class="ps-overlay ' + (isEvent ? "ps-overlay-event ps-overlay-" + esc(p.rarity || "common") : "ps-overlay-update") + '">' +
+    turnStripHtml(G, ui) +
+    '<div class="ps-card ps-dialog' + anim + " " + (promptCls || "") + '" role="dialog" aria-modal="true" aria-labelledby="ps-dialog-title">' + promptInner + "</div></div>";
+}
+
 export function gameHtml(G, ui, promptInner, promptCls) {
   let scene;
-  if (promptInner) scene = '<div class="ps-card ps-dialog ps-enter ' + (promptCls || "") + '" role="region" aria-labelledby="ps-dialog-title">' + promptInner + "</div>";
+  if (promptInner) scene = ui.plan ? planHtml(G, ui) : "";
   else if (ui.inspect && G.state.projects.some(function (p) { return p.id === ui.inspect && p.status === "active"; })) scene = inspectHtml(G, G.state.projects.find(function (p) { return p.id === ui.inspect; }));
   else scene = ui.plan ? planHtml(G, ui) : "";
-  return '<div class="ps-game">' + hudHtml(G) + '<main class="ps-scene">' + scene + "</main>" + trayHtml(G, ui) + "</div>";
+  return '<div class="ps-game">' + hudHtml(G) + '<main class="ps-scene"' + (promptInner ? ' aria-hidden="true"' : "") + ">" + scene + "</main>" + trayHtml(G, ui) +
+    (promptInner ? popupHtml(G, ui, promptInner, promptCls) : "") + "</div>";
 }

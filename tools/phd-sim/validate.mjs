@@ -1,6 +1,6 @@
 // Validates the PhD Simulator content against docs/phd-simulator/content-spec.md.
 //   ruby tools/phd-sim/export-data.rb && node --experimental-default-type=module tools/phd-sim/validate.mjs
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { prepareData } from "../../assets/js/phd-sim/engine/data.js";
@@ -190,6 +190,13 @@ for (const p of D.reviews.personas || []) if (!p.id || !p.openers) err("reviews/
 for (const c of D.reviews.concerns || []) { if (!["N", "S", "C", "fit"].includes(c.component)) err("reviews/" + c.id, "bad component"); [].concat(c.text).forEach((t) => checkTokens("reviews/" + c.id, t)); }
 for (const q of D.qa.questions || []) if (!q.text || !q.kind || !q.skill || !q.stages) err("qa/" + q.id, "question needs text, kind, skill, stages");
 for (const e of ["tenure_track", "masters_out", "eternal_student", "bubble_tea"]) if (!ENDINGS.has(e)) err("endings", "missing " + e);
+
+// Every event category needs its pictures (see docs/phd-simulator/art-style.md and ART_COUNT in ui/prompts.js).
+const artCount = JSON.parse(/const ART_COUNT = (\{[^}]*\})/.exec(readFileSync(join(here, "../../assets/js/phd-sim/ui/prompts.js"), "utf8"))[1].replace(/(\w+):/g, '"$1":'));
+for (const c of new Set(D.events.map((e) => (e.category === "legion" ? "advisor" : e.category)))) {
+  if (!artCount[c]) { err("art", "no pictures listed for category '" + c + "'"); continue; }
+  for (let n = 1; n <= artCount[c]; n++) if (!existsSync(join(here, "../../assets/phd-sim/art/" + c + "-" + n + ".svg"))) err("art", "missing " + c + "-" + n + ".svg");
+}
 
 const byFile = {};
 D.events.forEach((e) => { byFile[e.file] = (byFile[e.file] || 0) + 1; });

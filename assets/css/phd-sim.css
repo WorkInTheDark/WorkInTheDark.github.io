@@ -68,9 +68,10 @@ html[data-theme='dark'] .ps-app {
 }
 
 .ps-app *, .ps-app *::before, .ps-app *::after { box-sizing: border-box; }
-/* The site theme colors p, div, span, li, ... directly, which would break inheritance inside the
+/* The site theme sets color and fonts on p, div, span, li, ... directly, which would break inheritance inside the
    game (dark text on the dark top strip). :where() keeps this reset weaker than any class rule below. */
-.ps-app :where(p, h1, h2, h3, h4, h5, h6, em, div, li, span, strong, b, i, small, label) { color: inherit; }
+.ps-app :where(p, h1, h2, h3, h4, h5, h6, em, div, li, span, strong, b, i, small, label) { color: inherit; font-family: inherit; }
+.ps-app :where(p, li) { line-height: inherit; }
 .ps-app h2, .ps-app h3, .ps-app h4 { color: var(--ps-text); margin: 0 0 0.5rem; font-family: var(--ps-display); font-weight: 600; letter-spacing: 0.01em; }
 .ps-app h2 { font-size: 1.35rem; }
 .ps-app h3 { font-size: 1.15rem; }
@@ -125,6 +126,9 @@ html[data-theme='dark'] .ps-app {
 
 /* ---- Game screen: top strip, scene, tray ---- */
 .ps-game { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; }
+.ps-game > .ps-hud { grid-row: 1; grid-column: 1; }
+.ps-game > .ps-scene { grid-row: 2; grid-column: 1; }
+.ps-game > .ps-tray { grid-row: 3; grid-column: 1; }
 
 .ps-hud {
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 0.9rem;
@@ -259,6 +263,11 @@ html[data-theme='dark'] .ps-rarity-system { border-top-color: var(--ps-hud-muted
 .ps-path li.ps-path-now { background: var(--ps-accent-solid); border-color: var(--ps-accent-solid); color: var(--ps-on-accent); font-weight: 700; }
 .ps-path li.ps-path-wait { border-style: dashed; border-color: var(--ps-accent); color: var(--ps-accent); font-weight: 700; }
 .ps-inspect-state { font-size: 0.92rem; }
+.ps-history { list-style: none; margin: -0.2rem 0 0.6rem; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.ps-history li { font-size: 0.76rem; padding: 0.05rem 0.5rem; border-radius: 6px; background: var(--ps-bg); border: 1.5px solid var(--ps-line); color: var(--ps-muted); }
+.ps-history li::before { content: "\1F4E8  "; }
+.ps-app .ps-history-rejected { color: var(--ps-bad); }
+.ps-app .ps-history-accepted { color: var(--ps-good); border-color: var(--ps-good); }
 .ps-inspect-ctl { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
 .ps-field { font-size: 0.85rem; color: var(--ps-muted); display: inline-flex; gap: 0.4rem; align-items: center; }
 
@@ -302,6 +311,43 @@ html[data-theme='dark'] .ps-rarity-system { border-top-color: var(--ps-hud-muted
 .ps-dots i.ps-dot-now::before { background: var(--ps-accent-solid); border-color: var(--ps-accent-solid); width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; animation: ps-pulse 1.6s ease-in-out infinite; }
 .ps-dots i.ps-dot-wait::before { border-style: dashed; border-color: var(--ps-accent); width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; }
 
+/* pop-ups: what comes up during the turn sits over the game, so it never reads as this turn's choices */
+.ps-overlay {
+  grid-row: 2 / 4; grid-column: 1; z-index: 4; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem 1rem;
+  background: color-mix(in srgb, var(--ps-hud) 62%, transparent); backdrop-filter: blur(2px); animation: ps-fade 0.18s ease both;
+}
+.ps-overlay-event { --ps-ray: var(--ps-energy); background: repeating-conic-gradient(from 0deg at 50% 40%, color-mix(in srgb, var(--ps-ray) 20%, transparent) 0 9deg, transparent 9deg 18deg), color-mix(in srgb, var(--ps-hud) 66%, transparent); }
+.ps-overlay-uncommon { --ps-ray: var(--ps-uncommon); }
+.ps-overlay-rare { --ps-ray: var(--ps-rare); }
+.ps-overlay-legendary { --ps-ray: var(--ps-legendary); }
+.ps-overlay > .ps-dialog { width: 100%; max-width: 540px; flex-shrink: 0; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18), 0 16px 40px rgba(0, 0, 0, 0.3); }
+.ps-overlay-event > .ps-dialog { max-width: 460px; overflow: hidden; }
+.ps-turnstrip {
+  width: 100%; max-width: 540px; display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0;
+  padding: 0.3rem 0.7rem; border-radius: 10px; background: var(--ps-card); border: 2px solid var(--ps-line); font-size: 0.78rem;
+}
+.ps-overlay-event > .ps-turnstrip { max-width: 460px; }
+.ps-turnstrip-date { font-weight: 700; color: var(--ps-muted); white-space: nowrap; }
+.ps-turnstrip-focus { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ps-muted); }
+.ps-app .ps-turnstrip-focus b { font-family: var(--ps-display); font-weight: 600; color: var(--ps-text); }
+.ps-trail { display: flex; align-items: center; gap: 5px; }
+.ps-trail i { width: 9px; height: 9px; border-radius: 50%; background: var(--ps-line); }
+.ps-trail i.ps-trail-event { border-radius: 2px; transform: rotate(45deg); width: 8px; height: 8px; }
+.ps-trail i.ps-trail-done { background: var(--ps-good); }
+.ps-trail i.ps-trail-now { background: var(--ps-accent-solid); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ps-accent-solid) 30%, transparent); }
+/* the event's picture */
+.ps-art { position: relative; margin: -0.85rem -1rem 0.7rem; aspect-ratio: 320 / 112; background: var(--ps-bg); border-bottom: 2px solid var(--ps-line); }
+.ps-art img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 55%; }
+html[data-theme='dark'] .ps-art img { filter: brightness(0.88); }
+.ps-ribbon {
+  position: absolute; left: 10px; top: 10px; transform: rotate(-3deg); padding: 0.12rem 0.5rem; border-radius: 6px;
+  background: var(--ps-accent-solid); color: var(--ps-on-accent); font-size: 0.64rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+}
+.ps-pop { animation: ps-popin 0.45s cubic-bezier(.2, 1.4, .4, 1) both; }
+.ps-rise { animation: ps-rise 0.28s ease both; }
+
 /* motion */
 .ps-enter { animation: ps-in 0.28s ease both; }
 @keyframes ps-in { from { opacity: 0; transform: translateY(6px) scale(0.99); } to { opacity: 1; transform: none; } }
@@ -310,6 +356,9 @@ html[data-theme='dark'] .ps-rarity-system { border-top-color: var(--ps-hud-muted
 @keyframes ps-bob { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-5px) rotate(4deg); } }
 @keyframes ps-stripes { to { background-position: 14px 0; } }
 @keyframes ps-glow { 0%, 100% { box-shadow: 0 2px 0 var(--ps-line); } 40% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ps-accent-solid) 45%, transparent); border-color: var(--ps-accent); } }
+@keyframes ps-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ps-popin { 0% { opacity: 0; transform: scale(0.7) rotate(-3deg); } 70% { opacity: 1; transform: scale(1.03) rotate(0.5deg); } 100% { transform: none; } }
+@keyframes ps-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 @keyframes ps-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 
 /* toast */
@@ -347,6 +396,8 @@ html[data-theme='dark'] .ps-rarity-system { border-top-color: var(--ps-hud-muted
   .ps-meters { grid-column: 1 / -1; order: 3; gap: 0.5rem; }
   .ps-meter { grid-template-columns: auto minmax(0, 1fr) 1.5rem; gap: 0.25rem; }
   .ps-tiles { grid-template-columns: minmax(0, 1fr); }
+  .ps-overlay { padding: 0.5rem 0.6rem 0.8rem; }
+  .ps-turnstrip-date { display: none; }
   .ps-choice { flex-direction: column; align-items: flex-start; }
   .ps-reveal { grid-template-columns: minmax(0, 1fr); }
   .ps-tile-key, .ps-key { display: none; }

@@ -43,7 +43,7 @@ export const ACTIVITIES = [
     arrows: [{ stat: "sanity", dir: "up", strength: 1 }, { stat: "energy", dir: "up", strength: 1 }] }
 ];
 ACTIVITIES.push({ id: "recharge", label: "Recharge", kind: "self", desc: "Sleep in, see friends, move your body, do nothing useful. It counts.",
-  arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }, { stat: "health", dir: "up", strength: 1 }] });
+  arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }, { stat: "health", dir: "up", strength: 2 }] });
 ACTIVITIES.push({ id: "writing_day", label: "Write", kind: "work", desc: "Statements, proposals, chapters.",
   arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
 ACTIVITIES.push({ id: "quals_study", label: "Prepare for quals", kind: "work", desc: "Practice questions, the reading list, mock exams.",
@@ -54,7 +54,7 @@ export const DEFAULT_ACTIONS = [
   { id: "read", label: "Read and learn", desc: "Two weeks with papers. Projects inch forward; sometimes you get an idea.",
     arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }] },
   { id: "recharge", label: "Recharge", desc: "Sleep in, see friends, move your body, do nothing useful. It counts.",
-    arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }, { stat: "health", dir: "up", strength: 1 }] }
+    arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }, { stat: "health", dir: "up", strength: 2 }] }
 ];
 export const ACTIVITY_BY_ID = {};
 ACTIVITIES.forEach(function (a) { ACTIVITY_BY_ID[a.id] = a; });

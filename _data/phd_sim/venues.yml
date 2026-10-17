@@ -25,6 +25,26 @@
   threshold: 78
   cycles:
     - { deadline: 1, name: CHI, reviews_in: 4, rebuttal: false, decision_in: 4, revision_due_in: 7, final_in: 9, conference_in: 16 }
+- id: uist
+  name: UIST
+  field: hci
+  tier: top
+  types: [system, study]
+  weights: { N: 0.4, S: 0.35, C: 0.25 }
+  threshold: 78
+  cycles:
+    - { deadline: 16, name: UIST, reviews_in: 5, rebuttal: true, decision_in: 7, conference_in: 14 }
+- id: cscw
+  name: CSCW
+  field: hci
+  tier: top
+  revise_resubmit: true
+  types: [study, system, position]
+  weights: { N: 0.35, S: 0.35, C: 0.3 }
+  threshold: 78
+  cycles:
+    - { deadline: 11, name: CSCW, reviews_in: 4, rebuttal: false, decision_in: 4, revision_due_in: 8, final_in: 11, conference_in: 20 }
+    - { deadline: 24, name: CSCW, reviews_in: 4, rebuttal: false, decision_in: 4, revision_due_in: 8, final_in: 11, conference_in: 20 }
 - id: neurips
   name: NeurIPS
   field: ml

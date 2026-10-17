@@ -84,7 +84,7 @@ function answerPrompt(game, p, policy, rng) {
       if (p.sys === "submit") return { choice: policy === "slacker" && rng.chance(0.3) ? 2 : policy === "random" ? rng.int(0, 2) : 0 };
       if (p.sys === "internship_apply") return { choice: policy === "slacker" ? 2 : 0 };
       if (p.sys === "first_project") return { choice: rng.int(0, 1) };
-      if (p.sys === "decision" && p.choices.length === 3) return { choice: rng.chance(0.8) ? 0 : 1 };
+      if (p.sys === "decision" && p.choices.length === 3) return { choice: rng.chance(0.93) ? 0 : 1 };
       return { choice: 0 };
     }
     default: return {};
