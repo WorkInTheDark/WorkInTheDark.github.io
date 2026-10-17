@@ -22,6 +22,11 @@ export function profile(G) {
   };
 }
 
+function offerBars(G) {
+  const o = G.D.config.offers || {};
+  return { tenure: o.tenure_track_score || 64, famous: o.famous_postdoc_score || 45 };
+}
+
 function offer(G, id) {
   const e = G.D.endingById[id];
   return e ? { id: id, name: e.name, desc: e.offer || e.blurb || "" } : null;
@@ -36,10 +41,12 @@ export function computeOffers(G, tracks) {
   const talk = s.job && s.job.talkScore !== undefined ? 0.7 + 0.6 * s.job.talkScore : 1;
   const rollA = function (p) { return roll(p * talk); };
   const has = function (t) { return tracks.indexOf(t) >= 0; };
+  const bar = offerBars(G);
   if (has("academia")) {
-    if (P.academic >= 64 && rollA(0.5)) out.push("tenure_track");
+    // Only the strongest profiles can get these two (config offers: about the top 10% and 25%).
+    if (P.academic >= bar.tenure && rollA(0.5)) out.push("tenure_track");
     if (P.academic >= 40 && st.presenting >= 55 && (s.telemetry.ta_semesters || 0) >= 2 && rollA(0.6)) out.push("teaching_college");
-    if (P.academic >= 45 && st.network >= 45 && rollA(0.7)) out.push("postdoc_famous");
+    if (P.academic >= bar.famous && rollA(0.7)) out.push("postdoc_famous");
     else if (P.academic >= 22 && rollA(0.8)) out.push("eternal_postdoc");
     if (P.academic >= 50 && rollA(0.3)) out.push("lecturer_abroad");
     if (s.player.origin === "international" && P.academic >= 42 && rollA(0.5)) out.push("faculty_back_home");
@@ -66,6 +73,11 @@ export function computeOffers(G, tracks) {
   if (!out.length) out.push(st.coding >= 35 ? "ml_engineer" : "applied_scientist");
   const uniq = [];
   out.forEach(function (id) { if (uniq.indexOf(id) < 0) uniq.push(id); });
+  // For the simulator's balance report: the profile behind the latest offers, and every offer seen.
+  const log = s.offerLog = s.offerLog || { offered: {} };
+  log.academic = Math.round(P.academic * 10) / 10;
+  log.industry = Math.round(P.industry * 10) / 10;
+  uniq.forEach(function (id) { log.offered[id] = true; });
   return uniq.map(function (id) { return offer(G, id); }).filter(Boolean);
 }
 
@@ -116,7 +128,8 @@ export function finalize(G, endingId) {
     const r = G.rng.next() - s.stats.network / 400;
     id = r < 0.3 ? "founder_acquired" : r < 0.7 ? "founder_pivot" : "founder_bigtech";
   }
-  if (id === "eternal_postdoc" && hIndex(G) >= 6) id = "postdoc_famous";
+  // A long postdoc that turned out well, only for profiles that could have had the famous lab.
+  if (id === "eternal_postdoc" && profile(G).academic >= offerBars(G).famous) id = "postdoc_famous";
   const e = G.D.endingById[id] || { id: id, name: id, text: "" };
   if (s.milestones.graduated) {
     const y = yearOf(s.turn);

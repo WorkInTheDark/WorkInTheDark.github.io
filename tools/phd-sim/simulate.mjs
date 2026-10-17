@@ -174,6 +174,7 @@ for (let r = 0; r < RUNS; r++) {
       ...Object.fromEntries(s.papers.filter((p) => p.firstAuthor && p.pubTurn !== null && p.pubTurn !== undefined).map((p) => p.pubTurn).sort((a, b) => a - b).slice(0, 3).map((t, i) => ["paper" + (i + 1), t / TURNS]))
     },
     submissions: s.telemetry.submissions,
+    offerLog: s.offerLog || null,
     cites: totalCitations(game), h: hIndex(game), burnouts: s.telemetry.burnouts, events: s.telemetry.events_seen,
     prompts, tiers, title: s.ending.title.id, advisor: s.advisor ? s.advisor.archetype : "none", quals: s.milestones.quals,
     proposal: s.milestones.proposal, uniqueRandom: seenRandom.length, sanity: sanN ? sanSum / sanN : 0, perTurn: prompts / Math.max(1, s.turn),
@@ -210,6 +211,22 @@ console.log("Quals: " + count("quals") + " | Proposal: " + count("proposal"));
   console.log("Timeline (" + (POLICY === "mixed" ? "balanced" : POLICY) + ", graduates, median year): 1st paper " + med("paper1") + ", 2nd " + med("paper2") + ", 3rd " + med("paper3") +
     ", proposal " + med("proposal") + ", defense prep " + med("defensePrep") + ", graduation " + (B.length ? median(B.map((x) => x.years)).toFixed(1) : "-") +
     " | first-author submissions per run " + avg(B.map((x) => x.submissions)));
+}
+{
+  // Academic score when offers were made (graduates), and who could get the two scarcest offers.
+  const pct = (a, q) => { const b = a.slice().sort((x, y) => x - y); return b.length ? b[Math.min(b.length - 1, Math.floor(q * b.length))] : 0; };
+  const line = (label, R) => {
+    const G2 = R.filter((x) => x.graduated && x.offerLog);
+    const sc = G2.map((x) => x.offerLog.academic);
+    const share = (id) => Math.round(100 * G2.filter((x) => x.offerLog.offered[id]).length / Math.max(1, G2.length)) + "%";
+    const bars = D.config.offers || {};
+    const over = (v) => Math.round(100 * sc.filter((x) => x >= v).length / Math.max(1, sc.length)) + "%";
+    return label + ": academic score P50 " + pct(sc, 0.5) + ", P75 " + pct(sc, 0.75) + ", P90 " + pct(sc, 0.9) +
+      " | eligible for tenure-track " + over(bars.tenure_track_score || 64) + ", famous postdoc " + over(bars.famous_postdoc_score || 45) +
+      " | offered " + share("tenure_track") + " / " + share("postdoc_famous") + " (n=" + G2.length + ")";
+  };
+  console.log("Offers, " + line(POLICY === "mixed" ? "balanced" : POLICY, results.filter((x) => x.policy === (POLICY === "mixed" ? "balanced" : POLICY))));
+  if (POLICY === "mixed") console.log("Offers, " + line("all bots", results));
 }
 const agg = {};
 all.forEach((x) => Object.entries(x.tiers).forEach(([k, v]) => { agg[k] = agg[k] || { sub: 0, acc: 0 }; agg[k].sub += v.sub; agg[k].acc += v.acc; }));

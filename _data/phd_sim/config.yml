@@ -125,6 +125,12 @@ fixed_days:                # days per turn (two weeks)
 
 ta_chance_by_funding: [0.8, 0.6, 0.35, 0.15, 0.05]
 graduation_pubs: 3
+
+# Job offers. The academic score (endings.js profile) when offers are made, measured over sensible-player
+# runs with `simulate.mjs N`: median about 70, 75th percentile about 80, 90th about 91 (2026-10-17).
+offers:
+  tenure_track_score: 91      # tenure-track: only the top 10% of profiles can get it (then a 50% roll)
+  famous_postdoc_score: 80    # postdoc in a famous lab: the top 25% (then a 70% roll)
 defense_prep_turns: 6
 quals_turn: 18           # quals at T18 of year 1 or 2 (rolled per run)
 quals_prep_turns: 4      # "Prepare for quals" is on offer this many turns (8 weeks) before the exam

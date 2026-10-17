@@ -557,6 +557,7 @@ Six layers run at the same time; each contributes scheduled events and a random 
   - Interviews T8–T16, then offers.
   - Offers are computed from papers (by venue tier), citations, network, the advisor's letter (relationship × fame), internships and topic fit.
   - The player picks one offer (which sets the ending) or defers with a postdoc.
+  - **The scarcest offers are percentile-gated (Arthur, 2026-10-17):** Tenure-Track Professor only for the top 10% of academic profiles, Postdoc in a Famous Lab for the top 25% (`config.yml` `offers`: scores 91 and 80, then a 50% / 70% roll). The academic score is 10 per top-tier first-author paper + 5 per other one + 4 × h-index + 0.03 × citations + 20 × letter (advisor relationship × fame) + 0.1 × Network. `simulate.mjs` prints the score percentiles and the eligible and offered shares; re-measure after balance changes (measured: eligible 8–11% and 24–26%, offered 4–8% and 15–18%). An Eternal Postdoc becomes the famous lab at the end only if the final score clears the same bar.
 
 ### 10.3 Travel
 - **Getting there:** an accepted paper at a conference triggers a trip decision.
@@ -1055,7 +1056,7 @@ Design targets to tune toward, to be calibrated with Arthur's stories and playte
 | Extends past Year 6 | 10–20% of runs |
 | Hits the Year 8 cap | under 5% |
 | Leaves early (any reason) | 10–20% of runs |
-| Tenure-track ending | about 1 in 8 graduating runs, needs a strong profile |
+| Tenure-track ending | **only the top 10% of academic profiles can get the offer** (Arthur, 2026-10-17); famous-lab postdoc the top 25% |
 | Top-venue acceptance, average paper | 20–30%; better on resubmission |
 | Citations at graduation | median 150–400; about 5% of runs above 1,000 |
 | Burnout | a player who never takes weekends off burns out at least once by Year 2 |
