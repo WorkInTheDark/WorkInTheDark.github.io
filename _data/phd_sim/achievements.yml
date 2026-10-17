@@ -42,8 +42,8 @@
 - { id: met_your_hero, name: "Met Your Hero", desc: "They stopped by your poster." }
 - { id: remote_presenter, name: "Remote Presenter", desc: "Visa trouble forced a remote talk." }
 # --- Advisor
-- { id: found_the_dark_angel, name: "Found the Unicorn", desc: "Chose the Kind and Funded advisor." }
-- { id: the_one_that_got_away, name: "The One That Got Away", desc: "Were offered the Kind and Funded advisor, and chose someone else.", secret: true }
+- { id: found_the_dark_angel, name: "Found the Unicorn", desc: "Got the Kind and Funded advisor." }
+- { id: the_one_that_got_away, name: "The One That Got Away", desc: "The Kind and Funded advisor took another student the year you started.", secret: true }
 - { id: bubble_tea_regular, name: "Bubble Tea Regular", desc: "20 in-person lab meetings with the Dark Angel.", when: { advisor: [kind_funded], telemetry: { lab_meetings_in_person: ">=20" } } }
 - { id: no_orphans, name: "No Orphans", desc: "A paper the Dark Angel couldn't find a single orphan word in." }
 - { id: ten_questions, name: "Ten Questions, Ten Answers", desc: "Aced Judy Olson's ten questions.", secret: true }

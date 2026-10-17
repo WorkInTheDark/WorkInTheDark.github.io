@@ -1,4 +1,4 @@
-// Title, setup, help, codex, achievements and the end card.
+// Title, setup, codex, achievements and the end card.
 import { esc, bar } from "./common.js";
 
 function stripTokens(s) {
@@ -11,13 +11,12 @@ export function titleHtml(app) {
   const ach = Object.keys(meta.achievements || {}).length;
   const total = app.D.achievements.length;
   const careerEndings = app.D.endings.filter(function (e) { return e.id !== "founder"; }).length;
-  return '<div class="ps-hero">' +
-    '<p class="ps-tagline">Pick an advisor, run studies, survive Reviewer 2, and find out where it all leads. Every run is different, and the lessons along the way come from <a href="/phd101/">PhD 101</a>.</p>' +
+  return '<div class="ps-hero"><div class="ps-hero-icon" aria-hidden="true">\u{1F393}</div><h2 class="ps-hero-title">PhD Simulator</h2>' +
+    '<p class="ps-tagline">Two weeks a turn. Run studies, survive Reviewer 2, and see where it leads. Lessons from <a href="/phd101/">PhD 101</a>.</p>' +
     '<div class="ps-menu">' +
     (app.savedRun ? '<button class="ps-btn ps-btn-primary" data-action="resume">Continue your PhD</button>' : "") +
     '<button class="ps-btn' + (app.savedRun ? "" : " ps-btn-primary") + '" data-action="setup">Start a new PhD</button>' +
     '<button class="ps-btn" data-action="setup-daily">Today’s daily PhD</button>' +
-    '<button class="ps-btn" data-action="help">How to play</button>' +
     '<button class="ps-btn" data-action="codex">Codex</button>' +
     "</div>" +
     (meta.runsCompleted ? '<p class="ps-muted ps-small" style="margin-top:1rem">' + meta.runsCompleted + " PhD" + (meta.runsCompleted === 1 ? "" : "s") + " finished · " +
@@ -38,22 +37,6 @@ export function setupHtml(app) {
       return t ? '<div class="ps-pick ps-trait-fixed"><strong>' + esc(t.name) + "</strong><span>+ " + esc(t.up) + "</span><span>\u2212 " + esc(t.down) + "</span></div>" : "";
     }).join("") + "</div></div>" +
     '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="start">Begin your PhD</button></div>';
-}
-
-export function helpHtml() {
-  return '<div class="ps-spread"><h2>How to play</h2><button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="back">Back</button></div><div class="ps-card">' +
-    "<p><b>Each turn is two weeks.</b> First pick what to <b>focus</b> on: one click. Classes, TA duty and meetings take part of the time; the rest goes to your focus. Then deal with what comes up: usually one event, sometimes two or none, plus updates like reviews and decisions that need an answer. Now and then you'll also get a <b>side activity</b> for an evening or a weekend: the gym, dinner with friends, a hike, coffee with a visiting speaker.</p>" +
-    "<p>A few focus choices are always there: work on a project, read and learn, or recharge. Other things come up for <b>this turn only</b>: a writing retreat, an empty GPU cluster, the holidays at home. Take them or they're gone.</p>" +
-    "<p>The main box shows what happened last turn, then this turn's choices; events and updates appear in the same box. On the right: your projects and their stages, what's affecting you right now, and what's coming up. Everything else is in the <b>Log</b>. Number keys pick a choice.</p>" +
-    "<p>Three bars to balance. <b>Energy</b> powers work: two weeks of work cost about 16, and below 60 everything gets less done. <b>Stress</b> builds with work, new tasks (reviews, grading, a rebuttal to write) and bad news (rejections); at 100 you burn out for a while. <b>Health</b> wears down at a desk and faster when you're exhausted or stressed; low Health means sick turns. <b>Recharge</b> helps all three; the gym, a hike or a doctor's visit help Health. Weekends are off unless you crunch.</p>" +
-    "<p>Your skills, relationships and network are <b>hidden</b>, like in real life; watch for hints. Everything is revealed at the end.</p>" +
-    "<p>Choices show <b>arrows</b> (\u2191 up, \u2193 down, doubled when big, \u2195 when it depends on how it goes). Green is good for you, red is bad. Numbers only appear after you choose.</p>" +
-    "<p>Each <b>project</b> moves through stages (for an NLP paper: Idea, Related work, Pilot, Experiments, Consolidation). Every turn you work on it is one try at finishing the current stage: early stages usually work out (Idea about 80%), later ones take a few tries (Experiments about 50%). Being exhausted or short on free days lowers your odds; a crunch or a lucky break raises them. Related work is mostly reading, so a turn of <b>Read and learn</b> is the better try. Some stages just take calendar time (IRB review, recruiting, annotation).</p>" +
-    "<p>There's no Writing stage, on purpose: write as you go. The last stage, <b>Consolidation</b>, pulls everything into one paper and tailors it to the venue. When it's done, the paper is ready. New projects get their kind and topic on their own.</p>" +
-    "<p>When a paper's <b>deadline</b> comes up, you get a card to submit it or skip, one for each paper due, so two papers due together can both go in. A paper still in Consolidation can go in, but a finished one reads better. NLP papers go to NLP venues (ACL, EMNLP, NAACL, COLING, TACL) or the top machine learning conferences (NeurIPS, ICLR); HCI papers go to HCI venues (CHI, IUI, TOCHI).</p>" +
-    "<p>When reviews arrive, you choose <b>one response per reviewer</b> (Clarify unless you change it). Reviews are noisy. Responses help.</p>" +
-    "<p><b>To graduate</b> you pass quals, propose your thesis, publish at least three first-author papers, spend about three months preparing, and defend. Or don't: leaving is never losing.</p>" +
-    "<p>Your progress saves in this browser. The <b>Codex</b> remembers everything you've discovered across runs.</p></div>";
 }
 
 const GROUP_ORDER = ["Academia", "Industry", "Startup", "Other", "Leaving"];

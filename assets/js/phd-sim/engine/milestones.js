@@ -49,65 +49,22 @@ const COMP_WORDS = {
 
 // ---- Matching ---------------------------------------------------------------
 
-export function matchingPrompt(G) {
+// Your advisor is decided for you (Arthur, 2026-10-16: choosing one didn't change enough to be
+// worth a screen). Three professors are taking students, each drawn at their archetype's usual
+// rarity, and you end up in one of the labs.
+export function joinLab(G) {
   const s = G.state;
-  if (!s.candidates) s.candidates = genCandidates(G);
-  const D = G.D;
-  const forced = tOf(s.turn) >= 8;
-  return {
-    type: "matching",
-    title: forced ? "Time to choose an advisor" : "Choosing an advisor",
-    text: forced
-      ? "The matching deadline is this turn. Pick the lab you will spend the next five years in."
-      : "Three professors are taking students. Senior students have opinions about each of them; rumors are right most of the time. Rotating in a lab costs 3 days this turn and shows you the truth.",
-    forced: forced,
-    rotatedThisTurn: !!s.rotatedTurn && s.rotatedTurn === s.turn,
-    candidates: s.candidates.map(function (c, i) {
-      const shown = D.archetypeById[c.revealed ? c.archetype : c.rumor];
-      return {
-        idx: i,
-        name: "Prof. " + c.first + " " + c.surname,
-        area: c.area,
-        nick: shown.nick,
-        tagline: shown.tagline,
-        legion: shown.legion,
-        revealed: c.revealed,
-        quirks: c.revealed ? c.quirks : []
-      };
-    })
-  };
-}
-
-export function answerMatching(G, resp) {
-  const s = G.state;
-  const c = s.candidates[resp.idx];
-  if (resp.action === "rotate" && c) {
-    c.revealed = true;
-    s.rotatedTurn = s.turn;
-    s.dayAdj -= 3;
-    const truth = G.D.archetypeById[c.archetype];
-    const rumorRight = c.rumor === c.archetype;
-    return { text: "You spend three days in Prof. " + c.surname + "'s lab. " + (rumorRight
-      ? "The rumors were right: students really do call them " + truth.nick + "."
-      : "The rumors were wrong. Up close, they are " + truth.nick + ": " + truth.tagline), visible: [{ stat: "days", amount: -3 }], hidden: [], notes: [], again: true };
-  }
-  if (resp.action === "later") return { text: "You'll decide later. The deadline is the end of the semester.", visible: [], hidden: [], notes: [] };
-  if (!c) return null;
+  const cands = genCandidates(G);
+  const c = G.rng.pick(cands);
   s.advisor = makeAdvisor(G, c);
   const a = G.D.archetypeById[c.archetype];
   s.labmates = genLabmates(G, a.lab_size || 4);
-  const offeredDA = s.candidates.some(function (x) { return x.archetype === "kind_funded"; });
   if (c.archetype === "kind_funded") unlock(G, "found_the_dark_angel");
-  else if (offeredDA) unlock(G, "the_one_that_got_away");
+  else if (cands.some(function (x) { return x.archetype === "kind_funded"; })) unlock(G, "the_one_that_got_away");
   G.meta.codex = G.meta.codex || {};
   G.meta.codex.advisors = G.meta.codex.advisors || {};
   G.meta.codex.advisors[c.archetype] = (G.meta.codex.advisors[c.archetype] || 0) + 1;
   s.candidates = null;
-  s.turnItems.unshift({ kind: "sys", sys: "first_project" });
-  return {
-    text: "You join Prof. " + c.surname + "'s lab. Students call them " + s.advisor.nick + ": " + s.advisor.tagline,
-    visible: [], hidden: [], notes: [s.labmates.length + " labmates say hello on the lab chat."]
-  };
 }
 
 // ---- Projects ---------------------------------------------------------------
@@ -145,8 +102,10 @@ export function autoProject(G) {
 function firstProjectPrompt(G) {
   const s = G.state;
   const senior = s.labmates.slice().sort(function (a, b) { return b.year - a.year; })[0];
-  return sys("first_project", "Your first project",
-    (senior ? senior.name : "A senior student") + " is graduating soon and has a half-finished project nobody owns. Your advisor suggests you could take it over, or start something of your own.",
+  const adv = s.advisor;
+  return sys("first_project", "Welcome to the lab",
+    "Your advisor is Prof. " + adv.surname + ". Students call them " + adv.nick + ": \u201c" + adv.tagline + "\u201d " +
+    (senior ? senior.name : "A senior student") + " is graduating and leaves a half-finished project. Take it over, or start your own?",
     [{ label: "Take over the half-finished project", desc: "A head start, but someone else's design choices." },
       { label: "Start your own project", desc: "Your idea, from scratch." }],
     { senior: senior ? senior.name : null });
@@ -384,7 +343,8 @@ export function answerQa(G, resp) {
     if (!q) return;
     const strat = answers["q" + i] || "stall";
     const skill = s.stats[q.skill] || 40;
-    let fit = BEST[q.kind] && BEST[q.kind].indexOf(strat) >= 0 ? 15 : strat === "stall" ? -10 : -12;
+    // Played automatically, answers are sensible but not inspired: preparation and skill decide.
+    let fit = resp && resp.auto ? 5 : BEST[q.kind] && BEST[q.kind].indexOf(strat) >= 0 ? 15 : strat === "stall" ? -10 : -12;
     let p = clamp(0.5 + (skill + prep + fit - (q.difficulty || 55)) / 40, 0.05, 0.95);
     if (strat === "stall") p = Math.max(p, 0.25);
     const ok = G.rng.chance(p);
@@ -489,9 +449,6 @@ export function buildSys(G, item) {
     case "welcome":
       return notice("Welcome to your PhD, " + s.player.name,
         "It's September. You have five years, give or take, to become an expert in something nobody fully understands yet. Each turn is two weeks: choose what to focus on, keep an eye on Energy, Stress and Health, and remember: everyone else is also figuring it out.");
-    case "matching":
-      if (s.advisor) return null;
-      return matchingPrompt(G);
     case "first_project":
       if (activeProjects(G).length) return null;
       return firstProjectPrompt(G);
@@ -521,8 +478,19 @@ export function buildSys(G, item) {
       if (!pp || pp.status !== "accepted") return null;
       return conferencePrompt(G, pp);
     }
-    case "qa":
-      return qaPrompt(G, d.stage);
+    case "qa": {
+      // Committee meetings play out on their own: you give your best answers, and how they land
+      // depends on your preparation and skills. One card shows how it went.
+      const q = qaPrompt(G, d.stage);
+      const answers = {};
+      q.questions.forEach(function (x, i) {
+        const def = (G.D.qa.questions || []).find(function (qq) { return qq.id === s.qaPending.picks[i]; });
+        answers[x.key] = def && BEST[def.kind] ? BEST[def.kind][0] : "direct";
+      });
+      const res = answerQa(G, { answers: answers, auto: true });
+      return sys("qa_result", QA_TITLE[d.stage], res.text, [{ label: "Continue" }],
+        { lines: res.qa.map(function (l, i) { return { who: q.questions[i] ? q.questions[i].member.split(" (")[0] : "", q: l.q, ok: l.ok }; }), visible: res.visible });
+    }
     case "proposal_offer":
       return sys("proposal_offer", "Ready to propose?",
         "Your committee is formed and you have " + firstAuthorPubs(G) + " first-author papers. The thesis proposal turns you from a student into a candidate. You'd present in " + span(G.D.config.proposal_prep_turns || 4) * WEEKS_PER_TURN + " weeks.",
@@ -603,6 +571,7 @@ export function handleSys(G, prompt, choice) {
   const d = prompt.data || {};
   switch (prompt.sys) {
     case "notice": return null;
+    case "qa_result": return null;
     case "side": {
       const def = G.D.sideById[d.ids && d.ids[choice]];
       if (!def) return null;
@@ -798,7 +767,7 @@ export function queueMilestones(G) {
   const y = yearOf(s.turn);
   const m = s.milestones;
   const items = [];
-  if (!s.advisor && y === 1 && t <= 8 && (t <= 2 || t === 8 || t % 2 === 0)) items.push({ kind: "sys", sys: "matching" });
+  if (!s.advisor) { joinLab(G); items.push({ kind: "sys", sys: "first_project" }); }
 
   // Quals at T18 of the quals year (retake the following year).
   const qualsYear = m.quals === "failed_once" ? m.qualsYear + 1 : m.qualsYear;
@@ -889,18 +858,18 @@ export function planExtras(G) {
   if (!s.advisor || m.graduated) return out;
   if (y >= 2 && y <= 5 && t >= 2 && t <= 7 && !(s.internship && s.internship.year === y) && !s.flags.on_market && !hasStatus(G, "defense_prep")) {
     out.push({ id: "apply_internship", kind: "apply", slot: true, label: "Apply for summer internships",
-      desc: "Twelve weeks of industry research next summer. Offers arrive in March.",
+      desc: "Summer in industry \u00b7 offers in March",
       arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "presenting", dir: "up", strength: 1 }] });
   }
   if (y <= 3 && t >= 3 && t <= 6 && !s.flags.fellowship_won && !(s.fellowship && s.fellowship.year === y)) {
     out.push({ id: "apply_fellowship", kind: "apply", slot: true, label: "Apply for a fellowship",
-      desc: "A year without TA duty if you win. Results in February.",
+      desc: "A year without TA duty \u00b7 results in February",
       arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
   }
   if (m.proposal === "pending" && m.quals === "passed" && !m.proposalAt && t !== 9 &&
     y >= (cfg.proposal_min_year || 3) && firstAuthorPubs(G) >= (cfg.proposal_min_pubs || 2)) {
     out.push({ id: "proposal", kind: "milestone", label: "Schedule your thesis proposal",
-      desc: "Present to your committee in " + span(cfg.proposal_prep_turns || 4) * WEEKS_PER_TURN + " weeks. Project work until then counts as preparation." });
+      desc: "Present in " + span(cfg.proposal_prep_turns || 4) * WEEKS_PER_TURN + " weeks" });
   }
   if (m.proposal === "passed" && !m.defensePrepStart && t !== 9) {
     const acc = firstAuthorPubs(G);
@@ -909,12 +878,12 @@ export function planExtras(G) {
     const early = acc < need;
     if (acc >= need || (!strictNoEarly && acc === need - 1 && pendingFirstAuthor(G) >= 1)) {
       out.push({ id: "defense", kind: "milestone", label: "Start defense preparation",
-        desc: "About three months of thesis writing and slides (part of every turn)." + (early ? " Your third paper is still under review: if it's rejected, the defense waits." : "") });
+        desc: "About three months" + (early ? " \u00b7 third paper still under review" : "") });
     }
   }
   if (m.proposal === "passed" && y >= 4 && t >= 1 && t <= 4 && !hasStatus(G, "job_market") && !s.acceptedOffer && !(s.job && s.job.year === y)) {
     out.push({ id: "job_market", kind: "milestone", label: "Go on the job market",
-      desc: "Applications this fall, interviews over the winter, offers in the spring." });
+      desc: "Apply now \u00b7 offers in spring" });
   }
   return out;
 }

@@ -406,7 +406,7 @@ Any other flag name is free for content to invent.
   when: { advisor: [kind_funded] }
 ```
 
-One random line goes into the log in turns without news, and sometimes in others.
+One random line is logged in turns without news, and sometimes in others. The game window shows it in the turn recap when nothing else happened.
 
 ---
 

@@ -7,6 +7,9 @@ nav: true
 nav_order: 5
 ---
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap">
 <link rel="stylesheet" href="{{ '/assets/css/phd-sim.css' | relative_url }}">
 
 <div id="phd-sim" data-src="{{ '/assets/phd-sim/data.json' | relative_url }}">

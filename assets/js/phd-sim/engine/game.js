@@ -19,15 +19,15 @@ import { checkAchievements } from "./achievements.js";
 import { finalize } from "./endings.js";
 import { resolveRebuttal } from "./reviews.js";
 import {
-  buildSys, handleSys, answerMatching, answerQa, leavePrompt, autoProject, newProjectStress, stressHit,
+  buildSys, handleSys, answerQa, leavePrompt, autoProject, newProjectStress, stressHit,
   queueMilestones, queuePapers, finishSubmissions, createProject, planExtras, applyPlanExtra
 } from "./milestones.js";
 
 const WORK_DAYS = ["read", "network", "help", "mentor", "career", "project", "writing_day"];
 // Prompts that come before the turn's focus (you need an advisor before you can plan).
-const PRE_SYS = ["matching", "first_project"];
+const PRE_SYS = ["first_project"];
 // System prompts that count as one of the turn's "things that happen".
-const PROMPT_SYS = ["submit", "rebuttal", "qa", "offers", "final_offers", "internship_offer", "the_question", "decision", "conference", "fellowship_apply", "internship_apply", "job_market_start"];
+const PROMPT_SYS = ["submit", "rebuttal", "qa", "qa_result", "offers", "final_offers", "internship_offer", "the_question", "decision", "conference", "fellowship_apply", "internship_apply", "job_market_start"];
 const ACTION_EXTRAS = ["apply_internship", "apply_fellowship", "proposal", "defense", "job_market"];
 
 function oppArrows(def) {
@@ -132,9 +132,6 @@ export class Game {
       this.afterEvent(ctx);
     } else if (p.type === "sys") {
       res = handleSys(this, p, resp.choice || 0);
-    } else if (p.type === "matching") {
-      res = answerMatching(this, resp);
-      if (res && res.again) s.turnItems.unshift({ kind: "sys", sys: "matching" });
     } else if (p.type === "rebuttal") {
       const pp = s.papers.find(function (x) { return x.id === p.paperId; });
       if (pp) res = resolveRebuttal(this, pp, resp);
@@ -229,16 +226,16 @@ export class Game {
     const fx = this.fixedDays();
     if (hasStatus(this, "on_internship")) {
       const co = s.internship && s.internship.accepted ? s.internship.accepted.company : "the internship";
-      out.push({ id: "intern_all", kind: "core", label: "Give " + co + " your all", desc: "Long days, big impression. A better shot at a return offer.",
+      out.push({ id: "intern_all", kind: "core", label: "Give " + co + " your all", desc: "Better return-offer odds",
         arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }] });
-      out.push({ id: "intern_pace", kind: "core", label: "Keep a healthy pace", desc: "Do good work and leave at six. Weekends are yours.",
+      out.push({ id: "intern_pace", kind: "core", label: "Keep a healthy pace", desc: "",
         arrows: [{ stat: "sanity", dir: "up", strength: 1 }] });
       activeProjects(this).slice(0, 2).forEach(function (p) {
         if (currentStage(self, p).kind === "wait" || p.ready) return;
-        out.push({ id: "intern_weekend:" + p.id, kind: "core", label: "Spend the weekends on “" + p.short + "”", desc: "Your own research doesn't stop for the summer.",
+        out.push({ id: "intern_weekend:" + p.id, kind: "core", label: "Weekends on “" + p.short + "”", desc: "",
           arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "progress", dir: "up", strength: 1 }] });
       });
-      out.push({ id: "recharge", kind: "core", label: "Take a few days off", desc: "Use your vacation days. Rest the rest of the time.",
+      out.push({ id: "recharge", kind: "core", label: "Take a few days off", desc: "",
         arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
     } else if (!onLeave) {
       // Roughly how much this turn's free days would count, for "how likely is this stage to finish".
@@ -251,20 +248,20 @@ export class Game {
         const ttd = p.target && p.target.turn !== null && p.target.turn !== undefined ? p.target.turn - s.turn : null;
         // A project that's waiting (IRB, recruiting, annotation) or on hold has nothing to work on this turn.
         if (st.kind === "wait" || p.pause > 0) return;
-        const dl = ttd === 0 ? " \u00b7 " + deadlineLabel(self, p) + " this turn" :
-          ttd !== null && ttd > 0 && ttd <= 3 ? " \u00b7 " + deadlineLabel(self, p) + " in " + ttd * WEEKS_PER_TURN + " weeks" : "";
+        const dl = ttd === 0 ? " \u00b7 " + deadlineLabel(self, p) + " now" :
+          ttd !== null && ttd > 0 && ttd <= 3 ? " \u00b7 " + deadlineLabel(self, p) + " " + ttd * WEEKS_PER_TURN + "w" : "";
         if (info.ready) {
           out.push({ id: "p:" + p.id, kind: "project", label: "Polish “" + p.short + "”",
-            desc: "Ready to submit" + (dl || " \u00b7 waiting for a deadline") + " \u00b7 polishing improves the writing",
+            desc: "Ready" + dl + " \u00b7 polishing reads better",
             arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
         } else {
           out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",
-            desc: info.label + ": " + odds + " to finish this turn" + dl + (st.id === "lit" ? " \u00b7 reading is better here" : ""),
+            desc: info.label + " \u00b7 " + odds + dl + (st.id === "lit" ? " \u00b7 reading is faster" : ""),
             arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: st.id === "lit" ? 1 : 2 }] });
         }
         if (ttd === 1 && !info.ready && !fx.burnout) {
           out.push({ id: "crunch:" + p.id, kind: "deadline", label: "Crunch on “" + p.short + "”, weekends included",
-            desc: deadlineLabel(self, p) + " in 2 weeks \u00b7 every day, weekends too",
+            desc: deadlineLabel(self, p) + " 2w \u00b7 weekends too",
             arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }, { stat: "health", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }] });
         }
       });
@@ -275,10 +272,10 @@ export class Game {
       DEFAULT_ACTIONS.forEach(function (a) {
         let desc = a.desc, arrows = a.arrows;
         if (a.id === "read" && lit.length) {
-          desc = "Two weeks with papers. Moves the Related work of “" + lit[0].short + "”" + (lit.length > 1 ? " and " + (lit.length - 1) + " more" : "") + " a lot.";
+          desc = "Speeds up Related work";
           arrows = [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }];
         }
-        out.push({ id: a.id, kind: "core", label: a.label, desc: desc, arrows: arrows });
+        out.push({ id: a.id, kind: "core", label: a.label, desc: a.id === "read" && lit.length ? desc : "", arrows: arrows });
       });
     } else {
       out.push({ id: "recharge", kind: "core", label: "Recharge", desc: "You're on leave. Rest is the job.", arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });

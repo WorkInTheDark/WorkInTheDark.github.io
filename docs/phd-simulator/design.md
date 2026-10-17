@@ -23,6 +23,9 @@ A browser game on the site, inspired by 《读博模拟器》, in which the play
 | Effects | Rolled within a range, written `+7±3` |
 | Before choosing | Arrows only, never numbers |
 | Advisor archetypes | Many, including a rare "Kind and Funded" one that is Arthur |
+| Advisor | **Assigned on day one, no matching screen** (Arthur, 2026-10-16: choosing didn't change the game enough to earn the screen). The welcome card introduces them (section 7.2) |
+| Committee Q&A | **Plays out on its own** (2026-10-16): picking answer strategies barely mattered and broke the flow. Prep (reading days, proposal work) is what you control; the card shows each question with ✓ or ✗ |
+| Look | **A small game window inside the page** (760 × 560 on desktop), with its own palette and a rounded display font. No How to play, no Log (section 14.2) |
 | Advisor nicknames | Space Marine Legion names, one Legion per archetype (section 7.1) |
 | Graduation | Passing the defense. The defense needs at least 3 publications and 3 months of preparation (section 3.4) |
 | Tone | No serious topics (section 16.3) |
@@ -127,7 +130,7 @@ ARR rejections can be resubmitted to a later cycle with previous reviews attache
 
 ### 3.4 Program structure and graduation
 - **Coursework:** Year 1 fall and spring, Year 2 fall.
-- **Advisor matching:** Year 1, T1–T8 (section 7.2).
+- **Advisor:** assigned on Year 1 T1 (section 7.2).
 - **Quals:** Year 1 T18 or Year 2 T18 (program variant rolled per run). One retake allowed.
 - **Thesis proposal:** a window from Year 3 T20 to Year 4 T18. Requires at least 2 first-author papers and a committee.
 - **Annual progress review:** every T18 (section 5.4).
@@ -191,7 +194,7 @@ And some come up for **this turn only** (`opportunities.yml`): the holidays at h
 **Start a new project** is a free button: it doesn't use up the turn, and the project's kind and topic are picked for you (section 8.1).
 
 ### 4.3 What comes up
-- **Before the focus:** only advisor matching and your first project (you need an advisor to plan).
+- **Before the focus:** only your first project, on Year 1 T1 (the advisor is assigned at the same moment).
 - **After the focus**, in order: milestones and Q&As on their dates (quals, proposal, defense), reviews arriving with the rebuttal, decisions, conference trips, internship and job offers, the Dark Angel's Question, world news hooks, scheduled arc follow-ups, then **random events**.
 - **How many events:** each turn rolls a target of 0, 1 or 2 "things that happen" (15% / 60% / 25%). Updates that need an answer count toward it, so a turn with reviews gets fewer random events. Hook events (deadline, after a decision, conference) come on top, at their own chances.
 - **Side activities** (`side.yml`): in about 30% of turns (45% when Health or Stress is in trouble), a card offers two or three small things for an evening or a weekend: the gym, a run club, yoga, a doctor's visit, cooking, an early bedtime, board games, dinner with friends, a hike, a concert, a hobby, coffee with a visiting speaker, a reading group, helping a labmate debug, a visiting friend or parents, a nearby workshop. Options that help a bar in trouble are three times as likely. They don't take the focus; a few cost a day. "Not this time" is always there.
@@ -346,7 +349,7 @@ Every advisor is known in the department by a Space Marine Legion name.
 
 The advisor card reads, for example: *Prof. {surname} · "the Ultramarine" · Always funded. Always writing grant reports.*
 
-During advisor matching (section 7.2), the nickname and tagline arrive as student rumors, so they are about 70% accurate like every other rumor, and they are confirmed once you join the lab.
+The welcome card on day one (section 7.2) gives the nickname and tagline as what the students call your advisor.
 
 | Archetype | Nickname | Tagline (shown in game) | Why this Legion (design only, never shown) |
 |---|---|---|---|
@@ -381,11 +384,12 @@ What the parameters do:
 - **Fame:** letters, network gains, the job market, a small citation multiplier.
 - **Stability:** the yearly chance of an "advisor is leaving" arc.
 
-### 7.2 Advisor matching (Year 1, T1–T8)
-- Three candidates are drawn from the pool. Each is introduced with a profile, a meeting, and rumors from senior students.
-- **Rumors are about 70% accurate.** The player can spend free days rotating with a lab to learn more.
-- The player chooses by T8. If a candidate's funding falls through, a replacement may appear.
-- Later arcs can force or allow a switch (advisor leaves, irreparable conflict); new candidates are then drawn.
+### 7.2 Your advisor (assigned on day one, 2026-10-16)
+- Three candidates are still drawn from the pool, and one of them takes you. There is no matching screen: the welcome card names your advisor, their Legion nickname and the students' one-line rumor, then asks about your first project.
+- **Why:** with matching, the choice didn't change enough of the game to be worth a screen and a week of rotations (Arthur). The advisor still shapes the run through their archetype (funding, events, how they react).
+- **The One That Got Away** (achievement): the Kind and Funded advisor was among the three candidates but took someone else.
+- Later arcs can force or allow a switch (advisor leaves, irreparable conflict); a new advisor is then drawn the same way.
+- *Old design (replaced):* choose among three by T8, with rumors about 70% accurate and lab rotations to learn more.
 
 ### 7.3 The Kind and Funded advisor (Arthur)
 - **Shown as:** the Dark Angel (I), through `{advisor.nick}`. The archetype label is "Kind and Funded".
@@ -559,7 +563,7 @@ Each concern has a severity (minor or major) and a validity (a real issue, or a 
 
 | Mini-game | Phase | Sketch |
 |---|---|---|
-| Committee Q&A (quals, proposal, defense) | 2 | 3–5 committee members ask questions drawn from your projects' weak spots; answer strategies: direct, acknowledge the limitation, reframe, "great question" stall; scored on hidden skills and prep days |
+| Committee Q&A (quals, proposal, defense) | 2 | **Automatic since 2026-10-16.** 3–5 committee members ask questions drawn from your projects' weak spots; each answer lands or not from hidden skills and prep days, and one card lists the questions with ✓ / ✗ and the result. (Answer strategies were cut: they barely mattered and broke the flow.) |
 | Poster session | 3 | 6 visitor slots (famous prof, curious student, recruiter, the person who explains your poster to you, a competitor); choose the pitch length; outcomes: network, job leads, citations |
 | Job talk and interviews | 3 | Talk structure choices, Q&A, one-on-ones; feeds offers |
 | Deadline night | 3 | 12 hours left, a task list (fix Figure 2, rerun an ablation, write the limitations, trim to the page limit, fix the bibliography) and random disasters (Overleaf compile timeout, a co-author edits main.tex at 11:58 pm); affects quality and desk-reject risk |
@@ -573,7 +577,7 @@ Each mini-game draws its content from pools so it plays differently every time.
 Six layers run at the same time; each contributes scheduled events and a random pool.
 
 ### 10.1 Academic milestones
-- **Orientation** (Year 1 T1), **advisor matching** (T1–T8), coursework.
+- **Orientation** and your **advisor** (Year 1 T1), coursework.
 - **First project,** often inherited from a senior labmate (Year 1 T6–T10).
 - **Quals,** the **proposal** (with committee formation), the **annual progress review,** **defense preparation** (6 turns, section 3.4), the **defense,** and graduation (the next commencement, T18 or T19).
 
@@ -763,7 +767,7 @@ context:  event-specific boosts (for example wellbeing events ×2 when Sanity < 
 5. **Rarity and conditions:** many events need specific traits, backgrounds, advisors or earlier choices.
 6. **Novelty weighting across runs:** the browser remembers what you've seen.
 7. **Codex** (section 12.4) for completionists.
-8. **Flavor lines:** quiet turns still produce one or two one-liners in the weekly log, drawn from a pool of 300 or more.
+8. **Flavor lines:** a quiet turn still gets a one-liner in the turn recap, drawn from a pool of 300 or more.
 
 **How it's measured:** the headless simulator (section 15.6) reports the overlap in random events between consecutive runs. The target is under 35%, and a player should need about five runs to see half the pool.
 
@@ -901,24 +905,21 @@ Episode URLs are `/phd101/<chapter>.<episode>/`, and chapters get renumbered, so
 ## 14. UI and UX
 
 ### 14.1 Screens
-1. **Title:** New PhD, Continue, Codex, Achievements, How to Play, Settings (text size, reduced motion, stop at each semester).
-2. **New PhD:** name, background, origin, traits.
-3. **Main turn screen** (below).
-4. **Event card:** a modal, framed by rarity.
-5. **Mini-game screens.**
-6. **Annual progress review letter.**
-7. **End card.**
-8. **Codex and achievements.**
+1. **Title:** Continue, Start a new PhD, Today's daily PhD, Codex. (How to play was cut, 2026-10-16: the first turn carries a one-line hint instead.)
+2. **New PhD:** name and three rolled traits.
+3. **Game window** (below). Events, decisions, deadlines, committees and the rebuttal all appear inside it.
+4. **End card.**
+5. **Codex and achievements.**
 
-### 14.2 Main turn screen (redesigned 2026-10-16)
+### 14.2 The game window (redesigned again 2026-10-16)
 
-Modeled on the original game, where one box holds every message and choice, and everything fits on one screen. On a desktop the game fills the window below the site's navbar (the page title steps aside while playing), so nothing needs page scrolling; long lists scroll inside their own panel.
+Arthur: the full-height layout was too tall, had too much text, and felt like a normal GUI rather than a game. The game is now **a small framed window embedded in the page**, under the page title, like the original game's box.
 
-- **Top bar (one line):** date and semester, the Energy / Stress / Health bars, papers and citations, and How to play, Codex, Log, Leave, Menu.
-- **Main box (left):** first, **last turn** in a few lines: what you did, the bar changes, and up to four things that happened (stage changes, decisions, bad news), plus a PhD 101 tip if there was one. Then **this turn's choices**, one row each, numbered for the keyboard: label, a short line (stage and odds, deadline), arrows. **Events and updates appear in this same box** instead of a pop-up over a busy page, with the rarity color as a thin line on top.
-- **Right column:** **Projects** (each with its stage chips: done ✓, current filled, waiting dashed; the target and the deadline; the venue picker and Shelve tucked under "Target and options"; papers under review and published below), **You** (advisor, every active status explained in words with time left, traits), **Coming up** (the next four dated things).
-- **Log:** behind the Log button, as an overlay.
-- **Narrower screens:** one column, page scrolls normally; phone tested at 375 px.
+- **Size:** 760 px wide at most, 560 px tall on desktop; long content scrolls inside the middle. On phones the window grows with its content and the page scrolls.
+- **Top strip (dark indigo):** a calendar badge (Year N, date), three icon gauges (⚡ Energy, 😣 Stress, ❤️ Health) with tick marks, 📄 papers and ✦ citations, and two icon buttons (🚪 Leave, ☰ Menu).
+- **Middle, the scene:** either the card that needs an answer (event, deadline, decision, committee, rebuttal), or this turn's choices as **tiles** (icon, label, one short line, arrows, number key). Above the tiles, last turn as **chips**: the bar changes, up to two things that happened (stage moves, good or bad news; on a quiet turn, a flavor one-liner), and a senior student's tip with its PhD 101 link when there is one.
+- **Bottom, the tray:** chips for the advisor, statuses, upcoming quals / proposal / defense (within 16 weeks), and papers under review (details on hover); then one **tracker** per project (name, a dot per stage: done, now with a pulse, waiting dashed; the stage and deadline) and a **+ New project** tracker with its Stress arrow. Clicking a tracker opens the project close-up in the scene (all stages, the target venue, Shelve).
+- **Cut:** How to play, the Log, the advisor matching screen, committee answer pickers, and most explanatory text. Descriptions are a few words ("Idea · likely · ACL 4w").
 
 ### 14.3 Event card
 
@@ -937,17 +938,13 @@ Modeled on the original game, where one box holds every message and choice, and 
 After the choice: a result line, the visible changes as numbers ("Sanity −6"), and at most two lines for hidden changes.
 
 ### 14.4 Layout, style, accessibility
-- **Layout:** mobile first. One column on phones with a sticky stats header and a bottom action bar; two columns on desktop (board and planner on one side, calendar and log on the other).
-- **The planner** uses − / + steppers rather than drag and drop.
-- **Style:**
-  - Matches the site's fonts and the `--global-*` CSS variables.
-  - Game colors are `--phdsim-*` variables with light and dark values, following the `--phd101-accent*` pattern in `_sass/_themes.scss`.
-  - Rarity colors must pass contrast in both themes.
+- **Style:** its own look rather than the site's: warm paper background, an indigo top strip, coral highlights, chunky cards and tiles with a pressed-down shadow, rounded **Fredoka** for titles and labels (Google Fonts), system font for body text. Light and dark palettes follow the site's `html[data-theme]`.
+- **Site styles:** the theme colors `p`, `div`, `span`, `li` and friends directly, so the game resets color inheritance inside its frame with a zero-weight `:where()` rule.
+- **Motion:** cards slide in, bar changes pop, the current stage dot pulses, low bars blink. All of it is off under `prefers-reduced-motion`.
 - **Accessibility:**
-  - Arrows carry text labels ("Energy down"), so color is never the only signal.
-  - Keyboard: 1–4 pick choices, Space continues.
-  - Results are announced through `aria-live`.
-  - `prefers-reduced-motion` is respected.
+  - Arrows carry text labels ("Energy ↓"), so color is never the only signal.
+  - Keyboard: 1–9 pick a tile or a card's choice; Escape closes the project close-up.
+  - Rarity and gauge colors are checked in both themes.
 
 ---
 
@@ -974,8 +971,8 @@ assets/js/phd-sim/
     conditions.js effects.js events.js templating.js projects.js reviews.js
     citations.js people.js world.js milestones.js endings.js achievements.js save.js
   ui/                            # rendering only
-    app.js (flow and input) gameview.js (stats, planner, report, projects, log)
-    prompts.js (events, rebuttal, Q&A, matching) screens.js (setup, codex, end card)
+    app.js (flow and input) gameview.js (top strip, scene tiles, tray of trackers, project close-up)
+    prompts.js (events, rebuttal, committee cards) screens.js (setup, codex, end card)
 tools/phd-sim/                   # excluded from the site build
   export-data.rb                 # YAML → JSON with the same shape as data.json
   validate.mjs                   # schema and reference checks
@@ -1177,7 +1174,7 @@ Resolved on 2026-10-15:
 
 Decided by Claude on Arthur's instruction to finish without further input (2026-10-15):
 - **Real venue names** with approximate dates
-- **Advisor matching:** always three candidates
+- **Advisor matching:** always three candidates (later replaced by assignment on day one, section 7.2)
 - **Double arrows** (`↑↑`) for big effects
 - **No global stats**
 - **The Year 8 cap** is kept

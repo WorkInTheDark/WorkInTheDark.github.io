@@ -46,9 +46,7 @@ function planFor(p, rng) {
 }
 
 function answerFor(p, rng) {
-  if (p.type === "matching") return { action: "join", idx: rng.int(0, p.candidates.length - 1) };
   if (p.type === "rebuttal") return { responses: {} };
-  if (p.type === "qa") return { answers: Object.fromEntries(p.questions.map((q) => [q.key, "direct"])) };
   if (p.type === "sys" && p.sys === "leave") return { choice: p.choices.length - 1 };
   if (p.type === "sys" && p.sys === "submit") return { choice: 0 };
   return { choice: (p.choices[rng.int(0, p.choices.length - 1)] || {}).i || 0 };

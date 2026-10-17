@@ -72,19 +72,10 @@ function pickAction(p, policy, rng, stats) {
 function answerPrompt(game, p, policy, rng) {
   switch (p.type) {
     case "event": return { choice: policy === "random" ? rng.pick(p.choices).i : p.choices[rng.int(0, p.choices.length - 1)].i };
-    case "matching":
-      if (p.forced || rng.chance(0.5)) return { action: "join", idx: rng.int(0, p.candidates.length - 1) };
-      if (!p.rotatedThisTurn && rng.chance(0.4)) return { action: "rotate", idx: rng.int(0, p.candidates.length - 1) };
-      return { action: "later" };
     case "rebuttal": {
       const responses = {};
       p.reviews.forEach((r, i) => { const o = rng.pick(p.options.filter((x) => !x.llmOnly || r.llm)); if (rng.chance(0.5)) responses[i] = o.id; });
       return { responses };
-    }
-    case "qa": {
-      const answers = {};
-      p.questions.forEach((q) => { answers[q.key] = rng.pick(p.strategies).id; });
-      return { answers };
     }
     case "sys": {
       if (p.sys === "leave") return { choice: p.choices.length - 1 };

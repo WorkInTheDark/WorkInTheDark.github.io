@@ -1,11 +1,20 @@
-// Modal contents: events, system prompts, advisor matching, new projects, the rebuttal and Q&A
-// mini-games, and the result view shown after every decision.
+// Scene cards: events, system cards (decisions, deadlines, side activities, committee meetings),
+// the rebuttal, and the result view shown after every decision.
 import { esc, arrowsHtml, deltasHtml } from "./common.js";
 
 const CATEGORY = {
   research: "Research", data: "Data", writing: "Writing", reviews: "Reviews", advisor: "Advisor", legion: "Advisor",
   lab: "Lab", milestone: "Milestone", teaching: "Teaching", career: "Career", travel: "Travel", world: "The field",
   life: "Life", wellbeing: "Wellbeing", exit: "Crossroads"
+};
+const CATEGORY_ICON = {
+  research: "\u{1F52C}", data: "\u{1F5C2}\uFE0F", writing: "\u270D\uFE0F", reviews: "\u{1F4DD}", advisor: "\u{1F9D1}\u200D\u{1F3EB}", legion: "\u{1F9D1}\u200D\u{1F3EB}",
+  lab: "\u{1F9EA}", milestone: "\u{1F393}", teaching: "\u{1F34E}", career: "\u{1F4BC}", travel: "\u2708\uFE0F", world: "\u{1F30D}",
+  life: "\u{1F3E0}", wellbeing: "\u{1F33F}", exit: "\u{1F6AA}"
+};
+const SYS_KICKER = {
+  notice: ["\u{1F4CC}", "Notice"], side: ["\u{1F388}", "On the side"], submit: ["\u{1F4E4}", "Deadline"], qa_result: ["\u{1F393}", "Committee"],
+  first_project: ["\u{1F9EA}", "Year 1"], decision: ["\u{1F4E8}", "Decision"], conference: ["\u2708\uFE0F", "Conference"], leave: ["\u{1F6AA}", "Crossroads"]
 };
 
 function choiceButtons(choices) {
@@ -20,43 +29,33 @@ function choiceButtons(choices) {
 
 export function promptClass(p) {
   if (p.type === "event") return "ps-rarity-" + p.rarity;
-  return "ps-rarity-system" + (p.type === "rebuttal" || p.type === "qa" || p.type === "matching" ? " ps-wide" : "");
+  return "ps-rarity-system";
 }
 
 export function eventHtml(p) {
-  const rarity = p.rarity !== "common" ? '<span class="ps-r-' + esc(p.rarity) + '">' + esc(p.rarity) + "</span> · " : "";
-  return '<div class="ps-kicker">' + rarity + esc(CATEGORY[p.category] || p.category) + "</div>" +
+  const rarity = p.rarity !== "common" ? ' · <span class="ps-r-' + esc(p.rarity) + '">' + esc(p.rarity) + "</span>" : "";
+  return '<div class="ps-kicker"><span class="ps-kicker-icon" aria-hidden="true">' + (CATEGORY_ICON[p.category] || "\u2022") + "</span>" + esc(CATEGORY[p.category] || p.category) + rarity + "</div>" +
     '<h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" +
     '<p class="ps-text">' + esc(p.text) + "</p>" + choiceButtons(p.choices);
 }
 
 export function sysHtml(p) {
-  return '<div class="ps-kicker">' + (p.sys === "notice" ? "Notice" : p.sys === "side" ? "Side activity" : "Decision") + "</div>" +
-    '<h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" +
-    '<p class="ps-text">' + esc(p.text) + "</p>" + choiceButtons(p.choices);
+  const k = SYS_KICKER[p.sys] || ["\u{1F4E8}", "Decision"];
+  const d = p.data || {};
+  // A committee meeting: each question, and whether your answer landed.
+  const lines = d.lines && d.lines.length ? '<ul class="ps-qa-lines">' + d.lines.map(function (l) {
+    return '<li class="' + (l.ok ? "ps-qa-ok" : "ps-qa-no") + '"><span aria-hidden="true">' + (l.ok ? "\u2713" : "\u2717") + "</span>" +
+      "<div>" + (l.who ? "<b>" + esc(l.who) + ":</b> " : "") + "\u201c" + esc(l.q) + "\u201d</div></li>";
+  }).join("") + "</ul>" : "";
+  return '<div class="ps-kicker"><span class="ps-kicker-icon" aria-hidden="true">' + k[0] + "</span>" + k[1] + "</div>" +
+    '<h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" + lines +
+    '<p class="ps-text">' + esc(p.text) + "</p>" + (d.visible ? deltasHtml(d.visible) : "") + choiceButtons(p.choices);
 }
 
-export function matchingHtml(p) {
-  return '<div class="ps-kicker">Year 1 · Advisor matching</div><h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" +
-    '<p class="ps-text">' + esc(p.text) + "</p>" +
-    p.candidates.map(function (c) {
-      return '<div class="ps-card ps-cand"><div class="ps-spread"><b>' + esc(c.name) + "</b>" +
-        '<span class="ps-chip">' + (c.revealed ? "Confirmed" : "Rumor") + "</span></div>" +
-        '<div class="ps-meta">Works on ' + esc(c.area) + "</div>" +
-        '<p style="margin:.35rem 0">Students call them <span class="ps-nick">' + esc(c.nick) + "</span>: " + esc(c.tagline) + "</p>" +
-        (c.quirks.length ? "<ul>" + c.quirks.map(function (q) { return "<li>" + esc(q) + "</li>"; }).join("") + "</ul>" : "") +
-        '<div class="ps-row"><button class="ps-btn ps-btn-primary ps-btn-sm" data-action="join" data-i="' + c.idx + '">Join this lab</button>' +
-        (!c.revealed && !p.rotatedThisTurn ? '<button class="ps-btn ps-btn-sm" data-action="rotate" data-i="' + c.idx + '">Rotate here (3 days)</button>' : "") +
-        "</div></div>";
-    }).join("") +
-    (p.forced ? "" : '<div class="ps-foot"><button class="ps-btn" data-action="later">Decide later</button></div>');
-}
-
-// One response per reviewer (Clarify unless you change it), then submit.
 export function rebuttalHtml(p, sel) {
   const exp = p.reviews.filter(function (r, i) { return sel.responses[i] === "experiment"; }).length * 2;
   return '<div class="ps-kicker">Author response · ' + esc(p.venue) + '</div><h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" +
-    '<p class="ps-text">Reviews are in. Choose one response for each reviewer. Their tone gives hints about what they\u2019ll respond to.</p>' +
+    '<p class="ps-text">Reviews are in. Pick a reply for each reviewer; their tone is a hint.</p>' +
     p.reviews.map(function (r, ri) {
       const cur = sel.responses[ri] || "clarify";
       const opts = p.options.filter(function (o) { return !o.llmOnly || r.llm; });
@@ -72,19 +71,6 @@ export function rebuttalHtml(p, sel) {
     '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="submit-rebuttal">Submit the response</button></div>';
 }
 
-export function qaHtml(p, sel) {
-  const done = p.questions.every(function (q) { return sel.answers[q.key]; });
-  return '<div class="ps-kicker">' + esc(p.title) + '</div><h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" +
-    '<p class="ps-text">' + esc(p.text) + "</p>" +
-    p.questions.map(function (q, n) {
-      return '<div class="ps-q"><div class="ps-q-who">' + esc(q.member) + "</div><div>“" + esc(q.text) + "”</div>" +
-        '<div class="ps-strats" role="group" aria-label="How to answer question ' + (n + 1) + '">' + p.strategies.map(function (s) {
-          return '<button class="ps-strat" data-action="strat" data-key="' + esc(q.key) + '" data-id="' + s.id + '" aria-pressed="' + (sel.answers[q.key] === s.id) + '" title="' + esc(s.desc) + '">' + esc(s.label) + "</button>";
-        }).join("") + "</div></div>";
-    }).join("") +
-    '<details class="ps-small"><summary>Answer strategies</summary><ul>' + p.strategies.map(function (s) { return "<li><b>" + esc(s.label) + ":</b> " + esc(s.desc) + "</li>"; }).join("") + "</ul></details>" +
-    '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="submit-qa"' + (done ? "" : " disabled") + ">Answer</button></div>";
-}
 
 export function resultHtml(res, prompt, achievements) {
   let html = '<div class="ps-result" role="status">';
