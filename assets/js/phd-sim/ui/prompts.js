@@ -1,6 +1,7 @@
 // Scene cards: events, system cards (decisions, deadlines, side activities, committee meetings),
 // the rebuttal, and the result view shown after every decision.
 import { esc, arrowsHtml, deltasHtml } from "./common.js";
+import { ART_FILES } from "./art-manifest.js";
 
 const CATEGORY = {
   research: "Research", data: "Data", writing: "Writing", reviews: "Reviews", advisor: "Advisor", legion: "Advisor",
@@ -12,16 +13,15 @@ const CATEGORY_ICON = {
   lab: "\u{1F9EA}", milestone: "\u{1F393}", teaching: "\u{1F34E}", career: "\u{1F4BC}", travel: "\u2708\uFE0F", world: "\u{1F30D}",
   life: "\u{1F3E0}", wellbeing: "\u{1F33F}", exit: "\u{1F6AA}"
 };
-// Event pictures: 2–3 per category, picked by the event id so an event always shows the same one.
+// Event pictures: a few per category (art-manifest.js), picked by the event id so an event always
+// shows the same one.
 const ART = new URL("../../../phd-sim/art/", import.meta.url).href;
-const ART_COUNT = { research: 3, data: 3, writing: 3, reviews: 3, advisor: 3, lab: 3, milestone: 3, teaching: 3, career: 3, travel: 3, world: 3, life: 3, wellbeing: 3, exit: 2 };
 function artHtml(p) {
-  const cat = p.category === "legion" ? "advisor" : p.category;
-  const n = ART_COUNT[cat];
-  if (!n) return "";
+  const list = ART_FILES[p.category === "legion" ? "advisor" : p.category];
+  if (!list || !list.length) return "";
   let h = 0;
   String(p.id || p.title || "").split("").forEach(function (ch) { h = (h * 31 + ch.charCodeAt(0)) >>> 0; });
-  return '<div class="ps-art"><img src="' + ART + cat + "-" + (h % n + 1) + '.svg" alt="" width="320" height="128"><span class="ps-ribbon">Random event</span></div>';
+  return '<div class="ps-art"><img src="' + ART + list[h % list.length] + '" alt=""><span class="ps-ribbon">Random event</span></div>';
 }
 
 const SYS_KICKER = {

@@ -7,6 +7,7 @@ import { prepareData } from "../../assets/js/phd-sim/engine/data.js";
 import { PROJECT_TYPES } from "../../assets/js/phd-sim/engine/projects.js";
 import { STAT_IDS } from "../../assets/js/phd-sim/engine/state.js";
 import { parseValue } from "../../assets/js/phd-sim/engine/util.js";
+import { ART_FILES } from "../../assets/js/phd-sim/ui/art-manifest.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const raw = JSON.parse(readFileSync(process.argv[2] || join(here, "out", "data.json"), "utf8"));
@@ -191,11 +192,11 @@ for (const c of D.reviews.concerns || []) { if (!["N", "S", "C", "fit"].includes
 for (const q of D.qa.questions || []) if (!q.text || !q.kind || !q.skill || !q.stages) err("qa/" + q.id, "question needs text, kind, skill, stages");
 for (const e of ["tenure_track", "masters_out", "eternal_student", "bubble_tea"]) if (!ENDINGS.has(e)) err("endings", "missing " + e);
 
-// Every event category needs its pictures (see docs/phd-simulator/art-style.md and ART_COUNT in ui/prompts.js).
-const artCount = JSON.parse(/const ART_COUNT = (\{[^}]*\})/.exec(readFileSync(join(here, "../../assets/js/phd-sim/ui/prompts.js"), "utf8"))[1].replace(/(\w+):/g, '"$1":'));
+// Every event category needs at least one picture (ui/art-manifest.js, written by import-art.py).
 for (const c of new Set(D.events.map((e) => (e.category === "legion" ? "advisor" : e.category)))) {
-  if (!artCount[c]) { err("art", "no pictures listed for category '" + c + "'"); continue; }
-  for (let n = 1; n <= artCount[c]; n++) if (!existsSync(join(here, "../../assets/phd-sim/art/" + c + "-" + n + ".svg"))) err("art", "missing " + c + "-" + n + ".svg");
+  const list = ART_FILES[c] || [];
+  if (!list.length) err("art", "no pictures for category '" + c + "'");
+  for (const f of list) if (!existsSync(join(here, "../../assets/phd-sim/art/" + f))) err("art", "missing " + f + " (rerun tools/phd-sim/import-art.py)");
 }
 
 const byFile = {};

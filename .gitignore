@@ -10,3 +10,4 @@ Gemfile.lock
 vendor
 
 tools/phd-sim/out/
+tools/phd-sim/art-inbox/
