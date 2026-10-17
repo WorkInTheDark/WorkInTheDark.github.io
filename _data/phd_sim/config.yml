@@ -76,6 +76,8 @@ progress:
   work_lit: 0.8          # "Work on" during Related work
   read_trickle: 0.05     # effort per reading day for projects in other stages
   max_active_projects: 4
+  revise_before_resubmit: true  # a rejected paper goes out again only once its revision is done (paces graduation to ~4.3 years)
+  revise_chance: 0.6     # chance a turn of work finishes the revision
 
 quality:
   base: 22               # day quality = base + per_skill * skill

@@ -166,6 +166,14 @@ for (let r = 0; r < RUNS; r++) {
   });
   results.push({
     policy, ending: s.ending.id, graduated: s.ending.graduated, years: s.turn / TURNS, pubs: firstAuthorPubs(game),
+    // When the milestones that pace graduation happened (in years), for the timeline line below.
+    timeline: {
+      paper1: null, paper2: null, paper3: null,
+      proposal: s.milestones.proposalAt ? s.milestones.proposalAt / TURNS : null,
+      defensePrep: s.milestones.defensePrepStart ? s.milestones.defensePrepStart / TURNS : null,
+      ...Object.fromEntries(s.papers.filter((p) => p.firstAuthor && p.pubTurn !== null && p.pubTurn !== undefined).map((p) => p.pubTurn).sort((a, b) => a - b).slice(0, 3).map((t, i) => ["paper" + (i + 1), t / TURNS]))
+    },
+    submissions: s.telemetry.submissions,
     cites: totalCitations(game), h: hIndex(game), burnouts: s.telemetry.burnouts, events: s.telemetry.events_seen,
     prompts, tiers, title: s.ending.title.id, advisor: s.advisor ? s.advisor.archetype : "none", quals: s.milestones.quals,
     proposal: s.milestones.proposal, uniqueRandom: seenRandom.length, sanity: sanN ? sanSum / sanN : 0, perTurn: prompts / Math.max(1, s.turn),
@@ -196,6 +204,13 @@ console.log("\nEndings: " + count("ending"));
 console.log("Titles: " + count("title"));
 console.log("Advisors: " + count("advisor"));
 console.log("Quals: " + count("quals") + " | Proposal: " + count("proposal"));
+{
+  const B = results.filter((x) => x.policy === (POLICY === "mixed" ? "balanced" : POLICY) && x.graduated);
+  const med = (k) => { const v = B.map((x) => x.timeline[k]).filter((x) => x !== null); return v.length ? median(v).toFixed(1) : "-"; };
+  console.log("Timeline (" + (POLICY === "mixed" ? "balanced" : POLICY) + ", graduates, median year): 1st paper " + med("paper1") + ", 2nd " + med("paper2") + ", 3rd " + med("paper3") +
+    ", proposal " + med("proposal") + ", defense prep " + med("defensePrep") + ", graduation " + (B.length ? median(B.map((x) => x.years)).toFixed(1) : "-") +
+    " | first-author submissions per run " + avg(B.map((x) => x.submissions)));
+}
 const agg = {};
 all.forEach((x) => Object.entries(x.tiers).forEach(([k, v]) => { agg[k] = agg[k] || { sub: 0, acc: 0 }; agg[k].sub += v.sub; agg[k].acc += v.acc; }));
 console.log("Acceptance by tier (first-author, decided): " + Object.entries(agg).map(([k, v]) => k + " " + pct(v.acc, v.sub) + " of " + v.sub).join(", "));

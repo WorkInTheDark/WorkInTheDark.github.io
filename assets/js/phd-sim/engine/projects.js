@@ -72,7 +72,13 @@ export function currentStage(G, p) {
 }
 
 export function stageChance(G, p) {
+  if (p.revise) return reviseChance(G);
   return currentStage(G, p).chance || 0;
+}
+
+function reviseChance(G) {
+  const pr = G.D.config.progress || {};
+  return pr.revise_chance || REVISE_STAGE.chance;
 }
 
 function finalStage(st) { return st.id === "consolidation" || st.id === "revise"; }
@@ -140,9 +146,12 @@ export function stageInfo(G, p) {
   };
 }
 
-// Submittable: in Consolidation (or Revising), finished or not. A finished paper reads better.
+// Submittable: in Consolidation, finished or not (a finished paper reads better). A rejected paper
+// has to finish its revision first when config.progress.revise_before_resubmit is on.
 export function isReady(G, p) {
-  return finalStage(currentStage(G, p));
+  if (!finalStage(currentStage(G, p))) return false;
+  if (p.revise && !p.ready && (G.D.config.progress || {}).revise_before_resubmit) return false;
+  return true;
 }
 
 // How finished the paper is, for clarity: done, being pulled together, or not there yet.
@@ -249,7 +258,7 @@ export function turnsToDeadline(G, p) {
 // Roughly how many turns until a project is ready, for picking a realistic first target.
 function remainingTurns(G, p) {
   if (p.ready) return 0;
-  if (p.revise) return 1 / REVISE_STAGE.chance;
+  if (p.revise) return 1 / reviseChance(G);
   const stages = PROJECT_TYPES[p.type].stages;
   let w = 0;
   for (let i = p.stageIdx; i < stages.length; i++) {

@@ -454,6 +454,7 @@ Overall paper quality for reviewing: `Q = wN·N + wS·S + wC·C`, with venue-spe
 - **Possible outcomes:** accept, Findings (ARR only), reject, Revise & Resubmit (CHI, CSCW, journals), desk reject (page limit, anonymity, formatting events).
 - **Thresholds are tuned** so that top-venue acceptance is roughly 25% at Q = 60, 60% at Q = 75 and 85% at Q = 85 (targets, section 17).
 - **Resubmission:** a rejected paper can be revised (a Revise stage, with quality gains for addressing the earlier concerns) and resubmitted, **any number of times**. ARR resubmissions carry their old reviews.
+- **Revise first (2026-10-17):** a rejected paper goes out again only once its revision is finished (`progress.revise_before_resubmit`, revise chance 0.6 a turn); if the revision isn't done by the deadline, it rolls to the next one. Before this, rough resubmissions went out at every deadline (about 18 first-author submissions per PhD, top-tier acceptance 17%) and a sensible player graduated in about 3.9 years. Now it's about 15 submissions, 21% top-tier acceptance, and 4.3 years.
 - **Rejections are a card (2026-10-17).** Arthur thought rejected papers disappeared: they came back silently as a different-looking tracker. Now every first-author rejection (and desk reject) shows a card with the scores and three choices: **Revise and resubmit** (it names the next deadline), **Send it to a workshop**, or **Shelve it**. The tracker keeps all its finished stage dots plus a Revise dot and says which try it is ("Revising · try 2"); the project close-up lists every submission (venue, outcome, scores).
 
 ### 8.7 Preprints and camera-ready
@@ -1050,7 +1051,7 @@ Design targets to tune toward, to be calibrated with Arthur's stories and playte
 | Measure | Target |
 |---|---|
 | Five-year run length | 25–40 minutes (one plan per turn, about 0.5 pop-ups per turn) |
-| Median time to graduate | 5.0–5.5 years |
+| Median time to graduate | **4.2–4.4 years for a sensible player** (Arthur, 2026-10-17; measured 4.3 over 1,000 balanced-bot runs). Slacking or random play takes 4.8–5.2. Run `simulate.mjs N balanced` and read its Timeline line. |
 | Extends past Year 6 | 10–20% of runs |
 | Hits the Year 8 cap | under 5% |
 | Leaves early (any reason) | 10–20% of runs |
