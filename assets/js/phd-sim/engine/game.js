@@ -19,7 +19,7 @@ import { checkAchievements } from "./achievements.js";
 import { finalize } from "./endings.js";
 import { resolveRebuttal } from "./reviews.js";
 import {
-  buildSys, handleSys, answerQa, leavePrompt, autoProject, newProjectStress, stressHit,
+  buildSys, handleSys, answerQa, leavePrompt, autoProject, newProjectStress, stressHit, rollSide, applySide,
   queueMilestones, queuePapers, finishSubmissions, createProject, planExtras, applyPlanExtra
 } from "./milestones.js";
 
@@ -71,7 +71,7 @@ export class Game {
   save() { this.state.rng = this.rng.state(); }
 
   log(text, kind, extra) {
-    const e = { turn: this.state.turn, kind: kind || "line", text: text };
+    const e = { turn: this.state.turn, kind: kind || "line", text: text, phase: this.state.stage };
     if (extra) for (const k in extra) e[k] = extra[k];
     this.state.log.push(e);
     if (this.state.log.length > 400) this.state.log.splice(0, this.state.log.length - 400);
@@ -105,7 +105,7 @@ export class Game {
           continue;
         }
         if (s.stage === "start_items") { s.stage = "plan"; this.save(); continue; }
-        if (s.stage === "turn_items") { s.stage = "resolve"; this.save(); continue; }
+        if (s.stage === "turn_items") { s.stage = "end_items"; this.save(); continue; }
         const report = this.finishTurn();
         s.stage = "turn_start";
         this.save();
@@ -113,7 +113,21 @@ export class Game {
         return { type: "turn_end", report: report };
       }
       if (s.stage === "plan") return this.planPrompt();
-      if (s.stage === "resolve") { this.resolveTurn(); s.stage = "end_items"; continue; }
+      if (s.stage === "resolve") {
+        // The turn's focus plays out first and gets its own small result card; the turn's events
+        // and updates come after it, so they never read as caused by what you chose.
+        const self = this;
+        const before = this.snapshot();
+        this.resolveTurn();
+        tickProjects(this, function (l) { self.log(l); });
+        rollStages(this, function (l) { self.log(l); });
+        s.workDone = true;
+        s.focusReport = this.focusReport(before);
+        s.turnItems.unshift({ kind: "sys", sys: "focus_result" });
+        s.stage = "turn_items";
+        this.save();
+        continue;
+      }
       s.stage = "turn_start";
     }
     return { type: "error" };
@@ -298,7 +312,8 @@ export class Game {
       onLeave: hasStatus(this, "on_leave"),
       canStartProject: !!s.advisor && !s.milestones.graduated && !hasStatus(this, "on_leave") &&
         activeProjects(this).length < (this.D.config.progress.max_active_projects || 4),
-      newProjectStress: newProjectStress(this)
+      newProjectStress: newProjectStress(this),
+      side: (s.turnSide || []).map(function (o) { return { id: o.id, label: o.label, desc: o.desc, arrows: o.arrows }; })
     };
   }
 
@@ -309,11 +324,12 @@ export class Game {
     const list = this.actionList();
     const ids = list.map(function (a) { return a.id; });
     const action = plan && ids.indexOf(plan.action) >= 0 ? plan.action : (ids.indexOf("recharge") >= 0 ? "recharge" : ids[0]);
-    s.plan = { action: action, label: list[ids.indexOf(action)].label };
+    const side = plan && plan.side && (s.turnSide || []).find(function (o) { return o.id === plan.side; });
+    s.plan = { action: action, label: list[ids.indexOf(action)].label, side: side ? { id: side.id, label: side.label, ctx: side.ctx } : null };
     s.lastPlan = { action: action };
     s.turnItems = (s.laterItems || []).concat(s.turnItems || []);
     s.laterItems = [];
-    s.stage = "turn_items";
+    s.stage = "resolve";
     this.save();
     return true;
   }
@@ -343,12 +359,15 @@ export class Game {
     const self = this;
     s.dayAdj = s.dayAdjNext;
     s.dayAdjNext = 0;
+    s.workDone = false;
+    s.focusReport = null;
     s.turnLogStart = s.log.length;
     s.newAchievements = [];
     s.turnItems = [];
     s.laterItems = [];
     s.endItems = [];
     s.plan = null;
+    s.turnSide = [];
     s.exercisedThisTurn = false;
     s.before = this.snapshot();
     const managed = ["coursework", "ta", "fellowship"];
@@ -404,9 +423,9 @@ export class Game {
     for (let r = this.rng.next(), acc = 0; want < odds.length; want++) { acc += odds[want]; if (r < acc) break; }
     const updates = items.filter(function (it) { return it.kind === "event" || PROMPT_SYS.indexOf(it.sys) >= 0; }).length;
     if (want - updates > 0) drawHook(this, "turn", {}, want - updates).forEach(function (it) { items.push(it); });
-    // Now and then, something to do with an evening or a weekend.
+    // Now and then, something to do with an evening or a weekend: an optional pick on the plan screen.
     const low = s.stats.health < 45 || s.stats.sanity < 40;
-    if (s.advisor && this.rng.chance((this.D.config.side && this.D.config.side.chance || 0.3) + (low ? 0.15 : 0))) items.push({ kind: "sys", sys: "side" });
+    s.turnSide = s.advisor && !hasStatus(this, "on_leave") && this.rng.chance((this.D.config.side && this.D.config.side.chance || 0.3) + (low ? 0.15 : 0)) ? rollSide(this) : [];
     s.turnItems = items.filter(function (it) { return PRE_SYS.indexOf(it.sys) >= 0; });
     s.laterItems = items.filter(function (it) { return PRE_SYS.indexOf(it.sys) < 0; });
     this.rollOpportunities();
@@ -444,7 +463,8 @@ export class Game {
     const action = (s.plan && s.plan.action) || "recharge";
     const tally = { work: 0, self: 0, social: 0, exercise: 0, overtime: 0, projects: {} };
 
-    // Deadlines and milestones first (deadline mode changes how the turn goes).
+    // The evening or weekend pick first (it can cost a day), then deadlines and milestones.
+    if (s.plan && s.plan.side) applySide(this, s.plan.side);
     if (ACTION_EXTRAS.indexOf(action) >= 0) applyPlanExtra(this, action, {});
     if (action.indexOf("crunch:") === 0) addStatus(this, "deadline_mode", 1);
     let opp = null;
@@ -603,8 +623,6 @@ export class Game {
     const cfg = this.D.config;
     const self = this;
     const t = tOf(s.turn);
-    tickProjects(this, function (l) { self.log(l); });
-    rollStages(this, function (l) { self.log(l); });
     finishSubmissions(this);
     rollMissedDeadlines(this);
     s.projects.forEach(function (p) { p.days = 0; });
@@ -626,6 +644,28 @@ export class Game {
       s.pendingEnding = "eternal_student";
     }
     return report;
+  }
+
+  // What the turn's focus did: its log lines, how the focused project's stage went, and the bars.
+  focusReport(before) {
+    const s = this.state;
+    const after = this.snapshot();
+    const lines = s.log.filter(function (e) { return e.turn === s.turn && e.phase === "resolve" && e.kind !== "flavor" && e.kind !== "tip"; })
+      .map(function (e) { return e.text; });
+    const action = (s.plan && s.plan.action) || "";
+    const m = /^(?:p|crunch|intern_weekend):(.+)$/.exec(action);
+    const p = m && s.projects.find(function (x) { return x.id === m[1]; });
+    if (p && p.status === "active" && before.projects[p.id] && after.projects[p.id] &&
+        before.projects[p.id].stage === after.projects[p.id].stage && !after.projects[p.id].ready) {
+      const info = stageInfo(this, p);
+      lines.unshift(p.short + ": " + info.label + " isn't done yet. Next turn: " + chanceWord(turnChance(this, p, (this.D.config.progress || {}).full_turn || 6.5)) + ".");
+    }
+    const deltas = [];
+    ["energy", "sanity", "health"].forEach(function (k) {
+      const d = Math.round(after.stats[k] - before.stats[k]);
+      if (d) deltas.push({ stat: k, amount: d });
+    });
+    return { title: (s.plan && s.plan.label) || "Your two weeks", lines: lines.slice(0, 4), deltas: deltas };
   }
 
   buildReport() {

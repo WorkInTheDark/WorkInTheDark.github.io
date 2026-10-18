@@ -26,7 +26,7 @@ function artHtml(p) {
 
 const SYS_KICKER = {
   notice: ["\u{1F4CC}", "Notice"], side: ["\u{1F388}", "On the side"], submit: ["\u{1F4E4}", "Deadline"], qa_result: ["\u{1F393}", "Committee"],
-  first_project: ["\u{1F9EA}", "Year 1"], decision: ["\u{1F4E8}", "Decision"], conference: ["\u2708\uFE0F", "Conference"], leave: ["\u{1F6AA}", "Crossroads"]
+  first_project: ["\u{1F9EA}", "Year 1"], focus_result: ["\u{1F4CB}", "Your two weeks"], decision: ["\u{1F4E8}", "Decision"], conference: ["\u2708\uFE0F", "Conference"], leave: ["\u{1F6AA}", "Crossroads"]
 };
 
 function choiceButtons(choices) {
@@ -41,6 +41,7 @@ function choiceButtons(choices) {
 
 export function promptClass(p) {
   if (p.type === "event") return "ps-rarity-" + p.rarity;
+  if (p.sys === "focus_result") return "ps-rarity-system ps-focus-card";
   return "ps-rarity-system";
 }
 
@@ -64,23 +65,35 @@ export function sysHtml(p) {
     '<p class="ps-text">' + esc(p.text) + "</p>" + (d.visible ? deltasHtml(d.visible) : "") + choiceButtons(p.choices);
 }
 
+// A review score as five dots, colored by how good it is.
+export function scoreDots(score) {
+  const cls = score >= 4 ? "ps-sd-good" : score >= 3 ? "ps-sd-mid" : "ps-sd-bad";
+  let d = "";
+  for (let i = 1; i <= 5; i++) d += "<i" + (i <= score ? ' class="' + cls + '"' : "") + "></i>";
+  return '<span class="ps-score-dots" role="img" aria-label="' + score + ' out of 5">' + d + "</span>";
+}
+
+const SEVERITY = { fatal: 4, critical: 3, major: 2, minor: 1 };
+
+// One row per reviewer: score, their main concern, and your reply.
 export function rebuttalHtml(p, sel) {
   const exp = p.reviews.filter(function (r, i) { return sel.responses[i] === "experiment"; }).length * 2;
   return '<div class="ps-kicker">Author response · ' + esc(p.venue) + '</div><h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" +
-    '<p class="ps-text">Reviews are in. Pick a reply for each reviewer; their tone is a hint.</p>' +
+    '<p class="ps-text">Pick a reply for each reviewer.</p>' +
     p.reviews.map(function (r, ri) {
       const cur = sel.responses[ri] || "clarify";
       const opts = p.options.filter(function (o) { return !o.llmOnly || r.llm; });
-      return '<div class="ps-review"><div class="ps-review-head"><b>Reviewer ' + r.n + "</b><span>Score " + r.score + "/5 · confidence " + r.confidence + "/5</span></div>" +
-        "<blockquote>" + esc(r.opener) + "</blockquote>" +
-        "<ul class=\"ps-small\">" + r.concerns.map(function (c) { return "<li>" + esc(c.text) + "</li>"; }).join("") + "</ul>" +
-        '<label class="ps-meta">Your response <select class="ps-select" data-action="respond" data-i="' + ri + '">' +
+      const main = r.concerns.slice().sort(function (a, b) { return (SEVERITY[b.severity] || 0) - (SEVERITY[a.severity] || 0); })[0];
+      return '<div class="ps-review"><span class="ps-review-who"><b>R' + r.n + "</b>" + scoreDots(r.score) + "</span>" +
+        '<span class="ps-review-concern" title="' + esc(r.concerns.map(function (c) { return c.text; }).join(" ")) + '">' + esc(main ? main.text : "") +
+        (r.concerns.length > 1 ? ' <span class="ps-muted">+' + (r.concerns.length - 1) + "</span>" : "") + "</span>" +
+        '<select class="ps-select" data-action="respond" data-i="' + ri + '" aria-label="Reply to reviewer ' + r.n + '">' +
         opts.map(function (o) { return '<option value="' + o.id + '"' + (cur === o.id ? " selected" : "") + ">" + esc(o.label) + "</option>"; }).join("") +
-        "</select></label></div>";
+        "</select></div>";
     }).join("") +
-    '<details class="ps-small"><summary>What the responses do</summary><ul>' + p.options.map(function (o) { return "<li><b>" + esc(o.label) + ":</b> " + esc(o.desc) + "</li>"; }).join("") + "</ul></details>" +
-    (exp ? '<p class="ps-meta">New experiments will cost ' + exp + " days this turn.</p>" : "") +
-    '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="submit-rebuttal">Submit the response</button></div>';
+    '<details class="ps-small"><summary>What the replies do</summary><ul>' + p.options.map(function (o) { return "<li><b>" + esc(o.label) + ":</b> " + esc(o.desc) + "</li>"; }).join("") + "</ul></details>" +
+    (exp ? '<p class="ps-meta">New experiments cost ' + exp + " days next turn.</p>" : "") +
+    '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="submit-rebuttal">Send the response</button></div>';
 }
 
 
@@ -92,8 +105,9 @@ export function resultHtml(res, prompt, achievements) {
   }
   if (res.kind === "rebuttal" && res.reviews) {
     html += res.reviews.map(function (r) {
-      return "<p><b>Reviewer " + r.n + ":</b> " + r.before + " → " + r.after + "/5" + (r.lines.length ? '<br><span class="ps-muted ps-small">' + esc(r.lines.join(" ")) + "</span>" : "") + "</p>";
-    }).join("") + '<p class="ps-muted ps-small">The final decision comes later.</p>';
+      return '<div class="ps-review ps-review-result"><span class="ps-review-who"><b>R' + r.n + "</b>" + scoreDots(r.before) + " → " + scoreDots(r.after) + "</span>" +
+        '<span class="ps-review-concern ps-muted">' + esc(r.lines[0] || (r.after > r.before ? "Convinced." : "Unmoved.")) + "</span></div>";
+    }).join("") + '<p class="ps-muted ps-small">The decision comes later.</p>';
   }
   if (res.kind === "qa" && res.qa) {
     html += res.qa.map(function (q) {

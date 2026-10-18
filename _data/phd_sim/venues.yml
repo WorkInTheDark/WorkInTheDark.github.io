@@ -1,3 +1,5 @@
+# Thresholds were raised by 6 for top, mid and journal venues on 2026-10-18, alongside the lesson bonus
+# for rejected papers (config reviews.lesson_bonus): fewer long rejection streaks at the same pace.
 # Venues and their (approximate, game-only) yearly cycles. Offsets count turns after the deadline.
 # tier: top | mid | workshop | journal. Findings is an outcome of ARR, not a venue.
 # field: nlp | hci | ml. A paper only goes to venues of its own field (Arthur, 2026-10-16): empirical
@@ -10,7 +12,7 @@
   findings: true
   types: [empirical, dataset, position]
   weights: { N: 0.3, S: 0.45, C: 0.25 }
-  threshold: 78
+  threshold: 84
   cycles:
     - { deadline: 3,  name: NAACL, reviews_in: 5, rebuttal: true, decision_in: 8, conference_in: 13 }
     - { deadline: 12, name: ACL,   reviews_in: 5, rebuttal: true, decision_in: 8, conference_in: 11 }
@@ -22,7 +24,7 @@
   revise_resubmit: true
   types: [study, system, position]
   weights: { N: 0.4, S: 0.3, C: 0.3 }
-  threshold: 78
+  threshold: 84
   cycles:
     - { deadline: 1, name: CHI, reviews_in: 4, rebuttal: false, decision_in: 4, revision_due_in: 7, final_in: 9, conference_in: 16 }
 - id: uist
@@ -31,7 +33,7 @@
   tier: top
   types: [system, study]
   weights: { N: 0.4, S: 0.35, C: 0.25 }
-  threshold: 78
+  threshold: 84
   cycles:
     - { deadline: 16, name: UIST, reviews_in: 5, rebuttal: true, decision_in: 7, conference_in: 14 }
 - id: cscw
@@ -41,7 +43,7 @@
   revise_resubmit: true
   types: [study, system, position]
   weights: { N: 0.35, S: 0.35, C: 0.3 }
-  threshold: 78
+  threshold: 84
   cycles:
     - { deadline: 11, name: CSCW, reviews_in: 4, rebuttal: false, decision_in: 4, revision_due_in: 8, final_in: 11, conference_in: 20 }
     - { deadline: 24, name: CSCW, reviews_in: 4, rebuttal: false, decision_in: 4, revision_due_in: 8, final_in: 11, conference_in: 20 }
@@ -51,7 +53,7 @@
   tier: top
   types: [empirical, dataset]
   weights: { N: 0.4, S: 0.45, C: 0.15 }
-  threshold: 79
+  threshold: 85
   cycles:
     - { deadline: 19, name: NeurIPS, reviews_in: 6, rebuttal: true, decision_in: 9, conference_in: 15 }
 - id: iclr
@@ -60,7 +62,7 @@
   tier: top
   types: [empirical]
   weights: { N: 0.4, S: 0.45, C: 0.15 }
-  threshold: 79
+  threshold: 85
   cycles:
     - { deadline: 3, name: ICLR, reviews_in: 3, rebuttal: true, decision_in: 8, conference_in: 15 }
 - id: iui
@@ -69,7 +71,7 @@
   tier: mid
   types: [study, system]
   weights: { N: 0.35, S: 0.35, C: 0.3 }
-  threshold: 69
+  threshold: 75
   cycles:
     - { deadline: 3, name: IUI, reviews_in: 5, rebuttal: true, decision_in: 8, conference_in: 13 }
 - id: coling
@@ -78,7 +80,7 @@
   tier: mid
   types: [empirical, dataset, position]
   weights: { N: 0.3, S: 0.45, C: 0.25 }
-  threshold: 69
+  threshold: 75
   cycles:
     - { deadline: 7, name: COLING, reviews_in: 6, rebuttal: true, decision_in: 9, conference_in: 17 }
 - id: ws_nlp
@@ -111,7 +113,7 @@
   journal: true
   types: [empirical, dataset, position]
   weights: { N: 0.3, S: 0.45, C: 0.25 }
-  threshold: 73
+  threshold: 79
   cycles:
     - { deadline: 2,  name: TACL, reviews_in: 8, rebuttal: false, decision_in: 8, conference_in: 0 }
     - { deadline: 15, name: TACL, reviews_in: 8, rebuttal: false, decision_in: 8, conference_in: 0 }
@@ -122,7 +124,7 @@
   journal: true
   types: [study, system, position]
   weights: { N: 0.35, S: 0.35, C: 0.3 }
-  threshold: 73
+  threshold: 79
   cycles:
     - { deadline: 8,  name: TOCHI, reviews_in: 9, rebuttal: false, decision_in: 9, conference_in: 0 }
     - { deadline: 20, name: TOCHI, reviews_in: 9, rebuttal: false, decision_in: 9, conference_in: 0 }

@@ -78,6 +78,8 @@ progress:
   max_active_projects: 4
   revise_before_resubmit: true  # a rejected paper goes out again only once its revision is done (paces graduation to ~4.3 years)
   revise_chance: 0.6     # chance a turn of work finishes the revision
+  step_down_after: 2     # after this many rejections, a paper re-aims at the next mid-tier deadline (within half a year)
+  resubmit_min_turns: 4  # a rejected paper's next deadline is at least 8 weeks out (time to revise)
 
 quality:
   base: 22               # day quality = base + per_skill * skill
@@ -90,7 +92,7 @@ turn:
   traits: 3                # random traits per new PhD
 
 events:
-  per_turn: [0.25, 0.6, 0.15]   # chance of 0, 1 or 2 things happening in a turn (updates count toward it; was 15/60/25 until 2026-10-17)
+  per_turn: [0.4, 0.5, 0.1]     # chance of 0, 1 or 2 things happening in a turn (updates count toward it; Arthur 2026-10-18, was 25/60/15)
   rarity: { common: 10, uncommon: 4, rare: 1.2, legendary: 0.3 }
   novelty: { never: 2.5, last_run: 0.25, two_runs: 0.5, this_run: 0.25 }
   balance_window: 6
@@ -102,6 +104,7 @@ reviews:
   ac_sigma: 8
   findings_band: 7
   rr_band: 10
+  lesson_bonus: 8        # each rejection improves the paper: +4 to every part, +8 to its weakest (2026-10-18)
 
 citations:
   venue_base: { top: 55, journal: 40, mid: 32, findings: 25, workshop: 10 }

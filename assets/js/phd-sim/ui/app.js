@@ -159,6 +159,7 @@ export class App {
   }
 
   setPlan(p) {
+    if (!this.plan || !p || this.plan.turn !== p.turn) this.sidePick = null;
     this.plan = p;
   }
 
@@ -166,7 +167,8 @@ export class App {
   doAction(id) {
     if (!this.game || !this.plan || this.modal) return;
     if (Date.now() - (this.planShownAt || 0) < 400) return;
-    if (!this.game.submitPlan({ action: id })) return;
+    if (!this.game.submitPlan({ action: id, side: this.sidePick })) return;
+    this.sidePick = null;
     this.plan = null;
     this.advance();
   }
@@ -261,6 +263,7 @@ export class App {
       case "close-inspect": this.inspect = null; this.keepScroll = true; this.render(); break;
       case "start": this.startRun(); break;
       case "do": this.doAction(id); break;
+      case "side": this.sidePick = this.sidePick === id ? null : id; this.keepScroll = true; this.render(); break;
       case "shelve":
         if (window.confirm("Shelve this project? You can't bring it back.")) { this.game.shelveProject(id); this.inspect = null; this.persist(); this.setPlan(this.game.planPrompt()); this.keepScroll = true; this.render(); }
         break;

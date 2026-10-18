@@ -281,7 +281,12 @@ export function autoTarget(G, p, opts) {
   options.sort(function (a, b) { return a.turn - b.turn; });
   const soonest = options[0];
   if (!soonest) { p.target = null; return; }
-  const tierRank = { top: 0, mid: 1, workshop: 2, journal: 3 };
+  const tierRank = opts.preferLower ? { mid: 0, top: 1, workshop: 2, journal: 3 } : { top: 0, mid: 1, workshop: 2, journal: 3 };
+  // A paper that keeps getting rejected aims for the next mid-tier deadline within half a year.
+  if (opts.preferLower) {
+    const mid = options.filter(function (o) { return G.D.venueById[o.venueId].tier === "mid" && o.turn <= soonest.turn + 13; });
+    if (mid.length) { p.target = mid[0]; return; }
+  }
   const close = options.filter(function (o) { return o.turn <= soonest.turn + 3; });
   close.sort(function (a, b) {
     return tierRank[G.D.venueById[a.venueId].tier] - tierRank[G.D.venueById[b.venueId].tier] || a.turn - b.turn;

@@ -4,7 +4,7 @@
 import { esc, bar, plural, arrowsHtml, shownStat } from "./common.js";
 import {
   yearOf, turnDates, absTurn, WEEKS_PER_TURN, PROJECT_TYPES, STAGE_LABELS, FIELD_LABELS, fieldOf, stageInfo,
-  deadlineLabel, venuesFor, totalCitations, firstAuthorPubs
+  deadlineLabel, venuesFor, totalCitations, firstAuthorPubs, qualsPassChance, chanceWord
 } from "../engine/index.js";
 
 const KIND_ICON = { empirical: "\u{1F9EA}", study: "\u{1F5E3}️", system: "\u{1F6E0}️", dataset: "\u{1F5C2}️", position: "\u{1F9ED}" };
@@ -104,7 +104,18 @@ function planHtml(G, ui) {
   return '<div class="ps-plan ps-enter">' + recapHtml(G, ui.report) +
     '<div class="ps-scene-head"><h2 class="ps-scene-title">' + (ui.plan.internship ? "Internship weeks" : ui.plan.onLeave ? "On leave" : "Your next two weeks") + "</h2>" +
     (G.state.turn <= 1 ? '<span class="ps-scene-hint">Pick one. Keep ⚡ up, \u{1F623} down, ❤️ up.</span>' : "") + "</div>" +
-    '<div class="ps-tiles">' + opts.map(function (a, i) { return tileHtml(G, a, i + 1); }).join("") + "</div></div>";
+    '<div class="ps-tiles">' + opts.map(function (a, i) { return tileHtml(G, a, i + 1); }).join("") + "</div>" + sideHtml(ui) + "</div>";
+}
+
+// An optional evening or weekend pick that goes with whichever focus you choose.
+function sideHtml(ui) {
+  const side = (ui.plan && ui.plan.side) || [];
+  if (!side.length) return "";
+  return '<div class="ps-side"><span class="ps-side-label">This weekend, if you like:</span>' + side.map(function (o) {
+    const on = ui.sidePick === o.id;
+    return '<button class="ps-side-pick' + (on ? " ps-side-on" : "") + '" data-action="side" data-id="' + esc(o.id) + '" aria-pressed="' + on + '" title="' + esc(o.desc || "") + '">' +
+      (on ? "\u2713 " : "") + esc(o.label) + " " + arrowsHtml(o.arrows) + "</button>";
+  }).join("") + "</div>";
 }
 
 // ---- Scene: a project up close (open by clicking its tracker) ---------------------------------
@@ -206,7 +217,8 @@ function statusChips(G) {
   if (m.proposalAt && m.proposal === "pending") next.push(["Proposal", m.proposalAt]);
   if (m.defenseAt) next.push(["Defense", m.defenseAt]);
   next.filter(function (x) { return x[1] >= s.turn && x[1] - s.turn <= 8; }).forEach(function (x) {
-    chips.push('<span class="ps-chip ps-chip-soon"' + (prepTip[x[0]] ? ' title="' + esc(prepTip[x[0]]) + '"' : "") + ">\u{1F393} " + x[0] + " " + weeksShort(x[1] - s.turn) + "</span>");
+    const odds = x[0] === "Quals" ? " \u00b7 odds " + chanceWord(qualsPassChance(G, 0)) : "";
+    chips.push('<span class="ps-chip ps-chip-soon"' + (prepTip[x[0]] ? ' title="' + esc(prepTip[x[0]]) + '"' : "") + ">\u{1F393} " + x[0] + " " + weeksShort(x[1] - s.turn) + odds + "</span>");
   });
   return chips.join("");
 }

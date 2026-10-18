@@ -4,13 +4,13 @@
 import { clamp, asList } from "./util.js";
 import { yearOf, tOf, absTurn, STAT_LABELS, span, WEEKS_PER_TURN } from "./state.js";
 import { hasTrait, hasStatus, firstAuthorPubs, pendingFirstAuthor, acceptedPapers } from "./derived.js";
-import { applyOutcome, addStat, addStatus, removeStatus } from "./effects.js";
+import { applyOutcome, addStat, addStatus, removeStatus, spendDays } from "./effects.js";
 import { unlock } from "./achievements.js";
 import { fill } from "./templating.js";
 import { genCandidates, makeAdvisor, genLabmates, genCommittee } from "./people.js";
 import {
   PROJECT_TYPES, STAGE_LABELS, newProjectObject, activeProjects, autoTarget, components, weakestComp,
-  writingCompletion, isReady, deadlineLabel, venuesFor, nextDeadline, stageInfo
+  writingCompletion, isReady, deadlineLabel, venuesFor, nextDeadline, stageInfo, chanceWord
 } from "./projects.js";
 import { makePaper, generateReviews, rebuttalPrompt, resolveRebuttal, decide, metaLine, nextResubmitTarget } from "./reviews.js";
 import { setCiteMean, rollBreakout } from "./citations.js";
@@ -32,7 +32,7 @@ function notice(title, text, data) {
 
 function proj(G, id) { return G.state.projects.find(function (p) { return p.id === id; }); }
 function paper(G, id) { return G.state.papers.find(function (p) { return p.id === id; }); }
-function log(G, text, kind) { G.state.log.push({ turn: G.state.turn, kind: kind || "line", text: text }); }
+function log(G, text, kind) { G.state.log.push({ turn: G.state.turn, kind: kind || "line", text: text, phase: G.state.stage }); }
 
 // New work landing on your plate and bad news both raise Stress. Returns " Stress +N." for the log.
 export function stressHit(G, amount) {
@@ -157,8 +157,8 @@ function decisionPrompt(G, pp, outcome) {
       [{ label: good ? "Congratulate " + who : "Send " + who + " a sympathetic emoji" }], { paperId: pp.id, outcome: outcome, coauthor: true });
   }
   const line = metaLine(G, outcome === "findings" ? "findings" : outcome === "accept" ? "accept" : outcome === "reject" ? "reject" : "revise");
-  const scores = pp.reviews ? pp.reviews.map(function (r) { return r.score; }).join(", ") : "";
-  const head = "Scores: " + scores + ". " + (line ? "Meta-review: “" + line + "”" : "");
+  const scores = pp.reviews ? pp.reviews.map(function (r) { return r.score; }).join(" · ") : "";
+  const head = (scores ? "Scores " + scores + "." : "") + (line ? " “" + line + "”" : "");
   if (outcome === "accept") {
     return sys("decision", "Accepted at " + pp.venueName + "!", "“" + pp.title + "” is in. " + head,
       [{ label: "Celebrate", arrows: [{ stat: "sanity", dir: "up", strength: 2 }] }], { paperId: pp.id, outcome: outcome });
@@ -178,7 +178,7 @@ function decisionPrompt(G, pp, outcome) {
   const next = pr && pr.target && pr.target.turn !== null && pr.target.turn !== undefined ?
     "Next: " + deadlineLabel(G, pr) + " in " + Math.max(1, pr.target.turn - G.state.turn) * WEEKS_PER_TURN + " weeks" : "Address the reviews and try again";
   return sys("decision", (pp.deskReject ? "Desk rejected: " : "Rejected: ") + pp.short,
-    (pp.deskReject ? "It never reached reviewers. " : head + " ") + "You can revise it and submit again, as many times as it takes.",
+    pp.deskReject ? "It never reached reviewers." : head,
     [{ label: "Revise and resubmit", desc: next + "." },
       { label: "Send it to a workshop", desc: "Lower bar, smaller audience." },
       { label: "Shelve it", desc: "Some papers aren't meant to be." }],
@@ -233,7 +233,7 @@ function conferencePrompt(G, pp) {
       [{ label: "Present remotely" }], data);
   }
   if (fund >= 3) {
-    choices.push({ label: "Go in person", desc: "Your advisor covers the trip. Costs 4 days.", arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
+    choices.push({ label: "Go in person", desc: "Your advisor covers the trip. Costs 4 days next turn.", arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
     data.options.push("go");
   } else {
     choices.push({ label: "Apply for a student travel grant", desc: "About a coin flip." });
@@ -250,7 +250,7 @@ function conferencePrompt(G, pp) {
 function attend(G, pp, city, extraDays) {
   const s = G.state;
   addStatus(G, "at_conference", 1);
-  s.dayAdj -= (G.D.config.fixed_days.conference || 4) + (extraDays || 0);
+  spendDays(G, (G.D.config.fixed_days.conference || 4) + (extraDays || 0));
   s.telemetry.conferences++;
   let net = G.rng.triangular(8, 3);
   if (hasTrait(G, "polyglot") || hasTrait(G, "international")) net += 3;
@@ -331,6 +331,31 @@ export function qaPrompt(G, stage) {
   };
 }
 
+// Readiness counts toward quals up to this much (about two turns of preparing).
+const QUALS_PREP_CAP = 15;
+
+// Chance to pass quals (half of four answers landing) with `extra` more readiness. Uses the same
+// odds as answerQa, with the average of the skills quals questions test.
+export function qualsPassChance(G, extra) {
+  const s = G.state;
+  const qo = G.D.config.quals_odds;
+  if (!qo) return 0.5;
+  const prep = Math.min(QUALS_PREP_CAP, (s.readiness || 0) + (extra || 0)) + (hasTrait(G, "anxious") ? 5 : 0) +
+    (s.advisor && s.advisor.archetype === "kind_funded" ? 8 : 0);
+  const skill = (s.stats.knowledge + s.stats.taste + s.stats.presenting) / 3;
+  const p = clamp(qo.base + qo.per_prep * prep + (skill - 40) / 200 + (s.milestones.quals === "failed_once" ? qo.retake || 0 : 0), 0.05, 0.95);
+  const q = 1 - p;
+  return 1 - Math.pow(q, 4) - 4 * p * Math.pow(q, 3);
+}
+
+// About how much readiness one turn of "Prepare for quals" adds right now.
+export function qualsPrepGain(G) {
+  const cfg = G.D.config;
+  const free = G.fixedDays ? G.fixedDays().free : 6;
+  const eff = clamp(cfg.energy.efficiency_floor + cfg.energy.efficiency_slope * G.state.stats.energy, cfg.energy.efficiency_floor, 1);
+  return free * (cfg.quals_prep_per_day || 1.5) * Math.max(0.5, eff);
+}
+
 export function answerQa(G, resp) {
   const s = G.state;
   const pend = s.qaPending;
@@ -340,7 +365,7 @@ export function answerQa(G, resp) {
   const qs = pend.picks.map(function (id) { return (G.D.qa.questions || []).find(function (q) { return q.id === id; }); });
   let wins = 0;
   const lines = [];
-  const prep = Math.min(15, s.readiness || 0) + (hasTrait(G, "anxious") ? 5 : 0) +
+  const prep = Math.min(QUALS_PREP_CAP, s.readiness || 0) + (hasTrait(G, "anxious") ? 5 : 0) +
     (s.advisor && s.advisor.archetype === "kind_funded" ? 8 : 0);
   qs.forEach(function (q, i) {
     if (!q) return;
@@ -429,29 +454,37 @@ function graduate(G) {
 // ---- Prompts built on demand for queued sys items --------------------------
 
 // Two or three small things for an evening or a weekend, picked with an eye on your bars.
-function sidePrompt(G) {
+// Two small things for this turn's evenings or weekend, offered on the plan screen (optional, and
+// they don't use the turn's focus). More often the ones that help a bar that's in trouble.
+export function rollSide(G) {
   const s = G.state;
   const trouble = { health: s.stats.health < 50, stress: s.stats.sanity < 45, energy: s.stats.energy < 35 };
   let pool = (G.D.side || []).filter(function (o) { return check(o.when, G, {}); });
-  const picks = [];
-  for (let i = 0; i < 3 && pool.length; i++) {
+  const out = [];
+  for (let i = 0; i < 2 && pool.length; i++) {
     const o = G.rng.weighted(pool, function (x) { return (x.weight || 1) * (trouble[x.helps] ? 3 : 1); });
-    picks.push(o);
+    const ctx = {};
+    out.push({ id: o.id, label: fill(o.label, G, ctx), desc: fill(o.desc || "", G, ctx), arrows: arrowsFor(o), ctx: ctx });
     pool = pool.filter(function (x) { return x.label !== o.label; });
   }
-  if (!picks.length) return null;
-  const ctxs = picks.map(function () { return {}; });
-  const choices = picks.map(function (o, i) { return { label: fill(o.label, G, ctxs[i]), desc: fill(o.desc || "", G, ctxs[i]), arrows: arrowsFor(o) }; });
-  choices.push({ label: "Not this time" });
-  return sys("side", "On the side", "Something you could do with an evening or a weekend:", choices, { ids: picks.map(function (o) { return o.id; }), ctxs: ctxs });
+  return out;
+}
+
+// The chosen side activity plays out with the turn's focus; its line shows on the result card.
+export function applySide(G, pick) {
+  const s = G.state;
+  const def = G.D.sideById[pick.id];
+  if (!def) return;
+  s.telemetry.side_activities = (s.telemetry.side_activities || 0) + 1;
+  if (def.helps === "health") { s.telemetry.exercise_days++; s.exercisedThisTurn = true; }
+  const res = applyOutcome(G, def, pick.ctx || {});
+  log(G, (res && res.text) || pick.label + ".", "news");
 }
 
 export function buildSys(G, item) {
   const s = G.state;
   const d = item.data || {};
   switch (item.sys) {
-    case "side":
-      return sidePrompt(G);
     case "welcome":
       return notice("Welcome to your PhD, " + s.player.name,
         "It's September. You have five years, give or take, to become an expert in something nobody fully understands yet. Each turn is two weeks: choose what to focus on, keep an eye on Energy, Stress and Health, and remember: everyone else is also figuring it out.");
@@ -520,7 +553,7 @@ export function buildSys(G, item) {
     case "fellowship_apply":
       return sys("fellowship_apply", "Fellowship applications",
         "A fellowship would pay your way for a year, with no TA duty. The research statement takes a couple of days.",
-        [{ label: "Apply", desc: "Costs 2 days this turn.", arrows: [] }, { label: "Skip it" }]);
+        [{ label: "Apply", desc: "Costs 2 days next turn.", arrows: [] }, { label: "Skip it" }]);
     case "job_market_start":
       return sys("job_market_start", "The job market",
         "You're close enough to the finish line that people ask what's next. Going on the market takes time, but offers don't arrive on their own.",
@@ -540,6 +573,10 @@ export function buildSys(G, item) {
       return sys(item.sys, item.sys === "final_offers" ? "What's next, Doctor?" : "Offers",
         item.sys === "final_offers" ? "The degree is done. A few doors are open." : "After months of applications and interviews, here's what came back.",
         choices, {});
+    }
+    case "focus_result": {
+      const fr = s.focusReport || { title: "Your two weeks", lines: [], deltas: [] };
+      return sys("focus_result", fr.title, fr.lines.join(" ") || "Two quiet weeks.", [{ label: "Continue" }], { visible: fr.deltas });
     }
     case "leave":
       return leavePrompt(G);
@@ -578,13 +615,7 @@ export function handleSys(G, prompt, choice) {
   switch (prompt.sys) {
     case "notice": return null;
     case "qa_result": return null;
-    case "side": {
-      const def = G.D.sideById[d.ids && d.ids[choice]];
-      if (!def) return null;
-      s.telemetry.side_activities = (s.telemetry.side_activities || 0) + 1;
-      if (def.helps === "health") { s.telemetry.exercise_days++; s.exercisedThisTurn = true; }
-      return applyOutcome(G, def, (d.ctxs && d.ctxs[choice]) || {});
-    }
+    case "focus_result": return null;
     case "first_project":
       if (choice === 0) {
         const t = G.rng.pick(s.world.topics);
@@ -724,10 +755,10 @@ export function handleSys(G, prompt, choice) {
       return empty("You stay in the lab for the summer.");
     case "fellowship_apply":
       if (choice === 0) {
-        s.dayAdj -= 2;
+        spendDays(G, 2);
         s.fellowship = { year: yearOf(s.turn), applied: true };
         s.flags.fellowship_applied = true;
-        return { text: "Research statement submitted. Results come in the spring.", visible: [{ stat: "days", amount: -2 }], hidden: [], notes: [] };
+        return { text: "Research statement submitted. Results come in the spring.", visible: [{ stat: "days_next", amount: -2 }], hidden: [], notes: [] };
       }
       return empty("Not this year.");
     case "job_market_start": {
@@ -877,10 +908,14 @@ export function planExtras(G) {
       arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
   }
   if (hasStatus(G, "quals_prep") && m.quals !== "passed") {
-    const r = s.readiness || 0;
+    // Show the pass odds now and after one more turn of preparing, so you can tell when it's enough.
+    const now = qualsPassChance(G, 0);
+    const after = qualsPassChance(G, qualsPrepGain(G));
+    const full = (s.readiness || 0) >= QUALS_PREP_CAP;
     out.push({ id: "quals_prep", kind: "milestone", label: "Prepare for quals",
-      desc: r < 4 ? "Not ready yet" : r < 9 ? "Getting there" : r < 14 ? "Almost ready" : "As ready as you'll be",
-      arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "quals", dir: "up", strength: 2 }] });
+      desc: full ? "Fully prepared \u00b7 pass odds " + chanceWord(now) :
+        "Pass odds " + chanceWord(now) + (chanceWord(after) !== chanceWord(now) ? " \u2192 " + chanceWord(after) : " \u2192 a bit better"),
+      arrows: full ? [{ stat: "energy", dir: "down", strength: 1 }] : [{ stat: "energy", dir: "down", strength: 1 }, { stat: "quals", dir: "up", strength: 2 }] });
   }
   if (m.proposal === "pending" && m.quals === "passed" && !m.proposalAt && t !== 9 &&
     y >= (cfg.proposal_min_year || 3) && firstAuthorPubs(G) >= (cfg.proposal_min_pubs || 2)) {
@@ -1020,7 +1055,15 @@ export function queuePapers(G) {
 function queueRejection(G, pp, items) {
   rejectPaper(G, pp);
   const p = proj(G, pp.projectId);
-  if (p) { p.status = "active"; p.revise = true; p.ready = false; nextResubmitTarget(G, p, false); }
+  if (p) {
+    // The reviews tell you what to fix: the revision starts from a better paper.
+    const lesson = (G.D.config.reviews || {}).lesson_bonus || 0;
+    if (lesson) {
+      ["N", "S", "C"].forEach(function (k) { p.bonus[k] += lesson / 2; });
+      p.bonus[weakestComp(components(G, p))] += lesson / 2;
+    }
+    p.status = "active"; p.revise = true; p.ready = false; nextResubmitTarget(G, p, false);
+  }
   log(G, (pp.deskReject ? "Desk rejected at " : "Rejected at ") + pp.venueName + ": \u201c" + pp.short + "\u201d.", "news");
   items.push({ kind: "sys", sys: "decision", data: { paperId: pp.id, outcome: "reject" } });
 }

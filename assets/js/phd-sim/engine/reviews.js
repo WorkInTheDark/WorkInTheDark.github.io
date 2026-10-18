@@ -5,6 +5,7 @@ import { components, qualityFor, autoTarget, nextDeadline } from "./projects.js"
 import { hasTrait } from "./derived.js";
 import { span } from "./state.js";
 import { unlock } from "./achievements.js";
+import { spendDays } from "./effects.js";
 
 // One response per reviewer, covering all of their concerns. Clarify is the default.
 export const RESPONSES = [
@@ -227,7 +228,7 @@ export function resolveRebuttal(G, paper, answer) {
     r.score = scoreOf(r.raw);
     out.push({ n: i + 1, before: before, after: r.score, lines: lines });
   });
-  if (days) s.dayAdj -= days;
+  if (days) spendDays(G, days);
   paper.rebutted = true;
   s.telemetry.rebuttals++;
   return { reviews: out, days: days };
@@ -265,6 +266,11 @@ export function metaLine(G, kind) {
   return pool.length ? fill(G.rng.pick(pool), G, {}) : "";
 }
 
+// After a rejection, aim for the next deadline. A paper rejected several times aims lower by default
+// (config progress.step_down_after); the player can still pick any venue in the project close-up.
 export function nextResubmitTarget(G, p, workshopOnly) {
-  autoTarget(G, p, { minLead: 2, onlyWorkshops: !!workshopOnly });
+  const after = (G.D.config.progress || {}).step_down_after || 0;
+  const rejections = G.state.papers.filter(function (x) { return x.projectId === p.id && x.firstAuthor && x.status === "rejected"; }).length;
+  const lead = (G.D.config.progress || {}).resubmit_min_turns || 2;
+  autoTarget(G, p, { minLead: lead, onlyWorkshops: !!workshopOnly, preferLower: after > 0 && rejections >= after });
 }

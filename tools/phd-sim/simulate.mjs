@@ -133,9 +133,12 @@ for (let r = 0; r < RUNS; r++) {
         perTurn.turns++; perTurn.offered += opps; if (opps) perTurn.withOpp++;
         const kind = (p.actions.find((a) => a.id === choice) || {}).kind || "?";
         if (policy === "balanced") perTurn.kinds[kind] = (perTurn.kinds[kind] || 0) + 1;
-        game.submitPlan({ action: choice });
+        // Bots take the weekend pick when one is offered (it used to be a pop-up they always answered).
+        game.submitPlan({ action: choice, side: p.side && p.side.length ? p.side[0].id : null });
         continue;
       }
+      // The focus result card isn't something that "happens"; don't count it as a pop-up.
+      if (p.type === "sys" && p.sys === "focus_result") { game.answer({ choice: 0 }); continue; }
       prompts++;
       const pk = p.type === "event" ? "event:" + (D.eventById[p.id] && D.eventById[p.id].trigger === "scheduled" ? "scheduled" : "random/hook") : p.type;
       promptTypes[pk] = (promptTypes[pk] || 0) + 1;
