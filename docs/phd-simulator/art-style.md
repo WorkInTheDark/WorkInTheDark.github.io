@@ -1,6 +1,6 @@
 # PhD Simulator: event art style
 
-*These flat SVGs are the fallback art. Since 2026-10-17 they are being replaced by AI-generated pictures; see `art-prompts.md` and `tools/phd-sim/import-art.py`.*
+*Retired 2026-10-18: every slot now uses Arthur's AI-generated pictures (`art-prompts.md`, imported with `tools/phd-sim/import-art.py`). The flat SVGs this guide describes are in git history.*
 
 Every random event shows a small picture for its category: 2–3 pictures per category, and the game picks one per event by hashing the event id, so the same event always shows the same picture. Files live in `assets/phd-sim/art/<category>-<n>.svg` (n starts at 1). The reference is `research-1.svg`; match its look.
 
