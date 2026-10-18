@@ -106,8 +106,8 @@ function firstProjectPrompt(G) {
   return sys("first_project", "Welcome to the lab",
     "Your advisor is Prof. " + adv.surname + " (" + adv.label + "): \u201c" + adv.tagline + "\u201d " +
     (senior ? senior.name : "A senior student") + " is graduating and leaves a half-finished project. Take it over, or start your own?",
-    [{ label: "Take over the half-finished project", desc: "A head start, but someone else's design choices." },
-      { label: "Start your own project", desc: "Your idea, from scratch." }],
+    [{ label: "Take over the half-finished project" },
+      { label: "Start your own project" }],
     { senior: senior ? senior.name : null });
 }
 
@@ -123,9 +123,9 @@ function submitPrompt(G, p) {
   else if (isReady(G, p)) state = "“" + p.title + "” is a rough draft. It can go in as it is; a more finished draft reads better.";
   else state = "“" + p.title + "” is barely drafted. Unless the next two weeks go very well, it won't be ready in time.";
   return sys("submit", name + " deadline: this turn", state,
-    [{ label: "Submit and post a preprint", desc: "Citations start early. Everyone will see it." },
-      { label: "Submit without a preprint", desc: "Quiet until the decision." },
-      { label: "Skip this deadline", desc: "Aim for the next one." }],
+    [{ label: "Submit and post a preprint", arrows: [{ stat: "citations", dir: "up", strength: 1 }] },
+      { label: "Submit without a preprint" },
+      { label: "Skip this deadline" }],
     { projectId: p.id, venue: v ? v.id : null });
 }
 
@@ -134,8 +134,8 @@ function questionPrompt(G, p) {
   const weak = weakestComp(comps);
   return sys("the_question", "The Question",
     "Two weeks before the deadline, " + (G.state.advisor ? "Prof. " + G.state.advisor.surname : "your advisor") + " reads “" + p.short + "” and asks one question: “" + COMP_WORDS[weak].question + "”",
-    [{ label: "Fix it this turn", desc: "Work on the paper this turn and the fix goes in." },
-      { label: "Note it and keep going", desc: "There's only so much time." }],
+    [{ label: "Fix it this turn" },
+      { label: "Note it and keep going" }],
     { projectId: p.id, comp: weak });
 }
 
@@ -165,13 +165,13 @@ function decisionPrompt(G, pp, outcome) {
   }
   if (outcome === "findings") {
     return sys("decision", "Accepted to Findings", "“" + pp.title + "” didn't make the main conference, but Findings will take it. " + head,
-      [{ label: "Take Findings", desc: "A publication now." }, { label: "Withdraw and aim higher", desc: "Revise and resubmit to the main track." }],
+      [{ label: "Take Findings" }, { label: "Withdraw and aim higher" }],
       { paperId: pp.id, outcome: outcome });
   }
   if (outcome === "revise" || outcome === "major_revision") {
     return sys("decision", pp.journal ? "Major revision" : "Revise and resubmit", "The reviewers want changes to “" + pp.title + "”. " + head,
-      [{ label: "Start the revision", desc: pp.journal ? "Revise, then send it back." : "The revision is due in a few weeks." },
-        { label: "Withdraw it", desc: "Try another venue instead." }],
+      [{ label: "Start the revision" },
+        { label: "Withdraw it" }],
       { paperId: pp.id, outcome: outcome });
   }
   const pr = proj(G, pp.projectId);
@@ -180,8 +180,8 @@ function decisionPrompt(G, pp, outcome) {
   return sys("decision", (pp.deskReject ? "Desk rejected: " : "Rejected: ") + pp.short,
     pp.deskReject ? "It never reached reviewers." : head,
     [{ label: "Revise and resubmit", desc: next + "." },
-      { label: "Send it to a workshop", desc: "Lower bar, smaller audience." },
-      { label: "Shelve it", desc: "Some papers aren't meant to be." }],
+      { label: "Send it to a workshop" },
+      { label: "Shelve it" }],
     { paperId: pp.id, outcome: "reject" });
 }
 
@@ -233,15 +233,15 @@ function conferencePrompt(G, pp) {
       [{ label: "Present remotely" }], data);
   }
   if (fund >= 3) {
-    choices.push({ label: "Go in person", desc: "Your advisor covers the trip. Costs 4 days next turn.", arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
+    choices.push({ label: "Go in person", desc: "4 days next turn", arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
     data.options.push("go");
   } else {
-    choices.push({ label: "Apply for a student travel grant", desc: "About a coin flip." });
+    choices.push({ label: "Apply for a student travel grant", desc: "A coin flip" });
     data.options.push("grant");
-    choices.push({ label: "Volunteer for free registration", desc: "You go, but it costs 2 extra days." });
+    choices.push({ label: "Volunteer for free registration", desc: "2 extra days" });
     data.options.push("volunteer");
   }
-  choices.push({ label: "Present remotely", desc: "Cheaper and calmer. Fewer people meet you." });
+  choices.push({ label: "Present remotely" });
   data.options.push("remote");
   return sys("conference", pp.venueName + " in " + city,
     "“" + pp.short + "” gets presented this turn. " + (fund >= 3 ? "Your advisor will pay for the trip." : "Your lab has no travel money."), choices, data);
@@ -464,11 +464,14 @@ export function rollSide(G) {
   for (let i = 0; i < 2 && pool.length; i++) {
     const o = G.rng.weighted(pool, function (x) { return (x.weight || 1) * (trouble[x.helps] ? 3 : 1); });
     const ctx = {};
-    out.push({ id: o.id, label: fill(o.label, G, ctx), desc: fill(o.desc || "", G, ctx), arrows: arrowsFor(o), ctx: ctx });
+    const arrows = arrowsFor(o).concat(o.effects && o.effects["project.progress"] ? [{ stat: "progress", dir: "up", strength: 1 }] : []);
+    out.push({ id: o.id, label: fill(o.label, G, ctx), desc: fill(o.desc || "", G, ctx), arrows: arrows, ctx: ctx });
     pool = pool.filter(function (x) { return x.label !== o.label; });
   }
   return out;
 }
+
+function currentStageKind(G, p) { return (PROJECT_TYPES[p.type].stages[p.stageIdx] || {}).kind; }
 
 // The chosen side activity plays out with the turn's focus; its line shows on the result card.
 export function applySide(G, pick) {
@@ -477,7 +480,15 @@ export function applySide(G, pick) {
   if (!def) return;
   s.telemetry.side_activities = (s.telemetry.side_activities || 0) + 1;
   if (def.helps === "health") { s.telemetry.exercise_days++; s.exercisedThisTurn = true; }
-  const res = applyOutcome(G, def, pick.ctx || {});
+  // Ideas from a talk or a reading group go to the project you're working on (or your busiest one).
+  const ctx = Object.assign({}, pick.ctx || {});
+  if (!ctx.projectId) {
+    const m = /^(?:p|crunch):(.+)$/.exec((s.plan && s.plan.action) || "");
+    const focus = m && activeProjects(G).find(function (p) { return p.id === m[1]; });
+    const any = activeProjects(G).filter(function (p) { return currentStageKind(G, p) !== "wait" && !p.ready; })[0];
+    if (focus || any) ctx.projectId = (focus || any).id;
+  }
+  const res = applyOutcome(G, def, ctx);
   log(G, (res && res.text) || pick.label + ".", "news");
 }
 
@@ -533,32 +544,32 @@ export function buildSys(G, item) {
     case "proposal_offer":
       return sys("proposal_offer", "Ready to propose?",
         "Your committee is formed and you have " + firstAuthorPubs(G) + " first-author papers. The thesis proposal turns you from a student into a candidate. You'd present in " + span(G.D.config.proposal_prep_turns || 4) * WEEKS_PER_TURN + " weeks.",
-        [{ label: "Schedule the proposal", desc: "Project days until then count as preparation." }, { label: "Not yet" }]);
+        [{ label: "Schedule the proposal" }, { label: "Not yet" }]);
     case "defense_offer": {
       const acc = firstAuthorPubs(G);
       const early = acc < (G.D.config.graduation_pubs || 3);
       return sys("defense_offer", "Ready to defend?",
         early ? "You have " + acc + " first-author papers accepted and one under review. You could start defense preparation now and hope the third one lands. Prep takes about three months."
           : "You have " + acc + " first-author papers accepted. Defense preparation takes about three months of thesis writing and slides.",
-        [{ label: "Start defense prep", desc: "Part of every turn goes to the thesis and slides." }, { label: "Not yet" }]);
+        [{ label: "Start defense prep" }, { label: "Not yet" }]);
     }
     case "internship_apply":
       return sys("internship_apply", "Summer internships",
         "Recruiting season is open. An internship means 12 weeks of industry research, real compute, and a lot of new people.",
-        [{ label: "Apply broadly", desc: "Better odds. Career-prep days help." }, { label: "Apply to a couple of places" }, { label: "Skip this year" }]);
+        [{ label: "Apply broadly" }, { label: "Apply to a couple of places" }, { label: "Skip this year" }]);
     case "internship_offer":
       return sys("internship_offer", "Internship offer from " + d.company,
         d.company + " offers you a summer internship: 12 weeks, starting late May.",
-        [{ label: "Accept", desc: "Summer weekdays go to the internship; evenings and weekends are still yours." }, { label: "Decline and stay in the lab" }], d);
+        [{ label: "Accept" }, { label: "Decline and stay in the lab" }], d);
     case "fellowship_apply":
       return sys("fellowship_apply", "Fellowship applications",
         "A fellowship would pay your way for a year, with no TA duty. The research statement takes a couple of days.",
-        [{ label: "Apply", desc: "Costs 2 days next turn.", arrows: [] }, { label: "Skip it" }]);
+        [{ label: "Apply", desc: "2 days next turn", arrows: [] }, { label: "Skip it" }]);
     case "job_market_start":
       return sys("job_market_start", "The job market",
         "You're close enough to the finish line that people ask what's next. Going on the market takes time, but offers don't arrive on their own.",
-        [{ label: "Apply everywhere", desc: "Academia and industry." }, { label: "Industry only" }, { label: "Academia only" },
-          { label: "Something different", desc: "Startups, policy, writing, clinics." }, { label: "Not this year" }]);
+        [{ label: "Apply everywhere" }, { label: "Industry only" }, { label: "Academia only" },
+          { label: "Something different", desc: "Startups, policy, writing, clinics" }, { label: "Not this year" }]);
     case "offers":
     case "final_offers": {
       if (item.sys === "final_offers" && s.acceptedOffer) {
@@ -569,7 +580,7 @@ export function buildSys(G, item) {
       const offers = computeOffers(G, tracks);
       s.offers = offers;
       const choices = offers.map(function (o) { return { label: "Accept: " + o.name, desc: o.desc }; });
-      if (item.sys === "offers") choices.push({ label: "Decline them all for now", desc: "Try again next year." });
+      if (item.sys === "offers") choices.push({ label: "Decline them all for now" });
       return sys(item.sys, item.sys === "final_offers" ? "What's next, Doctor?" : "Offers",
         item.sys === "final_offers" ? "The degree is done. A few doors are open." : "After months of applications and interviews, here's what came back.",
         choices, {});
@@ -584,7 +595,7 @@ export function buildSys(G, item) {
       if (activeProjects(G).some(function (p) { return p.firstAuthor !== false; })) return null;
       return sys("idle_nudge", "What's next?",
         "In your one-on-one, your advisor asks what you're working on next. Right now, the honest answer is \u201cnothing in particular\u201d.",
-        [{ label: "Start a new project", desc: "Pick a kind of project and a topic." }, { label: "Keep reading for now", desc: "Ideas from reading give a new project a head start." }]);
+        [{ label: "Start a new project" }, { label: "Keep reading for now" }]);
     case "notice":
       return notice(d.title, d.text);
     default:
@@ -596,10 +607,10 @@ export function leavePrompt(G) {
   const s = G.state;
   const choices = [];
   const ids = [];
-  if (yearOf(s.turn) >= 2) { choices.push({ label: "Leave with a Master's", desc: "A real degree and a fresh start." }); ids.push("masters_out"); }
-  if (s.flags.bubble_tea_dream) { choices.push({ label: "Open the bubble tea shop", desc: "You've been thinking about it." }); ids.push("bubble_tea"); }
-  if (s.flags.med_school_curious) { choices.push({ label: "Apply to med school", desc: "The clinicians were right about you." }); ids.push("switched_fields"); }
-  if (s.flags.family_business) { choices.push({ label: "Join the family business", desc: "They've been asking." }); ids.push("family_business"); }
+  if (yearOf(s.turn) >= 2) { choices.push({ label: "Leave with a Master's" }); ids.push("masters_out"); }
+  if (s.flags.bubble_tea_dream) { choices.push({ label: "Open the bubble tea shop" }); ids.push("bubble_tea"); }
+  if (s.flags.med_school_curious) { choices.push({ label: "Apply to med school" }); ids.push("switched_fields"); }
+  if (s.flags.family_business) { choices.push({ label: "Join the family business" }); ids.push("family_business"); }
   choices.push({ label: "Never mind, keep going" });
   ids.push(null);
   return sys("leave", "Leave the PhD?", "Leaving isn't losing. Plenty of good lives start here. Where would you go?", choices, { ids: ids });
@@ -842,7 +853,8 @@ export function queueMilestones(G) {
     if (G.rng.chance(p)) {
       s.flags.fellowship_won = true;
       s.fellowshipYear = y + 1;
-      log(G, "You won the fellowship! Next academic year is yours: no TA duty, and a line on your CV that people notice.", "good");
+      unlock(G, "fellow");
+      items.push({ kind: "sys", sys: "notice", data: { title: "You won the fellowship!", text: "Next academic year is yours: no TA duty, and a line on your CV that people notice." } });
     } else {
       log(G, "Fellowship results: not this time. The feedback is polite and mostly about \u201cbroader impacts\u201d.", "news");
     }

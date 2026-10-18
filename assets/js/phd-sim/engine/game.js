@@ -24,8 +24,9 @@ import {
 } from "./milestones.js";
 
 const WORK_DAYS = ["read", "network", "help", "mentor", "career", "project", "writing_day"];
-// Prompts that come before the turn's focus (you need an advisor before you can plan).
-const PRE_SYS = ["first_project"];
+// Prompts that come before the turn's focus: your first project, and decisions on your papers
+// (a rejection changes what you'd plan, so you hear about it first).
+const PRE_SYS = ["first_project", "decision"];
 // System prompts that count as one of the turn's "things that happen".
 const PROMPT_SYS = ["submit", "rebuttal", "qa", "qa_result", "offers", "final_offers", "internship_offer", "the_question", "decision", "conference", "fellowship_apply", "internship_apply", "job_market_start"];
 const ACTION_EXTRAS = ["apply_internship", "apply_fellowship", "proposal", "defense", "job_market", "quals_prep"];
@@ -154,7 +155,10 @@ export class Game {
       res = answerQa(this, resp);
       if (res) res.kind = "qa";
     }
-    if (res && res.tip && this.D.phd101[res.tip]) res.tipLink = this.D.phd101[res.tip];
+    if (res && res.tip && this.D.phd101[res.tip]) {
+      res.tipLink = this.D.phd101[res.tip];
+      this.shelveTip(res.tipLink, p.title || "");
+    }
     this.save();
     return res;
   }
@@ -252,13 +256,9 @@ export class Game {
       out.push({ id: "recharge", kind: "core", label: "Take a few days off", desc: "",
         arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
     } else if (!onLeave) {
-      // Roughly how much this turn's free days would count, for "how likely is this stage to finish".
-      const cfgE = this.D.config.energy;
-      const effNow = clamp(cfgE.efficiency_floor + cfgE.efficiency_slope * s.stats.energy, cfgE.efficiency_floor, 1);
       activeProjects(this).forEach(function (p) {
         const st = currentStage(self, p);
         const info = stageInfo(self, p);
-        const odds = chanceWord(turnChance(self, p, fx.free * effNow * 0.9 * (st.id === "lit" ? self.D.config.progress.work_lit : 1)));
         const ttd = p.target && p.target.turn !== null && p.target.turn !== undefined ? p.target.turn - s.turn : null;
         // A project that's waiting (IRB, recruiting, annotation) or on hold has nothing to work on this turn.
         if (st.kind === "wait" || p.pause > 0) return;
@@ -267,7 +267,7 @@ export class Game {
         // A finished paper just waits for its deadline card; there's nothing left to do on it.
         if (info.ready) return;
         out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",
-          desc: info.label + " \u00b7 " + odds + dl + (st.id === "lit" ? " \u00b7 reading is faster" : ""),
+          desc: info.label + dl + (st.id === "lit" ? " \u00b7 reading is faster" : ""),
           arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: st.id === "lit" ? 1 : 2 }] });
         if (ttd === 1 && !fx.burnout) {
           out.push({ id: "crunch:" + p.id, kind: "deadline", label: "Crunch on “" + p.short + "”, weekends included",
@@ -655,10 +655,14 @@ export class Game {
     const action = (s.plan && s.plan.action) || "";
     const m = /^(?:p|crunch|intern_weekend):(.+)$/.exec(action);
     const p = m && s.projects.find(function (x) { return x.id === m[1]; });
-    if (p && p.status === "active" && before.projects[p.id] && after.projects[p.id] &&
-        before.projects[p.id].stage === after.projects[p.id].stage && !after.projects[p.id].ready) {
-      const info = stageInfo(this, p);
-      lines.unshift(p.short + ": " + info.label + " isn't done yet. Next turn: " + chanceWord(turnChance(this, p, (this.D.config.progress || {}).full_turn || 6.5)) + ".");
+    if (p) {
+      // The card's title already names the project.
+      const prefix = p.short + ": ";
+      for (let i = 0; i < lines.length; i++) if (lines[i].indexOf(prefix) === 0) lines[i] = lines[i].slice(prefix.length).replace(/^./, function (c) { return c.toUpperCase(); });
+      if (p.status === "active" && before.projects[p.id] && after.projects[p.id] &&
+          before.projects[p.id].stage === after.projects[p.id].stage && !after.projects[p.id].ready) {
+        lines.unshift(stageInfo(this, p).label + " isn't done yet.");
+      }
     }
     const deltas = [];
     ["energy", "sanity", "health"].forEach(function (k) {
@@ -910,5 +914,13 @@ export class Game {
     const ep = this.D.phd101[tip.topic];
     const senior = s.labmates.filter(function (l) { return l.present !== false; }).sort(function (a, b) { return b.year - a.year; })[0];
     this.log((senior ? senior.name : "A senior student") + ": “" + tip.text + "”", "tip", { title: ep.title, url: ep.url, topic: tip.topic });
+    this.shelveTip(ep, (senior ? senior.name : "A senior student") + ": “" + tip.text + "”");
+  }
+
+  // Recent PhD 101 pointers (from senior labmates and from events), shown above the project trays.
+  shelveTip(ep, note) {
+    const s = this.state;
+    s.tipShelf = [{ title: ep.title, url: ep.url, note: note || "", turn: s.turn }]
+      .concat((s.tipShelf || []).filter(function (t) { return t.url !== ep.url; })).slice(0, 3);
   }
 }

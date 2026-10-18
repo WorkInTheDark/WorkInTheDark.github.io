@@ -1,6 +1,6 @@
 // Scene cards: events, system cards (decisions, deadlines, side activities, committee meetings),
 // the rebuttal, and the result view shown after every decision.
-import { esc, arrowsHtml, deltasHtml } from "./common.js";
+import { esc, rich, arrowsHtml, deltasHtml } from "./common.js";
 import { ART_FILES } from "./art-manifest.js";
 
 const CATEGORY = {
@@ -25,14 +25,14 @@ function artHtml(p) {
 }
 
 const SYS_KICKER = {
-  notice: ["\u{1F4CC}", "Notice"], side: ["\u{1F388}", "On the side"], submit: ["\u{1F4E4}", "Deadline"], qa_result: ["\u{1F393}", "Committee"],
+  notice: ["\u{1F4CC}", "News"], side: ["\u{1F388}", "On the side"], submit: ["\u{1F4E4}", "Deadline"], qa_result: ["\u{1F393}", "Committee"],
   first_project: ["\u{1F9EA}", "Year 1"], focus_result: ["\u{1F4CB}", "Your two weeks"], decision: ["\u{1F4E8}", "Decision"], conference: ["\u2708\uFE0F", "Conference"], leave: ["\u{1F6AA}", "Crossroads"]
 };
 
 function choiceButtons(choices) {
   return '<div class="ps-choices">' + choices.map(function (c, n) {
     return '<button class="ps-choice" data-action="choose" data-i="' + c.i + '">' +
-      '<span><span class="ps-key" aria-hidden="true">' + (n + 1) + "</span>" + esc(c.label) +
+      '<span><span class="ps-key" aria-hidden="true">' + (n + 1) + "</span>" + rich(c.label) +
       (c.tag ? '<span class="ps-tagchip">' + esc(c.tag) + "</span>" : "") +
       (c.desc ? '<span class="ps-choice-desc">' + esc(c.desc) + "</span>" : "") + "</span>" +
       arrowsHtml(c.arrows) + "</button>";
@@ -48,8 +48,8 @@ export function promptClass(p) {
 export function eventHtml(p) {
   const rarity = p.rarity !== "common" ? ' · <span class="ps-r-' + esc(p.rarity) + '">' + esc(p.rarity) + "</span>" : "";
   return artHtml(p) + '<div class="ps-kicker"><span class="ps-kicker-icon" aria-hidden="true">' + (CATEGORY_ICON[p.category] || "\u2022") + "</span>" + esc(CATEGORY[p.category] || p.category) + rarity + "</div>" +
-    '<h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" +
-    '<p class="ps-text">' + esc(p.text) + "</p>" + choiceButtons(p.choices);
+    '<h3 id="ps-dialog-title">' + rich(p.title) + "</h3>" +
+    '<p class="ps-text">' + rich(p.text) + "</p>" + choiceButtons(p.choices);
 }
 
 export function sysHtml(p) {
@@ -61,8 +61,8 @@ export function sysHtml(p) {
       "<div>" + (l.who ? "<b>" + esc(l.who) + ":</b> " : "") + "\u201c" + esc(l.q) + "\u201d</div></li>";
   }).join("") + "</ul>" : "";
   return '<div class="ps-kicker"><span class="ps-kicker-icon" aria-hidden="true">' + k[0] + "</span>" + k[1] + "</div>" +
-    '<h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" + lines +
-    '<p class="ps-text">' + esc(p.text) + "</p>" + (d.visible ? deltasHtml(d.visible) : "") + choiceButtons(p.choices);
+    '<h3 id="ps-dialog-title">' + rich(p.title) + "</h3>" + lines +
+    '<p class="ps-text">' + rich(p.text) + "</p>" + (d.visible ? deltasHtml(d.visible) : "") + choiceButtons(p.choices);
 }
 
 // A review score as five dots, colored by how good it is.
@@ -74,6 +74,16 @@ export function scoreDots(score) {
 }
 
 const SEVERITY = { fatal: 4, critical: 3, major: 2, minor: 1 };
+// What each reply tends to do: the trade-off, not the result (whether the reviewer is right is
+// the judgment call).
+const REPLY_PREVIEW = {
+  clarify: "Works if they misread. Low risk.",
+  concede: "Safe for small points. You'll owe the fixes later.",
+  experiment: "Strong for doubts about the results. Costs 2 days next turn and \u26A1.",
+  pushback: "Good if they're wrong but open-minded. Risky.",
+  passive: "Satisfying to write. Usually backfires.",
+  flag: "Asks the area chair to discount this review."
+};
 
 // One row per reviewer: score, their main concern, and your reply.
 export function rebuttalHtml(p, sel) {
@@ -89,9 +99,8 @@ export function rebuttalHtml(p, sel) {
         (r.concerns.length > 1 ? ' <span class="ps-muted">+' + (r.concerns.length - 1) + "</span>" : "") + "</span>" +
         '<select class="ps-select" data-action="respond" data-i="' + ri + '" aria-label="Reply to reviewer ' + r.n + '">' +
         opts.map(function (o) { return '<option value="' + o.id + '"' + (cur === o.id ? " selected" : "") + ">" + esc(o.label) + "</option>"; }).join("") +
-        "</select></div>";
+        '</select><span class="ps-review-preview">\u2192 ' + esc(REPLY_PREVIEW[cur] || "") + "</span></div>";
     }).join("") +
-    '<details class="ps-small"><summary>What the replies do</summary><ul>' + p.options.map(function (o) { return "<li><b>" + esc(o.label) + ":</b> " + esc(o.desc) + "</li>"; }).join("") + "</ul></details>" +
     (exp ? '<p class="ps-meta">New experiments cost ' + exp + " days next turn.</p>" : "") +
     '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="submit-rebuttal">Send the response</button></div>';
 }
@@ -114,12 +123,10 @@ export function resultHtml(res, prompt, achievements) {
       return '<p class="ps-small"><span class="ps-check ' + (q.ok ? "ps-check-ok" : "ps-check-fail") + '">' + (q.ok ? "✓" : "✗") + "</span>" + esc(q.q) + '<br><span class="ps-muted">' + esc(q.line) + "</span></p>";
     }).join("");
   }
-  if (res.text) html += '<p class="ps-text">' + esc(res.text) + "</p>";
+  if (res.text) html += '<p class="ps-text">' + rich(res.text) + "</p>";
   html += deltasHtml(res.visible);
   (res.hidden || []).forEach(function (h) { html += '<p class="ps-hidden-line">' + esc(h) + "</p>"; });
-  (res.notes || []).forEach(function (n) { html += '<p class="ps-small">' + esc(n) + "</p>"; });
-  if (res.tipLink) html += '<a class="ps-tiplink" href="' + esc(res.tipLink.url) + '" target="_blank" rel="noopener">PhD 101: ' + esc(res.tipLink.title) + " →</a>";
-  (achievements || []).forEach(function (a) { html += '<p class="ps-small" style="color:var(--ps-legendary)"><b>Achievement: ' + esc(a.name) + "</b> · " + esc(a.desc || "") + "</p>"; });
+  (res.notes || []).forEach(function (n) { html += '<p class="ps-small">' + rich(n) + "</p>"; });
   html += '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="continue">Continue</button></div></div>';
   return html;
 }

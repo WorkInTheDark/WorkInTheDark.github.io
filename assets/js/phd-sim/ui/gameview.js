@@ -1,7 +1,7 @@
 // The game screen: a compact window that sits inside the page, like the original game's box.
 // A top strip (date, bars, score), a scene in the middle (this turn's choices, or whatever is
 // happening), and a tray of project trackers at the bottom.
-import { esc, bar, plural, arrowsHtml, shownStat } from "./common.js";
+import { esc, rich, bar, plural, arrowsHtml, shownStat } from "./common.js";
 import {
   yearOf, turnDates, absTurn, WEEKS_PER_TURN, PROJECT_TYPES, STAGE_LABELS, FIELD_LABELS, fieldOf, stageInfo,
   deadlineLabel, venuesFor, totalCitations, firstAuthorPubs, qualsPassChance, chanceWord
@@ -54,7 +54,8 @@ function hudHtml(G) {
     "</div>" +
     '<div class="ps-score"><span title="First-author papers' + (pending ? " (" + pending + " under review)" : "") + '">\u{1F4C4} <b>' + firstAuthorPubs(G) + "</b>" + (pending ? "<i>+" + pending + "</i>" : "") + "</span>" +
     '<span title="Citations">✦ <b>' + totalCitations(G) + "</b></span></div>" +
-    '<div class="ps-hud-btns"><button class="ps-icon-btn" data-action="leave" title="Leave the PhD" aria-label="Leave the PhD">\u{1F6AA}</button>' +
+    '<div class="ps-hud-btns"><button class="ps-icon-btn" data-action="achievements" title="Achievements" aria-label="Achievements">\u{1F3C6}</button>' +
+    '<button class="ps-icon-btn" data-action="leave" title="Leave the PhD" aria-label="Leave the PhD">\u{1F6AA}</button>' +
     '<button class="ps-icon-btn" data-action="title" title="Menu" aria-label="Menu">☰</button></div>' +
     "</header>";
 }
@@ -71,7 +72,7 @@ export function orderedActions(plan) {
 function tileHtml(G, a, n) {
   return '<button class="ps-tile ps-tile-' + a.kind + '" data-action="do" data-id="' + esc(a.id) + '">' +
     '<span class="ps-tile-icon" aria-hidden="true">' + actionIcon(G, a) + "</span>" +
-    '<span class="ps-tile-body"><span class="ps-tile-label">' + esc(a.label) + "</span>" +
+    '<span class="ps-tile-body"><span class="ps-tile-label">' + rich(a.label) + "</span>" +
     (a.desc ? '<span class="ps-tile-desc">' + esc(a.desc) + "</span>" : "") +
     arrowsHtml(a.arrows) + "</span>" +
     (n <= 9 ? '<span class="ps-tile-key" aria-hidden="true">' + n + "</span>" : "") + "</button>";
@@ -92,11 +93,9 @@ function recapHtml(G, report) {
   // a quiet turn still gets its one-liner
   const flavor = report.news.find(function (e) { return e.kind === "flavor"; });
   if (!items.length && flavor) items.push({ cls: "flavor", text: flavor.text });
-  const tip = report.news.find(function (e) { return e.kind === "tip" && e.url; });
   return '<div class="ps-recap">' + deltas + items.slice(0, 2).map(function (it) {
-    return '<span class="ps-recap-item ps-recap-' + it.cls + '" title="' + esc(it.text) + '">' + esc(it.text) + "</span>";
-  }).join("") + "</div>" +
-    (tip ? '<p class="ps-recap-tip">\u{1F4AC} ' + esc(tip.text) + ' <a href="' + esc(tip.url) + '" target="_blank" rel="noopener">PhD 101: ' + esc(tip.title) + " →</a></p>" : "");
+    return '<span class="ps-recap-item ps-recap-' + it.cls + '" title="' + esc(it.text) + '">' + rich(it.text) + "</span>";
+  }).join("") + "</div>";
 }
 
 function planHtml(G, ui) {
@@ -223,6 +222,36 @@ function statusChips(G) {
   return chips.join("");
 }
 
+// PhD 101 pointers from senior labmates and events, kept where they're easy to find.
+function tipShelfHtml(G) {
+  const s = G.state;
+  const recent = (s.tipShelf || []).filter(function (t) { return s.turn - t.turn <= 6; }).slice(0, 2);
+  if (!recent.length) return "";
+  return '<div class="ps-tipshelf">' + recent.map(function (t) {
+    return '<a class="ps-tip" href="' + esc(t.url) + '" target="_blank" rel="noopener" title="' + esc(t.note || "") + '">' +
+      '<span class="ps-tip-badge">\u{1F4D6} PhD 101</span><b>' + esc(t.title) + "</b>" +
+      (t.note ? '<span class="ps-tip-note">' + rich(t.note) + "</span>" : "") + '<span aria-hidden="true">\u2192</span></a>';
+  }).join("") + "</div>";
+}
+
+// Every achievement: the ones you have, and the rest (secret ones stay hidden).
+function achievementsHtml(G) {
+  const all = G.D.achievements || [];
+  const got = (G.meta && G.meta.achievements) || {};
+  const run = G.state.runAchievements || {};
+  const list = all.slice().sort(function (a, b) { return (got[b.id] ? 1 : 0) - (got[a.id] ? 1 : 0); });
+  return '<div class="ps-overlay ps-overlay-update"><div class="ps-card ps-dialog ps-rise ps-rarity-system ps-ach-panel" role="dialog" aria-modal="true" aria-labelledby="ps-ach-title">' +
+    '<div class="ps-spread"><h3 id="ps-ach-title">\u{1F3C6} Achievements \u00b7 ' + Object.keys(got).length + " / " + all.length + "</h3>" +
+    '<button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="close-panel">Close</button></div>' +
+    '<ul class="ps-ach-list">' + list.map(function (a) {
+      const have = !!got[a.id];
+      const hidden = !have && a.secret;
+      return '<li class="' + (have ? "ps-ach-have" : "ps-ach-locked") + '"><span class="ps-ach-badge" aria-hidden="true">' + (have ? "\u{1F3C6}" : "\u{1F512}") + "</span>" +
+        "<span><b>" + esc(hidden ? "Secret achievement" : a.name) + (run[a.id] ? ' <span class="ps-tagchip">this run</span>' : "") + "</b>" +
+        '<span class="ps-ach-desc">' + esc(hidden ? "Keep playing to find it." : a.desc || "") + "</span></span></li>";
+    }).join("") + "</ul></div></div>";
+}
+
 function trayHtml(G, ui) {
   const s = G.state;
   const active = s.projects.filter(function (p) { return p.status === "active"; });
@@ -231,7 +260,7 @@ function trayHtml(G, ui) {
   // Trackers that changed last turn get a short glow (only on the turn's planning screen).
   const moved = {};
   if (ui.report && ui.plan) ui.report.projects.forEach(function (x) { if (x.from && x.id) moved[x.id] = true; });
-  return '<footer class="ps-tray">' +
+  return '<footer class="ps-tray">' + tipShelfHtml(G) +
     '<div class="ps-chips">' + statusChips(G) + "</div>" +
     '<div class="ps-trackers">' + active.map(function (p) { return trackerHtml(G, p, !!ui.modal, moved[p.id]); }).join("") +
     inReview.map(function (p) { return reviewTrackerHtml(G, p, moved[p.id]); }).join("") +
@@ -255,7 +284,7 @@ function turnStripHtml(G, ui) {
     return '<i class="' + (i < trail.length - 1 ? "ps-trail-done" : "ps-trail-now") + (it.event ? " ps-trail-event" : "") + '" title="' + esc(it.title) + '"></i>';
   }).join("");
   return '<div class="ps-turnstrip"><span class="ps-turnstrip-date">\u{1F4C5} ' + esc(turnDates(s.turn)) + "</span>" +
-    '<span class="ps-turnstrip-focus">' + (planned ? "This turn: " : "") + "<b>" + esc(focus) + "</b></span>" +
+    '<span class="ps-turnstrip-focus">' + (planned ? "This turn: " : "") + "<b>" + rich(focus) + "</b></span>" +
     (dots ? '<span class="ps-trail" aria-label="Card ' + trail.length + ' this turn">' + dots + "</span>" : "") + "</div>";
 }
 
@@ -274,5 +303,5 @@ export function gameHtml(G, ui, promptInner, promptCls) {
   else if (ui.inspect && G.state.projects.some(function (p) { return p.id === ui.inspect && p.status === "active"; })) scene = inspectHtml(G, G.state.projects.find(function (p) { return p.id === ui.inspect; }));
   else scene = ui.plan ? planHtml(G, ui) : "";
   return '<div class="ps-game">' + hudHtml(G) + '<main class="ps-scene"' + (promptInner ? ' aria-hidden="true"' : "") + ">" + scene + "</main>" + trayHtml(G, ui) +
-    (promptInner ? popupHtml(G, ui, promptInner, promptCls) : "") + "</div>";
+    (promptInner ? popupHtml(G, ui, promptInner, promptCls) : ui.panel === "ach" ? achievementsHtml(G) : "") + "</div>";
 }

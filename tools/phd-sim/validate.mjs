@@ -79,7 +79,7 @@ function checkOutcome(where, o, ev, schedules) {
   checkTokens(where, o.text);
   for (const [k, v] of Object.entries(o.effects || {})) {
     if (STAT_IDS.includes(k) || EFFECT_OTHER.includes(k)) checkValue(where, k, v);
-    else if (EFFECT_PROJECT.includes(k)) { checkValue(where, k, v); if (!JSON.stringify(ev.when || {}).includes('"project"') && ev.hook !== "deadline") warn(where, k + " without a bound project"); }
+    else if (EFFECT_PROJECT.includes(k)) { checkValue(where, k, v); if (!JSON.stringify(ev.when || {}).includes('"project"') && ev.hook !== "deadline" && !where.startsWith("side/")) warn(where, k + " without a bound project"); }
     else if (EFFECT_PAPER.includes(k)) { checkValue(where, k, v); }
     else err(where, "unknown effect '" + k + "'");
   }

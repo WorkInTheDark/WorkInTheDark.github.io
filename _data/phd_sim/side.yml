@@ -107,15 +107,15 @@
   desc: "Their talk was good. Your question was better."
   helps: career
   when: { has_advisor: true }
-  text: "Twenty minutes, one business card, and a promise to send them your preprint."
-  effects: { network: "+3±1", energy: "-1" }
+  text: "Twenty minutes, one business card, and a sharp question about {project} you hadn't thought of."
+  effects: { network: "+3±1", energy: "-1", project.progress: "+5" }
 - id: side_reading_group
   label: "Go to the department reading group"
   desc: "Free pizza and someone else's paper."
   helps: career
   when: { has_advisor: true }
-  text: "The discussion is better than the paper. The pizza is about as good as the paper."
-  effects: { knowledge: "+1", labmates_rel: "+2±1", energy: "-1" }
+  text: "The discussion is better than the paper, and it gives you an idea for {project}."
+  effects: { knowledge: "+1", labmates_rel: "+2±1", energy: "-1", project.progress: "+8" }
 - id: side_help_debug
   label: "Help {labmate} debug their training run"
   desc: "\"It's probably a quick fix.\""
@@ -147,8 +147,8 @@
   desc: "Free student registration, one train ride away."
   helps: career
   when: { has_advisor: true }
-  text: "Small rooms, long conversations, and a few new ideas."
-  effects: { network: "+4±1", knowledge: "+1", days: -1 }
+  text: "Small rooms, long conversations, and a few new ideas for {project}."
+  effects: { network: "+4±1", knowledge: "+1", days: -1, project.progress: "+8" }
 - id: side_bike
   label: "Bike to campus instead of taking the bus"
   desc: "The weather's good. Your excuses aren't."

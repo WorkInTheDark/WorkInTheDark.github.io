@@ -1,7 +1,7 @@
 // The app shell: screens, the play loop, prompts, saving, and input handling.
 import { prepareData, newRun, rollTraits, Game, newSeed, storage } from "../engine/index.js";
 import { Rng } from "../engine/rng.js";
-import { prefersReducedMotion, esc } from "./common.js";
+import { prefersReducedMotion, esc, setKnownTitles } from "./common.js";
 import { gameHtml, orderedActions } from "./gameview.js";
 import { eventHtml, sysHtml, rebuttalHtml, resultHtml, promptClass } from "./prompts.js";
 import { titleHtml, setupHtml, codexHtml, endHtml, summaryText, drawCard } from "./screens.js";
@@ -50,12 +50,18 @@ export class App {
       // Keep the question visible, replace the choices with the outcome.
       inner = inner.replace(/<div class="ps-choices">[\s\S]*$/, "");
       if (p.type !== "event" && p.type !== "sys") inner = '<div class="ps-kicker">Result</div><h3 id="ps-dialog-title">' + esc(p.title || "") + "</h3>";
-      inner += resultHtml(this.modal.result, p, this.modal.achievements);
+      inner += resultHtml(this.modal.result, p);
     }
     return inner;
   }
 
   render() {
+    if (this.game) {
+      const s = this.game.state;
+      setKnownTitles([].concat(
+        s.projects.map(function (p) { return p.title; }), s.projects.map(function (p) { return p.short; }),
+        s.papers.filter(function (p) { return p.firstAuthor; }).map(function (p) { return p.title; })));
+    }
     let body = "";
     if (this.screen === "title") body = titleHtml(this);
     else if (this.screen === "setup") body = setupHtml(this);
@@ -141,7 +147,7 @@ export class App {
       if (p.type === "turn_end") {
         this.report = p.report;
         this.persist();
-        this.checkAchievements(true);
+        this.checkAchievements();
         continue;
       }
       if (p.type === "plan") {
@@ -173,13 +179,35 @@ export class App {
     this.advance();
   }
 
-  checkAchievements(toast) {
+  checkAchievements() {
     const list = this.game ? this.game.state.newAchievements : [];
     const shown = this.achShown;
     const fresh = list.filter(function (a) { return !shown[a.id]; });
     fresh.forEach(function (a) { shown[a.id] = true; });
-    if (toast && fresh.length) this.flashToast("Achievement: " + fresh.map(function (a) { return a.name; }).join(", "));
+    this.popAchievements(fresh);
     return fresh;
+  }
+
+  // Like a game platform: a card slides in at the lower right of the screen, then leaves.
+  popAchievements(list) {
+    if (!list.length || typeof document === "undefined") return;
+    if (!this.achLayer || !this.achLayer.isConnected) {
+      this.achLayer = document.createElement("div");
+      this.achLayer.className = "ps-ach-layer";
+      this.achLayer.setAttribute("aria-live", "polite");
+      document.body.appendChild(this.achLayer);
+    }
+    const layer = this.achLayer;
+    list.forEach(function (a, i) {
+      setTimeout(function () {
+        const el = document.createElement("div");
+        el.className = "ps-ach-pop";
+        el.innerHTML = '<span class="ps-ach-icon" aria-hidden="true">\u{1F3C6}</span><span class="ps-ach-body"><small>Achievement unlocked</small><b>' +
+          esc(a.name) + "</b><span>" + esc(a.desc || "") + "</span></span>";
+        layer.appendChild(el);
+        setTimeout(function () { el.classList.add("ps-ach-out"); setTimeout(function () { el.remove(); }, 450); }, 5200);
+      }, i * 700);
+    });
   }
 
   showPrompt(p, ui) {
@@ -200,9 +228,9 @@ export class App {
     const ui = this.modal.ui;
     const res = this.game.answer(resp);
     this.persist();
-    const ach = this.checkAchievements(false);
-    if (res && (res.text || (res.visible && res.visible.length) || res.reviews || res.qa || (res.notes && res.notes.length) || ach.length)) {
-      this.modal = { prompt: p, result: res, achievements: ach, fresh: true, ui: ui };
+    this.checkAchievements();
+    if (res && (res.text || (res.visible && res.visible.length) || res.reviews || res.qa || (res.notes && res.notes.length))) {
+      this.modal = { prompt: p, result: res, fresh: true, ui: ui };
       this.keepScroll = true;
       this.render();
       return;
@@ -261,6 +289,8 @@ export class App {
       case "back": this.screen = this.prev || "title"; this.render(); break;
       case "inspect": if (!this.modal) { this.inspect = id; this.keepScroll = true; this.render(); } break;
       case "close-inspect": this.inspect = null; this.keepScroll = true; this.render(); break;
+      case "achievements": if (!this.modal) { this.panel = this.panel === "ach" ? null : "ach"; this.inspect = null; this.keepScroll = true; this.render(); } break;
+      case "close-panel": this.panel = null; this.keepScroll = true; this.render(); break;
       case "start": this.startRun(); break;
       case "do": this.doAction(id); break;
       case "side": this.sidePick = this.sidePick === id ? null : id; this.keepScroll = true; this.render(); break;
@@ -320,6 +350,7 @@ export class App {
   onKey(e) {
     if (e.altKey || e.ctrlKey || e.metaKey || this.screen !== "game") return;
     if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA")) return;
+    if (this.panel) { if (e.key === "Escape") { this.panel = null; this.render(); } return; }
     if (this.inspect) { if (e.key === "Escape") { this.inspect = null; this.render(); } return; }
     if (!/^[1-9]$/.test(e.key)) return;
     const n = parseInt(e.key, 10) - 1;
