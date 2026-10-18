@@ -71,7 +71,7 @@ skills:
 # (in projects.js). A normal full turn gets exactly that chance; a short or tired turn keeps
 # 50–100% of it (chance × (0.5 + 0.5 × effort / full_turn)); a crunch adds at most 15%.
 progress:
-  full_turn: 6.5         # effective work days that count as a full turn (a normal turn after Year 1)
+  full_turn: 4.5         # effective work days that count as a full turn: a normal turn gets the stage's set chance (was 6.5, which made real odds 10-15 points lower)
   read_lit: 1.3          # reading during Related work, relative to working on it
   work_lit: 0.8          # "Work on" during Related work
   read_trickle: 0.05     # effort per reading day for projects in other stages
@@ -104,7 +104,7 @@ reviews:
   ac_sigma: 8
   findings_band: 7
   rr_band: 10
-  lesson_bonus: 8        # each rejection improves the paper: +4 to every part, +8 to its weakest (2026-10-18)
+  lesson_bonus: 12       # each rejection improves the paper: +6 to every part, +12 to its weakest (2026-10-18)
 
 citations:
   venue_base: { top: 55, journal: 40, mid: 32, findings: 25, workshop: 10 }

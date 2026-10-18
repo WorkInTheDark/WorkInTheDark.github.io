@@ -13,11 +13,15 @@ const D = prepareData(JSON.parse(readFileSync(join(here, "out", "data.json"), "u
 const RUNS = parseInt(process.argv[2] || "200", 10);
 const POLICY = process.argv[3] || "mixed";
 // "pusher" and "swinger" keep one project at a time, to measure how long a project takes.
-const POLICIES = ["balanced", "workaholic", "slacker", "random", "pusher", "swinger"];
+// "scholar" plays like "balanced" but stays the full five years instead of defending after three
+// papers: the careful player who might publish five or six and aim for a tenure-track job.
+const POLICIES = ["balanced", "workaholic", "slacker", "random", "pusher", "swinger", "scholar"];
 
 // Picks one action for the week, the way each kind of player might.
 function pickAction(p, policy, rng, stats) {
-  const A = p.actions;
+  const stayOn = policy === "scholar" && p.turn < 4.5 * TURNS;
+  const A = stayOn ? p.actions.filter((a) => a.id !== "defense") : p.actions;
+  if (policy === "scholar") policy = "balanced";
   // Bots prepare for quals on about half of the turns it's offered.
   const skipQuals = rng.chance(0.5);
   const by = (kind) => A.filter((a) => a.kind === kind && !(skipQuals && a.id === "quals_prep"));
@@ -80,6 +84,7 @@ function answerPrompt(game, p, policy, rng) {
     }
     case "sys": {
       if (p.sys === "leave") return { choice: p.choices.length - 1 };
+      if (p.sys === "defense_offer" && policy === "scholar" && game.state.turn < 4.5 * TURNS) return { choice: 1 };
       // A paper due this turn: submit it, unless a slacker can't be bothered.
       if (p.sys === "submit") return { choice: policy === "slacker" && rng.chance(0.3) ? 2 : policy === "random" ? rng.int(0, 2) : 0 };
       if (p.sys === "internship_apply") return { choice: policy === "slacker" ? 2 : 0 };
@@ -177,6 +182,7 @@ for (let r = 0; r < RUNS; r++) {
       ...Object.fromEntries(s.papers.filter((p) => p.firstAuthor && p.pubTurn !== null && p.pubTurn !== undefined).map((p) => p.pubTurn).sort((a, b) => a - b).slice(0, 3).map((t, i) => ["paper" + (i + 1), t / TURNS]))
     },
     submissions: s.telemetry.submissions,
+    pubsBy: [3, 4, 5, 6].map((y) => s.papers.filter((p) => p.firstAuthor && p.status === "accepted" && p.pubTurn !== null && p.pubTurn !== undefined && p.pubTurn < y * TURNS).length),
     offerLog: s.offerLog || null,
     cites: totalCitations(game), h: hIndex(game), burnouts: s.telemetry.burnouts, events: s.telemetry.events_seen,
     prompts, tiers, title: s.ending.title.id, advisor: s.advisor ? s.advisor.archetype : "none", quals: s.milestones.quals,
@@ -208,6 +214,18 @@ console.log("\nEndings: " + count("ending"));
 console.log("Titles: " + count("title"));
 console.log("Advisors: " + count("advisor"));
 console.log("Quals: " + count("quals") + " | Proposal: " + count("proposal"));
+{
+  // First-author papers accepted by the end of year 3, 4, 5 and 6 (pubsBy indexes 0..3).
+  const share = (R, i, n) => Math.round(100 * R.filter((x) => x.pubsBy[i] >= n).length / Math.max(1, R.length)) + "%";
+  const line = (pol) => {
+    const R = results.filter((x) => x.policy === pol);
+    if (!R.length) return null;
+    return pol + ": 3+ papers by year 4 " + share(R, 1, 3) + ", by year 5: 3+ " + share(R, 2, 3) + ", 5+ " + share(R, 2, 5) + ", 6+ " + share(R, 2, 6) +
+      " (median " + median(R.map((x) => x.pubsBy[2])) + ")";
+  };
+  const ls = ["balanced", "scholar"].map(line).filter(Boolean);
+  if (ls.length) console.log("Papers: " + ls.join(" | "));
+}
 {
   const B = results.filter((x) => x.policy === (POLICY === "mixed" ? "balanced" : POLICY) && x.graduated);
   const med = (k) => { const v = B.map((x) => x.timeline[k]).filter((x) => x !== null); return v.length ? median(v).toFixed(1) : "-"; };
