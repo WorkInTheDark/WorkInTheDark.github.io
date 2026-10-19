@@ -5,6 +5,7 @@ title: PhD Simulator
 description: Five years, give or take. A game about doing a PhD in NLP and HCI, built from real stories.
 nav: true
 nav_order: 5
+og_image: https://www.bingshengyao.com/assets/phd-sim/og.jpg
 ---
 
 <link rel="preconnect" href="https://fonts.googleapis.com">

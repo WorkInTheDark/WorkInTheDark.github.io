@@ -3,7 +3,7 @@
 - { id: citation_breakout, name: "The Breakout", priority: 90, when: { telemetry: { citations: ">=1000" } }, desc: "A thousand citations. People cite you without reading you now." }
 - { id: the_prolific, name: "The Prolific", priority: 85, when: { telemetry: { first_author_pubs: ">=7" } }, desc: "Seven or more first-author papers." }
 - { id: citation_machine, name: "Citation Machine", priority: 80, when: { telemetry: { h_index: ">=8" } }, desc: "An h-index most postdocs would envy." }
-- { id: burnt_out_genius, name: "The Burnt-Out Genius", priority: 78, when: { telemetry: { burnouts: ">=2", citations: ">=250" } }, desc: "Plenty of citations, and two burnouts along the way." }
+- { id: burnt_out_genius, name: "The Burnt-Out Genius", priority: 78, when: { telemetry: { burnouts: ">=2", citations: ">=250" } }, desc: "Plenty of citations, and more than one burnout along the way." }
 - { id: the_survivor, name: "The Survivor", priority: 76, when: { telemetry: { burnouts: ">=3" } }, desc: "Burned out three times and came back every time." }
 - { id: reviewer2_nemesis, name: "Reviewer 2's Nemesis", priority: 74, when: { telemetry: { rejections: ">=6", acceptances: ">=3" } }, desc: "Rejected again and again, and published anyway." }
 - { id: top_tier, name: "The Top-Tier Regular", priority: 72, when: { telemetry: { top_pubs: ">=4" } }, desc: "Four or more top-venue papers." }
@@ -11,7 +11,7 @@
 - { id: speedrunner, name: "The Speedrunner", priority: 68, when: { milestone: { graduated: true }, year: [1, 4] }, desc: "Done in four years or less." }
 - { id: the_long_way, name: "The Long Way Round", priority: 66, when: { year: [7, 9] }, desc: "Seven years or more, by the scenic route." }
 - { id: balance_champion, name: "Work-Life Balance Champion", priority: 64, when: { telemetry: { burnouts: "==0", overtime_days: "<20" }, milestone: { graduated: true } }, desc: "Graduated without burning out or living in the lab." }
-- { id: the_unbreakable, name: "The Unbreakable", priority: 62, when: { telemetry: { min_sanity: ">=35" } }, desc: "Your Sanity never dropped below 35." }
+- { id: the_unbreakable, name: "The Unbreakable", priority: 62, when: { telemetry: { min_sanity: ">=35" } }, desc: "Your Stress never went above 65." }
 - { id: night_shift, name: "The Night Shift", priority: 60, when: { telemetry: { overtime_days: ">=120" } }, desc: "A hundred and twenty weekend days in the lab." }
 - { id: globetrotter, name: "The Globetrotter", priority: 58, when: { telemetry: { conferences: ">=6" } }, desc: "Six conferences or more." }
 - { id: the_networker, name: "The Networker", priority: 56, when: { stat: { network: ">=85" } }, desc: "Everyone knows you, even people you've never met." }

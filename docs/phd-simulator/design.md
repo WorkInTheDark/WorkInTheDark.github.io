@@ -814,7 +814,16 @@ An end card has three parts: **career outcome + life epilogue + title**.
 - Ending name, title and epilogue.
 - **Your PhD in numbers:** every hidden stat revealed, the paper list, a citation sparkline, events discovered this run, and the rarest event you saw.
 - Recommended PhD 101 episodes (section 13.2).
-- **Play again** and **Share** (a PNG card in Phase 3).
+- **Better than N% of simulated PhDs** (Arthur, 2026-10-19), under the title. It compares the run's research record (the job-market academic score: papers, top venues, h-index, citations, letter) with `_data/phd_sim/percentiles.yml`.
+  - That table holds quantiles from 5,000 mixed bot runs, including people who leave. Regenerate it after balance changes with `simulate.mjs 5000 mixed --percentiles`.
+  - Measured: the median score beats 49%, and 101 beats 86%.
+- **Share your PhD** (Arthur, 2026-10-19). There is no server or database: the site is static on GitHub Pages, so the result travels in the link.
+  - **Link:** `/phd-simulator/#r=…` carries base64 JSON with the ending id, title id, numbers, percentile, daily date, and an achievement bitmask in achievements.yml order. Achievements are append-only for that reason.
+  - **Shared view:** opening the link shows a read-only card, built from `ui/share.js`, with "Play your own PhD" (and "Play the same daily PhD" on the same day).
+  - **Safety:** the card shows only names and text from the game's data. Unknown ids, free text and bad numbers in a hand-made link are dropped, and a test covers this.
+  - **Buttons:** the device share sheet (with the image attached, where the browser allows files), X, Bluesky, LinkedIn, Copy link, and Save image (a 1200 × 630 card in the game's colors).
+  - **Link previews:** LinkedIn and X don't run JavaScript, so a pasted link previews as the game page: `og_image` = `assets/phd-sim/og.jpg`. The page uses the large Twitter card when it has its own image. Re-render the image with `python3 tools/phd-sim/og/render-og.py` (headless Chrome).
+- **Play again** and **Codex**.
 
 ### 12.3 Achievements
 - Target 100 (50 in Phase 2), each with `id`, `name`, `description`, `secret`, and a `condition` in the same vocabulary as events, evaluated against run stats.

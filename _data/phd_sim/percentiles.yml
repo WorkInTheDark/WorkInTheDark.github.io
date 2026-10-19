@@ -1,0 +1,6 @@
+# Research-record scores of simulated PhDs (all bot play styles, including people who leave), for the
+# end screen's "better than N% of simulated PhDs". Quantiles 0..100 of the job-market academic score.
+# Regenerate after balance changes: node --experimental-default-type=module tools/phd-sim/simulate.mjs 5000 mixed --percentiles
+runs: 5000
+policy: mixed
+score: [5.8, 14.4, 16.8, 19.5, 24, 31, 48.4, 51, 52.9, 54.2, 55.2, 56.1, 57, 57.7, 58.3, 58.8, 59.4, 60.1, 60.5, 61.1, 61.7, 62.2, 62.7, 63.2, 63.8, 64.3, 64.8, 65.3, 65.7, 66.1, 66.5, 66.9, 67.4, 67.9, 68.2, 68.7, 69.1, 69.4, 69.8, 70.3, 70.6, 71, 71.5, 72, 72.6, 73, 73.5, 74, 74.4, 74.8, 75.2, 75.7, 76.1, 76.5, 76.9, 77.4, 77.9, 78.4, 78.8, 79.3, 79.9, 80.4, 81, 81.7, 82.1, 82.7, 83.4, 83.9, 84.4, 84.9, 85.7, 86.3, 87, 87.6, 88.5, 89.2, 90.1, 90.9, 91.7, 92.9, 93.7, 94.5, 95.6, 96.9, 98.1, 99.7, 100.8, 102.4, 104, 105.8, 107.8, 110.3, 112.7, 114.9, 118.5, 124, 129.4, 137.1, 151.6, 173.4, 413.1]

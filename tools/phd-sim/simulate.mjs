@@ -1,6 +1,6 @@
 // Headless balance simulator: plays many runs with simple bot policies and reports outcomes.
 //   node --experimental-default-type=module tools/phd-sim/simulate.mjs [runs=200] [policy=mixed]
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { prepareData, newRun, Game, firstAuthorPubs, totalCitations, hIndex } from "../../assets/js/phd-sim/engine/index.js";
@@ -10,8 +10,11 @@ import { activeProjects } from "../../assets/js/phd-sim/engine/projects.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const D = prepareData(JSON.parse(readFileSync(join(here, "out", "data.json"), "utf8")));
-const RUNS = parseInt(process.argv[2] || "200", 10);
-const POLICY = process.argv[3] || "mixed";
+// --percentiles writes the research-record score table the end screen ranks players against
+// (_data/phd_sim/percentiles.yml). Use a mixed run of a few thousand: 5000 mixed --percentiles.
+const ARGS = process.argv.slice(2).filter((a) => a.indexOf("--") !== 0);
+const RUNS = parseInt(ARGS[0] || "200", 10);
+const POLICY = ARGS[1] || "mixed";
 // "pusher" and "swinger" keep one project at a time, to measure how long a project takes.
 // "scholar" plays like "balanced" but stays the full five years instead of defending after three
 // papers: the careful player who might publish five or six and aim for a tenure-track job.
@@ -200,6 +203,7 @@ for (let r = 0; r < RUNS; r++) {
     submissions: s.telemetry.submissions,
     pubsBy: [3, 4, 5, 6].map((y) => s.papers.filter((p) => p.firstAuthor && p.status === "accepted" && p.pubTurn !== null && p.pubTurn !== undefined && p.pubTurn < y * TURNS).length),
     offerLog: s.offerLog || null,
+    score: s.ending.numbers.score,
     cites: totalCitations(game), h: hIndex(game), burnouts: s.telemetry.burnouts, events: s.telemetry.events_seen,
     prompts, tiers, title: s.ending.title.id, advisor: s.advisor ? s.advisor.archetype : "none", quals: s.milestones.quals,
     proposal: s.milestones.proposal, uniqueRandom: seenRandom.length, sanity: sanN ? sanSum / sanN : 0, perTurn: prompts / Math.max(1, s.turn),
@@ -285,4 +289,14 @@ if (process.env.QSTATS) {
     console.log("Y" + y + " n=" + q.length + " Q median " + median(q.map((p) => p.Q)).toFixed(0) + " meta median " + median(q.map((p) => p.meta)).toFixed(0) +
       " scoreBonus avg " + avg(q.map((p) => p.bonus)) + " accepted " + pct(q.filter((p) => p.st === "accepted").length, q.length));
   }
+}
+if (process.argv.includes("--percentiles")) {
+  const sc = all.map((x) => x.score).sort((a, b) => a - b);
+  const q = Array.from({ length: 101 }, (_, i) => Math.round(sc[Math.min(sc.length - 1, Math.floor((i / 100) * (sc.length - 1)))] * 10) / 10);
+  const out = join(here, "..", "..", "_data", "phd_sim", "percentiles.yml");
+  writeFileSync(out, "# Research-record scores of simulated PhDs (all bot play styles, including people who leave), for the\n" +
+    "# end screen's \"better than N% of simulated PhDs\". Quantiles 0..100 of the job-market academic score.\n" +
+    "# Regenerate after balance changes: node --experimental-default-type=module tools/phd-sim/simulate.mjs 5000 mixed --percentiles\n" +
+    "runs: " + sc.length + "\npolicy: " + POLICY + "\nscore: [" + q.join(", ") + "]\n");
+  console.log("Wrote " + out + " (" + sc.length + " runs; median score " + q[50] + ", P90 " + q[90] + ")");
 }

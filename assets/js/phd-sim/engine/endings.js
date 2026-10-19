@@ -134,6 +134,16 @@ function pickRecommendations(G) {
   return out;
 }
 
+// The share of simulated PhDs (data percentiles.yml, from simulate.mjs --percentiles) whose research
+// record (the same score the job market uses) is lower than this one. Null without the table.
+export function beatsPercent(D, score) {
+  const q = D.percentiles && D.percentiles.score;
+  if (!q || !q.length) return null;
+  let below = 0;
+  for (let i = 0; i < q.length; i++) if (q[i] < score) below = i;
+  return Math.max(0, Math.min(99, Math.round((100 * below) / (q.length - 1))));
+}
+
 export function finalize(G, endingId) {
   const s = G.state;
   if (s.phase === "ended") return;
@@ -170,8 +180,10 @@ export function finalize(G, endingId) {
     overtime: s.telemetry.overtime_days,
     burnouts: s.telemetry.burnouts,
     events: s.telemetry.events_seen,
+    score: Math.round(profile(G).academic * 10) / 10,
     stats: {}
   };
+  numbers.beats = beatsPercent(G.D, numbers.score);
   ["energy", "sanity"].concat(HIDDEN).forEach(function (k) { numbers.stats[k] = Math.round(s.stats[k] || 0); });
   s.ending = {
     id: id,
@@ -179,6 +191,7 @@ export function finalize(G, endingId) {
     group: e.group || "",
     text: fill(e.text || "", G, {}),
     graduated: !!s.milestones.graduated,
+    daily: s.daily && /^daily-\d{4}-\d{2}-\d{2}$/.test(s.seed || "") ? s.seed.slice(6) : null,
     title: { id: title.id, name: title.name, desc: title.desc || "" },
     epilogue: pickEpilogue(G),
     numbers: numbers,

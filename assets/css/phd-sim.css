@@ -87,7 +87,7 @@ html[data-theme='dark'] .ps-app {
 .ps-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .ps-screen { height: 560px; overflow-y: auto; }
 .ps-app-game .ps-screen { overflow: hidden; }
-.ps-app-title .ps-screen, .ps-app-setup .ps-screen, .ps-app-codex .ps-screen, .ps-app-end .ps-screen { padding: 1.1rem 1.25rem; }
+.ps-app-title .ps-screen, .ps-app-setup .ps-screen, .ps-app-codex .ps-screen, .ps-app-end .ps-screen, .ps-app-shared .ps-screen { padding: 1.1rem 1.25rem; }
 
 /* Buttons */
 .ps-btn {
@@ -432,6 +432,11 @@ html[data-theme='dark'] .ps-art img { filter: brightness(0.88); }
 .ps-end-head .ps-kicker { justify-content: center; }
 .ps-end-head h2 { font-size: 1.7rem; margin-bottom: 0.2rem; }
 .ps-end-title { color: var(--ps-accent); font-weight: 700; }
+.ps-share { text-align: center; }
+.ps-share-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; margin-bottom: 0.45rem; }
+.ps-app a.ps-btn { display: inline-flex; align-items: center; text-decoration: none; color: var(--ps-text); }
+.ps-app a.ps-btn:hover { color: var(--ps-text); text-decoration: none; }
+.ps-share-beats { text-align: center; font-family: var(--ps-display); font-weight: 600; font-size: 1.05rem; color: var(--ps-good); margin: 0.2rem 0 0.6rem; }
 .ps-numbers { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 0.45rem; }
 .ps-numbers div { border: 2px solid var(--ps-line); border-radius: 10px; padding: 0.4rem 0.5rem; text-align: center; font-size: 0.78rem; color: var(--ps-muted); background: var(--ps-card); }
 .ps-numbers b { display: block; font-family: var(--ps-display); font-size: 1.2rem; color: var(--ps-text); }

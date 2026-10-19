@@ -1,5 +1,6 @@
 # Achievements persist across runs. Those with `when` are checked each turn; the rest are
 # granted by events or the engine. `secret: true` hides the name until earned.
+# Add new achievements at the end and never reorder or delete: shared result links (#r=…) name them by position.
 # --- Research
 - { id: first_blood, name: "First Blood", desc: "Your first accepted first-author paper.", when: { telemetry: { first_author_pubs: ">=1" } } }
 - { id: hat_trick, name: "Hat Trick", desc: "Three first-author papers: enough to defend.", when: { telemetry: { first_author_pubs: ">=3" } } }

@@ -4,7 +4,8 @@ import { Rng } from "../engine/rng.js";
 import { prefersReducedMotion, esc, setKnownTitles } from "./common.js";
 import { gameHtml, orderedActions } from "./gameview.js";
 import { eventHtml, sysHtml, rebuttalHtml, resultHtml, promptClass } from "./prompts.js";
-import { titleHtml, setupHtml, codexHtml, endHtml, summaryText, drawCard } from "./screens.js";
+import { titleHtml, setupHtml, codexHtml, endHtml } from "./screens.js";
+import { readSharedFromLocation, sharedHtml, shareTargets, shareText, cardBlob } from "./share.js";
 
 export class App {
   constructor(root, rawData) {
@@ -26,7 +27,24 @@ export class App {
     root.addEventListener("change", function (e) { self.onChange(e); });
     root.addEventListener("input", function (e) { if (e.target.id === "ps-name" && self.setup) self.setup.name = e.target.value; });
     document.addEventListener("keydown", function (e) { self.onKey(e); });
+    // A shared result link (#r=…) opens a read-only card instead of the title screen.
+    this.shared = readSharedFromLocation(this.D);
+    if (this.shared) this.screen = "shared";
+    window.addEventListener("hashchange", function () {
+      const r = readSharedFromLocation(self.D);
+      if (!r) return;
+      // A run in progress is saved first; "Play your own PhD" leads back to it.
+      if (self.game) self.persist();
+      self.modal = null; self.inspect = null; self.panel = null;
+      self.shared = r; self.screen = "shared"; self.render();
+    });
     this.render();
+  }
+
+  // Leaves the shared card: drop the #r=… part of the address so a reload doesn't bring it back.
+  leaveShared() {
+    this.shared = null;
+    if (/[#&]r=/.test(location.hash)) history.replaceState(null, "", location.pathname + location.search);
   }
 
   // ---- Persistence ----------------------------------------------------------
@@ -67,6 +85,7 @@ export class App {
     else if (this.screen === "setup") body = setupHtml(this);
     else if (this.screen === "codex") body = codexHtml(this);
     else if (this.screen === "end") body = endHtml(this);
+    else if (this.screen === "shared" && this.shared) body = sharedHtml(this);
     else if (this.screen === "game" && this.game) body = gameHtml(this.game, this, this.promptInner(), this.modal ? promptClass(this.modal.prompt) : "");
     const scrollY = window.scrollY;
     const oldScene = this.root.querySelector(".ps-overlay") || this.root.querySelector(".ps-scene");
@@ -261,6 +280,12 @@ export class App {
     if (s.phase !== "ended") { this.render(); return; }
     this.ending = s.ending;
     this.modal = null;
+    // The share sheet must open within the click, so the image is ready before anyone taps Share.
+    const self = this;
+    this.cardFile = null;
+    if (typeof navigator.share === "function" && typeof File === "function") {
+      cardBlob(s.ending, function (blob) { if (blob && self.ending === s.ending) self.cardFile = new File([blob], "phd-simulator.png", { type: "image/png" }); });
+    }
     storage.clearRun();
     this.savedRun = null;
     storage.saveMeta(this.meta);
@@ -313,16 +338,25 @@ export class App {
       case "choose": this.answer({ choice: i }); break;
       case "submit-rebuttal": this.answer({ responses: this.psel.responses }); break;
       case "continue": this.continueAfterResult(); break;
-      case "copy-summary": {
-        const text = summaryText(this.ending) + " " + location.href;
-        const done = function () { self.flashToast("Summary copied."); self.render(); };
-        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { window.prompt("Copy this:", text); });
-        else window.prompt("Copy this:", text);
+      case "shared-play": this.leaveShared(); this.savedRun = storage.loadRun(); this.screen = "title"; this.render(); break;
+      case "shared-daily": this.leaveShared(); this.newSetup(true); break;
+      case "copy-link": {
+        const url = shareTargets(this.ending, this.D).url;
+        const done = function () { self.flashToast("Link copied."); self.render(); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function () { window.prompt("Copy this link:", url); });
+        else window.prompt("Copy this link:", url);
+        break;
+      }
+      case "share-native": {
+        // The device's share sheet, with the image attached where the browser allows files.
+        const t = shareTargets(this.ending, this.D);
+        const data = { title: "PhD Simulator", text: shareText(this.ending), url: t.url };
+        const file = this.cardFile;
+        navigator.share(file && navigator.canShare && navigator.canShare({ files: [file] }) ? Object.assign({ files: [file] }, data) : data).catch(function () {});
         break;
       }
       case "save-image": {
-        const c = drawCard(this.ending);
-        c.toBlob(function (blob) {
+        cardBlob(this.ending, function (blob) {
           if (!blob) return;
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");

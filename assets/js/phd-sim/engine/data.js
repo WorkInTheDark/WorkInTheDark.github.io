@@ -77,6 +77,7 @@ export function prepareData(raw) {
   D.achievementById = indexBy(D.achievements);
   D.tips = asList(src.tips);
   D.recommendations = asList(src.recommendations);
+  D.percentiles = src.percentiles || null;
 
   D.reviews = src.reviews || { personas: [], concerns: [], meta: {} };
   D.personaById = indexBy(D.reviews.personas);

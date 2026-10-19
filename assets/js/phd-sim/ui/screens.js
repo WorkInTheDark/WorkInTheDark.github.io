@@ -1,5 +1,6 @@
 // Title, setup, codex, achievements and the end card.
 import { esc, bar } from "./common.js";
+import { shareRowHtml, beatsLine } from "./share.js";
 
 function stripTokens(s) {
   return String(s || "").replace(/\{[^}]+\}/g, "…");
@@ -97,6 +98,7 @@ export function endHtml(app) {
   return '<div class="ps-end"><div class="ps-end-head"><div class="ps-kicker">' + (e.graduated ? "Graduated" : "Left the PhD") + " · " + esc(e.group) + "</div>" +
     "<h2>" + esc(e.name) + '</h2><div class="ps-end-title">' + esc(e.title.name) + "</div>" +
     (e.title.desc ? '<div class="ps-muted ps-small">' + esc(e.title.desc) + "</div>" : "") + "</div>" +
+    (beatsLine(n.beats) ? '<p class="ps-share-beats" title="Your research record (papers, top venues, h-index, citations, letters) against thousands of simulated runs of the game.">' + esc(beatsLine(n.beats)) + ".</p>" : "") +
     '<div class="ps-card ps-section"><p class="ps-text">' + esc(e.text) + "</p>" + e.epilogue.map(function (l) { return '<p class="ps-small">' + esc(l) + "</p>"; }).join("") + "</div>" +
     '<div class="ps-section"><h3 class="ps-section-title">Your PhD in numbers</h3><div class="ps-numbers">' +
     [["Years", n.years], ["First-author papers", n.pubs], ["All papers", n.allPubs], ["Citations", n.citations], ["h-index", n.h], ["Submissions", n.submissions],
@@ -115,36 +117,8 @@ export function endHtml(app) {
     (e.recommendations.length ? '<div class="ps-section"><h3 class="ps-section-title">From PhD 101, for how you played</h3><div class="ps-recs">' + e.recommendations.map(function (r) {
       return '<a href="' + esc(r.url) + '" target="_blank" rel="noopener"><b>' + esc(r.title) + "</b><small>" + esc(r.topic) + "</small><small>" + esc(r.why) + "</small></a>";
     }).join("") + "</div></div>" : "") +
-    '<div class="ps-foot" style="justify-content:center"><button class="ps-btn" data-action="copy-summary">Copy summary</button>' +
-    '<button class="ps-btn" data-action="save-image">Save as image</button><button class="ps-btn" data-action="codex">Codex</button>' +
+    shareRowHtml(e, app.D, typeof navigator !== "undefined" && typeof navigator.share === "function") +
+    '<div class="ps-foot" style="justify-content:center"><button class="ps-btn" data-action="codex">Codex</button>' +
     '<button class="ps-btn ps-btn-primary" data-action="setup">Play again</button></div></div>';
 }
 
-export function summaryText(e) {
-  const n = e.numbers;
-  return "PhD Simulator: " + e.name + " — “" + e.title.name + "”. " + n.years + " years, " + n.pubs + " first-author papers, " +
-    n.citations + " citations (h " + n.h + "), " + n.rejections + " rejections, " + n.burnouts + " burnouts.";
-}
-
-export function drawCard(e) {
-  const c = document.createElement("canvas");
-  c.width = 1200; c.height = 630;
-  const x = c.getContext("2d");
-  const dark = document.documentElement.getAttribute("data-theme") === "dark";
-  x.fillStyle = dark ? "#1c1c1d" : "#ffffff"; x.fillRect(0, 0, 1200, 630);
-  x.fillStyle = dark ? "#8db0f6" : "#2569ed"; x.fillRect(0, 0, 1200, 10);
-  const fg = dark ? "#e6e6e6" : "#1f2328";
-  const mute = dark ? "#a1a1aa" : "#6b7280";
-  x.fillStyle = mute; x.font = "600 26px system-ui, sans-serif"; x.fillText("PHD SIMULATOR", 70, 90);
-  x.fillStyle = fg; x.font = "700 64px system-ui, sans-serif"; x.fillText(e.name, 70, 180, 1060);
-  x.fillStyle = dark ? "#8db0f6" : "#2569ed"; x.font = "600 36px system-ui, sans-serif"; x.fillText(e.title.name, 70, 240, 1060);
-  const n = e.numbers;
-  const cells = [["Years", n.years], ["Papers", n.pubs], ["Citations", n.citations], ["h-index", n.h], ["Rejections", n.rejections], ["Burnouts", n.burnouts]];
-  cells.forEach(function (cell, i) {
-    const cx = 70 + (i % 3) * 360, cy = 330 + Math.floor(i / 3) * 120;
-    x.fillStyle = fg; x.font = "700 52px system-ui, sans-serif"; x.fillText(String(cell[1]), cx, cy);
-    x.fillStyle = mute; x.font = "400 26px system-ui, sans-serif"; x.fillText(cell[0], cx, cy + 36);
-  });
-  x.fillStyle = mute; x.font = "400 24px system-ui, sans-serif"; x.fillText(location.host + location.pathname, 70, 590);
-  return c;
-}

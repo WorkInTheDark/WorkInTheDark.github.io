@@ -6,7 +6,7 @@
 - { topic: "Sustain Through the Journey", priority: 82, why: "You left before the finish line.", when: { milestone: { graduated: false }, year: [2, 7] } }
 - { topic: "Outcome of PhD Training", priority: 80, why: "What the PhD gives you, even without the degree.", when: { milestone: { graduated: false } } }
 - { topic: "Critique-Centric Feedback", priority: 78, why: "You collected a lot of rejections.", when: { telemetry: { rejections: ">=4" } } }
-- { topic: "Toxicity of Peer Pressure", priority: 76, why: "Your Sanity sank low along the way.", when: { telemetry: { min_sanity: "<20" } } }
+- { topic: "Toxicity of Peer Pressure", priority: 76, why: "Your Stress ran high along the way.", when: { telemetry: { min_sanity: "<20" } } }
 - { topic: "Hold Yourself to a High Standard", priority: 74, why: "A paper went out before it was ready.", when: { telemetry: { desk_rejects: ">=1" } } }
 - { topic: "Deliver Your Commitments", priority: 70, why: "Your rebuttals made promises you had to keep.", when: { telemetry: { rebuttals: ">=3" } } }
 - { topic: "Paper Writing 101", priority: 68, why: "Writing was your weakest skill.", when: { stat: { writing: "<50" } } }

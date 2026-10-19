@@ -1,0 +1,38 @@
+<!doctype html>
+<!-- The link preview for /phd-simulator/ (og:image). Render it to assets/phd-sim/og.jpg with:
+     python3 tools/phd-sim/og/render-og.py -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=block">
+<style>
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+  body { background: #f6efe0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #2b2620; position: relative; }
+  .strip { position: absolute; left: 0; right: 0; bottom: 0; height: 18px; background: #283454; }
+  .text { position: absolute; left: 72px; top: 92px; width: 560px; }
+  .kicker { font: 600 22px/1 system-ui, sans-serif; letter-spacing: 0.12em; color: #d65a32; text-transform: uppercase; }
+  h1 { font: 600 92px/1.02 "Fredoka", system-ui, sans-serif; margin: 22px 0 26px; color: #283454; }
+  p { font-size: 30px; line-height: 1.35; margin: 0 0 30px; color: #4a4339; }
+  .chips { display: flex; gap: 12px; flex-wrap: wrap; }
+  .chip { font: 600 21px/1 system-ui, sans-serif; padding: 11px 16px; border-radius: 999px; border: 3px solid #e4d9c3; background: #fffdf7; color: #2b2620; }
+  .url { position: absolute; left: 72px; bottom: 48px; font: 600 24px/1 system-ui, sans-serif; color: #857c6e; }
+  .cards { position: absolute; right: 64px; top: 54px; width: 520px; height: 520px; }
+  .card { position: absolute; width: 240px; height: 360px; border-radius: 22px; border: 6px solid #fffdf7; background-size: cover; background-position: center;
+          box-shadow: 0 4px 0 rgba(43, 38, 32, 0.08), 0 18px 40px rgba(43, 38, 32, 0.22); }
+  .c1 { left: 0; top: 96px; transform: rotate(-9deg); background-image: url("../../../assets/phd-sim/art/research-2.jpg"); }
+  .c2 { left: 140px; top: 40px; transform: rotate(1deg); z-index: 2; background-image: url("../../../assets/phd-sim/art/reviews-3.jpg"); }
+  .c3 { left: 280px; top: 100px; transform: rotate(10deg); background-image: url("../../../assets/phd-sim/art/milestone-1.jpg"); }
+</style>
+</head>
+<body>
+  <div class="text">
+    <div class="kicker">A browser game</div>
+    <h1>PhD Simulator</h1>
+    <p>Two weeks a turn. Run studies, survive Reviewer 2, and see where your PhD leads.</p>
+    <div class="chips"><span class="chip">NLP × HCI</span><span class="chip">26 endings</span><span class="chip">500+ events</span></div>
+  </div>
+  <div class="url">bingshengyao.com/phd-simulator</div>
+  <div class="cards"><div class="card c1"></div><div class="card c2"></div><div class="card c3"></div></div>
+  <div class="strip"></div>
+</body>
+</html>

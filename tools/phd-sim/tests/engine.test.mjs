@@ -9,6 +9,7 @@ import { Rng } from "../../../assets/js/phd-sim/engine/rng.js";
 import { prepareData, newRun, rollTraits, Game } from "../../../assets/js/phd-sim/engine/index.js";
 import { activeProjects, rollStages, currentStage, stageChance, fieldOf, autoTarget, venuesFor, PROJECT_TYPES, workDay, components, qualityFor } from "../../../assets/js/phd-sim/engine/projects.js";
 import { resolveRebuttal, replyOutlook } from "../../../assets/js/phd-sim/engine/reviews.js";
+import { encodeResult, decodeResult } from "../../../assets/js/phd-sim/ui/share.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const D = prepareData(JSON.parse(readFileSync(join(here, "..", "out", "data.json"), "utf8")));
@@ -277,6 +278,25 @@ test("the rebuttal preview shows where each reply could take a score, without to
   assert.ok(!o[1].flag, "a normal review can't");
   assert.equal(o[1].clarify.up, 2, "a reviewer who won't read the response doesn't move");
   assert.deepEqual(replyOutlook(g, paper), o, "the same paper gives the same preview");
+});
+
+test("a shared result link round-trips, and a hand-made one can only show real game content", () => {
+  const ach = D.achievements.slice(0, 3).map((a) => a.id);
+  const e = { id: D.endings[0].id, name: D.endings[0].name, graduated: true, daily: "2026-10-19", title: { id: D.titles[0].id, name: D.titles[0].name },
+    achievements: ach, numbers: { years: 4.4, pubs: 3, citations: 120, h: 4, rejections: 7, burnouts: 1, beats: 72 } };
+  const r = decodeResult(encodeResult(e, D), D);
+  assert.equal(r.ending.id, e.id);
+  assert.equal(r.title.id, e.title.id);
+  assert.deepEqual([r.y, r.p, r.c, r.h, r.r, r.b, r.beats, r.daily], [4.4, 3, 120, 4, 7, 1, 72, "2026-10-19"]);
+  assert.deepEqual(r.achievements, ach);
+  const forge = (obj) => Buffer.from(JSON.stringify(obj)).toString("base64url");
+  assert.equal(decodeResult(forge({ v: 1, e: "not_an_ending" }), D), null, "unknown endings are refused");
+  assert.equal(decodeResult("%%%not-base64", D), null);
+  const f = decodeResult(forge({ v: 1, e: D.endings[0].id, t: "made_up", p: -5, c: "<b>9</b>", k: 400, d: "<script>", m: "1" }), D);
+  assert.equal(f.title, null);
+  assert.deepEqual([f.p, f.c, f.beats, f.daily], [0, 0, null, null], "bad numbers and text are dropped");
+  assert.deepEqual(f.achievements, [D.achievements[0].id], "achievements come from the game's own list");
+  assert.deepEqual(decodeResult(forge({ v: 1, e: D.endings[0].id, m: "<img>" }), D).achievements, [], "a malformed mask shows none");
 });
 
 test("the same seed and the same answers give the same PhD", () => {
