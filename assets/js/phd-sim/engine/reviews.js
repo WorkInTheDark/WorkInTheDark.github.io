@@ -2,7 +2,7 @@
 import { clamp, asList } from "./util.js";
 import { fill } from "./templating.js";
 import { components, qualityFor, autoTarget, nextDeadline } from "./projects.js";
-import { hasTrait } from "./derived.js";
+import { hasTrait, firstAuthorPubs } from "./derived.js";
 import { span } from "./state.js";
 import { unlock } from "./achievements.js";
 import { spendDays } from "./effects.js";
@@ -23,7 +23,10 @@ export function makePaper(G, p, opts) {
   const v = G.D.venueById[p.target.venueId];
   const c = v.cycles[p.target.cycle];
   const comps = components(G, p);
-  const Q = qualityFor(G, comps, v.id);
+  // Until your first first-author paper is accepted, your advisor puts extra work into every draft
+  // (config reviews.first_paper_bonus), so the first paper doesn't take five rejections.
+  const firstHelp = p.firstAuthor !== false && firstAuthorPubs(G) === 0 ? (G.D.config.reviews.first_paper_bonus || 0) : 0;
+  const Q = qualityFor(G, comps, v.id) + firstHelp;
   p.submissions++;
   const paper = {
     id: "x" + s.nextId++,
