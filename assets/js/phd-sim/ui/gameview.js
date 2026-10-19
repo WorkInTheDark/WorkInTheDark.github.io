@@ -35,9 +35,10 @@ function actionIcon(G, a) {
 
 // ---- Top strip --------------------------------------------------------------------------------
 
+// A gauge with its name spelled out: "⚡ Energy  80" above the bar.
 function meter(icon, label, value, cls, low) {
-  return '<div class="ps-meter" title="' + label + " " + Math.round(value) + '"><span class="ps-meter-icon" aria-hidden="true">' + icon + "</span>" +
-    '<span class="ps-sr">' + label + "</span>" + bar(value, cls, low) + "<b>" + Math.round(value) + "</b></div>";
+  return '<div class="ps-meter" title="' + label + " " + Math.round(value) + '"><span class="ps-meter-name"><span aria-hidden="true">' + icon + "</span> " + label + "</span>" +
+    "<b>" + Math.round(value) + "</b>" + bar(value, cls, low) + "</div>";
 }
 
 function hudHtml(G) {
@@ -81,11 +82,11 @@ function tileHtml(G, a, n) {
 // Last turn in one strip: bar changes and the one or two things worth knowing.
 function recapHtml(G, report) {
   if (!report) return "";
-  const icon = { energy: "⚡", sanity: "\u{1F623}", health: "❤️" };
-  const deltas = report.deltas.filter(function (d) { return icon[d.stat]; }).map(function (d) {
+  const name = { energy: "Energy", sanity: "Stress", health: "Health" };
+  const deltas = report.deltas.filter(function (d) { return name[d.stat]; }).map(function (d) {
     const diff = Math.round(shownStat(d.stat, d.to) - shownStat(d.stat, d.from));
     if (!diff) return "";
-    return '<span class="ps-delta ' + (d.to > d.from ? "ps-delta-good" : "ps-delta-bad") + '">' + icon[d.stat] + (diff > 0 ? "+" : "−") + Math.abs(diff) + "</span>";
+    return '<span class="ps-delta ' + (d.to > d.from ? "ps-delta-good" : "ps-delta-bad") + '">' + name[d.stat] + " " + (diff > 0 ? "+" : "−") + Math.abs(diff) + "</span>";
   }).join("");
   // Project changes show on their trackers in the tray, not here.
   const items = [];
@@ -102,7 +103,7 @@ function planHtml(G, ui) {
   const opts = orderedActions(ui.plan);
   return '<div class="ps-plan ps-enter">' + recapHtml(G, ui.report) +
     '<div class="ps-scene-head"><h2 class="ps-scene-title">' + (ui.plan.internship ? "Internship weeks" : ui.plan.onLeave ? "On leave" : "Your next two weeks") + "</h2>" +
-    (G.state.turn <= 1 ? '<span class="ps-scene-hint">Pick one. Keep ⚡ up, \u{1F623} down, ❤️ up.</span>' : "") + "</div>" +
+    (G.state.turn <= 1 ? '<span class="ps-scene-hint">Pick one. Keep Energy up, Stress down, Health up.</span>' : "") + "</div>" +
     '<div class="ps-tiles">' + opts.map(function (a, i) { return tileHtml(G, a, i + 1); }).join("") + "</div>" + sideHtml(ui) + "</div>";
 }
 

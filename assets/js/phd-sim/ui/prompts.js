@@ -79,7 +79,7 @@ const SEVERITY = { fatal: 4, critical: 3, major: 2, minor: 1 };
 const REPLY_PREVIEW = {
   clarify: "Works if they misread. Low risk.",
   concede: "Safe for small points. You'll owe the fixes later.",
-  experiment: "Strong for doubts about the results. Costs 2 days next turn and \u26A1.",
+  experiment: "Strong for doubts about the results. Costs 2 days next turn and Energy.",
   pushback: "Good if they're wrong but open-minded. Risky.",
   passive: "Satisfying to write. Usually backfires.",
   flag: "Asks the area chair to discount this review."

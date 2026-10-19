@@ -140,9 +140,11 @@ html[data-theme='dark'] .ps-app {
 .ps-cal-badge span { font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; opacity: 0.75; }
 .ps-cal-badge b { font-family: var(--ps-display); font-size: 1.05rem; font-weight: 600; }
 .ps-meters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; min-width: 0; }
-.ps-meter { display: grid; grid-template-columns: auto minmax(0, 1fr) 1.9rem; align-items: center; gap: 0.35rem; min-width: 0; }
-.ps-meter-icon { font-size: 1rem; line-height: 1; }
-.ps-meter b { font-family: var(--ps-display); font-weight: 600; font-size: 0.95rem; text-align: right; }
+/* name and number on top, the gauge below */
+.ps-meter { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; column-gap: 0.35rem; row-gap: 3px; min-width: 0; }
+.ps-app .ps-meter-name { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; color: var(--ps-hud-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ps-meter b { font-family: var(--ps-display); font-weight: 600; font-size: 0.9rem; line-height: 1; text-align: right; }
+.ps-meter .ps-bar { grid-column: 1 / -1; }
 .ps-bar { height: 10px; border-radius: 99px; background: var(--ps-hud-track); overflow: hidden; position: relative; }
 .ps-bar > span { display: block; height: 100%; border-radius: 99px; transition: width 0.5s cubic-bezier(.2, .8, .2, 1); }
 /* tick marks make the bars read like a game gauge */
@@ -213,7 +215,6 @@ html[data-theme='dark'] .ps-app {
 .ps-arrow-up { color: var(--ps-good); }
 .ps-arrow-down { color: var(--ps-bad); }
 .ps-arrow-mixed { color: var(--ps-warn); }
-.ps-arrow-icon { padding: 0 0.35rem; }
 
 /* cards in the scene: events, decisions, deadlines, committees */
 .ps-dialog { border-top: 5px solid var(--ps-common); padding: 0.85rem 1rem 1rem; box-shadow: 0 3px 0 var(--ps-line); }
@@ -447,7 +448,6 @@ html[data-theme='dark'] .ps-art img { filter: brightness(0.88); }
   .ps-score { order: 1; justify-self: end; }
   .ps-hud-btns { order: 2; }
   .ps-meters { grid-column: 1 / -1; order: 3; gap: 0.5rem; }
-  .ps-meter { grid-template-columns: auto minmax(0, 1fr) 1.5rem; gap: 0.25rem; }
   .ps-tiles { grid-template-columns: minmax(0, 1fr); }
   .ps-ach-list { grid-template-columns: minmax(0, 1fr); }
   .ps-review { grid-template-columns: auto minmax(0, 1fr); }

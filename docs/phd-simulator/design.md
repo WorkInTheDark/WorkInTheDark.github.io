@@ -898,7 +898,7 @@ Arthur: the full-height layout was too tall, had too much text, and felt like a 
   - **Titles stand out:** the run's paper and project titles (full or short, quoted or not) render in italic semibold wherever they appear.
   - **Achievements** never appear inside cards: a Steam-style card slides in at the lower right of the screen, and the 🏆 button in the top strip lists every achievement (secret ones hidden until found).
   - **PhD 101 pointers** from senior labmates and from events collect in a yellow strip above the project trackers (the last two from the past 12 weeks), instead of sitting in the recap or a result.
-  - **"Your two weeks"** card: no odds and no repeated project name ("Pilot isn't done yet."); bar changes and arrows everywhere use the top strip's icons (⚡ 😣 ❤️) instead of words.
+  - **"Your two weeks"** card: no odds and no repeated project name ("Pilot isn't done yet."). Bar changes and arrows say Energy, Stress and Health in words (icons alone weren't self-explanatory, Arthur), and the top strip spells the names out above each gauge ("⚡ Energy  64").
   - **Decisions on your papers** pop up before you plan the turn (a rejection changes what you'd plan), not after the focus.
   - **Learning weekend picks** (reading group, coffee with the visiting speaker, a nearby workshop) give the project you're working on (or your busiest one) a progress nudge.
   - **The fellowship win** is its own pop-up and unlocks the Fellow achievement right away.

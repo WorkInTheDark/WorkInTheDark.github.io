@@ -6,8 +6,6 @@ export const esc = escapeHtml;
 // The engine's "sanity" is shown as Stress = 100 − sanity: arrows and numbers flip, colors don't
 // (green is always good for you).
 const SHORT = { energy: "Energy", sanity: "Stress", health: "Health", citations: "Citations", progress: "Progress", quals: "Quals odds" };
-// The three bars show as the same icons as the top strip; the words stay for screen readers.
-const ICON = { energy: "\u26A1", sanity: "\u{1F623}", health: "\u2764\uFE0F" };
 const SYM = { up: ["↑", "↑↑"], down: ["↓", "↓↓"], mixed: ["↕", "↕"] };
 const WORD = { up: "up", down: "down", mixed: "could go either way" };
 const FLIP = { up: "down", down: "up", mixed: "mixed" };
@@ -18,8 +16,8 @@ export function arrowsHtml(arrows) {
     const shown = a.stat === "sanity" ? FLIP[a.dir] : a.dir;
     const sym = SYM[shown][a.strength > 1 ? 1 : 0];
     const label = SHORT[a.stat] + " " + WORD[shown] + (a.strength > 1 && a.dir !== "mixed" ? " a lot" : "");
-    return '<span class="ps-arrow ps-arrow-' + a.dir + (ICON[a.stat] ? " ps-arrow-icon" : "") + '" aria-label="' + esc(label) + '" title="' + esc(label) + '">' +
-      (ICON[a.stat] || esc(SHORT[a.stat])) + " " + sym + "</span>";
+    return '<span class="ps-arrow ps-arrow-' + a.dir + '" aria-label="' + esc(label) + '" title="' + esc(label) + '">' +
+      esc(SHORT[a.stat]) + " " + sym + "</span>";
   }).join("") + "</span>";
 }
 
@@ -39,9 +37,7 @@ export function deltasHtml(list) {
     if (d.stat === "progress") return '<span class="ps-delta ' + (good ? "ps-delta-good" : "ps-delta-bad") + '">' + esc((d.label || "Project") + " progress") + " " + (good ? "\u2191" : "\u2193") + "</span>";
     if (d.stat === "delay") { label = (d.label || "Project") + " delay (weeks)"; good = d.amount < 0; }
     const n = Math.round(d.amount * 10) / 10;
-    const icon = ICON[d.stat];
-    return '<span class="ps-delta ' + (good ? "ps-delta-good" : "ps-delta-bad") + '"' + (icon ? ' aria-label="' + esc(label + " " + (n > 0 ? "+" : "-") + Math.abs(n)) + '" title="' + esc(label) + '"' : "") + ">" +
-      (icon || esc(label)) + " " + (n > 0 ? "+" : "−") + Math.abs(n) + "</span>";
+    return '<span class="ps-delta ' + (good ? "ps-delta-good" : "ps-delta-bad") + '">' + esc(label) + " " + (n > 0 ? "+" : "−") + Math.abs(n) + "</span>";
   }).join("") + "</div>";
 }
 
