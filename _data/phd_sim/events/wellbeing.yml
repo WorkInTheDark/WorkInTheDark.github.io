@@ -10,17 +10,17 @@
   when:
     telemetry: { days_off_streak: ">=3" }
   text:
-    - "You try to remember your last real day off. You count back. It was six weeks ago, and you spent it doing laundry."
+    - "You try to remember your last real day off. It was six weeks ago, and you spent it doing laundry."
   choices:
-    - label: "Take tomorrow off. Really off."
-      text: "No laptop, no email, a long walk and a long nap. The work is still there on Monday, and so are you."
+    - label: "Take a real day off tomorrow"
+      text: "You go for a long walk and never open your email. The work is still there on Monday, and so are you."
       effects: { days: -1, energy: "+8±2", sanity: "+6±2" }
       tip: "When and How to Rest"
     - label: "Plan a long weekend next turn"
       text: "You block it on your calendar and tell three people, so you can't back out."
       effects: { days_next: -2, sanity: "+3±1" }
     - label: "Keep going, it's almost done"
-      text: "It is not almost done. It never is. But the week does get a lot done."
+      text: "It is not almost done. It never is, but you do get a lot done this week."
       effects: { energy: "-3±1", sanity: "-4±1", health: "-1" }
 
 - id: wel_week_off
@@ -31,10 +31,10 @@
   when:
     status_none: [on_internship, defense_prep]
   text:
-    - "Your friends rent a cabin by a lake for a week. No Wi-Fi, no signal, and one spare bed with your name on it."
+    - "Your friends rent a cabin by a lake for a week, with no Wi-Fi and one spare bed with your name on it."
   choices:
     - label: "Go, and leave the laptop home"
-      text: "Seven days of lake, card games and no notifications. By day four, you forget your own password."
+      text: "You swim and play cards for seven days. By day four, you've forgotten your own password."
       effects: { days: -4, energy: "+14±4", sanity: "+12±4", friends_rel: "+5±2" }
       flag_set: [offline_week]
       tip: "Sustain Through the Journey"
@@ -42,7 +42,7 @@
         - { event: wel_back_inbox, in: [1, 1], chance: 0.8 }
         - { event: wel_back_fresh_eyes, in: [1, 2], chance: 0.7 }
     - label: "Go, but bring the laptop"
-      text: "You work mornings on the porch and swim in the afternoons. Half a vacation is still something."
+      text: "You work mornings on the porch and swim in the afternoons."
       effects: { days: -2, energy: "+5±2", sanity: "+5±2", friends_rel: "+2±1" }
     - label: "Stay and work"
       text: "The photos in the group chat look wonderful."
@@ -61,14 +61,14 @@
     - "You open your laptop after the lake: {roll:100-140} unread emails and nine messages from {advisor}. The last one says \"Never mind, figured it out.\""
   choices:
     - label: "Answer every single one today"
-      text: "By midnight, inbox zero. The lake already feels like a dream."
+      text: "You reach inbox zero by midnight. The lake already feels like a dream."
       effects: { days: -1, energy: "-6±2", advisor_rel: "+2±1", health: "-2±1" }
       achievement: inbox_zero
     - label: "Read only your advisor's"
       text: "Most of them answered each other. You reply to the last one with a thumbs-up."
       effects: { sanity: "+2±1", advisor_rel: "+1" }
     - label: "Mark all as read"
-      text: "Bold. Freeing. One of them was an invitation to give a talk."
+      text: "It feels wonderful. One of them was an invitation to give a talk."
       effects: { sanity: "+5±2", network: "-2±1", advisor_rel: "-2±1" }
 
 - id: wel_back_fresh_eyes
@@ -87,7 +87,7 @@
       text: "Two hours of work and it's solved. You wonder what else a week off could fix."
       effects: { project.progress: "+12±4", project.quality.S: "+4±1", energy: "-3±1" }
     - label: "Write down why it was hard to see"
-      text: "One page on what you missed and why. You'll recognize the pattern next time."
+      text: "You write a page on what you missed and why, so you'll spot it next time."
       effects: { taste: "+3±1", project.quality.C: "+3±1", sanity: "+3±1" }
 
 - id: wel_lab_cold
@@ -134,7 +134,7 @@
       text: "Three groggy days later, you see the sun on purpose."
       effects: { energy: "-5±2", health: "+3±1", sanity: "+2±1" }
     - label: "Shift an hour earlier each day"
-      text: "Slow and steady. By next week, you're having breakfast at a normal breakfast time."
+      text: "By next week, you're eating breakfast at breakfast time."
       effects: { energy: "-2±1", health: "+2±1", sanity: "+1" }
       tip: "How to Spend a Day"
     - label: "Keep the night shift"
@@ -160,10 +160,10 @@
     - "Your meeting with {advisor} about {project} goes unexpectedly well. Thirty minutes in, you remember why you wanted to do this project."
   choices:
     - label: "Ride the momentum all weekend"
-      text: "Two long days of focused work. Tired, but the project is moving again."
+      text: "You put in two long, focused days. You're tired, and the project is moving again."
       effects: { energy: "-6±2", project.progress: "+12±4", sanity: "+3±1", health: "-2±1" }
     - label: "Write down the next three steps"
-      text: "Three clear steps on a sticky note on your monitor. Monday-you will be grateful."
+      text: "Three clear steps go on a sticky note on your monitor, where Monday-you will find them."
       effects: { project.progress: "+5±2", sanity: "+5±1" }
       tip: "Project Meeting"
     - label: "Celebrate with bubble tea"
@@ -182,7 +182,7 @@
       effects: { sanity: "+4±1", labmates_rel: "-1" }
       tip: "Know Your Limits"
     - label: "Say yes"
-      text: "Your calendar now has a color for each project. It looks like a rainbow, and it feels like one too."
+      text: "Your calendar now has a different color for each project, and you're running out of colors."
       effects: { labmates_rel: "+4±1", network: "+2±1", sanity: "-4±1", days_next: -2 }
       flag_set: [fourth_side_project]
     - label: "Offer an hour of feedback instead"
@@ -219,7 +219,7 @@
   repeatable: true
   cooldown: 16
   text:
-    - "After eleven hours of screens, the text on your monitor starts to swim. You blink. It keeps swimming."
+    - "After eleven hours of screens, the text on your monitor starts to swim, and blinking doesn't help."
   choices:
     - label: "Look away every twenty minutes, like the poster says"
       text: "Every twenty minutes, twenty feet, twenty seconds. You get to know the tree outside the window very well."
@@ -228,7 +228,7 @@
       text: "The headache arrives on schedule."
       effects: { health: "-3±1", sanity: "-1" }
     - label: "Get your eyes checked"
-      text: "New glasses. The world is sharper, and so are your figures."
+      text: "You get new glasses. The world is sharper, and so are your figures."
       effects: { health: "+2±1", days: -1 }
 - id: wel_its_going_around
   title: "It's Going Around"
@@ -265,7 +265,7 @@
     - "You realize that for three weeks, lunch has been crackers from the vending machine, eaten over your keyboard."
   choices:
     - label: "Meal prep this Sunday"
-      text: "Five containers of something green. You feel like an adult."
+      text: "You make five containers of something green and feel like an adult."
       effects: { health: "+3±1", energy: "-1" }
     - label: "Join the lab for lunch"
       text: "Real food, and gossip about which professor is moving to industry."
@@ -330,7 +330,7 @@
   cooldown: 16
   when: { stat: { energy: "<40" } }
   text:
-    - "You fall asleep in a department talk. In the front row. The speaker notices."
+    - "You fall asleep in a department talk, in the front row, and the speaker notices."
   choices:
     - label: "Go to bed at ten for the next two weeks"
       text: "It feels like a vacation you didn't have to book."
@@ -345,10 +345,10 @@
   repeatable: true
   cooldown: 26
   text:
-    - "A pick-up basketball game, one bad landing, and your ankle turns a color you didn't know ankles could be."
+    - "One bad landing in a pick-up basketball game, and your ankle turns a color you didn't know ankles could be."
   choices:
     - label: "Rest it properly"
-      text: "Ice, elevation, and a lot of reading on the couch."
+      text: "You keep it iced and up on the couch, and read a lot."
       effects: { health: "-3±1", days: -2, knowledge: "+1" }
     - label: "Limp to the lab"
       text: "Everyone asks what happened. You tell the story eleven times; it gets better each time."
@@ -383,7 +383,7 @@
       text: "You can breathe. You can also barely keep your eyes open."
       effects: { health: "+1", energy: "-3±1" }
     - label: "Tough it out"
-      text: "You go through a box of tissues a day and look like you've been crying at your code. Sometimes you have."
+      text: "You go through a box of tissues a day. People keep asking if the code is that bad."
       effects: { health: "-3±1", sanity: "-2±1" }
 - id: wel_lab_fridge
   title: "The Lab Fridge"
@@ -424,7 +424,7 @@
       effects: { sanity: "+6±2", energy: "+3±1", friends_rel: "+4±1", days: -1 }
       tip: "When and How to Rest"
     - label: "Go, but only for an hour"
-      text: "One quick bowl of noodles, then back to the lab. Not the full cure, but a dose."
+      text: "You have one quick bowl of noodles and go back to the lab feeling a bit better."
       effects: { sanity: "+3±1", friends_rel: "+1", energy: "-1" }
     - label: "\"Ten more minutes\""
       text: "You finish the section. They leave a takeout box on your desk with a sticky note: \"Next week. Really.\""
@@ -442,7 +442,7 @@
       text: "Over coffee, {labmate} admits the project failed twice before it worked, and their first draft was worse than yours."
       effects: { labmates_rel: "+3±1", taste: "+2±1", sanity: "+2±1", energy: "-2±1" }
     - label: "Work twice as hard this month"
-      text: "You out-work the small voice for two weeks. It's still there, just tired. So are you."
+      text: "You out-work the small voice for two weeks. It's still there, and now you're both tired."
       effects: { days: 2, energy: "-6±2", health: "-3±1", sanity: "-3±1" }
     - label: "List three things you did this year"
       text: "The list runs well past three. You read it twice, then go to bed."
@@ -451,7 +451,7 @@
     - label: "Read their paper to find the trick"
       requires: { traits_any: [imposter_syndrome] }
       tag: "Imposter Syndrome"
-      text: "There is no trick. It's just a careful, good paper. Somehow, that helps."
+      text: "There's no trick, just a careful, good paper, and somehow that helps."
       effects: { taste: "+3±1", sanity: "+2±1", days: -1 }
 
 - id: wel_gym_streak
@@ -468,19 +468,19 @@
     - "Ten gym sessions in a row. The front desk nods at you now, and you've started saying \"leg day\" without irony."
   choices:
     - label: "Keep the streak going"
-      text: "Eleven, twelve, thirteen. Your back stops complaining about the chair. Your calendar starts complaining instead."
+      text: "You keep going to thirteen. Your back stops complaining about the chair, and your calendar starts instead."
       effects: { health: "+5±1", energy: "+2±1", days: -1 }
     - label: "Bring {labmate} next time"
       requires: { has_advisor: true }
       text: "{labmate} lasts twenty minutes and is sore for three days. They want to go again, which surprises you both."
       effects: { health: "+3±1", labmates_rel: "+3±1", energy: "-2±1" }
     - label: "Reward yourself with a week off"
-      text: "A well-earned week on the couch. The streak ends at ten, which is still ten."
+      text: "You spend a week on the couch. The streak ends at ten, which is still ten."
       effects: { energy: "+4±1", sanity: "+3±1", health: "-2±1" }
     - label: "Go for twenty"
       requires: { traits_any: [gym_rat] }
       tag: "Gym Rat"
-      text: "Twenty sessions. You feel unstoppable, and mostly you are, except around 3 pm."
+      text: "You make it to twenty and feel unstoppable, except around 3 pm."
       effects: { health: "+7±2", sanity: "+3±1", energy: "-2±1", days: -1 }
 
 - id: wel_acceptance_posts
@@ -492,10 +492,10 @@
   when:
     telemetry: { submissions: ">=1" }
   text:
-    - "Decisions are out for a big conference, and your feed is a wall of \"Thrilled to share...\" posts. You've been scrolling for forty minutes. You stopped reading the titles a while ago."
+    - "Decisions are out for a big conference, and your feed is a wall of \"Thrilled to share...\" posts. You've been scrolling for forty minutes and stopped reading the titles a while ago."
   choices:
     - label: "Close the app and go for a walk"
-      text: "The trees outside haven't had a paper accepted either. They seem fine."
+      text: "The trees outside haven't had a paper accepted either, and they seem fine."
       effects: { sanity: "+4±1", health: "+1", network: "-1" }
       tip: "Toxicity of Peer Pressure"
     - label: "Like every single one"
@@ -521,13 +521,13 @@
   cooldown: 26
   when: { turn: [5, 6], has_advisor: true }
   text:
-    - "Daylight saving ends. The clocks go back an hour, and your body doesn't notice. You've been handed one free hour, no strings attached."
+    - "Daylight saving ends and the clocks go back, which gives you one free hour."
   choices:
     - label: "Spend the hour asleep"
       text: "The best hour of sleep you've had all semester. You wake up almost rested."
       effects: { health: "+3±1", energy: "+3±1" }
     - label: "Spend it on one more experiment"
-      text: "The extra hour goes to one more run. The run takes three hours. You end up two hours behind."
+      text: "The extra hour goes to one more run, which takes three hours. You end up two hours behind."
       effects: { coding: "+2±1", energy: "-3±1", health: "-1" }
     - label: "Book a 7 am meeting; it \"feels like 8\""
       text: "It does feel like 8, for about a week. Then it feels like 7 again, and the meeting is now recurring."
@@ -549,7 +549,7 @@
       text: "The data is still collected. It just isn't anyone's problem now."
       effects: { sanity: "+2±1", health: "-2±1" }
     - label: "Return it with a note: \"broken\""
-      text: "{labmate} checks it and finds nothing wrong. They know. You know they know."
+      text: "{labmate} checks it, finds nothing wrong and gives you a long look."
       effects: { sanity: "+3±1", labmates_rel: "-2±1", health: "-1" }
 
 - id: wel_lab_couch
@@ -591,10 +591,10 @@
         text: "Your note is so well argued that someone comes out the same week. The radiator now hums, gently."
         effects: { health: "+3±1", sanity: "+2±1" }
       failure:
-        text: "The landlord replies, \"That's normal for an old building.\" It is. It's also loud."
+        text: "The landlord replies that this is normal for an old building, which is true and doesn't help."
         effects: { health: "-2±1", sanity: "-2±1" }
     - label: "Use the hours to write"
-      text: "Two hours a night, typing in time with the clanks. Your draft grows. Your eyes stop fully opening."
+      text: "You write two hours a night, typing in time with the clanks. The draft grows, and your eyes stop fully opening."
       effects: { writing: "+2±1", days: 1, health: "-4±1", energy: "-3±1" }
 
 - id: wel_arxiv_tabs
@@ -614,7 +614,7 @@
       effects: { knowledge: "+1", health: "+1" }
       tip: "Paper Reading"
     - label: "Just one more abstract"
-      text: "By 2:40 am you understand a whole new subfield. Not yours."
+      text: "By 2:40 am you understand a whole new subfield, sadly not yours."
       effects: { knowledge: "+3±1", health: "-3±1", energy: "-3±1" }
 
 - id: wel_fourteen_hours
@@ -625,7 +625,7 @@
   repeatable: true
   cooldown: 8
   text:
-    - "The weekend after you submit {paper}, you go to bed at 9 pm and wake up at 11 am. Fourteen hours. Your body was keeping a tab."
+    - "The weekend after you submit {paper}, you go to bed at 9 pm and wake up at 11 am."
   choices:
     - label: "Do it again on Sunday"
       text: "Another long night. On Monday you feel like someone just back from vacation."
@@ -634,7 +634,7 @@
       text: "You find three mugs you thought you'd lost and one you wish you hadn't. The apartment is clean; you are tired."
       effects: { sanity: "+4±1", health: "+1", energy: "-2±1" }
     - label: "Start planning the next paper"
-      text: "By Sunday night you have an outline and a mild headache. Momentum is a choice."
+      text: "By Sunday night you have an outline and a mild headache."
       effects: { taste: "+2±1", knowledge: "+1", energy: "-3±1", health: "-2±1" }
 
 # --- Posture, eyes and moving around ---
@@ -644,16 +644,16 @@
   category: wellbeing
   rarity: uncommon
   text:
-    - "The university offers free ergonomic assessments. The assessor measures your desk, frowns, and photographs your setup \"for training purposes\"."
+    - "The university offers free ergonomic assessments. The assessor frowns at your desk and photographs your setup \"for training purposes\"."
   choices:
     - label: "Follow every recommendation"
-      text: "Chair height, monitor arm, footrest, and a lumbar pillow shaped like a burrito. It takes a day. Your back notices."
+      text: "It takes a full day and a lumbar pillow shaped like a burrito. Your back feels better by evening."
       effects: { health: "+5±1", days: -1 }
     - label: "Fix only the monitor height"
-      text: "You raise the monitor on the conference proceedings you never read. Finally, a use for them."
+      text: "You raise the monitor on the conference proceedings you never read, which finally have a use."
       effects: { health: "+2±1" }
     - label: "Ask them to blur your face"
-      text: "They agree. Your posture becomes an anonymous warning in next year's training slides. You change nothing."
+      text: "They agree. Your posture, unchanged, becomes an anonymous warning in next year's training slides."
       effects: { sanity: "+2±1", health: "-2±1" }
 
 - id: wel_standing_desk
@@ -665,7 +665,7 @@
     - "Your standing desk arrives. On day one you stand for two hours. On day two it becomes a regular desk, slightly taller."
   choices:
     - label: "Alternate on a timer"
-      text: "Thirty minutes up, thirty down. Your legs complain for a week, then stop."
+      text: "You switch every thirty minutes. Your legs complain for a week, then stop."
       effects: { health: "+4±1", energy: "-2±1" }
     - label: "Use it as a shelf for printed papers"
       text: "It holds 300 pages you'll read someday. It's the most useful furniture you own."
@@ -686,7 +686,7 @@
       text: "Six floors, four times a day. By week three you arrive only slightly out of breath."
       effects: { health: "+5±1", energy: "-4±1" }
     - label: "Work from the ground-floor library"
-      text: "Quiet, warm, and five floors from the lab. You get a lot done and miss all the gossip."
+      text: "The library is quiet and warm. You get a lot done and miss all the lab gossip."
       effects: { knowledge: "+2±1", labmates_rel: "-2±1" }
     - label: "Wait for the freight elevator"
       text: "It comes every twenty minutes. You get to know the custodians, and a lot of podcasts."
@@ -700,7 +700,7 @@
   cooldown: 26
   when: { turn: [8, 13], has_advisor: true }
   text:
-    - "You realize you haven't seen daylight on a weekday in two weeks. You arrive in the dark, leave in the dark, and the lab has no windows."
+    - "You haven't seen daylight on a weekday in two weeks. You arrive and leave in the dark, and the lab has no windows."
   choices:
     - label: "Hold your next one-on-one outside"
       check: { stat: advisor_rel, vs: 50, spread: 20 }
@@ -743,10 +743,10 @@
     - "Your new glasses arrive. It turns out the slides at department talks were never blurry, and trees have individual leaves."
   choices:
     - label: "Wear them everywhere"
-      text: "Two days of headaches, then a sharper world. You can now read the fine print on the reimbursement form. You wish you couldn't."
+      text: "After two days of headaches, the world gets sharper. You can now read the fine print on the reimbursement form, and you wish you couldn't."
       effects: { health: "+3±1", energy: "-2±1" }
     - label: "Keep them for screens only"
-      text: "A compromise. You still squint at the whiteboard, but your eyes stop aching by 6 pm."
+      text: "You still squint at the whiteboard, but your eyes stop aching by 6 pm."
       effects: { health: "+2±1", sanity: "-1" }
     - label: "Reread your favorite paper, properly"
       text: "Figure 3 had error bars all along. The paper is even better than you remembered."
@@ -767,7 +767,7 @@
       text: "A rough week, then a surprise: you sleep through the night and wake up before the alarm."
       effects: { health: "+5±1", energy: "-5±2", sanity: "-2±1" }
     - label: "Switch to tea"
-      text: "Three cups of green tea a day. Gentler. You've started describing it as \"grassy\"."
+      text: "You drink three cups of green tea a day and start describing it as \"grassy\"."
       effects: { health: "+2±1", energy: "-2±1" }
     - label: "Give up at 10:02 am"
       text: "The coffee tastes like victory and defeat at the same time."
@@ -780,13 +780,13 @@
   repeatable: true
   cooldown: 16
   text:
-    - "The late-night delivery driver now greets you by name, knows your building's door code, and asked last week how the paper is going."
+    - "The late-night delivery driver greets you by name. Last week they asked how the paper is going."
   choices:
     - label: "Order the salad this time"
-      text: "The driver looks worried about you. The salad is fine. You're still a little hungry at midnight."
+      text: "The driver looks worried about you. The salad is fine, and you're hungry again by midnight."
       effects: { health: "+2±1", sanity: "-1" }
     - label: "Order the usual, extra fries"
-      text: "It's 11 pm, the fries are perfect, and for ten minutes nothing else matters."
+      text: "The fries are perfect, and for ten minutes nothing else matters."
       effects: { sanity: "+4±1", health: "-3±1" }
     - label: "Make it your last delivery this month"
       text: "You cook rice in bulk and eat it with whatever's in the fridge. The driver probably misses you."
@@ -817,10 +817,10 @@
   repeatable: true
   cooldown: 20
   text:
-    - "The department's \"leftovers in the kitchen\" emails have fed you for a week: pizza, cookies, and one mysterious tray of wraps."
+    - "The department's \"leftovers in the kitchen\" emails have fed you for a week, mostly pizza and one mysterious tray of wraps."
   choices:
     - label: "Keep it up"
-      text: "Free food is a research skill. Your wallet is grateful. Your body has notes."
+      text: "Your wallet is happy. You haven't eaten a vegetable since Tuesday."
       effects: { sanity: "+2±1", health: "-3±1" }
     - label: "Buy actual groceries"
       text: "Vegetables! You'd forgotten how they crunch."
@@ -848,7 +848,7 @@
       text: "\"About six,\" you say. The nurse writes down \"twelve\" and hands you a pamphlet anyway."
       effects: { health: "+2±1", sanity: "+1" }
     - label: "Laugh nervously"
-      text: "The nurse laughs too, then books you a follow-up. You'll go. Probably."
+      text: "The nurse laughs too, then books you a follow-up that you will probably go to."
       effects: { health: "+3±1", sanity: "-2±1" }
 
 - id: wel_fever_committee
@@ -919,7 +919,7 @@
       text: "They cover for you and say you owe them one. They will collect, during finals."
       effects: { health: "+3±1", days_next: -1 }
     - label: "Whisper; the students lean in"
-      text: "Thirty students lean in and go very quiet. It's the most attentive section all semester. Your throat files a complaint."
+      text: "Thirty students lean in and go very quiet. It's the most attentive section all semester, and by evening your throat feels like sandpaper."
       effects: { presenting: "+1", sanity: "+2±1", health: "-3±1" }
 
 - id: wel_soup_at_door
@@ -933,7 +933,7 @@
     - "You're home with a cold. There's a knock, and outside your door is a container of soup and a sticky note from {labmate}: \"Get well. Don't answer the lab chat.\""
   choices:
     - label: "Rest properly, like the note says"
-      text: "Soup, sleep, more soup. By Friday you're back, and so is your sense of smell."
+      text: "You eat the soup and sleep. By Friday you're back, and so is your sense of smell."
       effects: { health: "+5±1", energy: "+3±1", days: -1 }
     - label: "Thank them, then work from bed"
       text: "You send a heart emoji and a pull request. The soup goes cold next to your laptop."
@@ -952,16 +952,16 @@
   cooldown: 26
   when: { turn: [10, 14], has_advisor: true }
   text:
-    - "Snow day: the university closes campus. Classes are canceled, the building is locked, and the whole city is quiet."
+    - "Snow day: the university closes campus and locks the building. The whole city is quiet."
   choices:
     - label: "Actually rest"
-      text: "A blanket, a pot of tea, and a novel with no citations. It feels illegal."
+      text: "You read a novel with no citations under a blanket, which feels almost illegal."
       effects: { sanity: "+5±2", health: "+3±1", energy: "+3±1" }
     - label: "Write from home all day"
-      text: "No meetings, no seminar, no excuses. You write more than you have all month."
+      text: "With no meetings and no seminar, you write more than you have all month."
       effects: { days: 1, writing: "+1", sanity: "-1" }
     - label: "Have a snowball fight, then write"
-      text: "A fierce battle in the quad, then hot chocolate and a slow afternoon of writing. {labmate} has a terrifying arm."
+      text: "{labmate} turns out to have a terrifying arm. Afterward, you write slowly over hot chocolate."
       effects: { labmates_rel: "+3±1", sanity: "+3±1", health: "+1", energy: "-3±1" }
 
 - id: wel_black_ice
@@ -1016,7 +1016,7 @@
   cooldown: 26
   when: { turn: [17, 23], has_advisor: true }
   text:
-    - "The annual faculty-vs-students soccer match. {advisor} is on the other team, wearing shin guards and the look they usually save for deadlines."
+    - "It's the annual faculty-vs-students soccer match, and {advisor} is on the other team, wearing shin guards and the look they usually save for deadlines."
   choices:
     - label: "Play hard"
       check: { stat: health, vs: 55, spread: 20 }
@@ -1031,7 +1031,7 @@
       text: "{advisor} scores twice and is in a wonderful mood all week. Your teammates have noticed."
       effects: { advisor_rel: "+3±1", health: "+2±1", labmates_rel: "-2±1" }
     - label: "Cheer from the sideline with snacks"
-      text: "Orange slices and the loudest voice on the field. The students lose by one, but the snacks are a hit."
+      text: "You bring orange slices and the loudest voice on the field. The students lose by one, but the snacks are a hit."
       effects: { labmates_rel: "+2±1", sanity: "+2±1" }
 
 - id: wel_climbing_gym
@@ -1046,10 +1046,10 @@
       text: "Week two: three walls, less shaking. {labmate} has a climbing buddy now."
       effects: { health: "+4±1", labmates_rel: "+3±1", energy: "-3±1", days: -1 }
     - label: "Stick to the easy wall"
-      text: "The beginner wall is full of eight-year-olds who are better than you. Humbling, and good exercise."
+      text: "The beginner wall is full of eight-year-olds who are better than you. It's good exercise anyway."
       effects: { health: "+2±1", sanity: "+1", energy: "-1" }
     - label: "Rest your hands and read papers instead"
-      text: "Two days of reading with your arms propped on pillows. Your forearms recover. Your reading list shrinks."
+      text: "You spend two days reading with your arms propped on pillows. Your forearms recover, and your reading list gets shorter."
       effects: { knowledge: "+2±1", health: "+1", labmates_rel: "-1" }
 
 # --- Conference travel (hook: conference binds {city}, {paper} and {venue}) ---
@@ -1112,7 +1112,7 @@
       text: "Three hours in a dark room with your feet up on your bag. You learn a lot and meet nobody."
       effects: { knowledge: "+2±1", health: "+1", network: "-1" }
     - label: "Keep walking the poster hall"
-      text: "Forty posters, twelve good conversations, two blisters."
+      text: "Forty posters and twelve good conversations later, you have two blisters."
       effects: { network: "+4±1", health: "-3±1", energy: "-2±1" }
 
 - id: wel_conference_pastries
@@ -1126,7 +1126,7 @@
     - "Day three at {venue}. Since landing, you've eaten nothing but coffee-break pastries. You are now about 40% croissant."
   choices:
     - label: "Find a grocery store"
-      text: "Fruit, yogurt and a bag of carrots, eaten on a bench in {city}. You miss a session and don't regret it."
+      text: "You eat yogurt and a bag of carrots on a bench in {city}. You miss a session and don't regret it."
       effects: { health: "+3±1", energy: "+1", network: "-1" }
     - label: "Embrace it"
       text: "There's a cinnamon one today. Life is good, and slightly sticky."
@@ -1162,7 +1162,7 @@
       text: "You sleep until 8 and see the finish-line photos at breakfast. Everyone looks happy and very sweaty."
       effects: { energy: "+4±1", health: "+1" }
     - label: "Walk it with a coffee, meet them at the end"
-      text: "You arrive last, with coffee. They are delighted, mostly by the coffee. Twenty minutes of great conversation."
+      text: "You arrive last, with coffee. They are delighted, mostly by the coffee, and you talk for twenty minutes."
       effects: { network: "+3±1", health: "+1", energy: "-2±1" }
 
 - id: wel_flight_canceled
@@ -1174,7 +1174,7 @@
     - "Your flight home from {city} is canceled overnight. The line for hotel vouchers is two hours long and not moving."
   choices:
     - label: "Wait for the voucher"
-      text: "Two hours, one voucher, and a hotel by the highway. You sleep five hours and fly home grumpy but rested-ish."
+      text: "Two hours later you have a voucher for a hotel by the highway. You sleep five hours and fly home grumpy."
       effects: { energy: "-5±2", sanity: "-3±1" }
     - label: "Sleep on the floor by the gate"
       text: "You build a bed out of a conference tote and your poster tube. You wake up first in line, with a crick in your neck."

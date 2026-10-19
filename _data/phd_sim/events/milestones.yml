@@ -15,7 +15,7 @@
     - "A required course on a topic you will never use again assigns a 40-page problem set every week. Your research sits untouched in another tab."
   choices:
     - label: "Do the minimum, protect research time"
-      text: "A solid B-plus and zero regrets. Your project barely noticed the course existed."
+      text: "You get a solid B-plus. Your project barely noticed the course existed."
       effects: { sanity: "+2±1", knowledge: "+1", days: 1 }
     - label: "Take it seriously anyway"
       text: "You learn more than you expected. You also sleep less than you expected."
@@ -23,7 +23,7 @@
     - label: "Find an angle that connects to your work"
       check: { stat: taste, vs: 50, spread: 15 }
       success:
-        text: "One lecture hands you a framing your project has been missing. Worth every problem set."
+        text: "One lecture hands you a framing your project has been missing, which makes up for the problem sets."
         effects: { taste: "+3±1", knowledge: "+2±1", sanity: "+2±1" }
       failure:
         text: "You try very hard to make it relevant. It stays very irrelevant."
@@ -41,7 +41,7 @@
     - "Your course project comes back with one comment from the instructor: \"This could be a paper.\" It overlaps a lot with {project}."
   choices:
     - label: "Fold it into {project}"
-      text: "Half your pilot is already done. Coursework that counts twice is the best kind."
+      text: "Half your pilot is now done, and you got a grade for it too."
       effects: { project.progress: "+15±5", project.quality.N: "+4±2", energy: "-3±1" }
     - label: "Ask {advisor} if it's worth pursuing"
       check: { stat: advisor_rel, vs: 45, spread: 15 }
@@ -68,7 +68,7 @@
     - "Your final exam and the deadline for {project} land in the same week. Both insist they are the priority."
   choices:
     - label: "Prioritize the paper"
-      text: "The paper goes in. The exam goes okay-ish. You learn your program's minimum passing grade."
+      text: "The paper goes in and the exam goes okay-ish. You look up your program's minimum passing grade."
       effects: { project.progress: "+10±3", knowledge: "-1", sanity: "-3±1" }
     - label: "Prioritize the exam"
       text: "You ace the final. The paper goes in rougher than you would like."
@@ -91,18 +91,18 @@
     - "The quals reading list arrives: 80 papers, two weeks. Several are 40 pages long. One is a scanned PDF from the 1990s, slightly crooked."
   choices:
     - label: "Read every single one"
-      text: "You read all 80. Your notes are beautiful. Your eyes are not."
+      text: "You read all 80, and your notes are beautiful. Your eyes are not."
       effects: { knowledge: "+6±2", energy: "-14±3", sanity: "-4±2", health: "-3±1" }
     - label: "Split the list with your cohort"
       check: { stat: friends_rel, vs: 45, spread: 15 }
       success:
-        text: "Five of you each summarize 16 papers. The shared notes are the best study guide in department history."
+        text: "Five of you each summarize 16 papers. Your shared notes get passed down to the next three cohorts."
         effects: { knowledge: "+5±1", friends_rel: "+3±1", energy: "-5±2" }
       failure:
         text: "Two people never send their summaries. You read their 32 papers the night before."
         effects: { knowledge: "+3±1", energy: "-10±3", friends_rel: "-2±1", health: "-3±1" }
     - label: "Read the core 20 deeply, skim the rest"
-      text: "You know 20 papers cold and the other 60 by their figures. Honestly, that is the job."
+      text: "You know 20 papers cold and the other 60 by their figures. That's about how your committee read them, too."
       effects: { knowledge: "+4±1", energy: "-6±2", health: "-2±1" }
       tip: "Paper Reading"
 
@@ -115,7 +115,7 @@
     - "{senior} warns you: {committee} always asks about one classic paper from before you were born. You have cited it twice. You have never read it."
   choices:
     - label: "Read it, plus what it builds on"
-      text: "Half of modern NLP turns out to be this paper with more GPUs. You see the field differently now."
+      text: "Half of modern NLP turns out to be this paper with more GPUs."
       effects: { knowledge: "+5±2", taste: "+2±1", days: -2, sanity: "-2±1" }
       tip: "Literature Search"
     - label: "Ask {senior} what they were asked"
@@ -139,14 +139,14 @@
     year: [1, 2]
     turn: [18, 21]
   text:
-    - "You pass quals. The lab cheers, someone produces a cake, and by 9 pm everyone is back in the lab chat talking about the next deadline."
+    - "You pass quals. Someone produces a cake, and by 9 pm the lab chat is back to talking about the next deadline."
   choices:
     - label: "Take the whole weekend off"
-      text: "Two days, no laptop. You remember what your apartment looks like in daylight."
+      text: "You spend two days without a laptop and remember what your apartment looks like in daylight."
       effects: { energy: "+10±3", sanity: "+8±2", days: -1 }
       tip: "When and How to Rest"
     - label: "Celebrate tonight, work tomorrow"
-      text: "One good evening with the lab. By morning you are back at your desk, a little lighter."
+      text: "You have one good evening with the lab and are back at your desk by morning, a little lighter."
       effects: { sanity: "+4±1", labmates_rel: "+3±1" }
     - label: "Call home with the news"
       text: "Your family asks if this means you are a doctor now. Not yet, but they are proud anyway."
@@ -165,7 +165,7 @@
     - "At your practice proposal talk, {labmate} raises a hand: \"Honest question. Why is this a PhD and not a product?\" The room goes quiet."
   choices:
     - label: "Rebuild the talk around the question"
-      text: "You rework the first five slides around what nobody knows yet, not what you built. The talk gets sharper."
+      text: "You rework the first five slides around what nobody knows yet. The talk gets sharper."
       effects: { taste: "+3±1", presenting: "+2±1", days: -2, sanity: "-2±1" }
       tip: "Implications and Venue"
     - label: "Answer on the spot"
@@ -174,7 +174,7 @@
         text: "\"A product helps one hospital. The findings explain why it helped, for everyone.\" {labmate} nods slowly."
         effects: { presenting: "+3±1", sanity: "+3±1" }
       failure:
-        text: "You describe the product. In detail. Nobody is convinced, including you."
+        text: "You describe the product in great detail. Nobody is convinced, including you."
         effects: { sanity: "-4±2", presenting: "+1" }
     - label: "Write it down for later"
       text: "It goes on your list of questions to think about. The list is getting long."
@@ -205,7 +205,7 @@
         text: "Even {advisor} cannot get a reply. You start looking for a fourth option."
         effects: { sanity: "-4±2", days: -1 }
     - label: "Pick people who answer email"
-      text: "You choose responsiveness over fame. Scheduling will be easy, though the names carry a little less weight."
+      text: "Scheduling will be easy. The names on your committee are a little less famous."
       effects: { sanity: "+3±1", career_prep: "-1" }
 
 - id: mil_scalability_member
@@ -217,7 +217,7 @@
     - "Your industry external member returns your proposal draft. Every section has the same comment: \"Does this scale?\" Including the section on interviewing 12 nurses."
   choices:
     - label: "Add a scalability section"
-      text: "Two new pages on deploying to a million users. Your external member is delighted. {advisor} is puzzled."
+      text: "You add two pages on deploying to a million users. Your external member is delighted, and {advisor} is puzzled."
       effects: { writing: "+2±1", network: "+2±1", advisor_rel: "-1", days: -2, sanity: "-2±1" }
     - label: "Explain why depth matters here"
       check: { stat: presenting, vs: 55, spread: 15 }
@@ -255,7 +255,7 @@
     - label: "Look to {advisor} for help"
       check: { stat: advisor_rel, vs: 50, spread: 15 }
       success:
-        text: "{advisor} steps in with a compromise. The meeting lands, and you owe them one."
+        text: "{advisor} steps in with a compromise, and the meeting gets back on track. You owe them one."
         effects: { sanity: "+3±1", advisor_rel: "+1" }
       failure:
         text: "{advisor} joins the argument, on a third side."
@@ -277,10 +277,10 @@
     - label: "Draw one diagram that links them"
       check: { stat: taste, vs: 55, spread: 15 }
       success:
-        text: "Three boxes, two arrows, and suddenly it is obviously one thesis."
+        text: "With three boxes and two arrows, it is suddenly obvious that this is one thesis."
         effects: { taste: "+3±1", presenting: "+2±1", sanity: "+3±1" }
       failure:
-        text: "Fourteen boxes, arrows in every direction. It looks like a subway map."
+        text: "You end up with fourteen boxes and arrows in every direction. It looks like a subway map."
         effects: { sanity: "-3±1", energy: "-2±1" }
     - label: "Leave the odd paper out"
       text: "Two papers tell a clean story; the third becomes an appendix. It stings a little."
@@ -336,7 +336,7 @@
         text: "The template breaks every figure. You spend two days putting them back."
         effects: { sanity: "-4±2", days: -2 }
     - label: "Visit the formatting office in person"
-      text: "The office is open Tuesdays, 10 to 11. The reviewer fixes it with you in ten minutes. Why didn't you do this in round one?"
+      text: "The office is open Tuesdays from 10 to 11. The reviewer fixes everything with you in ten minutes, three rounds too late."
       effects: { sanity: "+3±1", energy: "-2±1", days: -2 }
 
 - id: mil_one_more_chapter
@@ -347,7 +347,7 @@
     - "{committee} reads your draft and suggests \"just one more chapter\" on future directions. Your defense is a few weeks away."
   choices:
     - label: "Write the chapter"
-      text: "Twenty pages in ten days. It is actually good, and you are actually tired."
+      text: "You write twenty pages in ten days. It is actually good, and you are actually tired."
       effects: { writing: "+4±1", energy: "-12±3", days: -3, health: "-3±1", sanity: "-3±1" }
     - label: "Negotiate a shorter section"
       check: { stat: presenting, vs: 55, spread: 15 }
@@ -360,7 +360,7 @@
     - label: "Ask {advisor} to weigh in"
       check: { stat: advisor_rel, vs: 55, spread: 15 }
       success:
-        text: "{advisor} suggests a closing slide on future work instead. Everyone is happy."
+        text: "{advisor} suggests a closing slide on future work instead, and {committee} agrees."
         effects: { sanity: "+4±1" }
       failure:
         text: "{advisor} loves the idea. Now two people want the chapter."
@@ -382,7 +382,7 @@
       text: "The last chapter assumes the best. Writing it calms you more than refreshing ever did."
       effects: { writing: "+3±1", sanity: "+2±1", days: -1 }
     - label: "Plan a backup with {advisor}"
-      text: "You map out what happens if it is rejected. Not fun, but you sleep better. {advisor} seems reassured too."
+      text: "You map out what happens if it's rejected. It isn't fun, but you sleep better, and {advisor} seems reassured too."
       effects: { sanity: "+4±1", advisor_rel: "+2±1", days: -1 }
 
 # ---------------------------------------------------------------------------
@@ -421,7 +421,7 @@
   category: milestone
   hook: defense
   text:
-    - "Ten minutes in, {committee} interrupts with exactly the question you spent all last week preparing for. You have a backup slide for it. Slide 47."
+    - "Ten minutes in, {committee} interrupts with exactly the question you spent all last week preparing for. You have a backup slide for it: slide 47."
   choices:
     - label: "Jump to backup slide 47"
       text: "The slide appears, perfectly labeled. {committee} raises an eyebrow, impressed."
@@ -435,7 +435,7 @@
         text: "You forget the third point, the best one. It is on slide 47."
         effects: { sanity: "-3±1" }
     - label: "\"I'll come back to that at the end\""
-      text: "Smart pacing. Now you have something to look forward to in the Q&A."
+      text: "Now you have something to look forward to in the Q&A."
       effects: { energy: "+3±1", sanity: "+2±1" }
 
 - id: mil_defense_projector
@@ -459,7 +459,7 @@
     - label: "Give the talk at the whiteboard"
       check: { stat: presenting, vs: 65, spread: 15 }
       success:
-        text: "Five years of research, one marker, no slides. The committee calls it the clearest talk they've seen all year."
+        text: "You explain five years of research with one marker. The committee calls it the clearest talk they've seen all year."
         effects: { presenting: "+5±2", sanity: "+6±2" }
       failure:
         text: "You draw Figure 3 from memory. It is not Figure 3."
@@ -478,13 +478,13 @@
     - label: "Suggest they switch to audio only"
       check: { stat: presenting, vs: 50, spread: 15 }
       success:
-        text: "Audio only, and suddenly it works. {committee} thanks you for the fix."
+        text: "With audio only, everything works. {committee} thanks you for the fix."
         effects: { sanity: "+3±1", presenting: "+1" }
       failure:
         text: "They turn off video and unmute a hotel lobby. Everyone hears a suitcase."
         effects: { sanity: "-3±1" }
     - label: "Let {advisor} relay their questions"
-      text: "{committee} types questions into the chat and {advisor} reads them aloud. Slower, but steady."
+      text: "{committee} types questions into the chat, and {advisor} reads them aloud. It's slow, but nothing freezes."
       effects: { sanity: "+2±1", advisor_rel: "+2±1", energy: "-2±1" }
 
 # ---------------------------------------------------------------------------
@@ -499,7 +499,7 @@
     - "Between \"Congratulations, Doctor\" and commencement sit 14 pages of minor revisions. The graduate school's filing deadline is this Friday."
   choices:
     - label: "Address all 14 pages properly"
-      text: "Every comment answered, every figure fixed. The final thesis is the best version of your work."
+      text: "You answer every comment and fix every figure. The final thesis is the best version of your work."
       effects: { writing: "+3±1", energy: "-8±2", health: "-2±1" }
     - label: "Fix what matters, explain the rest"
       check: { stat: writing, vs: 55, spread: 15 }
@@ -510,7 +510,7 @@
         text: "{committee} replies: \"Please address all comments.\" All 14 pages it is."
         effects: { energy: "-10±3", sanity: "-4±2", health: "-3±1" }
     - label: "Recruit {labmate} to proofread with you"
-      text: "Two people, one weekend, a lot of snacks. Filed on Thursday."
+      text: "The two of you spend a weekend on it, with a lot of snacks. You file on Thursday, a day early."
       effects: { labmates_rel: "+3±1", sanity: "+2±1", energy: "-4±2" }
 
 - id: mil_hood_backwards
@@ -550,13 +550,13 @@
     - label: "Argue for your title"
       check: { stat: taste, vs: 55, spread: 15 }
       success:
-        text: "You explain what each word is doing. {advisor} reads it twice and concedes. The title is yours, colon and all."
+        text: "You explain what each word is doing, and {advisor} reads it twice and concedes. The title is yours, colon and all."
         effects: { taste: "+2±1", sanity: "+3±1" }
       failure:
         text: "Forty minutes on one word. You win nothing except a strong opinion about colons."
         effects: { sanity: "-3±1", advisor_rel: "-2±1" }
     - label: "Take theirs: \"Towards\" it is"
-      text: "Short and grand. {advisor} is pleased, and you'll explain what it means at every talk for a year."
+      text: "{advisor} is pleased. You'll explain what it means at every talk for a year."
       effects: { advisor_rel: "+3±1", sanity: "-1" }
     - label: "Poll the lab with both titles"
       text: "The lab votes for a third title that nobody proposed. Somehow, you and {advisor} both like it."
@@ -585,10 +585,10 @@
         text: "{senior} reads it, frowns and says \"Huh.\" Now two people are worried."
         effects: { sanity: "-3±1" }
     - label: "Ask {advisor} what it really means"
-      text: "\"Keep going, just faster.\" Blunt, fair and a little scary. At least the paragraph has an owner now."
+      text: "\"Keep going, just faster.\" It's blunt and a little scary, but now you know what the paragraph meant."
       effects: { advisor_rel: "+2±1", taste: "+1", sanity: "-2±1" }
       tip: "Deliver Your Commitments"
-    - label: "Satisfactory is a pass. File it"
+    - label: "Decide Satisfactory is fine and file it"
       text: "You file the letter and get back to work. The paragraph stays unread, and so does whatever it meant."
       effects: { sanity: "+2±1" }
 
@@ -632,10 +632,10 @@
     - "Chapter 3 took you a week. The acknowledgments have taken two, and you're on draft six. You keep remembering one more person who once fixed your code."
   choices:
     - label: "Thank everyone, by name"
-      text: "Three pages. Your labmates find their names and pretend they didn't look. Your parents read it twice."
+      text: "It runs to three pages. Your labmates find their names and pretend they didn't look, and your parents read it twice."
       effects: { labmates_rel: "+3±1", family_rel: "+3±1", energy: "-3±1", days: -1 }
     - label: "Keep it to one honest paragraph"
-      text: "Short, warm and finished by lunch. You probably forgot someone. They'll forgive you."
+      text: "It's done by lunch. You probably forgot someone, and they'll probably forgive you."
       effects: { sanity: "+3±1", days: 1 }
     - label: "Add one joke for the lab"
       check: { stat: writing, vs: 50, spread: 15 }

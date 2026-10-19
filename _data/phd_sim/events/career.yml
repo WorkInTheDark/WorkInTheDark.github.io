@@ -20,7 +20,7 @@
     - label: "Invert the binary tree"
       check: { stat: coding, vs: 55, spread: 15 }
       success:
-        text: "Six clean lines, edge cases handled. The interviewer relaxes and asks about your research."
+        text: "You write six clean lines and handle the edge cases. The interviewer relaxes and asks about your research."
         effects: { career_prep: "+2", coding: "+1", sanity: "+3±1" }
       failure:
         text: "You invert it twice, which gives back the original tree. The interviewer says \"interesting\" and writes something down."
@@ -34,7 +34,7 @@
         text: "You ask so many questions that time runs out before you write any code."
         effects: { sanity: "-3±1" }
     - label: "Solve it fast, then pivot to research"
-      text: "You solve it and steer to your paper. The interviewer glances at the clock. Mixed signals."
+      text: "You solve it and steer the talk to your paper, while the interviewer glances at the clock."
       effects: { career_prep: "+1", sanity: "-1" }
 
 - id: car_mentor_leaves
@@ -44,7 +44,7 @@
   when:
     turn: [20, 21]
   text:
-    - "Week two of your internship at {company}. Your mentor announces they are moving to another team, effective Friday. Your project doc still says \"TBD with mentor\"."
+    - "In week two of your internship at {company}, your mentor announces they are moving to another team, effective Friday. Your project doc still says \"TBD with mentor\"."
   choices:
     - label: "Find a new mentor yourself"
       check: { stat: network, vs: 50, spread: 15 }
@@ -52,13 +52,13 @@
         text: "A senior researcher two desks over adopts you, and turns out to be better at this than your first mentor."
         effects: { network: "+5±2", coding: "+2±1", sanity: "+2±1" }
       failure:
-        text: "Everyone is \"happy to chat\". Nobody is happy to mentor. You spend a week in limbo."
+        text: "Everyone is \"happy to chat\", but nobody is happy to mentor. You spend a week in limbo."
         effects: { sanity: "-5±2", days: -2 }
     - label: "Scope the project yourself"
-      text: "You write your own project plan. Your manager approves it without reading it. Freedom, sort of."
+      text: "You write your own project plan, and your manager approves it without reading it."
       effects: { taste: "+3±1", coding: "+2±1", sanity: "-3±1" }
     - label: "Ask your old mentor for weekly chats"
-      text: "They agree to a 30-minute call every Thursday from their new team. Not ideal, but steady."
+      text: "They agree to a 30-minute call every Thursday from their new team."
       effects: { network: "+3±1", sanity: "+1" }
 
 - id: car_press_release_footnote
@@ -89,7 +89,7 @@
         text: "Legal approves a short workshop paper. People start citing it before you're back on campus."
         effects: { citations: "+4±2", writing: "+2±1", days: -1 }
       failure:
-        text: "Legal says the paper can come out \"after the next product cycle\". Maybe next year."
+        text: "Legal says the paper can come out \"after the next product cycle\", which could mean next year."
         effects: { sanity: "-2±1" }
 
 # ---------------------------------------------------------------------------
@@ -104,13 +104,13 @@
     flags_all: [fellowship_won]
     status_any: [fellowship]
   text:
-    - "The fellowship is yours. For one whole year: no TA duty, no grading, no office hours. Your calendar suddenly has room in it."
+    - "The fellowship is yours. For a whole year you don't have to TA or grade, and your calendar suddenly has room in it."
   choices:
     - label: "Put the time into a bold idea"
-      text: "You start the project you have been too busy to start. It might not work. That is the point."
+      text: "You start the project you have been too busy to start, knowing it might not work."
       effects: { taste: "+3±1", sanity: "+3±1", energy: "-3±1" }
     - label: "Catch up on sleep first"
-      text: "Two weeks of real sleep. You are sharper than you have been since orientation."
+      text: "You sleep properly for two weeks and are sharper than you have been since orientation."
       effects: { energy: "+12±3", health: "+2±1" }
     - label: "Celebrate with the lab"
       text: "You buy the lab dinner. {labmate} toasts \"to no grading\". A few labmates look envious."
@@ -127,7 +127,7 @@
   text:
     - "The fellowship results are out, and you didn't get it. The reviewer comments come too. One says \"too ambitious\", another \"not ambitious enough\", and a third calls it \"incremental\"."
   choices:
-    - label: "Read it as critique, not a verdict"
+    - label: "Look for the useful critique"
       text: "Two comments are actually useful. You fold them into next year's research statement."
       effects: { taste: "+2±1", sanity: "+2±1", career_prep: "+1" }
       tip: "Critique-Centric Feedback"
@@ -149,16 +149,16 @@
     status_any: [job_market]
     turn: [1, 6]
   text:
-    - "Faculty application season: 60 openings, each wanting a custom cover letter, a research statement and a teaching statement. You have already mixed up two department names."
+    - "It's faculty application season, and each of 60 openings wants a custom cover letter plus two statements. You have already mixed up two department names."
   choices:
     - label: "Write 60 truly custom letters"
       text: "Each letter names the faculty you would work with. It takes three weeks and part of your soul."
       effects: { career_prep: "+3", writing: "+2±1", energy: "-12±3", health: "-3±1" }
     - label: "Use one template plus a custom paragraph"
-      text: "Good letters, sent on time. You triple-check every department name."
+      text: "The letters are good and go out on time. You triple-check every department name."
       effects: { career_prep: "+2", energy: "-5±2" }
     - label: "Apply only to your best 25"
-      text: "Fewer letters, more care. Your stress level survives application season."
+      text: "You put more care into fewer letters, and your stress level survives application season."
       effects: { career_prep: "+1", sanity: "+4±1" }
 
 - id: car_late_letters
@@ -192,7 +192,7 @@
     status_any: [job_market]
     turn: [1, 8]
   text:
-    - "A startup founder messages you: \"We'd love you as a founding researcher. Generous equity, a ping-pong table, free snacks.\" Salary is not mentioned. Twice."
+    - "A startup founder messages you: \"We'd love you as a founding researcher. Generous equity, a ping-pong table, free snacks.\" The word \"salary\" does not appear."
   choices:
     - label: "Hear them out"
       text: "The pitch is wild and a little convincing. You add startups to your search, just in case."
@@ -232,7 +232,7 @@
         text: "Your talk mentions collaborating with a research center they closed years ago."
         effects: { career_prep: "+1", sanity: "-3±1" }
     - label: "Decline politely"
-      text: "One fewer flight, one more free weekend. A small pang, then relief."
+      text: "You trade a flight for a free weekend. After a small pang, you feel relieved."
       effects: { sanity: "+4±1", energy: "+3±1" }
 
 - id: car_campus_visit
@@ -245,7 +245,7 @@
     - "Campus visit: breakfast with the search chair, twelve 30-minute one-on-ones, your job talk, then dinner. Every single person asks, \"So, tell me about your research.\""
   choices:
     - label: "Be fully on for all twelve"
-      text: "Twelve slightly different versions of your pitch. Everyone loves you. You fall asleep in your dinner clothes."
+      text: "You give twelve slightly different versions of your pitch, and everyone loves you. You fall asleep in your dinner clothes."
       effects: { network: "+5±2", career_prep: "+2", energy: "-14±3", health: "-3±1" }
     - label: "Ask about their work instead"
       check: { stat: knowledge, vs: 55, spread: 15 }
@@ -256,7 +256,7 @@
         text: "You mix up two professors' papers. One of them is very gracious about it."
         effects: { network: "+1", sanity: "-4±2", energy: "-6±2", health: "-2±1" }
     - label: "Save your energy for the talk"
-      text: "Short one-on-ones, a sharp job talk. Dinner is quiet, but fine."
+      text: "You keep the one-on-ones short and give a sharp job talk. Dinner is quiet, but fine."
       effects: { presenting: "+2±1", career_prep: "+1", energy: "-6±2", health: "-2±1" }
 
 - id: car_offer_deadlines
@@ -274,7 +274,7 @@
         text: "They give you two extra weeks. Now the dates line up."
         effects: { sanity: "+5±2", network: "+1" }
       failure:
-        text: "\"We can't extend, but we really hope you'll join!\" The clock keeps ticking."
+        text: "\"We can't extend, but we really hope you'll join!\" You still have until Friday."
         effects: { sanity: "-5±2" }
     - label: "Ask the second place to decide sooner"
       check: { stat: presenting, vs: 55, spread: 15 }
@@ -282,7 +282,7 @@
         text: "Your email is polite and clear. They move their decision up by a week."
         effects: { sanity: "+5±2", career_prep: "+1" }
       failure:
-        text: "They say they will \"try\". They do not."
+        text: "They say they will \"try\", and then they don't."
         effects: { sanity: "-4±2" }
     - label: "Ask {advisor} what they would do"
       text: "{advisor} tells you which one they would pick and, more usefully, why. You feel calmer about either."
@@ -309,8 +309,8 @@
       failure:
         text: "{advisor} says, \"They work their postdocs very hard.\" That is all they say."
         effects: { sanity: "-2±1", knowledge: "+1" }
-    - label: "Keep it as a quiet plan B"
-      text: "You reply warmly and stay focused on your main search. A safety net, maybe."
+    - label: "Keep it as a plan B"
+      text: "You reply warmly and keep it in your back pocket while you focus on your main search."
       effects: { sanity: "+4±1" }
 
 - id: car_labmate_startup
@@ -324,7 +324,7 @@
     - "{labmate} pulls you aside: they are leaving to start a company, they just raised a small seed round, and they want you as employee number four. \"You'd own a real piece of it.\""
   choices:
     - label: "Say you're interested"
-      text: "{labmate} is thrilled. You agree to talk details once you're on the job market. The door is open."
+      text: "{labmate} is thrilled. You agree to talk details once you're on the job market."
       effects: { labmates_rel: "+4±1", network: "+2±1" }
       flag_set: [labmate_startup_offer]
     - label: "Ask to see the numbers first"
@@ -355,10 +355,10 @@
     - "On day one at {company}, you get a GPU quota bigger than everything your lab has used in five years. The onboarding doc calls it \"a starter allocation\"."
   choices:
     - label: "Run every ablation you ever dreamed of"
-      text: "Two hundred runs by Friday. You learn more about scaling in a week than in two years of queueing."
+      text: "You launch two hundred runs by Friday and learn more about scaling in a week than in two years of queueing."
       effects: { coding: "+3±1", knowledge: "+2±1", energy: "-5±2" }
     - label: "Plan runs as if GPUs were scarce"
-      text: "Old habits. Your mentor is impressed by how little you waste, and slightly confused by it."
+      text: "Your mentor is impressed by how little compute you waste, and slightly confused by it."
       effects: { taste: "+2±1", network: "+2±1" }
     - label: "Send the lab a screenshot"
       text: "The lab chat goes quiet for a long minute. Then {labmate} replies with one crying emoji."
@@ -372,7 +372,7 @@
   when:
     turn: [23, 25]
   text:
-    - "Your internship paper at {company} is written, polished and blocked. Legal review flagged \"possible product implications\", and the next review slot is in eleven weeks."
+    - "Your internship paper at {company} is finished, but legal review flagged \"possible product implications\". The next review slot is in eleven weeks."
   choices:
     - label: "Cut anything that sounds like a product"
       text: "Every product name becomes \"a deployed system\". Legal approves a thinner, vaguer paper, and it's out."
@@ -439,16 +439,16 @@
     - label: "Statement first, paper second"
       check: { stat: writing, vs: 55, spread: 15 }
       success:
-        text: "The statement is the clearest thing you've written all year. A month later: you got it. A small award, and a line on your CV."
+        text: "The statement is the clearest thing you've written all year. A month later you win the award, which is small but looks good on your CV."
         effects: { career_prep: "+2", sanity: "+4±1", project.progress: "-5±2" }
       failure:
-        text: "A good statement, a rushed paper, and a month later, a polite no from the fellowship."
+        text: "The statement is good and the paper is rushed. A month later, the fellowship sends a polite no."
         effects: { project.progress: "-5±2", sanity: "-4±1", writing: "+1" }
     - label: "Paper first, statement overnight"
-      text: "The paper goes in strong. The statement, written at 3 am, says \"robust\" seven times. No award."
+      text: "The paper goes in strong. The statement, written at 3 am, says \"robust\" seven times and wins nothing."
       effects: { project.progress: "+3±1", energy: "-6±2", health: "-2±1", sanity: "-2±1" }
     - label: "Skip the fellowship this year"
-      text: "One deadline instead of two. There will be another fellowship. There is always another fellowship."
+      text: "You have one deadline instead of two. There will be other fellowships."
       effects: { project.progress: "+5±2", sanity: "+2±1" }
 
 - id: car_recruiter_wrong_field
@@ -463,7 +463,7 @@
     - "A recruiter says your NLP experience is perfect for their role. They mean Neuro-Linguistic Programming, as a life coach. There is a webinar."
   choices:
     - label: "Take the call, just to see"
-      text: "Twenty minutes of friendly confusion. You learn something about a whole other field, and so do they."
+      text: "After twenty minutes of friendly confusion, you both know a little about a whole other field."
       effects: { network: "+2±1", knowledge: "+1", energy: "-2±1" }
     - label: "Reply with a polite correction"
       check: { stat: writing, vs: 45, spread: 15 }
@@ -520,7 +520,7 @@
     - label: "Give the four-minute version"
       check: { stat: presenting, vs: 50, spread: 15 }
       success:
-        text: "Clear, concrete and on time. The interviewer stops taking notes and starts nodding."
+        text: "You keep it clear and concrete and finish on time. The interviewer stops taking notes and starts nodding."
         effects: { career_prep: "+3", presenting: "+1", sanity: "+3±1" }
       failure:
         text: "You reach minute four of a forty-minute answer. They thank you for the overview."
@@ -528,11 +528,11 @@
     - label: "Ask what their features do first"
       check: { stat: taste, vs: 50, spread: 15 }
       success:
-        text: "The question turns into a design session. At the end they ask, \"Can you start in June?\" They're joking. Mostly."
+        text: "The question turns into a design session. At the end they ask, half joking, \"Can you start in June?\""
         effects: { career_prep: "+3", network: "+2±1" }
       failure:
         text: "Everything they could tell you is under NDA. You both stare at the question."
         effects: { sanity: "-2±1" }
     - label: "Pull up your thesis framework slide"
-      text: "One slide, five years. They ask for a copy for their team, which is either flattering or worrying."
+      text: "Five years fit on one slide. They ask for a copy for their team, which is either flattering or worrying."
       effects: { career_prep: "+2", network: "+1" }

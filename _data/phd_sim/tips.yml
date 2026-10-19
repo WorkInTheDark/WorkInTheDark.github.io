@@ -1,29 +1,29 @@
 # PhD 101 tips, delivered by your most senior labmate at fitting moments (at most one every few turns).
-- { id: t_homework, topic: "Research Is Not Homework", text: "Classes have answers in the back. Research doesn't. The sooner you stop looking for the back of the book, the better.", when: { year: [1, 1], status_any: [coursework] } }
-- { id: t_why, topic: "Benefits of Research", text: "Ask yourself why you're here. Not the version for your statement of purpose, the real one.", when: { year: [1, 1], turn: [4, 12] } }
+- { id: t_homework, topic: "Research Is Not Homework", text: "Classes have answers in the back of the book. Research doesn't, so the sooner you stop looking for them, the better.", when: { year: [1, 1], status_any: [coursework] } }
+- { id: t_why, topic: "Benefits of Research", text: "Ask yourself why you're here, and be more honest than your statement of purpose was.", when: { year: [1, 1], turn: [4, 12] } }
 - { id: t_critique, topic: "Critique-Centric Feedback", text: "A harsh review is a free lesson from someone who read your paper closely. It just doesn't feel free.", when: { telemetry: { rejections: ">=1" } } }
 - { id: t_motivation, topic: "Self-Motivation", text: "If citations are the only thing keeping you going, you'll run dry. Find what you'd do even if nobody cited it.", when: { telemetry: { citations: ">=30" } } }
-- { id: t_outcome, topic: "Outcome of PhD Training", text: "The degree is the receipt. The training is what you actually bought.", when: { year: [3, 8] } }
+- { id: t_outcome, topic: "Outcome of PhD Training", text: "The degree is just the receipt for what you actually bought: the training.", when: { year: [3, 8] } }
 - { id: t_standard, topic: "Hold Yourself to a High Standard", text: "Don't aim for borderline. Borderline is a coin flip with extra steps.", when: { telemetry: { submissions: ">=2" } } }
 - { id: t_deliver, topic: "Deliver Your Commitments", text: "Whatever you promised in that rebuttal, do it. People remember who delivers.", when: { telemetry: { rebuttals: ">=1" } } }
-- { id: t_compare, topic: "Toxicity of Peer Pressure", text: "Stop counting other people's papers. You're running a different race, on a different track.", when: { telemetry: { rejections: ">=2" }, stat: { sanity: "<50" } } }
-- { id: t_learn, topic: "Learning How to Learn", text: "When you get stuck, learn the method, not just the fix. You'll be stuck again.", when: { year: [1, 2], has_advisor: true } }
-- { id: t_sustain, topic: "Sustain Through the Journey", text: "The middle years are the hardest. Everyone starts strong. Finishing is the skill.", when: { year: [3, 4] } }
+- { id: t_compare, topic: "Toxicity of Peer Pressure", text: "Stop counting other people's papers. You aren't running the same race.", when: { telemetry: { rejections: ">=2" }, stat: { sanity: "<50" } } }
+- { id: t_learn, topic: "Learning How to Learn", text: "When you get stuck, learn the method behind the fix. You'll be stuck again.", when: { year: [1, 2], has_advisor: true } }
+- { id: t_sustain, topic: "Sustain Through the Journey", text: "Everyone starts strong. The middle years are the hard part, so pace yourself to finish.", when: { year: [3, 4] } }
 - { id: t_devoted, topic: "Find Out What You Are Devoted To", text: "At some point it stops being your advisor's agenda. Make sure it becomes yours.", when: { year: [2, 3] } }
 - { id: t_lit, topic: "Literature Search", text: "Snowball from one great paper: what it cites, and what cites it. Two hours of that beats a week of keyword searching.", when: { project: { stage: lit } } }
 - { id: t_reading, topic: "Paper Reading", text: "Not every paper deserves a full read. Learn which ones do.", when: { telemetry: { reading_days: ">=15" } } }
-- { id: t_selflearn, topic: "Self-Learning Skills", text: "The best methods teacher is a paper you admire. Reverse-engineer how they did it.", when: { project: { stage: [pilot, design, build, guidelines] } } }
+- { id: t_selflearn, topic: "Self-Learning Skills", text: "To learn a method, pick a paper you admire and work out how they did it.", when: { project: { stage: [pilot, design, build, guidelines] } } }
 - { id: t_meeting, topic: "Project Meeting", text: "Walk into advisor meetings with answers, and walk out with better ones.", when: { has_advisor: true, year: [1, 2] } }
-- { id: t_writing, topic: "Paper Writing 101", text: "Every paragraph should earn its place. If you can delete it and nothing breaks, delete it.", when: { project: { stage: consolidation } } }
-- { id: t_communicate, topic: "How to Communicate", text: "Write for the reviewer who is tired, rushed, and reading your paper fourth today.", when: { telemetry: { submissions: ">=1" } } }
-- { id: t_ten, topic: "Judy's Ten Questions", text: "Before you start a project, try answering ten hard questions about it. If you can't, that's the project.", when: { project: { stage: idea } } }
+- { id: t_writing, topic: "Paper Writing 101", text: "If you can delete a paragraph and nothing breaks, delete it.", when: { project: { stage: consolidation } } }
+- { id: t_communicate, topic: "How to Communicate", text: "Write for a tired reviewer who is reading your paper fourth today.", when: { telemetry: { submissions: ">=1" } } }
+- { id: t_ten, topic: "Judy's Ten Questions", text: "Before you start a project, try answering ten hard questions about it. The ones you can't answer show you where to start.", when: { project: { stage: idea } } }
 - { id: t_rq, topic: "Research Question", text: "If you can't state your research question in one sentence, you don't have one yet.", when: { project: { stage: [idea, lit] } } }
 - { id: t_gap, topic: "Stakeholders and Gap", text: "Who cares, and what has already been done? Answer those two and the introduction writes itself.", when: { telemetry: { scoops: ">=0" }, project: { stage: lit } } }
 - { id: t_methods, topic: "Approach and Methods", text: "Your method should follow from the gap. If it doesn't, one of them is wrong.", when: { project: { stage: [pilot, design, experiments] } } }
 - { id: t_workflow, topic: "Understanding Workflows", text: "Watch what people actually do between the clicks. That's where the design problems are.", when: { project: { type: [study, system] } } }
-- { id: t_findings, topic: "Results and Findings", text: "A result is a number. A finding is what the number means. Reviewers want findings.", when: { project: { stage: [analysis, experiments] } } }
+- { id: t_findings, topic: "Results and Findings", text: "A result is a number. A finding says what the number means, and that's what reviewers want.", when: { project: { stage: [analysis, experiments] } } }
 - { id: t_venue, topic: "Implications and Venue", text: "Pick the venue whose readers will care most, not the one with the nicest logo.", when: { telemetry: { rejections: ">=2" } } }
-- { id: t_burnout, topic: "How Burnout Begins", text: "Burnout doesn't arrive in one day. It's a hundred small weekends you didn't take.", when: { telemetry: { overtime_streak: ">=2" } } }
-- { id: t_limits, topic: "Know Your Limits", text: "Your limits change every year of the PhD. Recheck them.", when: { stat: { health: "<55" } } }
-- { id: t_rest, topic: "When and How to Rest", text: "Closing the laptop is only half of resting. The other half is actually leaving work behind.", when: { stat: { energy: "<35" } } }
+- { id: t_burnout, topic: "How Burnout Begins", text: "Burnout builds up slowly, one skipped weekend at a time.", when: { telemetry: { overtime_streak: ">=2" } } }
+- { id: t_limits, topic: "Know Your Limits", text: "Your limits change every year of the PhD, so check them again.", when: { stat: { health: "<55" } } }
+- { id: t_rest, topic: "When and How to Rest", text: "Closing the laptop doesn't count as rest if you're still thinking about work.", when: { stat: { energy: "<35" } } }
 - { id: t_day, topic: "How to Spend a Day", text: "You only have a few real hours of deep focus a day. Spend them on the hard part.", when: { telemetry: { overtime_days: ">=12" } } }

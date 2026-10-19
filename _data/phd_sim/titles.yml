@@ -3,25 +3,25 @@
 - { id: citation_breakout, name: "The Breakout", priority: 90, when: { telemetry: { citations: ">=1000" } }, desc: "A thousand citations. People cite you without reading you now." }
 - { id: the_prolific, name: "The Prolific", priority: 85, when: { telemetry: { first_author_pubs: ">=7" } }, desc: "Seven or more first-author papers." }
 - { id: citation_machine, name: "Citation Machine", priority: 80, when: { telemetry: { h_index: ">=8" } }, desc: "An h-index most postdocs would envy." }
-- { id: burnt_out_genius, name: "The Burnt-Out Genius", priority: 78, when: { telemetry: { burnouts: ">=2", citations: ">=250" } }, desc: "Brilliant work, at a price." }
-- { id: the_survivor, name: "The Survivor", priority: 76, when: { telemetry: { burnouts: ">=3" } }, desc: "Burned out three times. Came back three times." }
+- { id: burnt_out_genius, name: "The Burnt-Out Genius", priority: 78, when: { telemetry: { burnouts: ">=2", citations: ">=250" } }, desc: "Plenty of citations, and two burnouts along the way." }
+- { id: the_survivor, name: "The Survivor", priority: 76, when: { telemetry: { burnouts: ">=3" } }, desc: "Burned out three times and came back every time." }
 - { id: reviewer2_nemesis, name: "Reviewer 2's Nemesis", priority: 74, when: { telemetry: { rejections: ">=6", acceptances: ">=3" } }, desc: "Rejected again and again, and published anyway." }
 - { id: top_tier, name: "The Top-Tier Regular", priority: 72, when: { telemetry: { top_pubs: ">=4" } }, desc: "Four or more top-venue papers." }
 - { id: desk_reject_legend, name: "Desk Reject Legend", priority: 70, when: { telemetry: { desk_rejects: ">=2" } }, desc: "Formatting is a skill, too." }
 - { id: speedrunner, name: "The Speedrunner", priority: 68, when: { milestone: { graduated: true }, year: [1, 4] }, desc: "Done in four years or less." }
-- { id: the_long_way, name: "The Long Way Round", priority: 66, when: { year: [7, 9] }, desc: "Seven years or more. The scenic route." }
+- { id: the_long_way, name: "The Long Way Round", priority: 66, when: { year: [7, 9] }, desc: "Seven years or more, by the scenic route." }
 - { id: balance_champion, name: "Work-Life Balance Champion", priority: 64, when: { telemetry: { burnouts: "==0", overtime_days: "<20" }, milestone: { graduated: true } }, desc: "Graduated without burning out or living in the lab." }
 - { id: the_unbreakable, name: "The Unbreakable", priority: 62, when: { telemetry: { min_sanity: ">=35" } }, desc: "Your Sanity never dropped below 35." }
 - { id: night_shift, name: "The Night Shift", priority: 60, when: { telemetry: { overtime_days: ">=120" } }, desc: "A hundred and twenty weekend days in the lab." }
 - { id: globetrotter, name: "The Globetrotter", priority: 58, when: { telemetry: { conferences: ">=6" } }, desc: "Six conferences or more." }
-- { id: the_networker, name: "The Networker", priority: 56, when: { stat: { network: ">=85" } }, desc: "Everyone knows you. Everyone." }
-- { id: lab_parent, name: "The Lab Parent", priority: 54, when: { telemetry: { mentor_days: ">=30" } }, desc: "You raised the next generation." }
-- { id: workshop_warrior, name: "The Workshop Warrior", priority: 52, when: { telemetry: { workshop_pubs: ">=3" } }, desc: "Three workshop papers. Small rooms, good conversations." }
-- { id: the_reader, name: "The Reader", priority: 50, when: { telemetry: { reading_days: ">=150" } }, desc: "You read everything. Literally everything." }
+- { id: the_networker, name: "The Networker", priority: 56, when: { stat: { network: ">=85" } }, desc: "Everyone knows you, even people you've never met." }
+- { id: lab_parent, name: "The Lab Parent", priority: 54, when: { telemetry: { mentor_days: ">=30" } }, desc: "You raised the lab's junior students." }
+- { id: workshop_warrior, name: "The Workshop Warrior", priority: 52, when: { telemetry: { workshop_pubs: ">=3" } }, desc: "Three workshop papers, and good conversations in small rooms." }
+- { id: the_reader, name: "The Reader", priority: 50, when: { telemetry: { reading_days: ">=150" } }, desc: "You read everything, including the appendices." }
 - { id: social_glue, name: "The Social Glue", priority: 48, when: { telemetry: { social_days: ">=120" } }, desc: "The lab's events don't happen without you." }
-- { id: slow_is_smooth, name: "Slow Is Smooth", priority: 46, when: { counter: { waited_for_quality: ">=2" } }, desc: "You skipped deadlines to do it right. Twice." }
+- { id: slow_is_smooth, name: "Slow Is Smooth", priority: 46, when: { counter: { waited_for_quality: ">=2" } }, desc: "You skipped two deadlines to do it right." }
 - { id: lone_wolf, name: "The Lone Wolf", priority: 44, when: { stat: { labmates_rel: "<30" } }, desc: "You and your laptop against the world." }
 - { id: gym_scholar, name: "The Gym Scholar", priority: 42, when: { telemetry: { exercise_days: ">=120" } }, desc: "Strong arguments, stronger deadlifts." }
-- { id: the_intern, name: "The Serial Intern", priority: 40, when: { telemetry: { internships: ">=3" } }, desc: "Three summers, three companies." }
-- { id: the_explorer, name: "The Explorer", priority: 30, when: { milestone: { graduated: false } }, desc: "You found out what you didn't want, which is half of finding out what you do." }
-- { id: steady_hand, name: "The Steady Hand", priority: 0, desc: "No drama, solid work, a degree well earned." }
+- { id: the_intern, name: "The Serial Intern", priority: 40, when: { telemetry: { internships: ">=3" } }, desc: "Three summers at three companies." }
+- { id: the_explorer, name: "The Explorer", priority: 30, when: { milestone: { graduated: false } }, desc: "You found out what you don't want, which is a useful start." }
+- { id: steady_hand, name: "The Steady Hand", priority: 0, desc: "Solid work with no drama, and a degree you earned." }

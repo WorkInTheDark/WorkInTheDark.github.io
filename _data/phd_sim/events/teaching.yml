@@ -12,11 +12,11 @@
       - { turn: [4, 6] }
       - { turn: [13, 15] }
   text:
-    - "120 midterms, one weekend, grades due Monday. The stack on your desk is taller than your monitor."
-    - "The midterm stack arrives: 120 exams, six questions each, grades due Monday morning."
+    - "You have 120 midterms to grade by Monday. The stack on your desk is taller than your monitor."
+    - "The midterm stack arrives: 120 exams of six questions each, due back Monday morning."
   choices:
     - label: "Grade all weekend"
-      text: "Done by Sunday midnight. You now see partial credit in your dreams."
+      text: "You finish at midnight on Sunday, and now you dream about partial credit."
       effects: { energy: "-10±3", sanity: "-5±2", health: "-3±1" }
     - label: "Write a rubric first, then batch it"
       check: { stat: writing, vs: 45, spread: 15 }
@@ -27,7 +27,7 @@
         text: "Halfway through, an answer breaks your rubric. You regrade 60 exams."
         effects: { energy: "-10±3", sanity: "-6±2", health: "-3±1" }
     - label: "Spread it across the week"
-      text: "Two hours every evening. Grades go in Wednesday, and the professor sends one pointed email."
+      text: "You grade for two hours every evening. Grades go in Wednesday, and the professor sends one pointed email."
       effects: { energy: "-3±1", sanity: "-1", days: -2 }
 
 - id: tea_regrade_request
@@ -47,13 +47,13 @@
     - label: "Write a clear, kind explanation"
       check: { stat: writing, vs: 45, spread: 15 }
       success:
-        text: "They reply, \"Fair enough, thanks!\" Clear writing wins again."
+        text: "They reply, \"Fair enough, thanks!\""
         effects: { writing: "+1", sanity: "+2±1", energy: "-2±1" }
       failure:
         text: "They escalate to the professor, with your email attached and highlighted."
         effects: { sanity: "-4±2", energy: "-2±1" }
     - label: "Forward it to the professor"
-      text: "The professor gives them the half point and CCs you. Lesson learned, for both of you."
+      text: "The professor gives them the half point and CCs you."
       effects: { sanity: "+2±1" }
 
 - id: tea_office_hours_rush
@@ -64,15 +64,15 @@
   when:
     status_any: [ta]
   text:
-    - "Office hours, the day before the assignment is due. The line goes out the door and around the corner. Everyone has the same bug."
+    - "It's office hours the day before the assignment is due, and the line goes out the door. Everyone has the same bug."
   choices:
     - label: "Stay until everyone is helped"
-      text: "You leave at 9 pm. Thirty-one students, one off-by-one error. You could fix it in your sleep, and soon will."
+      text: "You leave at 9 pm, after thirty-one students with the same off-by-one error. You could fix it in your sleep, and soon will."
       effects: { energy: "-8±2", presenting: "+1", days: -1, health: "-2±1" }
     - label: "Explain the bug once, to everyone"
       check: { stat: presenting, vs: 50, spread: 15 }
       success:
-        text: "One explanation at the whiteboard, thirty happy students. Teaching at scale."
+        text: "One explanation at the whiteboard sends thirty students away happy."
         effects: { presenting: "+3±1", sanity: "+3±1" }
       failure:
         text: "Half the room follows. The other half lines up again, now with two bugs."
@@ -88,13 +88,13 @@
   when:
     status_any: [ta]
   text:
-    - "At office hours, a student asks why the chatbot from lecture sounds so sure when it is wrong. You don't have a good answer. Nobody does. That might be a paper."
+    - "At office hours, a student asks why the chatbot from lecture sounds so sure when it is wrong. Nobody has a good answer, which might make it a paper."
   choices:
     - label: "Write the idea down right away"
       text: "It goes into your ideas file, with the student's question word for word."
       effects: { taste: "+2±1", knowledge: "+1" }
     - label: "Talk it through with the student"
-      text: "Forty minutes later you have a whiteboard full of ideas. Office hours ran over; it was worth it."
+      text: "Forty minutes later you have a whiteboard full of ideas, and office hours have run over."
       effects: { taste: "+4±1", energy: "-4±2", sanity: "+3±1" }
     - label: "Bring it to {advisor}"
       check: { stat: taste, vs: 55, spread: 15 }
@@ -123,7 +123,7 @@
     - label: "Turn it into a discussion class"
       check: { stat: presenting, vs: 60, spread: 15 }
       success:
-        text: "Small groups, one question each, and you walk the room. Students call it the best class of the semester."
+        text: "You give each small group one question and walk the room. Students call it the best class of the semester."
         effects: { presenting: "+4±1", sanity: "+4±1" }
       failure:
         text: "\"Discuss in groups\" becomes 70 students on their phones. You present the slides after all."
@@ -161,18 +161,18 @@
     - "A student email arrives at 3:04 am: \"Is the deadline tonight?\" The deadline was at midnight. You know the email arrived at 3:04 because you are awake too."
   choices:
     - label: "Reply right now"
-      text: "\"It was at midnight, but submit now and I'll ask the professor.\" They submit at 3:09. You sleep at 4."
+      text: "\"It was at midnight, but submit now and I'll ask the professor.\" They submit at 3:09, and you're asleep by 4."
       effects: { energy: "-4±2", sanity: "+1" }
     - label: "Reply kindly in the morning"
-      text: "You close the laptop. At 9 am you reply. The student had already submitted at 3:10."
+      text: "You close the laptop and reply at 9 am. The student had already submitted at 3:10."
       effects: { energy: "+2±1", sanity: "+2±1" }
     - label: "Ask yourself why you're awake at 3 am"
-      text: "Fair question. You go to bed, and your sleep schedule thanks you, a little."
+      text: "You go to bed, and your sleep schedule thanks you, a little."
       effects: { energy: "+4±1", health: "+1" }
     - label: "Reply, then keep writing until 5"
       tag: "Night Owl"
       requires: { traits_any: [night_owl] }
-      text: "Two night owls, one inbox. While you're up, you also finish a section of your paper."
+      text: "Since you're up anyway, you also finish a section of your paper."
       effects: { writing: "+2±1", energy: "-3±1", sanity: "+2±1" }
 
 - id: tea_evaluations
@@ -187,11 +187,11 @@
     - "Your TA evaluations are in. Nearly every comment says the same thing: \"Very patient, talks too fast.\" One student just wrote \"fast\"."
   choices:
     - label: "Practice talking slower"
-      text: "You record yourself and time it. Painful to watch, but your next practice talk lands better."
+      text: "You record yourself and time it. It's painful to watch, and your next practice talk goes better."
       effects: { presenting: "+3±1", sanity: "-1", days: -1 }
       tip: "How to Communicate"
     - label: "Focus on the \"very patient\" part"
-      text: "You print it and stick it above your desk. A good review is a good review."
+      text: "You print it and stick it above your desk."
       effects: { sanity: "+4±1" }
     - label: "Ask {labmate} to time your next talk"
       check: { stat: labmates_rel, vs: 45, spread: 15 }
@@ -214,7 +214,7 @@
     - "You are assigned to TA the course you barely passed as an undergrad, the one with the proof-heavy final. This time, you grade that final."
   choices:
     - label: "Relearn it properly this time"
-      text: "Twice through the textbook, and it finally clicks. Your undergrad self would be stunned."
+      text: "On your second pass through the textbook, it finally clicks. Your undergrad self would be stunned."
       effects: { knowledge: "+4±1", energy: "-6±2", health: "-2±1" }
     - label: "Stay one lecture ahead"
       text: "You learn each topic the night before you teach it. It works, mostly, and nobody notices."
@@ -225,7 +225,7 @@
         text: "Office hours fill up. Students say you explain it best, because you remember why it's hard."
         effects: { presenting: "+3±1", sanity: "+4±1" }
       failure:
-        text: "A student asks, \"So... should we trust your grading?\" Fair."
+        text: "A student asks, \"So... should we trust your grading?\""
         effects: { sanity: "-3±1" }
 
 - id: tea_thank_you_email
@@ -239,7 +239,7 @@
     - "An email from a student you TA'd years ago: they are an engineer now, and your office hours are why they stayed in computer science. They remember your name. You remember their bug."
   choices:
     - label: "Write back properly"
-      text: "A long, warm reply. It's the best thing you've written all month, and nobody will review it."
+      text: "You write a long, warm reply. It's the best thing you've written all month, and nobody will review it."
       effects: { sanity: "+8±2", writing: "+1" }
     - label: "Invite them to talk to your students"
       text: "They give a guest talk to this year's class. Two students ask them for internship referrals."
@@ -258,10 +258,10 @@
   when: { status_any: [ta] }
   text:
     - "The midterms are in: 140 of them, due back by Monday. The professor is at a conference."
-    - "The final projects arrive at 11:59 pm. All 38 of them. Some have videos."
+    - "All 38 final projects arrive at 11:59 pm, and some have videos."
   choices:
     - label: "Grade them all carefully"
-      text: "Fair, detailed feedback on every one. Two students email to say thank you, which almost never happens."
+      text: "Every one gets fair, detailed feedback. Two students email to say thank you, which almost never happens."
       effects: { days: -2, energy: "-4±1", sanity: "-4±1", presenting: "+1" }
     - label: "Make a rubric and move fast"
       text: "The rubric is a work of art. The grading goes fast, and nobody complains."

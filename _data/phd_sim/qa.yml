@@ -199,7 +199,7 @@ questions:
     kind: knowledge
     skill: taste
     difficulty: 55
-    text: "How will you know your system actually helps people, rather than just scoring well?"
+    text: "How will you know your system helps people, beyond scoring well on a benchmark?"
 
   - id: qa_does_it_scale
     stages: [proposal, defense, job_talk]

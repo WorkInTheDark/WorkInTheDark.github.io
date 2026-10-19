@@ -215,7 +215,7 @@ function rejectPaper(G, pp) {
   if (pp.deskReject) s.telemetry.desk_rejects++;
   if (s.telemetry.rejections >= 5 && s.player.traits.indexOf("rejection_hardened") < 0) {
     s.player.traits.push("rejection_hardened");
-    log(G, "Five rejections in, something has changed. New trait: Rejection-Hardened.");
+    log(G, "After five rejections, the next one stings a little less. New trait: Rejection-Hardened.");
   }
   addStatus(G, "post_rejection_blues", 2);
   s.pendingHooks.push({ hook: "after_reject", ctx: { paperId: pp.id } });
@@ -708,7 +708,7 @@ export function handleSys(G, prompt, choice) {
         p.status = "active"; p.revise = true; p.ready = false;
         nextResubmitTarget(G, p, choice === 1);
        
-        return { text: "Back to the draft. Next stop: " + (deadlineLabel(G, p) || "the next deadline") + ".", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [], tip: s.telemetry.rejections === 1 ? "Critique-Centric Feedback" : null };
+        return { text: "You go back to the draft and aim for " + (deadlineLabel(G, p) || "the next deadline") + ".", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [], tip: s.telemetry.rejections === 1 ? "Critique-Centric Feedback" : null };
       }
       return { text: "", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [] };
     }
@@ -726,7 +726,7 @@ export function handleSys(G, prompt, choice) {
       if (opt === "grant") {
         if (G.rng.chance(0.5 + s.stats.network / 400)) { attend(G, pp, d.city, 0); return null; }
         addStat(G, "network", 2);
-        return empty("No grant this time. You present remotely.");
+        return empty("The travel grant doesn't come through, so you present remotely.");
       }
       attend(G, pp, d.city, opt === "volunteer" ? 2 : 0);
       return null;
@@ -775,7 +775,7 @@ export function handleSys(G, prompt, choice) {
       return empty("Not this year.");
     case "job_market_start": {
       const map = [["academia", "industry"], ["industry"], ["academia"], ["startup", "other", "industry"]];
-      if (choice === 4) { s.job = { skipYear: yearOf(s.turn) }; return empty("Not this year. The thesis comes first."); }
+      if (choice === 4) { s.job = { skipYear: yearOf(s.turn) }; return empty("You skip the market this year to focus on the thesis."); }
       s.job = { tracks: map[choice], year: yearOf(s.turn) };
       s.flags.on_market = true;
       addStatus(G, "job_market", span(16));
@@ -792,14 +792,14 @@ export function handleSys(G, prompt, choice) {
       }
       s.job = { skipYear: yearOf(s.turn) };
       removeStatus(G, "job_market");
-      return empty("You decline. Next year, then.");
+      return empty("You decline and plan to try again next year.");
     }
     case "idle_nudge":
       if (choice === 0) { const hit = newProjectStress(G); const p = autoProject(G); return empty("New project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")." + stressHit(G, hit)); }
       return null;
     case "leave": {
       const id = d.ids[choice];
-      if (!id) return empty("You stay. Tomorrow is another day.");
+      if (!id) return empty("You stay.");
       s.pendingEnding = id;
       return null;
     }

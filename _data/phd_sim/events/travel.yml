@@ -62,7 +62,7 @@
         effects: { sanity: "-3±1", presenting: "+1" }
         achievement: lost_luggage
     - label: "Buy an outfit in {city} tonight"
-      text: "The only open store sells souvenir shirts. You present in one that says I LOVE {city}. People remember you."
+      text: "The only open store sells souvenir shirts. Everyone remembers the talk in the I LOVE {city} shirt."
       effects: { energy: "-5±2", network: "+3±1" }
       achievement: lost_luggage
     - label: "Wait at the airport for the bag"
@@ -113,7 +113,7 @@
     - label: "Ask the organizers to move you"
       check: { stat: network, vs: 50, spread: 20 }
       success:
-        text: "They move you next to the coffee urn. Best spot in the hall."
+        text: "They move you next to the coffee urn, the best spot in the hall."
         effects: { network: "+6±2", sanity: "+3±1" }
       failure:
         text: "\"All boards are final.\" The pillar and you will spend the afternoon together."
@@ -146,7 +146,7 @@
         effects: { network: "+2±1", sanity: "-4±2" }
         achievement: met_your_hero
     - label: "Freeze, then ask for a selfie"
-      text: "The question goes unanswered. The selfie is excellent."
+      text: "The question goes unanswered, but the selfie is excellent."
       effects: { sanity: "+4±2", network: "+1" }
       achievement: met_your_hero
 
@@ -213,7 +213,7 @@
       text: "The eleven ask great questions. One of them turns out to be next year's program chair."
       effects: { presenting: "+3±1", network: "+3±1", energy: "-4±1" }
     - label: "Cut it to ten minutes"
-      text: "Short and sharp. Everyone makes their flight, and they like you for it."
+      text: "You finish early. Everyone makes their flight, and they like you for it."
       effects: { energy: "+3±1", sanity: "+2±1", presenting: "+1" }
     - label: "Pull the chairs into a circle"
       check: { stat: presenting, vs: 50, spread: 20 }
@@ -266,7 +266,7 @@
         text: "You blank on a coding question you'd solve in your sleep. You keep the socks."
         effects: { career_prep: "+1", sanity: "-3±1" }
     - label: "Take the socks and a business card"
-      text: "Good socks. A card for later. No questions asked."
+      text: "You leave with good socks and no interview questions."
       effects: { career_prep: "+1", network: "+1", sanity: "+2±1" }
     - label: "Skip the booth for a talk"
       text: "The talk is about evaluation design, and it's exactly what you needed."
@@ -289,7 +289,7 @@
       text: "You see every talk and meet a lot of people. {city} remains a view from the hotel window."
       effects: { knowledge: "+3±1", network: "+2±1", sanity: "-3±1" }
     - label: "Stay one extra day"
-      text: "On the last day, {city} is all yours. Your inbox can wait one more day."
+      text: "You stay one more day and finally see {city}. The inbox can wait."
       effects: { sanity: "+9±3", energy: "+2±1", days_next: -2 }
 
 - id: tra_reception_food
@@ -309,7 +309,7 @@
       text: "Six hungry PhD students find a noodle place nearby. You now have a group chat for the rest of the week."
       effects: { network: "+2±1", sanity: "+4±1", energy: "+2±1" }
     - label: "Go back to the hotel"
-      text: "Room service, an early night, and no small talk at all."
+      text: "You eat room service in bed and fall asleep by nine."
       effects: { energy: "+5±2", network: "-2±1" }
 
 - id: tra_keynote_idea
@@ -331,11 +331,11 @@
         effects: { taste: "+2±1", sanity: "-1" }
         flag_set: [keynote_idea]
     - label: "Write it up on the flight home"
-      text: "Four pages by landing. Your seatmate now knows more about your research than your family does."
+      text: "You have four pages by landing, and your seatmate now knows more about your research than your family does."
       effects: { taste: "+4±1", writing: "+1", energy: "-4±1" }
       flag_set: [keynote_idea]
     - label: "Let it sit in your notes app"
-      text: "It joins 140 other ideas in your notes app. Some of them are good. You'll find out someday."
+      text: "It joins 140 other ideas in your notes app, some of which are probably good."
       effects: { sanity: "+2±1", taste: "+1" }
 
 - id: tra_flight_cold
@@ -349,12 +349,12 @@
     - "On the flight home, the passenger next to you coughs for six hours straight. By landing, your throat feels like sandpaper."
   choices:
     - label: "Take two days off to recover"
-      text: "Soup, sleep and two quiet days. You're back by Wednesday, mostly human."
+      text: "You live on soup and sleep for two days. By Wednesday you're back, mostly human."
       effects: { days_next: -2, energy: "+4±2", sanity: "+2±1" }
     - label: "Push through the week"
       check: { stat: health, vs: 60, spread: 20 }
       success:
-        text: "The cold never quite arrives. Lucky."
+        text: "The cold never quite arrives, though the week leaves you tired."
         effects: { energy: "-4±2" }
       failure:
         text: "It arrives in full. You spend the week on the couch with tissues and a stack of papers you don't read."
@@ -378,7 +378,7 @@
     - label: "Run it off your phone's hotspot"
       check: { stat: coding, vs: 50, spread: 20 }
       success:
-        text: "Two bars of signal, one working demo. The audience applauds, mostly for the hotspot."
+        text: "The demo runs on two bars of signal. The audience applauds, mostly for the hotspot."
         effects: { network: "+4±2", presenting: "+1", sanity: "+2±1" }
       failure:
         text: "Your phone connects, then dies at 4%. You finish with screenshots."
@@ -387,7 +387,7 @@
       text: "\"Here's one I prepared earlier.\" People laugh, then ask good questions."
       effects: { presenting: "+2±1", network: "+2±1", sanity: "-2±1" }
     - label: "Invite people to try it later"
-      text: "Six people find you at the break, on a wired connection. A small crowd, and good conversations."
+      text: "Six people find you at the break and try it on a wired connection. Two of them stay for an hour."
       effects: { network: "+3±1", energy: "-3±1" }
 
 - id: tra_student_volunteer
@@ -422,7 +422,7 @@
   hook: conference
   arc: parallel_work
   text:
-    - "At the poster session, you meet a student from another lab working on almost exactly your problem. Same data, a different method, and the same look of mild panic."
+    - "At the poster session, you meet a student from another lab working on almost exactly your problem. You use the same data with different methods, and you both have the same look of mild panic."
   choices:
     - label: "Propose working together"
       text: "You swap emails and sketch a plan on a napkin. It's either the start of something or a very nice napkin."
@@ -445,7 +445,7 @@
   when:
     flags_all: [parallel_collab]
   text:
-    - "Your collaborator from the conference sends a shared draft: their method, your data, and a results table better than either of yours alone. Now, whose name goes first?"
+    - "Your collaborator from the conference sends a draft that runs their method on your data, and the results beat both of yours. Whose name goes first?"
   choices:
     - label: "Offer them first author"
       text: "They're delighted. The paper goes out, and their lab invites you to visit next spring."
@@ -454,7 +454,7 @@
     - label: "Propose co-first authorship"
       check: { stat: network, vs: 50, spread: 15 }
       success:
-        text: "Co-first, with a footnote. Both advisors sign off, and the paper is better than anything you'd have written alone."
+        text: "You agree on co-first authorship with a footnote, and both advisors sign off."
         effects: { citations: "+4±2", network: "+3±1", writing: "+1" }
         flag_clear: [parallel_collab]
       failure:
@@ -498,7 +498,7 @@
     - "The conference app lists you as chair of Session 7B: \"Speech Recognition for Farm Equipment\". You have never chaired a session. You are not in this session."
   choices:
     - label: "Chair it anyway"
-      text: "You keep time, ask one question per talk, and learn a lot about tractors. The speakers thank you warmly."
+      text: "You keep time, ask one question per talk and learn a lot about tractors."
       effects: { network: "+4±1", knowledge: "+1", energy: "-4±1" }
     - label: "Email the organizers"
       check: { stat: network, vs: 45, spread: 20 }
@@ -529,5 +529,5 @@
       text: "They have watched it eleven times, and one of them has a question about slide 9."
       effects: { family_rel: "+5±1", sanity: "+3±1" }
     - label: "Watch it yourself, once"
-      text: "You count your \"um\"s: 47. Painful, and your next talk will have fewer."
+      text: "You count 47 \"um\"s. It's painful, but your next talk will have fewer."
       effects: { presenting: "+3±1", sanity: "-3±1" }

@@ -17,7 +17,7 @@
 - { id: first_rejection, name: "Welcome to Academia", desc: "Your first rejection.", when: { telemetry: { rejections: ">=1" } } }
 - { id: reviewer2_nemesis, name: "Reviewer 2's Nemesis", desc: "Six rejections, then three acceptances.", when: { telemetry: { rejections: ">=6", acceptances: ">=3" } } }
 - { id: rebuttal_veteran, name: "Rebuttal Veteran", desc: "Wrote five author responses.", when: { telemetry: { rebuttals: ">=5" } } }
-- { id: legendary_passive_aggressive, name: "Legendarily Passive-Aggressive", desc: "The passive-aggressive reply worked. Somehow.", secret: true }
+- { id: legendary_passive_aggressive, name: "Legendarily Passive-Aggressive", desc: "The passive-aggressive reply somehow worked.", secret: true }
 - { id: desk_rejected, name: "Desk Rejected", desc: "It never even reached the reviewers." }
 - { id: saw_it_coming, name: "Saw It Coming", desc: "A reviewer raised the flaw you'd already fixed." }
 - { id: persistence, name: "Fourth Time's the Charm", desc: "Resubmitted three times.", when: { telemetry: { resubmissions: ">=3" } } }
@@ -26,7 +26,7 @@
 - { id: overleaf_survivor, name: "Overleaf Is Down", desc: "Survived an outage on deadline day." }
 - { id: gpu_queue, name: "The GPU Queue", desc: "Survived a brutal queue." }
 - { id: irb_purgatory, name: "IRB Purgatory", desc: "Survived a very long IRB review." }
-- { id: burnout, name: "Running on Empty", desc: "Burned out. It happens; it passes.", when: { telemetry: { burnouts: ">=1" } } }
+- { id: burnout, name: "Running on Empty", desc: "Burned out for the first time. It passes with rest.", when: { telemetry: { burnouts: ">=1" } } }
 - { id: phoenix, name: "Phoenix", desc: "Graduated after burning out twice.", when: { telemetry: { burnouts: ">=2" }, milestone: { graduated: true } } }
 # --- Life
 - { id: touched_grass, name: "Touched Grass", desc: "40 exercise days.", when: { telemetry: { exercise_days: ">=40" } } }

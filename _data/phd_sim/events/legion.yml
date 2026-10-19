@@ -15,7 +15,7 @@
     - label: "Ask the one question that matters"
       check: { stat: taste, vs: 50, spread: 20 }
       success:
-        text: "Right question. Their answer, given while boarding, saves you a month."
+        text: "Their answer, given while they board, saves you a month."
         effects: { sanity: "+2±1", taste: "+3±1", advisor_rel: "+3±1" }
       failure:
         text: "They answer a different question. Then the call drops."
@@ -24,7 +24,7 @@
       text: "They nod a lot and say \"great, keep going\" just before the gate closes."
       effects: { presenting: "+2±1", advisor_rel: "+3±1" }
     - label: "Ask for an intro to someone useful"
-      text: "Between announcements, they forward your email to two famous people. One replies."
+      text: "Between announcements, they forward your email to two famous people, and one of them replies."
       effects: { network: "+5±2" }
 
 - id: leg_fa_letter
@@ -39,7 +39,7 @@
       text: "One becomes a mentor, one a collaborator, and one wants you on their workshop committee."
       effects: { days: -1, network: "+6±2", career_prep: "+2±1" }
     - label: "Pick the one closest to your work"
-      text: "One long call with someone exactly in your area. Worth ten networking dinners."
+      text: "One long call with someone in exactly your area is worth ten networking dinners."
       effects: { taste: "+2±1", network: "+3±1", career_prep: "+1" }
     - label: "Thank {advisor} properly"
       text: "You send a real thank-you note. The reply comes within the hour, from another continent."
@@ -53,7 +53,7 @@
   rarity: common
   when: { advisor: [micromanager], project: { stage_kind: work } }
   text:
-    - "{advisor} announces daily stand-ups. Fifteen minutes, 9 am, every day. \"Weekends included. Just a quick check-in.\""
+    - "{advisor} announces daily stand-ups: fifteen minutes at 9 am, every day. \"Weekends included. Just a quick check-in.\""
   choices:
     - label: "Show up every day"
       text: "You're never stuck for long. You're also never not in a meeting."
@@ -67,7 +67,7 @@
         text: "\"Weekends are when real work happens.\" The stand-ups stay."
         effects: { sanity: "-4±2", advisor_rel: "-2±1" }
     - label: "Send a written stand-up each morning"
-      text: "Three bullet points a day, typed from bed. {advisor} replies with a thumbs-up every time."
+      text: "You type three bullet points from bed each morning. {advisor} replies with a thumbs-up every time."
       effects: { project.progress: "+6±2", sanity: "-2±1", writing: "+2±1", advisor_rel: "+1" }
 
 - id: leg_mm_captions
@@ -84,7 +84,7 @@
     - label: "Explain your original choices"
       check: { stat: presenting, vs: 55, spread: 15 }
       success:
-        text: "Your layout stays, their caption stays. A fair trade."
+        text: "You keep your layout, and they keep their caption."
         effects: { sanity: "+2±1", project.quality.C: "+5±2", advisor_rel: "+1" }
       failure:
         text: "They listen carefully, then send version five."
@@ -104,7 +104,7 @@
     - "{advisor} sends a calendar invite titled \"Submission month!\": three deadlines in four weeks. \"All very doable.\""
   choices:
     - label: "Go for all three"
-      text: "You push hard on all three. One of them is going to be good. {advisor} is thrilled."
+      text: "You push hard on all three, and one of them will probably be good. {advisor} is thrilled."
       effects: { project.progress: "+15±5", energy: "-10±3", sanity: "-6±2", advisor_rel: "+5±2", health: "-3±1" }
     - label: "Pick the strongest one"
       check: { stat: advisor_rel, vs: 50, spread: 15 }
@@ -131,7 +131,7 @@
   rarity: common
   when: { advisor: [kind_unfunded], flags_all: [trip_planned] }
   text:
-    - "The lab's travel budget is empty. {advisor} quietly pays your conference registration with their own card. \"Don't mention it. Really.\""
+    - "The lab's travel budget is empty, so {advisor} pays your conference registration with their own card. \"Don't mention it. Really.\""
   choices:
     - label: "Accept, and say thank you"
       text: "You write a thank-you note. It ends up pinned to their office door."
@@ -142,10 +142,10 @@
         text: "You win the grant and pay them back. They pretend to be annoyed."
         effects: { sanity: "+3±1", writing: "+2±1", advisor_rel: "+3±1", network: "+1" }
       failure:
-        text: "No grant this time. {advisor} insists again, kindly."
+        text: "You don't get the grant, and {advisor} kindly insists on paying."
         effects: { sanity: "-1", writing: "+1", advisor_rel: "+2±1" }
     - label: "Volunteer at the conference"
-      text: "Free registration for six hours at the badge desk. You meet everyone."
+      text: "Six hours at the badge desk get you free registration, and you meet everyone."
       effects: { days_next: -2, network: "+4±2" }
 
 - id: leg_ku_ta_again
@@ -187,13 +187,13 @@
     - label: "Recycle your last paper's intro"
       check: { stat: writing, vs: 45, spread: 15 }
       success:
-        text: "It fits Aim 2 perfectly. Done in an afternoon."
+        text: "It fits Aim 2 perfectly, and you're done in an afternoon."
         effects: { days: -1, advisor_rel: "+2±1" }
       failure:
         text: "{advisor} notices right away: \"This is about Aim 3.\""
         effects: { days: -2, sanity: "-2±1", advisor_rel: "-2±1" }
     - label: "Ask {senior} how they did theirs"
-      text: "{senior} sends last year's section, a template, and a warning about Table 3."
+      text: "{senior} sends last year's section and a warning about Table 3."
       effects: { days: -1, writing: "+1", labmates_rel: "+2±1" }
 
 - id: leg_gm_handbook
@@ -230,19 +230,19 @@
     - "A 2:03 am email from {advisor}: \"New idea. Let's pivot the whole project.\" Attached is one blurry photo of a whiteboard."
   choices:
     - label: "Pivot {project}"
-      text: "Back to the idea stage. The whiteboard photo is now your research plan."
+      text: "You're back at the idea stage, and the whiteboard photo is now your research plan."
       effects: { project.pivot: true, sanity: "-4±2", taste: "+3±1", advisor_rel: "+4±1" }
       flag_set: [visionary_pivoted]
     - label: "Ask what it would look like"
       check: { stat: taste, vs: 55, spread: 20 }
       success:
-        text: "You find the part of the idea that fits {project}. More novelty, nothing thrown away."
+        text: "You find the part of the idea that fits {project}. It adds novelty without throwing anything away."
         effects: { project.quality.N: "+6±2", advisor_rel: "+2±1" }
       failure:
         text: "The more they explain, the bigger it gets."
         effects: { days: -1, sanity: "-3±1" }
     - label: "Say \"Love it! After the deadline.\""
-      text: "By the deadline, there's a newer idea. This one is quietly forgotten."
+      text: "By the deadline there's a newer idea, and nobody mentions this one again."
       effects: { sanity: "+2±1", advisor_rel: "-1" }
 
 - id: leg_vi_field_catches_up
@@ -257,7 +257,7 @@
       text: "You post it within a week. People start citing it as \"the early one\"."
       effects: { days: -3, energy: "-4±2", citations: "+5±3", network: "+3±1", sanity: "-3±1" }
     - label: "Tell the lab \"We called it\""
-      text: "Lab meeting turns into a small party. {advisor} brings cake."
+      text: "Lab meeting turns into a small party, and {advisor} brings cake."
       effects: { sanity: "+5±2", labmates_rel: "+2±1", advisor_rel: "+2±1" }
     - label: "Point to the pivot you already made"
       requires: { flags_all: [visionary_pivoted] }
@@ -278,7 +278,7 @@
     - label: "Lead with the decision you need"
       check: { stat: presenting, vs: 50, spread: 15 }
       success:
-        text: "\"Yes, do the second option.\" Decision made before the elevator."
+        text: "\"Yes, do the second option.\" You have your answer before the bottom of the stairs."
         effects: { sanity: "+3±1", presenting: "+2±1", advisor_rel: "+2±1" }
       failure:
         text: "You start with background. They reach their meeting before you reach the point."
@@ -298,12 +298,12 @@
   rarity: common
   when: { advisor: [near_retirement], year: [1, 4] }
   text:
-    - "{advisor} mentions retiring \"in two or three years\". You quietly do the math on your own timeline. It's close."
+    - "{advisor} mentions retiring \"in two or three years\". You do the math on your own timeline, and it's close."
   choices:
     - label: "Ask about a co-advisor"
       check: { stat: advisor_rel, vs: 45, spread: 15 }
       success:
-        text: "{advisor} sets you up with a younger, well-funded co-advisor. A safety net."
+        text: "{advisor} sets you up with a younger, well-funded co-advisor, just in case."
         effects: { sanity: "+4±2", network: "+3±1" }
         flag_set: [has_coadvisor]
       failure:
@@ -325,7 +325,7 @@
     - "{advisor} tells another story about how the field did things in the 1990s. Halfway through, you realize it solves your problem."
   choices:
     - label: "Ask for the old paper"
-      text: "They find it in a filing cabinet. Nine pages, no related work section, and exactly right."
+      text: "They find it in a filing cabinet. It has no related work section and is exactly right."
       effects: { knowledge: "+4±1", project.quality.N: "+5±2" }
     - label: "Try the old method"
       check: { stat: coding, vs: 50, spread: 20 }
@@ -336,7 +336,7 @@
         text: "It worked in 1997. It does not work now, but you learn why."
         effects: { project.progress: "-5±2", sanity: "-2±1", knowledge: "+2±1" }
     - label: "Start a lab history hour"
-      text: "Monthly stories from {advisor}. Attendance is suspiciously high."
+      text: "{advisor} tells one story a month, and attendance is suspiciously high."
       effects: { labmates_rel: "+3±1", advisor_rel: "+3±1" }
 
 # --- Serial Founder ---------------------------------------------------------
@@ -356,7 +356,7 @@
     - label: "Build a demo, not a product"
       check: { stat: coding, vs: 50, spread: 15 }
       success:
-        text: "A slick demo in two days. {advisor} pitches it on Monday."
+        text: "You have a slick demo in two days, and {advisor} pitches it on Monday."
         effects: { days: -2, coding: "+2±1", advisor_rel: "+3±1", sanity: "-2±1" }
       failure:
         text: "The demo crashes mid-pitch. {advisor} says investors love authenticity."
@@ -383,10 +383,10 @@
         text: "\"It's just a slide.\" The slide stays."
         effects: { sanity: "-4±2", advisor_rel: "-1" }
     - label: "Publish it first"
-      text: "A paper with your name on it is the best credit. You start writing faster."
+      text: "You start writing faster, so the paper with your name on it comes out first."
       effects: { energy: "-5±2", project.progress: "+10±4" }
     - label: "Take it as a compliment"
-      text: "Somebody thinks your research could be a product. That's something."
+      text: "At least somebody thinks your research could be a product."
       effects: { sanity: "+3±1", taste: "+1" }
 
 # --- Methods Purist ---------------------------------------------------------
@@ -400,12 +400,12 @@
     - "{advisor} reads your plan for a five-person pilot study and asks for a power analysis. \"For the pilot.\""
   choices:
     - label: "Run the power analysis"
-      text: "It says you need 34 people. For the pilot. You negotiate down to 12."
+      text: "It says the pilot needs 34 people. You negotiate down to 12."
       effects: { days: -2, knowledge: "+3±1", project.quality.S: "+6±2", sanity: "-2±1" }
     - label: "Explain what pilots are for"
       check: { stat: presenting, vs: 55, spread: 15 }
       success:
-        text: "\"Fair. But write down your expected effect size.\" A win, mostly."
+        text: "\"Fair. But write down your expected effect size.\""
         effects: { sanity: "+2±1", project.quality.S: "+3±1" }
       failure:
         text: "You receive a twenty-minute lecture on what pilots are for."
@@ -416,7 +416,7 @@
         text: "{labmate}'s script runs the analysis in five minutes."
         effects: { project.quality.S: "+4±2", labmates_rel: "+1" }
       failure:
-        text: "Their script is in a language you don't know. You learn it."
+        text: "Their script is in a language you don't know, so you learn it."
         effects: { days: -2, coding: "+2±1", sanity: "-2±1" }
 
 - id: leg_mp_ten_seeds
@@ -428,7 +428,7 @@
     - "Your new method beats the baseline by 1.2 points. {advisor} won't believe it until you run ten seeds and a significance test."
   choices:
     - label: "Run ten seeds"
-      text: "Seven seeds agree with you. The paper is now smaller, honest, and much stronger."
+      text: "Seven seeds agree with you. The claim gets smaller, and the paper gets much stronger."
       effects: { project.progress: "-10±3", project.quality.S: "+8±3" }
     - label: "Run three seeds and a bootstrap"
       check: { stat: knowledge, vs: 55, spread: 15 }
@@ -465,19 +465,19 @@
         achievement: ten_questions
         tip: "Judy's Ten Questions"
       failure:
-        text: "Six good answers, four stumbles. Now you know exactly what to read next."
+        text: "You give six good answers and stumble on four, so now you know what to read next."
         effects: { sanity: "-2±1", knowledge: "+2±1", project.quality.N: "+3±1", project.quality.S: "+2±1" }
         tip: "Judy's Ten Questions"
     - label: "Answer the ones you know"
       check: { stat: knowledge, vs: 50, spread: 20 }
       success:
-        text: "Seven solid answers. The other three become your reading list."
+        text: "You answer seven well, and the other three become your reading list."
         effects: { knowledge: "+2±1", project.quality.N: "+5±2", project.quality.S: "+4±2" }
       failure:
-        text: "Four answers and a lot of \"it depends\". {advisor} helps you write the rest down."
+        text: "You manage four answers and a lot of \"it depends\". {advisor} helps you write down the rest."
         effects: { sanity: "-1", project.quality.N: "+2±1", project.quality.S: "+2±1" }
     - label: "Ask for a week to prepare"
-      text: "You come back with all ten written out. Not perfect, but every answer is real."
+      text: "You come back with all ten answered, a few of them shakily."
       effects: { days: -2, knowledge: "+3±1", project.quality.N: "+4±2", project.quality.S: "+4±2", sanity: "-2±1" }
       tip: "Judy's Ten Questions"
 
@@ -487,23 +487,23 @@
   rarity: uncommon
   when: { advisor: [kind_funded], project: { stage: consolidation } }
   text:
-    - "Your draft of {project} comes back with 87 comments. Every one is polite. Every one is right. Several are about a single comma."
+    - "Your draft of {project} comes back with 87 comments. All of them are polite and right, and several are about a single comma."
   choices:
     - label: "Work through all 87"
-      text: "Eighty-seven resolved. It reads like a different, better paper."
+      text: "Once all 87 are resolved, it reads like a much better paper."
       effects: { days: -3, energy: "-4±2", writing: "+3±1", project.quality.C: "+8±2", sanity: "-3±1" }
       tip: "Critique-Centric Feedback"
     - label: "Group them and fix the root causes"
       check: { stat: writing, vs: 50, spread: 15 }
       success:
-        text: "Most comments trace back to five problems. Fix those five, and 60 comments disappear."
+        text: "Most comments trace back to five problems. You fix those, and 60 comments disappear."
         effects: { days: -1, writing: "+3±1", project.quality.C: "+6±2", project.quality.S: "+3±1" }
         tip: "Critique-Centric Feedback"
       failure:
         text: "You find the patterns but miss one. It brings back 20 comments in round two."
         effects: { days: -2, sanity: "-3±1", project.quality.C: "+4±2" }
     - label: "Sleep on it before reading"
-      text: "The next morning, the comments read as help, not a verdict. You fix them calmly."
+      text: "After a night's sleep the comments read like help, and you fix them calmly."
       effects: { days: -1, sanity: "+3±1", project.quality.C: "+5±2" }
       tip: "Critique-Centric Feedback"
     - label: "Push back on a few"
@@ -539,7 +539,7 @@
         flag_set: [chose_quality_over_deadline]
         tip: "Hold Yourself to a High Standard"
     - label: "Submit anyway"
-      text: "{advisor} helps you polish it anyway, and wishes you luck. They mean it."
+      text: "{advisor} still helps you polish it, and wishes you luck."
       effects: { sanity: "-2±1", advisor_rel: "-1" }
       flag_set: [submitted_borderline]
 
@@ -554,15 +554,15 @@
     - "It's Saturday, and {advisor} spots you in the lab again. \"Close the laptop. The paper will still be here on Monday, and so will I.\""
   choices:
     - label: "Close the laptop"
-      text: "You sleep, spend Sunday outside, and on Monday fix in an hour what took all of Friday."
+      text: "You sleep and spend Sunday outside. On Monday you fix in an hour what took all of Friday."
       effects: { days: -2, energy: "+10±3", sanity: "+8±2", health: "+3±1" }
       tip: "When and How to Rest"
     - label: "Get bubble tea together first"
-      text: "Half an hour, one drink, no work talk. Then you go home."
+      text: "You share a drink and talk about anything but work. Then you go home."
       effects: { energy: "+3±1", sanity: "+6±2", advisor_rel: "+3±1" }
       tip: "When and How to Rest"
     - label: "Finish just this one section"
-      text: "One section becomes three. You get home at 9 pm, tired and a little sheepish."
+      text: "One section becomes three, and you get home at 9 pm, a little sheepish."
       effects: { energy: "-4±2", sanity: "-2±1" }
 
 - id: leg_kf_your_direction
@@ -604,7 +604,7 @@
       effects: { days: -1, energy: "+8±2", sanity: "+6±2" }
       tip: "Sustain Through the Journey"
     - label: "Keep it, but make it ten minutes"
-      text: "One question, one answer, then home. {advisor} approves of the compromise."
+      text: "You ask your one question and head home. {advisor} approves of the compromise."
       effects: { energy: "+3±1", sanity: "+2±1", advisor_rel: "+2±1" }
     - label: "Use the slot to catch up"
       text: "Your Monday is productive. Your Tuesday is not."
@@ -619,7 +619,7 @@
     - "You send {advisor} your draft at 2 pm, expecting comments next week. At 6 pm it's back, read end to end, with a summary on page 1."
   choices:
     - label: "Turn the comments around fast"
-      text: "Two rounds in one week. The draft is suddenly a paper."
+      text: "You get through two rounds in one week, and the draft starts to look like a paper."
       effects: { energy: "-3±1", project.progress: "+10±3", project.quality.C: "+4±2" }
     - label: "Read them twice before editing"
       text: "On the second read you see the pattern, and fix the cause instead of the symptoms."
@@ -650,7 +650,7 @@
       effects: { days: -1, sanity: "+1", taste: "+2±1", project.quality.N: "+3±1" }
       tip: "Stakeholders and Gap"
     - label: "Answer with the benchmark gain"
-      text: "\"That's who cares about the number. Who cares about the problem?\" Fair point."
+      text: "\"That's who cares about the number. Who cares about the problem?\""
       effects: { sanity: "-2±1", taste: "+2±1" }
 
 - id: leg_kf_lab_dinner
@@ -663,7 +663,7 @@
     - "{paper} is accepted at {venue}. {advisor} books a table for the whole lab: \"Dinner is on me. Order dessert.\""
   choices:
     - label: "Order dessert, as instructed"
-      text: "Three desserts are shared across eleven people. Nobody leaves early."
+      text: "Eleven people share three desserts, and nobody leaves early."
       effects: { sanity: "+6±2", labmates_rel: "+3±1" }
     - label: "Give a short toast"
       check: { stat: presenting, vs: 45, spread: 20 }
@@ -706,12 +706,12 @@
     - "Half your section headings are in Title Case and half are in Sentence case. {advisor} would like them consistent before the meeting."
   choices:
     - label: "Fix them by hand"
-      text: "Fourteen headings, one style. It takes longer than it should."
+      text: "Fixing fourteen headings takes longer than it should."
       effects: { energy: "-2±1", project.quality.C: "+3±1" }
     - label: "Write a macro for it"
       check: { stat: coding, vs: 50, spread: 15 }
       success:
-        text: "Every heading, fixed in one go. The macro now lives in the lab template."
+        text: "It fixes every heading in one go, and now lives in the lab template."
         effects: { coding: "+2±1", labmates_rel: "+2±1", project.quality.C: "+4±2" }
       failure:
         text: "The macro turns every heading into ALL CAPS. You fix them by hand."
@@ -732,10 +732,10 @@
       text: "Figure 2 is now legible from across the room. {advisor} replies: \"Better.\""
       effects: { days: -1, project.quality.C: "+4±2" }
     - label: "Fix every figure while you're there"
-      text: "Same fonts, same sizes, same colors, everywhere. The paper suddenly looks professional."
+      text: "Every figure now uses the same fonts and colors, and the paper suddenly looks professional."
       effects: { days: -2, presenting: "+1", project.quality.C: "+7±2", sanity: "-2±1" }
     - label: "Ask for the font rules in writing"
-      text: "You get a three-line style guide. You tape it above your monitor."
+      text: "You get a three-line style guide and tape it above your monitor."
       effects: { writing: "+2±1", project.quality.C: "+2±1" }
 
 - id: leg_kf_practice_talk
@@ -748,7 +748,7 @@
       - { status_any: [quals_prep, proposal_prep, defense_prep, job_market] }
       - { flags_all: [trip_planned] }
   text:
-    - "Practice talk. Your advisor asks one quiet question from the back, and the whole argument wobbles."
+    - "At your practice talk, your advisor asks one quiet question from the back, and the whole argument wobbles."
   choices:
     - label: "Answer it on the spot"
       check: { stat: presenting, vs: 60, spread: 15 }
@@ -756,7 +756,7 @@
         text: "You find the answer mid-sentence. {advisor} nods: \"Put that on a slide.\""
         effects: { presenting: "+3±1", advisor_rel: "+3±1" }
       failure:
-        text: "You don't have it yet. Better to find out here than in the real room."
+        text: "You don't have an answer yet, but now you know before the real talk."
         effects: { sanity: "-4±2", presenting: "+2±1" }
         tip: "Critique-Centric Feedback"
     - label: "Rebuild the middle of the talk"
@@ -764,7 +764,7 @@
       effects: { days: -2, sanity: "-2±1", presenting: "+4±1", knowledge: "+1" }
       tip: "Critique-Centric Feedback"
     - label: "Add a backup slide"
-      text: "One slide, ready in case anyone asks. You hope nobody asks."
+      text: "You add one slide in case anyone asks, and hope nobody does."
       effects: { sanity: "+1", presenting: "+2±1" }
 
 - id: leg_kf_saw_it_coming
@@ -812,7 +812,7 @@
     - "At 12:30 am you send {advisor} a half-formed idea. They reply in four minutes. By 2 am the thread is 31 messages long, and it's your best idea of the year."
   choices:
     - label: "Keep the thread going"
-      text: "By 3 am you have a plan, a title, and a first figure sketched in an email."
+      text: "By 3 am you have a title and a first figure, sketched in an email."
       effects: { energy: "-4±2", sanity: "+4±2", taste: "+6±2", knowledge: "+2±1" }
       flag_set: [midnight_idea]
     - label: "Save it and sleep"
@@ -847,7 +847,7 @@
   rarity: common
   when: { advisor: [kind_funded] }
   text:
-    - "{advisor} hands you a bubble tea before you can order. \"Less ice, half sugar, right?\" It is exactly right."
+    - "{advisor} hands you a bubble tea before you can order: \"Less ice, half sugar, right?\""
   choices:
     - label: "Ask \"How did you remember?\""
       text: "\"You've ordered it eleven times.\" It turns out they remember everyone's."
@@ -879,7 +879,7 @@
       text: "Two drinks get swapped. Nobody can taste the difference between 25% and 30% anyway."
       effects: { energy: "-2±1", labmates_rel: "+3±1" }
     - label: "Bring {labmate} as backup"
-      text: "Seven drinks each, and a good chat the whole way back. Best errand of the semester."
+      text: "You carry seven drinks each and chat the whole way back."
       effects: { sanity: "+2±1", labmates_rel: "+4±1" }
 
 - id: leg_kf_camera_ready
@@ -901,11 +901,11 @@
         text: "One orphan survives, on page 7. {advisor} circles it, kindly."
         effects: { sanity: "-1", writing: "+2±1" }
     - label: "Rewrite until every line fits"
-      text: "Two days of tiny edits. Zero orphans, and the reply: \"Beautiful.\""
+      text: "After two days of tiny edits there are zero orphans, and the reply is \"Beautiful.\""
       effects: { days: -2, energy: "-3±1", sanity: "+3±1", writing: "+3±1" }
       achievement: no_orphans
     - label: "Send it as is"
-      text: "{advisor} quietly fixes two orphans and doesn't mention it. You notice anyway."
+      text: "{advisor} fixes two orphans without mentioning it. You notice anyway."
       effects: { sanity: "+2±1" }
 
 - id: leg_kf_defense_lab_meeting
@@ -936,18 +936,18 @@
   rarity: common
   when: { advisor: [famous_absent] }
   text:
-    - "This week {advisor} answered your emails from three time zones: at breakfast in one, at lunch in another, and somewhere over an ocean. Each reply is one line long."
+    - "This week {advisor} answered your emails from three time zones, one of them over an ocean. Each reply is one line long."
   choices:
     - label: "Batch everything into one email"
       check: { stat: writing, vs: 50, spread: 15 }
       success:
-        text: "Five numbered questions, yes or no each. Five answers come back from an airport lounge."
+        text: "You send five yes-or-no questions, and five answers come back from an airport lounge."
         effects: { writing: "+2±1", taste: "+2±1", advisor_rel: "+2±1" }
       failure:
         text: "They answer question 1 in detail. Questions 2 to 5 get \"let's discuss\"."
         effects: { sanity: "-3±1", writing: "+1" }
     - label: "Grab a call in their morning"
-      text: "Their morning is your 5:30 am. Twenty sleepy, genuinely useful minutes."
+      text: "Their morning is your 5:30 am. You're half asleep, but the call is useful."
       effects: { energy: "-4±1", taste: "+3±1", advisor_rel: "+3±1" }
     - label: "Ask {senior} instead"
       text: "{senior} has decoded one-line replies for four years. You get a real answer, plus a translation guide."
@@ -1011,18 +1011,18 @@
     - "Your draft of {project} comes back with a comment on every sentence. The references have comments too. Reference 14 has three."
   choices:
     - label: "Address every single one"
-      text: "Four days and 212 replies later, the draft is unmistakably better. {advisor} is pleased."
+      text: "Four days and 212 replies later, the draft is much better, and {advisor} is pleased."
       effects: { days: -3, energy: "-4±2", sanity: "-5±2", project.quality.C: "+7±2", advisor_rel: "+4±1" }
     - label: "Fix what matters, resolve the rest"
       check: { stat: writing, vs: 50, spread: 15 }
       success:
-        text: "You fix forty, explain ten, and resolve the rest. {advisor} reopens only two."
+        text: "You fix forty comments and resolve the rest. {advisor} reopens only two."
         effects: { days: -1, writing: "+2±1", project.quality.C: "+4±2" }
       failure:
         text: "{advisor} reopens every resolved comment, each with a new comment attached."
         effects: { days: -1, sanity: "-5±2", advisor_rel: "-2±1", project.quality.C: "+2±1" }
     - label: "Go through them together"
-      text: "Three hours in their office. Half the comments turn out to mean \"ok\"."
+      text: "You spend three hours in their office. Half the comments turn out to mean \"ok\"."
       effects: { energy: "-4±1", sanity: "+2±1", project.quality.C: "+4±2", advisor_rel: "+2±1" }
 
 # --- Hungry Assistant Prof --------------------------------------------------
@@ -1036,18 +1036,18 @@
     - "{advisor}'s tenure case goes out this year, and they've done the math: {project} is the paper the case needs. \"No pressure. Well. Some pressure.\""
   choices:
     - label: "Go all in on {project}"
-      text: "Nights, weekends, and a lot of progress. {advisor} starts bringing you coffee without being asked."
+      text: "You work nights and weekends and make a lot of progress. {advisor} starts bringing you coffee without being asked."
       effects: { project.progress: "+12±4", energy: "-7±2", sanity: "-5±2", health: "-3±1", advisor_rel: "+5±2" }
     - label: "Promise strong, not fast"
       check: { stat: advisor_rel, vs: 50, spread: 15 }
       success:
-        text: "\"You're right. A strong paper helps the case more than a quick one.\" They mean it."
+        text: "\"You're right. A strong paper helps the case more than a quick one.\""
         effects: { sanity: "+2±1", project.quality.S: "+5±2", advisor_rel: "+1" }
       failure:
         text: "They agree, then check in on {project} every morning at 9."
         effects: { sanity: "-5±2", project.progress: "+5±2" }
     - label: "Bring {labmate} onto the project"
-      text: "Two people, twice the speed, and a second name on the paper. {advisor} likes the plan."
+      text: "Two people work twice as fast, and the paper gets a second name. {advisor} likes the plan."
       effects: { project.progress: "+7±2", labmates_rel: "+3±1", sanity: "-2±1" }
 
 - id: leg_ha_four_projects
@@ -1059,7 +1059,7 @@
     - "{advisor} kicks off four new projects this semester. You open the planning doc. Your name is on all four, in bold."
   choices:
     - label: "Stay on all four"
-      text: "Four literatures, four meetings a week, four sets of co-authors. You learn a lot, very quickly."
+      text: "You now have four literatures to read and four meetings a week. You learn a lot, very quickly."
       effects: { days_next: -3, sanity: "-6±2", knowledge: "+4±1", network: "+2±1", advisor_rel: "+4±1" }
     - label: "Pick the one nearest your thesis"
       check: { stat: advisor_rel, vs: 50, spread: 15 }
@@ -1082,18 +1082,18 @@
     - "{advisor} is submitting their own paper to the same deadline as {project}. \"Could you run a few experiments on mine too? You're so fast.\""
   choices:
     - label: "Help with both papers"
-      text: "Two papers, one of you. Both get submitted. You sleep through most of the following weekend."
+      text: "Both papers get submitted, and you sleep through most of the following weekend."
       effects: { energy: "-8±2", sanity: "-5±2", health: "-3±1", coding: "+2±1", advisor_rel: "+5±2" }
     - label: "Trade experiments for writing help"
       check: { stat: advisor_rel, vs: 50, spread: 15 }
       success:
-        text: "They rewrite your introduction in one evening. It's much better. A fair trade."
+        text: "They rewrite your introduction in one evening, and it's much better."
         effects: { energy: "-4±1", project.quality.C: "+5±2", advisor_rel: "+2±1" }
       failure:
         text: "You run their experiments. Their notes on your intro arrive an hour after the deadline."
         effects: { energy: "-4±1", sanity: "-4±1", advisor_rel: "+1" }
     - label: "Protect your own paper"
-      text: "You say no, kindly. Your paper gets your full attention. {advisor} pulls an all-nighter and is a little cool all week."
+      text: "You say no, kindly, and give your own paper your full attention. {advisor} pulls an all-nighter and is a little cool all week."
       effects: { project.progress: "+6±2", sanity: "-1", advisor_rel: "-4±1" }
 
 # --- Kind but Unfunded ------------------------------------------------------
@@ -1115,10 +1115,10 @@
     - label: "Shrink the experiment to fit"
       check: { stat: coding, vs: 50, spread: 15 }
       success:
-        text: "A smaller model and a smarter sample. It runs in one afternoon and still answers your question."
+        text: "With a smaller model and a smarter sample, it runs in one afternoon and still answers your question."
         effects: { project.progress: "+6±2", coding: "+3±1" }
       failure:
-        text: "Too small to tell you anything. You add your name to the bottom of the sheet."
+        text: "The small run tells you nothing, so you add your name to the bottom of the sheet."
         effects: { project.progress: "+2±1", sanity: "-3±1", coding: "+1" }
 
 - id: leg_ku_warm_letter
@@ -1133,7 +1133,7 @@
       text: "They wave it off: \"I only wrote down what's true.\" You both pretend not to be moved."
       effects: { sanity: "+5±2", advisor_rel: "+4±1" }
     - label: "Use it for three more applications"
-      text: "A fellowship, a summer school, and a travel grant. A long evening of forms, with a great letter behind each one."
+      text: "You spend a long evening on three sets of forms. Each one goes out with a great letter behind it."
       effects: { days: -1, sanity: "-2±1", career_prep: "+3±1", network: "+2±1" }
     - label: "Save it for the hard weeks"
       text: "You put it in a folder called \"read this\". You'll open it more often than you expect."
@@ -1173,7 +1173,7 @@
     - "Grant renewal week. The whole lab pauses research to write progress summaries. The shared document is 61 pages long and has a table of contents for its table of contents."
   choices:
     - label: "Write your summary carefully"
-      text: "Two pages on your year. Written down, it was a better year than it felt."
+      text: "You write two pages on your year. On paper, it was a better year than it felt."
       effects: { days: -2, sanity: "-2±1", writing: "+2±1", advisor_rel: "+3±1" }
     - label: "Volunteer to edit the whole thing"
       text: "Sixty-one pages become forty. {advisor} calls it the cleanest renewal in years, and remembers who did it."
@@ -1181,7 +1181,7 @@
     - label: "Write yours in an hour"
       check: { stat: writing, vs: 50, spread: 15 }
       success:
-        text: "One tight page, done before lunch. Back to research by 1 pm."
+        text: "You write one tight page before lunch and are back to research by 1 pm."
         effects: { writing: "+1", advisor_rel: "+1" }
       failure:
         text: "It comes back with one note: \"More on Aim 2, please.\" The hour becomes two days."
@@ -1206,7 +1206,7 @@
         text: "It's one idea in 14 disguises. You name it in one sentence, and {advisor} lights up."
         effects: { taste: "+4±1", advisor_rel: "+3±1" }
       failure:
-        text: "You find a thread. It's not the one they meant, but it's an interesting one."
+        text: "You find a common thread. It isn't the one they meant."
         effects: { sanity: "-2±1", knowledge: "+2±1" }
     - label: "Read two properly, ask about the rest"
       text: "\"Oh, those were just for fun.\" Luckily, your two were the important ones."
@@ -1221,7 +1221,7 @@
     - "A best paper award goes to another lab, for the idea {advisor} emailed you at 2 am eight months ago. You still have the email. It was three lines long."
   choices:
     - label: "Forward the email to {advisor}"
-      text: "\"Ha! Told you.\" They're delighted, not bitter, and already have a newer idea. It arrives at 2 am."
+      text: "\"Ha! Told you.\" They're delighted, and their next idea arrives at 2 am."
       effects: { sanity: "+3±1", advisor_rel: "+3±1" }
     - label: "Build on their result, fast"
       check: { stat: taste, vs: 55, spread: 15 }
@@ -1232,7 +1232,7 @@
         text: "Eleven other labs had the same follow-up idea that week."
         effects: { energy: "-4±1", sanity: "-3±1", knowledge: "+2±1" }
     - label: "Start a folder for 2 am ideas"
-      text: "Every late-night idea now gets a real read the next morning. Most are wild. One of them might not be."
+      text: "Every late-night idea now gets a real read the next morning. Most are wild, but one might not be."
       effects: { days_next: -1, taste: "+3±1", advisor_rel: "+2±1" }
 
 # --- Industry Joint ---------------------------------------------------------
@@ -1295,12 +1295,12 @@
       text: "You cancel two interviews and relax. {advisor} seems pleased that you trust them."
       effects: { sanity: "+4±1", career_prep: "+3±1", advisor_rel: "+3±1" }
     - label: "Keep your other options going"
-      text: "You keep interviewing anyway. More work, and more doors."
+      text: "You keep interviewing anyway, which is more work but keeps your options open."
       effects: { days: -1, sanity: "-2±1", career_prep: "+5±1", network: "+2±1" }
     - label: "Ask for the research team instead"
       check: { stat: advisor_rel, vs: 50, spread: 15 }
       success:
-        text: "\"Good call.\" One more email, and you're down for the research team. More papers, fewer product launches."
+        text: "\"Good call.\" One more email, and you're on the research team."
         effects: { career_prep: "+3±1", taste: "+2±1" }
       failure:
         text: "\"Research is full this year. The product team is great, though.\""
@@ -1317,7 +1317,7 @@
     - "Your committee meeting opens with {advisor} and {committee} remembering grad school together, decades ago. Two more committee members were there too. Your slides wait patiently."
   choices:
     - label: "Let the stories run"
-      text: "Forty minutes of stories, five minutes of questions, all easy. Everyone leaves in a great mood."
+      text: "Forty minutes of stories leave five minutes for questions, all of them easy. Everyone leaves in a great mood."
       effects: { sanity: "+5±2", network: "+3±1" }
     - label: "Ask them to settle an old debate"
       check: { stat: taste, vs: 50, spread: 15 }
@@ -1342,7 +1342,7 @@
     - "{advisor} has been unreachable for two weeks. Today they walk into lab meeting, tanned, holding a term sheet. \"Big news! Also, how's everyone's research?\""
   choices:
     - label: "Ask about the startup"
-      text: "Forty minutes on funding rounds. You understand about a third of it. It's a fascinating third."
+      text: "They talk about funding rounds for forty minutes. You follow about a third of it, and it's a fascinating third."
       effects: { network: "+2±1", career_prep: "+1", advisor_rel: "+2±1" }
       flag_set: [startup_idea]
     - label: "Ask for two weeks of feedback, now"
@@ -1354,7 +1354,7 @@
         text: "\"Can you resend those? My inbox is a disaster.\" You resend all six."
         effects: { sanity: "-3±1" }
     - label: "Report the calls you made alone"
-      text: "You made three decisions while they were gone. {advisor} approves two and quietly reverses the third."
+      text: "You made three decisions while they were gone. {advisor} approves two and reverses the third without comment."
       effects: { sanity: "+1", taste: "+3±1", advisor_rel: "-1" }
 
 - id: leg_sf_labmate_cto
@@ -1366,7 +1366,7 @@
     - "A launch announcement reveals that {labmate} is the CTO of {advisor}'s newest startup. That explains the second laptop, and all the 4 pm \"dentist appointments\"."
   choices:
     - label: "Ask {labmate} how it all works"
-      text: "Over coffee they explain everything: equity, investors, and why they never sleep. You learn a lot."
+      text: "Over coffee they explain how equity works, and why they never sleep."
       effects: { knowledge: "+2±1", labmates_rel: "+3±1" }
       flag_set: [startup_idea]
     - label: "Ask if they're hiring"
@@ -1398,7 +1398,7 @@
     - label: "Cut it to the two tests that matter"
       check: { stat: knowledge, vs: 55, spread: 15 }
       success:
-        text: "Two tests, one page, and a rare nod from {advisor}: \"Fine. These are the right two.\""
+        text: "The appendix shrinks to one page, and {advisor} gives a rare nod: \"Fine. These are the right two.\""
         effects: { knowledge: "+2±1", project.quality.S: "+4±2", project.quality.C: "+3±1", advisor_rel: "+2±1" }
       failure:
         text: "{advisor} restores the other ten pages, with tracked changes and a reading list."
@@ -1421,10 +1421,10 @@
         text: "p = 0.003. {advisor} allows themselves a very small smile. The lab cheers again, carefully."
         effects: { sanity: "+4±1", project.quality.S: "+5±2", advisor_rel: "+3±1" }
       failure:
-        text: "p = 0.21. It was exciting. Now you know what to fix."
+        text: "p = 0.21. It was only exciting, and now you know what to fix."
         effects: { sanity: "-4±1", knowledge: "+1", project.quality.S: "+3±1" }
     - label: "Say \"Both, I hope\""
-      text: "{advisor} laughs, once, which is rare. Then asks for the test by Friday."
+      text: "{advisor} laughs once, which is rare, then asks for the test by Friday."
       effects: { days_next: -1, sanity: "+2±1", advisor_rel: "+1", project.quality.S: "+2±1" }
     - label: "Admit it's just exciting so far"
       text: "\"Good. Now make it significant.\" Your honesty earns a week of goodwill, and a list of seeds to run."
@@ -1443,7 +1443,7 @@
   rarity: rare
   when: { advisor: [kind_funded], year: [2, 8], stat: { advisor_rel: ">=55" } }
   text:
-    - "A year in, {advisor} opens a folder on their laptop: ideas collected over many years and never shared. \"Take one, if any of them speak to you. Or tell me why they're wrong.\""
+    - "A year in, {advisor} opens a folder of ideas they've collected for years and never shared. \"Take one, if any of them speak to you. Or tell me why they're wrong.\""
   choices:
     - label: "Pick the one that excites you"
       text: "You pick the fourth one. {advisor} smiles: it was their favorite too, and they never found the time."
@@ -1454,10 +1454,10 @@
         text: "You find the problem with idea three. {advisor} nods: \"Good. That's why it's still in the folder.\""
         effects: { taste: "+6±2", advisor_rel: "+4±1" }
       failure:
-        text: "Your \"flaw\" is answered in a note they wrote years ago. They show you, kindly, and the note teaches you a lot."
+        text: "They show you a note from years ago that answers your \"flaw\". You learn a lot from it."
         effects: { sanity: "-2±1", taste: "+3±1", knowledge: "+2±1" }
     - label: "Say you'd rather follow your own"
-      text: "\"Even better.\" They close the folder, looking pleased, and ask to hear yours instead."
+      text: "\"Even better.\" They close the folder and ask to hear yours."
       effects: { sanity: "+3±1", taste: "+2±1", advisor_rel: "+2±1" }
       tip: "Find Out What You Are Devoted To"
 
@@ -1475,7 +1475,7 @@
         text: "Two of your three guesses are right. You realize you didn't need the meeting for those two."
         effects: { sanity: "+2±1", taste: "+3±1", advisor_rel: "+2±1" }
       failure:
-        text: "All three guesses are wrong, but now you both know exactly why. That's progress."
+        text: "All three guesses are wrong, but now you both know why."
         effects: { sanity: "-2±1", knowledge: "+3±1" }
     - label: "Come back tomorrow with answers"
       text: "You return with three answers and one better question. The meeting takes ten minutes."
@@ -1491,16 +1491,16 @@
   rarity: common
   when: { advisor: [kind_funded], semester: [fall, spring] }
   text:
-    - "A student from another department has come to the last four lab meetings. Nobody remembers inviting them. They always order taro, and they never miss the bubble tea."
+    - "A student from another department has come to the last four lab meetings and always orders taro. Nobody remembers inviting them."
   choices:
     - label: "Ask what they work on"
-      text: "They study crowds in train stations. Over taro, you find an idea that belongs to neither field, and to both."
+      text: "They study crowds in train stations. Over taro, you find an idea that needs both your fields."
       effects: { energy: "-1", taste: "+2±1", network: "+4±1" }
     - label: "Add them to the order sheet"
-      text: "{advisor} adds a fifteenth drink without a word. The visitor looks deeply grateful."
+      text: "{advisor} adds a fifteenth drink without a word. The visitor looks very grateful."
       effects: { sanity: "+3±1", labmates_rel: "+2±1" }
     - label: "Ask them to present, as the price of tea"
-      text: "Their talk on soil chemistry is the best of the semester. Lab meeting runs 30 minutes over, happily."
+      text: "Their talk on soil chemistry is the best of the semester. Lab meeting runs 30 minutes over, and nobody minds."
       effects: { energy: "-2±1", knowledge: "+3±1", labmates_rel: "+2±1" }
 
 - id: leg_kf_perfect_attendance

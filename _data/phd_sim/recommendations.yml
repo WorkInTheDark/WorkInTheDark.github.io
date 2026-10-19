@@ -7,10 +7,10 @@
 - { topic: "Outcome of PhD Training", priority: 80, why: "What the PhD gives you, even without the degree.", when: { milestone: { graduated: false } } }
 - { topic: "Critique-Centric Feedback", priority: 78, why: "You collected a lot of rejections.", when: { telemetry: { rejections: ">=4" } } }
 - { topic: "Toxicity of Peer Pressure", priority: 76, why: "Your Sanity sank low along the way.", when: { telemetry: { min_sanity: "<20" } } }
-- { topic: "Hold Yourself to a High Standard", priority: 74, why: "Several papers went out before they were ready.", when: { telemetry: { desk_rejects: ">=1" } } }
-- { topic: "Deliver Your Commitments", priority: 70, why: "Rebuttals are promises.", when: { telemetry: { rebuttals: ">=3" } } }
+- { topic: "Hold Yourself to a High Standard", priority: 74, why: "A paper went out before it was ready.", when: { telemetry: { desk_rejects: ">=1" } } }
+- { topic: "Deliver Your Commitments", priority: 70, why: "Your rebuttals made promises you had to keep.", when: { telemetry: { rebuttals: ">=3" } } }
 - { topic: "Paper Writing 101", priority: 68, why: "Writing was your weakest skill.", when: { stat: { writing: "<50" } } }
-- { topic: "How to Communicate", priority: 66, why: "Clear writing is clear thinking.", when: { stat: { writing: "<60" } } }
+- { topic: "How to Communicate", priority: 66, why: "Your writing could have been clearer.", when: { stat: { writing: "<60" } } }
 - { topic: "Paper Reading", priority: 64, why: "You didn't read much outside your projects.", when: { telemetry: { reading_days: "<20" } } }
 - { topic: "Literature Search", priority: 62, why: "Getting scooped often starts with a missed paper.", when: { telemetry: { reading_days: "<30" } } }
 - { topic: "Project Meeting", priority: 60, why: "Your advisor relationship could have been stronger.", when: { stat: { advisor_rel: "<45" } } }
@@ -25,5 +25,5 @@
 - { topic: "Results and Findings", priority: 42, why: "From numbers to findings." }
 - { topic: "Implications and Venue", priority: 40, why: "Where your work should go next.", when: { telemetry: { rejections: ">=2" } } }
 - { topic: "Self-Motivation", priority: 38, why: "What keeps you going after the citations.", when: { telemetry: { citations: ">=100" } } }
-- { topic: "Learning How to Learn", priority: 36, why: "The method behind the methods." }
+- { topic: "Learning How to Learn", priority: 36, why: "How to pick up new methods faster." }
 - { topic: "Self-Learning Skills", priority: 34, why: "Teach yourself from the papers you admire." }

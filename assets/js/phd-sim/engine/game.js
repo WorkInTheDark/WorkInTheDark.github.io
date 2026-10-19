@@ -288,7 +288,7 @@ export class Game {
         out.push({ id: a.id, kind: "core", label: a.label, desc: a.id === "read" && lit.length ? desc : "", arrows: arrows });
       });
     } else {
-      out.push({ id: "recharge", kind: "core", label: "Recharge", desc: "You're on leave. Rest is the job.", arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
+      out.push({ id: "recharge", kind: "core", label: "Recharge", desc: "You're on leave, so resting is the job.", arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
     }
     // Only this turn: opportunities that came up, and anything an event unlocked.
     (s.turnOpps || []).forEach(function (o) {
@@ -601,7 +601,7 @@ export class Game {
       addStatus(this, "burnout", span(cfg.sanity.burnout_turns) + 1);
       tl.burnouts++;
       s.stats.sanity = 15;
-      this.log("Burnout. You hit empty. For the next several weeks you'll get half as much done and can't crunch. Rest. This happens to more people than will ever say so.", "bad");
+      this.log("You burn out. For the next several weeks you'll get half as much done and can't crunch, so rest. It happens to more people than will ever say so.", "bad");
     }
     if (s.stats.health < 35 && !s.warnedHealth) {
       s.warnedHealth = true;

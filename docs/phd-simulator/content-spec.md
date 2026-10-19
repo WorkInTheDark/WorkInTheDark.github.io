@@ -21,6 +21,14 @@ The exact contract between the YAML content in `_data/phd_sim/` and the game eng
 6. **Every event offers at least one reasonable choice,** not just a least-bad one. Good events have a real trade-off, for example time against quality, or Sanity against the advisor relationship.
 7. **Hidden effects must be implied by the wording** of the choice or result ("Your advisor seems pleased"). The player sees arrows for Energy, Sanity, Citations and the five skills (section 5), derived automatically from `effects`; relationships, network and health stay hidden.
 8. Use straight ASCII quotes inside YAML; wrap any string containing `:` or `#` in double quotes.
+9. **Sound like a person, not a model** (the [humanizer](https://github.com/blader/humanizer) patterns; every file was checked against them on 2026-10-18).
+   - No em or en dashes.
+   - Don't end on a verdict that restates the line ("Lesson learned.", "Worth it.", "Progress is progress.") unless it adds a fact or is the punchline.
+   - Don't stack verbless fragments ("Coffee. Code. Silence.").
+   - Use a list of three only when there really are three things.
+   - No "not just X, but Y" or "isn't X, it's Y" framing.
+   - Avoid model words: delve, crucial, pivotal, vibrant, testament, showcase, meticulous, quietly, valuable.
+   - Exceptions: in-character speech, the parody LLM reviewer, and titles may break these on purpose.
 
 ---
 

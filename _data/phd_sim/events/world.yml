@@ -10,7 +10,7 @@
   repeatable: true
   cooldown: 10
   text:
-    - "{biglab} releases {model}. Within a week, every reading group, lab meeting and arXiv title is about it."
+    - "{biglab} releases {model}. Within a week, every reading group and half of arXiv is about it."
     - "{biglab} releases {model}, and the field changes its plans overnight. Three talks at this week's seminar are rewritten the morning of."
   choices:
     - label: "Spend the weekend trying it"
@@ -50,7 +50,7 @@
         text: "The thread gets four likes, two of them from labmates."
         effects: { sanity: "-3±1", days: -1 }
     - label: "Ignore it and keep working"
-      text: "Nobody remembers the claim a month later. Reviewers might, though."
+      text: "A month later nobody remembers the claim, except maybe your reviewers."
       effects: { project.progress: "+6±2", sanity: "+2±1" }
       flag_set: [ignored_new_model]
 
@@ -73,7 +73,7 @@
     - label: "Find the angle nobody's taking"
       check: { stat: taste, vs: 55, spread: 20 }
       success:
-        text: "Everyone is building systems. Nobody asked the users. You will."
+        text: "Everyone is building systems, so you study the users instead."
         effects: { project.quality.N: "+8±2", sanity: "+3±1" }
       failure:
         text: "Every angle you find is already taken, sometimes twice."
@@ -86,7 +86,7 @@
   when:
     project: { stage_kind: work }
   text:
-    - "Suddenly every paper needs \"agents\". Every call for papers, talk title and lab meeting slide has the word in it. {labmate} asks whether {project} is an agent."
+    - "Suddenly every paper needs \"agents\", and the word is on every lab meeting slide. {labmate} asks whether {project} is an agent."
   choices:
     - label: "Rebrand it as an agent"
       text: "Your slides say \"agentic\" eleven times. People seem more interested, and somewhat more confused."
@@ -95,7 +95,7 @@
       text: "\"It's a pipeline.\" A few people nod. One of them is a reviewer, and they appreciate it."
       effects: { taste: "+2±1", sanity: "+1" }
     - label: "Build a real agent version"
-      text: "You spend a week on it. It works, and it's actually more interesting than the buzzword."
+      text: "You spend a week on it. It works, and it's more interesting than the buzzword."
       effects: { days: -3, energy: "-5±2", coding: "+2±1", project.quality.N: "+5±2", sanity: "-3±1" }
 
 - id: wor_benchmark_debate
@@ -114,7 +114,7 @@
       text: "You post a careful take and spend two days answering replies. Some of them are useful."
       effects: { network: "+3±1", sanity: "-4±2", days: -1 }
     - label: "Write an honest limitations paragraph"
-      text: "One clear paragraph on what the benchmark can and can't tell you. Reviewers tend to like that."
+      text: "You write one clear paragraph on what the benchmark can and can't tell you. Reviewers tend to like that."
       effects: { project.quality.C: "+3±1", writing: "+1" }
 
 - id: wor_famous_post
@@ -127,7 +127,7 @@
     - "A famous researcher posts about {paper}: \"This is the kind of work the field needs.\" Your phone does not stop buzzing for an hour."
   choices:
     - label: "Reply with a short thank-you"
-      text: "Gracious and brief. A few hundred people read your paper this week."
+      text: "You keep it short and gracious. A few hundred people read your paper this week."
       effects: { citations: "+6±2", network: "+4±2", sanity: "+5±2" }
     - label: "Post a thread explaining the paper"
       check: { stat: writing, vs: 50, spread: 20 }
@@ -157,7 +157,7 @@
       text: "\"Described as pioneering by a recent survey.\" It reads well in the statement."
       effects: { career_prep: "+2", sanity: "+3±1" }
     - label: "Read how they describe it"
-      text: "They describe it correctly, mostly. You'll take it."
+      text: "They get it mostly right, which is more than most citations do."
       effects: { sanity: "+2±1", taste: "+1" }
 
 - id: wor_hiring_freeze
@@ -199,7 +199,7 @@
     - "Hiring is booming. Two recruiters you've never met email you about summer internships, and one even spells your name right."
   choices:
     - label: "Take both calls"
-      text: "Two calls, two friendly recruiters, two promising next steps."
+      text: "Both recruiters are friendly, and both calls end with a next step."
       effects: { days: -1, career_prep: "+3", network: "+3±1", energy: "-3±1" }
     - label: "Ask {advisor} which one fits"
       requires: { has_advisor: true }
@@ -242,13 +242,13 @@
     - label: "Search for anything like yours"
       check: { stat: taste, vs: 50, spread: 25 }
       success:
-        text: "Nothing overlaps. You breathe out."
+        text: "Nothing overlaps with your work, and you relax a little."
         effects: { sanity: "+3±1" }
       failure:
-        text: "One paper looks close. After an hour of reading, you decide it isn't. Probably."
+        text: "One paper looks close. After an hour of reading, you decide it probably isn't."
         effects: { sanity: "-4±1", knowledge: "+1" }
     - label: "Close the tab"
-      text: "The important ones will find you. They always do."
+      text: "If a paper matters, someone in the lab chat will post it."
       effects: { sanity: "+2±1" }
 
 # --- Round 5 additions ---------------------------------------------------------
@@ -277,7 +277,7 @@
       effects: { project.quality.C: "+4±1", knowledge: "+2±1", days: -1 }
       tip: "Stakeholders and Gap"
     - label: "Keep going: less hype, less competition"
-      text: "Fewer papers to compete with and fewer people to impress. Steady progress, and a few doubts at night."
+      text: "With fewer people to race, you make steady progress. A few doubts creep in at night."
       effects: { project.progress: "+6±2", sanity: "-2±1" }
 
 - id: wor_submissions_double
@@ -291,14 +291,14 @@
     - "The flagship conference got {roll:18000-24000} submissions this cycle, double last year. The reviewer pool did not double. An email asks if you can take \"a few\" extra reviews."
   choices:
     - label: "Volunteer for six extra reviews"
-      text: "Six papers in a week. You now know exactly what everyone else is working on, and you're tired."
+      text: "You review six papers in a week. Now you know what everyone else is working on, and you're tired."
       effects: { knowledge: "+3±1", network: "+3±1", energy: "-6±2", sanity: "-3±1" }
     - label: "Make {project} readable in five minutes"
-      text: "Busy reviewers skim. You rewrite the abstract, Figure 1 and every first sentence for a skimmer."
+      text: "You rewrite the abstract, Figure 1 and every first sentence for a reviewer who only skims."
       effects: { project.quality.C: "+5±2", writing: "+1", days: -1 }
       tip: "Paper Writing 101"
     - label: "Decline. It's a lottery anyway"
-      text: "You turn down the extra reviews and keep your week. The lottery feeling stays."
+      text: "You turn down the extra reviews and keep your week. The deadline still feels like a lottery."
       effects: { sanity: "+2±1", energy: "+2±1" }
 
 - id: wor_new_venue
@@ -310,7 +310,7 @@
     has_advisor: true
     year: [1, 4]
   text:
-    - "A new conference launches: a bold call for papers, no track record and a very nice logo. {advisor} calls submitting there \"a gamble, but a fun one\"."
+    - "A new conference launches. It has no track record yet, but it has a very nice logo. {advisor} calls submitting there \"a gamble, but a fun one\"."
   choices:
     - label: "Volunteer to review for it"
       text: "You review four papers for the first edition. The organizers remember who showed up early."
@@ -364,11 +364,11 @@
     - "Your target venues adopt a new reproducibility checklist: random seeds, compute hours, code links and the exact prompts you used. For {project}, you can answer about half."
   choices:
     - label: "Answer honestly, gaps and all"
-      text: "Half the answers say \"not recorded\". It stings, but reviewers tend to respect honesty more than polish."
+      text: "Half the answers say \"not recorded\". It stings, but reviewers tend to respect that."
       effects: { project.quality.S: "+3±1", sanity: "-2±1" }
       tip: "Hold Yourself to a High Standard"
     - label: "Rerun things until every answer is yes"
-      text: "A week of reruns with every seed logged. Every box is now a confident yes. You are slightly less confident in general."
+      text: "After a week of reruns with every seed logged, every box is a confident yes. You feel slightly less confident in general."
       effects: { project.quality.S: "+7±2", energy: "-5±2", sanity: "-3±1", days: -3 }
     - label: "Write a logging script for the future"
       check: { stat: coding, vs: 50, spread: 15 }

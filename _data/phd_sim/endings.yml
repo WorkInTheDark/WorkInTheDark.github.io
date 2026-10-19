@@ -3,13 +3,13 @@
 - id: tenure_track
   name: "Tenure-Track Professor"
   group: Academia
-  offer: "An assistant professor job. Your own lab, your own students, your own grant rejections."
+  offer: "An assistant professor job: your own lab, and your own grant rejections."
   text: "You start your own lab. Your first student arrives in September, nervous and brilliant. You catch yourself saying things your advisor used to say, and you mostly mean them."
 - id: teaching_college
   name: "Professor at a Teaching College"
   group: Academia
-  offer: "Small classes, students who visit office hours, and summers to think."
-  text: "You teach. You are good at it, and it matters. Every year a few students find you after class with a question that turns into a project."
+  offer: "A teaching job with small classes and students who come to office hours."
+  text: "You teach, and you are good at it. Every year a few students find you after class with a question that turns into a project."
 - id: postdoc_famous
   name: "Postdoc in a Famous Lab"
   group: Academia
@@ -18,13 +18,13 @@
 - id: eternal_postdoc
   name: "The Eternal Postdoc"
   group: Academia
-  offer: "A postdoc. Then, perhaps, another one."
-  text: "Your first postdoc becomes your second. You know every visa form by heart and every reviewer by writing style. It's a life, and an interesting one."
+  offer: "A postdoc, and probably another one after that."
+  text: "Your first postdoc becomes your second. You know every visa form by heart and every reviewer by writing style."
 - id: lecturer_abroad
   name: "Lecturer Across the Pond"
   group: Academia
   offer: "A permanent lectureship overseas, with a new vocabulary for everything."
-  text: "You move abroad, learn what \"REF\" means, and discover that tea breaks are where the real collaborations start."
+  text: "You move abroad, learn what \"REF\" means, and find that most collaborations start at the tea break."
 - id: faculty_back_home
   name: "Faculty Back Home"
   group: Academia
@@ -34,12 +34,12 @@
   name: "Research Scientist at a Frontier Lab"
   group: Industry
   offer: "A research job at one of the labs everyone is racing."
-  text: "You join a frontier lab. The compute is unimaginable, the meetings are many, and occasionally your name is on something the whole field reads."
+  text: "You join a frontier lab with more compute than you can imagine. Sometimes your name is on a paper the whole field reads."
 - id: bigtech_rs
   name: "Research Scientist at Big Tech"
   group: Industry
   offer: "A research scientist role with a stable team and a nice badge."
-  text: "You become a research scientist at a big company. You still publish, you finally have a budget, and nobody asks you to TA."
+  text: "You become a research scientist at a big company. You still publish, but now there's a budget and nobody asks you to TA."
 - id: applied_scientist
   name: "Applied Scientist"
   group: Industry
@@ -48,13 +48,13 @@
 - id: ml_engineer
   name: "ML Engineer (with a PhD, for Fun)"
   group: Industry
-  offer: "Engineering work, good pay, and coworkers who call you Doctor as a joke."
+  offer: "Good pay, and coworkers who call you Doctor as a joke."
   text: "You write code all day and sleep well at night. Sometimes you miss research. Then someone mentions Reviewer 2, and you stop missing it."
 - id: quant
   name: "Quant Researcher"
   group: Industry
   offer: "A trading firm wants your statistics skills."
-  text: "You move into finance. The models are different, the salaries are absurd, and your p-values are finally worth money."
+  text: "You move into finance. The salary is absurd, and your p-values are finally worth money."
 - id: ux_researcher
   name: "UX Researcher"
   group: Industry
@@ -83,18 +83,18 @@
 - id: founder
   name: "Start Your Own Company"
   group: Startup
-  offer: "Turn your thesis into a startup. High risk, great stories."
+  offer: "Turn your thesis into a startup. The risk is high and the stories are great."
   text: ""
 - id: employee_four
   name: "Employee #4 at a Labmate's Startup"
   group: Startup
-  offer: "Your old labmate's startup wants you. Equity, chaos, and familiar faces."
+  offer: "Your old labmate's startup wants you, and it's offering equity and chaos."
   text: "You join your labmate's startup as employee number four. The office is a converted garage and the whiteboard has your old lab's handwriting on it."
 - id: policy_fellow
   name: "Policy Fellow"
   group: Other
   offer: "A fellowship advising on AI policy."
-  text: "You explain language models to people who write the rules. It's slower than research and, some days, more important."
+  text: "You explain language models to people who write the rules. Then you explain them again the next week."
 - id: science_journalist
   name: "Science Journalist"
   group: Other
@@ -104,7 +104,7 @@
   name: "AI YouTuber"
   group: Other
   offer: "Your paper explainer videos have an audience. Make it a job."
-  text: "Your paper explainers find an audience. You have a ring light, a sponsor, and a comment section full of grad students thanking you."
+  text: "Your paper explainers find an audience and a sponsor. The comments are full of grad students thanking you."
 - id: clinical_informatics
   name: "Clinical Informatics at a Hospital"
   group: Other
@@ -114,12 +114,12 @@
   name: "Master's Out, Happily"
   group: Leaving
   offer: ""
-  text: "You leave with a Master's degree and no regrets. The skills come with you, and so do the friends. A PhD was one path; yours turned out to be another."
+  text: "You leave with a Master's degree and no regrets. The skills come with you, and so do the friends."
 - id: bubble_tea
   name: "Bubble Tea Shop Owner"
   group: Leaving
   offer: ""
-  text: "You open a bubble tea shop near campus. Grad students come in at odd hours, and you always know exactly what they need: less ice, half sugar, and someone to say the paper will be fine."
+  text: "You open a bubble tea shop near campus. Grad students come in at odd hours, and you always know what they need: half sugar, and someone to say the paper will be fine."
 - id: switched_fields
   name: "Switched Fields"
   group: Leaving
@@ -134,4 +134,4 @@
   name: "The Eternal Student"
   group: Leaving
   offer: ""
-  text: "Year eight ends and the university gently points out the time limit. You leave with a Master's, a drawer of almost-finished papers, and stories nobody believes."
+  text: "Year eight ends and the university gently points out the time limit. You leave with a Master's degree and a drawer of almost-finished papers."

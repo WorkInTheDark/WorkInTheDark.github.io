@@ -9,11 +9,11 @@
   cooldown: 8
   when: { has_advisor: true, advisor_not: [kind_funded] }
   text:
-    - "11:04 pm. An email from {advisor}, subject line \"quick question\". The question is not quick."
+    - "At 11:04 pm, {advisor} sends an email with the subject line \"quick question\". The question is not quick."
     - "Your phone buzzes at 11 pm: \"Quick question: could you rerun everything with the new data split?\""
   choices:
     - label: "Answer it tonight"
-      text: "You reply at 12:40 am. {advisor} answers \"thx\" at 12:41. They seem pleased."
+      text: "You reply at 12:40 am, and {advisor} answers \"thx\" at 12:41, which from them is high praise."
       effects: { energy: "-4±2", sanity: "-2±1", advisor_rel: "+3±1" }
     - label: "Reply in the morning"
       text: "You sleep. By morning, a second email from {advisor} has answered the first one."
@@ -21,7 +21,7 @@
     - label: "Send \"On it tomorrow!\""
       check: { stat: advisor_rel, vs: 45, spread: 20 }
       success:
-        text: "A thumbs-up comes back. Ten seconds of work, and everyone sleeps."
+        text: "A thumbs-up comes back, and everyone gets to sleep."
         effects: { sanity: "+2±1", advisor_rel: "+1" }
       failure:
         text: "Two more \"quick\" emails arrive before midnight. You read them all."
@@ -61,7 +61,7 @@
     - label: "Say \"I pitched that last year!\""
       check: { stat: advisor_rel, vs: 55, spread: 15 }
       success:
-        text: "{advisor} laughs, checks their notes, and agrees. \"Then you should lead it.\""
+        text: "{advisor} checks their notes and laughs. \"Then you should lead it.\""
         effects: { sanity: "+5±2", taste: "+2±1", advisor_rel: "+2±1" }
       failure:
         text: "\"Similar, but this version is different.\" It is not different."
@@ -79,10 +79,10 @@
   rarity: common
   when: { has_advisor: true, advisor_not: [kind_funded] }
   text:
-    - "{advisor} forgets your meeting, apologizes warmly, and moves it to the one week you'll be away."
+    - "{advisor} forgets your meeting and, to make up for it, moves it to the one week you'll be away."
   choices:
     - label: "Take the call from vacation"
-      text: "You take it from a parking lot. It lasts 12 minutes. {advisor} seems pleased."
+      text: "You take the 12-minute call from a parking lot, and {advisor} seems pleased."
       effects: { sanity: "-4±2", days_next: -1, family_rel: "-2±1", advisor_rel: "+3±1" }
     - label: "Ask to move it again"
       check: { stat: advisor_rel, vs: 45, spread: 20 }
@@ -93,7 +93,7 @@
         text: "It moves to the morning you fly back."
         effects: { energy: "-4±2", sanity: "-2±1" }
     - label: "Send a written update instead"
-      text: "A tidy one-page update. {advisor} replies \"perfect, enjoy!\" and means it."
+      text: "You send a tidy one-page update. {advisor} replies \"perfect, enjoy!\" and means it."
       effects: { sanity: "+1", writing: "+2±1", advisor_rel: "+1" }
 
 - id: adv_guest_lecture
@@ -140,7 +140,7 @@
       text: "They talk for twenty minutes. You learn a lot and are remembered as a great listener."
       effects: { knowledge: "+2±1", network: "+3±1" }
     - label: "Laugh: \"Star is generous.\""
-      text: "Everyone laughs. {advisor} looks quietly proud."
+      text: "Everyone laughs, and {advisor} looks proud."
       effects: { sanity: "+2±1", network: "+2±1", advisor_rel: "+1" }
 
 - id: adv_reading_group
@@ -152,12 +152,12 @@
     - "\"{player} will run reading group this semester,\" {advisor} announces. This is the first you've heard of it."
   choices:
     - label: "Run it properly"
-      text: "You pick good papers and bring snacks. Attendance doubles."
+      text: "You pick good papers and bring snacks, and attendance doubles."
       effects: { days: -2, energy: "-3±1", knowledge: "+4±1", labmates_rel: "+3±1", sanity: "-2±1" }
     - label: "Make it a rotation"
       check: { stat: labmates_rel, vs: 50, spread: 15 }
       success:
-        text: "Everyone takes a week. You only present twice."
+        text: "Everyone takes a week, so you only present twice."
         effects: { knowledge: "+2±1", labmates_rel: "+2±1" }
       failure:
         text: "Nobody signs up. You present for six weeks straight."
@@ -180,7 +180,7 @@
     - label: "Turn your notes into the report"
       check: { stat: writing, vs: 45, spread: 15 }
       success:
-        text: "Your lab notebook becomes the report. Ten minutes a week."
+        text: "Your lab notebook becomes the report, and it takes ten minutes a week."
         effects: { writing: "+1", advisor_rel: "+2±1" }
       failure:
         text: "Your notes say \"fixed thing\" four times. {advisor} asks which thing."
@@ -224,7 +224,7 @@
     - "{advisor} comes back from one inspiring keynote and wants {project} to go in a whole new direction. \"Everything is about this now.\""
   choices:
     - label: "Pivot {project}"
-      text: "Back to the idea stage, with half your novelty and a fresh whiteboard."
+      text: "You're back at the idea stage, with half your novelty and a clean whiteboard."
       effects: { project.pivot: true, sanity: "-4±2", taste: "+2±1", advisor_rel: "+3±1" }
     - label: "Add one experiment in that direction"
       text: "One small experiment satisfies the keynote energy, and it actually adds something."
@@ -270,7 +270,7 @@
   rarity: common
   when: { has_advisor: true }
   text:
-    - "You send {advisor} a 2,000-word email laying out three options, with pros and cons for each. The reply: \"sounds good\"."
+    - "You send {advisor} a 2,000-word email laying out three options, with pros and cons for each. They reply \"sounds good\"."
   choices:
     - label: "Pick the option you liked"
       text: "You go with option B. Nobody objects, possibly because nobody read option A."
@@ -278,13 +278,13 @@
     - label: "Ask \"Which one?\""
       check: { stat: advisor_rel, vs: 50, spread: 20 }
       success:
-        text: "They call you and talk it through. Ten genuinely useful minutes."
+        text: "They call you, and you get ten genuinely useful minutes."
         effects: { taste: "+3±1", advisor_rel: "+2±1" }
       failure:
-        text: "The reply: \"sounds good\"."
+        text: "They reply \"sounds good\" again."
         effects: { sanity: "-3±1" }
     - label: "Send a three-line version"
-      text: "The three-line version gets a real answer in four minutes. Lesson learned."
+      text: "The three-line version gets a real answer in four minutes."
       effects: { writing: "+3±1", advisor_rel: "+2±1" }
       tip: "How to Communicate"
 
@@ -294,7 +294,7 @@
   rarity: common
   when: { has_advisor: true, advisor_not: [kind_funded, micromanager], project: { stage: [consolidation, revise] } }
   text:
-    - "{advisor} finally sends comments on your draft of {project}. They are on version 2. You are on version 5."
+    - "{advisor} finally sends comments on your draft of {project}. They are on version 2, and you are on version 5."
   choices:
     - label: "Map their comments onto v5"
       text: "Half the comments are already fixed. The other half are good."
@@ -337,7 +337,7 @@
         flag_set: [sabbatical_async]
         schedule: { event: adv_sabbatical_call, in: [2, 3], chance: 1.0 }
       failure:
-        text: "\"Let's try 6 am first and see.\" Fair enough."
+        text: "\"Let's try 6 am first and see.\" You set your alarm."
         effects: { sanity: "-2±1" }
         flag_set: [sabbatical_dawn]
         schedule: { event: adv_sabbatical_call, in: [2, 3], chance: 1.0 }
@@ -363,7 +363,7 @@
   arc: sabbatical
   when: { has_advisor: true }
   text:
-    - "5:58 am. You join the call. {advisor} is eating lunch in the sun and wants to tell you about their host lab."
+    - "You join the call at 5:58 am. {advisor} is eating lunch in the sun and wants to tell you about their host lab."
   choices:
     - label: "Join their lab's meeting too"
       text: "You present to a lab you've never met, at dawn. Two of them email you afterward."
@@ -382,7 +382,7 @@
         flag_set: [sabbatical_visit]
         schedule: { event: adv_sabbatical_visit, in: [2, 3], chance: 1.0 }
       failure:
-        text: "\"I'd love that, but the budget is tight this year.\" You understand."
+        text: "\"I'd love that, but the budget is tight this year.\""
         effects: { sanity: "-2±1" }
         schedule: { event: adv_sabbatical_return, in: [3, 4], chance: 1.0 }
 
@@ -398,7 +398,7 @@
     - label: "Give a talk to their lab"
       check: { stat: presenting, vs: 50, spread: 15 }
       success:
-        text: "Great questions, a long lunch after, and an invitation to come back."
+        text: "The questions are great and lunch runs long. They invite you to come back."
         effects: { presenting: "+3±1", network: "+6±2" }
         status: { add: jet_lagged, turns: 1 }
         schedule: { event: adv_sabbatical_return, in: [2, 3], chance: 1.0 }
@@ -408,12 +408,12 @@
         status: { add: jet_lagged, turns: 1 }
         schedule: { event: adv_sabbatical_return, in: [2, 3], chance: 1.0 }
     - label: "Work side by side with {advisor}"
-      text: "A week of real daytime meetings. You get more done than in the last two months."
+      text: "With real daytime meetings, you get more done in a week than in the last two months."
       effects: { days: -2, taste: "+3±1", advisor_rel: "+4±2", sanity: "-2±1" }
       status: { add: jet_lagged, turns: 1 }
       schedule: { event: adv_sabbatical_return, in: [2, 3], chance: 1.0 }
     - label: "Explore the city on the weekend"
-      text: "You see the sights, eat everything, and come home with ideas and a fridge magnet."
+      text: "You eat everything and come home with two ideas and a fridge magnet."
       effects: { sanity: "+6±2", network: "+2±1" }
       status: { add: jet_lagged, turns: 1 }
       schedule: { event: adv_sabbatical_return, in: [2, 3], chance: 1.0 }
@@ -438,11 +438,11 @@
         effects: { sanity: "-1", taste: "+1" }
         flag_clear: [sabbatical_dawn, sabbatical_async, sabbatical_visit]
     - label: "Enjoy your first 10 am meeting"
-      text: "You sleep until 8, like a person. It is wonderful."
+      text: "You sleep until 8, like a person."
       effects: { energy: "+4±2", sanity: "+5±2" }
       flag_clear: [sabbatical_dawn, sabbatical_async, sabbatical_visit]
     - label: "Ask for the people they met"
-      text: "Forty minutes of stories, and three introductions to people you should know."
+      text: "You get forty minutes of stories and three introductions to people you should know."
       effects: { network: "+3±1", advisor_rel: "+2±1" }
       flag_clear: [sabbatical_dawn, sabbatical_async, sabbatical_visit]
 
@@ -455,14 +455,14 @@
   cooldown: 10
   when: { has_advisor: true }
   text:
-    - "{advisor} asks if you could put together slides about your project for a funder visit. By Friday."
+    - "{advisor} asks if you could put together slides about your project for a funder visit, by Friday."
     - "{advisor} needs two paragraphs on your project for a grant renewal. \"Nothing fancy. By Friday?\""
   choices:
     - label: "Drop everything and do it well"
       text: "Your slides make it into the meeting, and your advisor mentions your name twice."
       effects: { days: -2, sanity: "-4±1", advisor_rel: "+4±1", presenting: "+1" }
     - label: "Do a quick version"
-      text: "Good enough. Your advisor polishes it at midnight and doesn't mention it."
+      text: "It's good enough. Your advisor polishes it at midnight and doesn't mention it."
       effects: { days: -1, sanity: "-2±1", advisor_rel: "+1" }
     - label: "Ask for until next Wednesday"
       text: "\"Sure, Wednesday works.\" You could have just asked all along."
@@ -493,7 +493,7 @@
       effects: { sanity: "-1", advisor_rel: "-1", friends_rel: "+2±1" }
       schedule: { event: adv_offer_decision, in: [3, 5], chance: 1.0 }
     - label: "Ask for a few weeks to think"
-      text: "\"Of course.\" You think about it in the shower, on the bus, and through two entire seminars."
+      text: "\"Of course.\" You think about it on the bus and through two entire seminars."
       effects: { sanity: "-3±1", advisor_rel: "+1" }
       schedule: { event: adv_offer_decision, in: [3, 5], chance: 1.0 }
 
@@ -533,18 +533,18 @@
   arc: advisor_offer
   when: { has_advisor: true, flags_all: [adv_offer_follow] }
   text:
-    - "Moving week. You follow {advisor} to their new university: a new badge, a new cluster login, and an empty lab that echoes."
+    - "You follow {advisor} to their new university, where you get a new badge and an empty lab that echoes."
   choices:
     - label: "Set up the new lab yourself"
-      text: "Every machine labeled, every login working. {advisor} introduces you as the lab's co-founder."
+      text: "You label every machine and get every login working. {advisor} introduces you as the lab's co-founder."
       effects: { days: -3, energy: "-5±2", health: "-2±1", coding: "+3±1", advisor_rel: "+5±2" }
       flag_clear: [adv_offer_follow]
     - label: "Meet the new department"
-      text: "Twelve coffees in five days. You now know who has the good GPUs, and who has the good snacks."
+      text: "After twelve coffees in five days, you know who has the good GPUs and who has the good snacks."
       effects: { days: -2, sanity: "-2±1", network: "+5±2" }
       flag_clear: [adv_offer_follow]
     - label: "Live out of boxes and keep working"
-      text: "Your desk is a box, and so is your chair. Your experiments never notice the move. Your back does."
+      text: "Your desk is a box, and so is your chair. Your experiments don't notice the move, but your back does."
       effects: { sanity: "-3±1", health: "-3±1" }
       flag_clear: [adv_offer_follow]
 
@@ -558,12 +558,12 @@
     - "{advisor} moves to their new university, and you stay. Your meetings are on video now, and a professor down the hall agrees to sign your forms."
   choices:
     - label: "Set a fixed weekly video call"
-      text: "Thursdays at 10, cameras on, agenda sent the night before. It works better than the hallway chats ever did."
+      text: "You meet Thursdays at 10, with an agenda sent the night before. It works better than the hallway chats ever did."
       effects: { days_next: -1, writing: "+1", advisor_rel: "+4±1" }
     - label: "Ask the local professor to co-advise"
       check: { stat: network, vs: 45, spread: 15 }
       success:
-        text: "They say yes. Two advisors means two opinions, twice the comments, and a real safety net."
+        text: "They say yes. Now you get twice the comments, and someone nearby when {advisor} is hard to reach."
         effects: { sanity: "+3±1", knowledge: "+2±1", network: "+3±1" }
         flag_set: [has_coadvisor]
       failure:

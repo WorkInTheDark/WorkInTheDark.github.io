@@ -86,7 +86,7 @@
       text: "Two paragraphs of \"the authors may wish to consider\". It meets the length. The area chair replies \"Thanks.\" with a period."
       effects: { sanity: "-2±1", network: "-1" }
     - label: "Point out that the paper was short too"
-      text: "The area chair does not find this funny. You are quietly left off next year's reviewer list, which is, in a way, a win."
+      text: "The area chair does not find this funny. You're left off next year's reviewer list, which you decide is a win."
       effects: { sanity: "+1", network: "-3±1" }
 
 - id: tsk_discussion_pings
@@ -100,7 +100,7 @@
     - "Discussion period. The area chair has pinged you three times about the authors' response. It is 2,400 words long and has its own table of contents."
   choices:
     - label: "Read it and engage"
-      text: "The response is good. You drop two concerns, keep one, and the discussion actually goes somewhere."
+      text: "The response is good, so you drop two of your three concerns. For once, the discussion goes somewhere."
       effects: { days: -1, sanity: "-4±1", taste: "+2±1", network: "+2±1" }
     - label: "Raise your score"
       text: "One click and the pings stop. You hope the response was as good as it was long."
@@ -142,7 +142,7 @@
     - "Halfway through grading, you notice the answer key is wrong on question 3. You have already graded {roll:50-70} exams with it."
   choices:
     - label: "Regrade everything"
-      text: "Every exam, again. Every grade is right, not one regrade request arrives, and the professor asks for you as TA next year."
+      text: "You regrade every exam. Not one regrade request arrives, and the professor asks for you as TA next year."
       effects: { days: -2, sanity: "-5±1", energy: "-2±1", network: "+2±1" }
     - label: "Accept both answers"
       text: "Everyone gets the points. The class average goes up, and so do the regrade requests on question 4."
@@ -167,7 +167,7 @@
       text: "A day in the git logs. They tell a clearer story, including one 3 am commit titled \"fixed everyone's stuff\"."
       effects: { days: -1, sanity: "-4±1", coding: "+1" }
     - label: "Give each group one grade"
-      text: "Fast and simple. Three students email to say it's unfair, and each of them is a little bit right."
+      text: "Three students email to say it's unfair, and each of them is a little bit right."
       effects: { sanity: "-1", days_next: -1 }
     - label: "Meet the three most confusing groups"
       text: "Three meetings, three versions of every story. By the third, you could referee anything."
@@ -189,7 +189,7 @@
       text: "Two new questions, each solved three ways. You understand the material better than when you took the course."
       effects: { days: -1, sanity: "-4±1", knowledge: "+3±1" }
     - label: "Adapt last year's"
-      text: "New numbers, new variable names. One student finishes in twelve minutes. Their roommate took the course last year."
+      text: "You change the numbers and the variable names. One student finishes in twelve minutes; their roommate took the course last year."
       effects: { sanity: "-2±1", knowledge: "+1" }
     - label: "Borrow from the textbook"
       text: "Done in an hour. Eleven students recognize problem 4.7, the average is 96%, and the professor asks you to write a makeup."
@@ -205,7 +205,7 @@
     status_any: [ta]
     any: [ { turn: [8, 8] }, { turn: [18, 18] } ]
   text:
-    - "You're proctoring the 8 am Saturday final: three hours in a silent gym, 140 students, and one wall clock that runs four minutes fast."
+    - "You're proctoring the 8 am Saturday final: 140 students in a silent gym for three hours, under a wall clock that runs four minutes fast."
   choices:
     - label: "Proctor and grade in the room"
       text: "You grade forty exams between whispered questions about question 2. That's a day of grading you won't have to do later."
@@ -214,7 +214,7 @@
       text: "They take your Saturday. You take their Monday review session, and they've already told the students you're great."
       effects: { sanity: "+1", days_next: -1 }
     - label: "Bring coffee for the whole room"
-      text: "A cart, 140 coffees, and the calmest final you've ever seen. Several students write \"thanks for the coffee\" on their exams."
+      text: "You wheel in 140 coffees, and it's the calmest final you've ever seen. Several students write \"thanks for the coffee\" on their exams."
       effects: { energy: "-2±1", sanity: "-2±1", presenting: "+1" }
 
 - id: tsk_course_website
@@ -225,10 +225,10 @@
   cooldown: 13
   when: { status_any: [ta] }
   text:
-    - "The course moves to a new course website mid-semester. Someone has to move fourteen weeks of slides, quizzes and due dates. You are someone."
+    - "The course switches to a new website mid-semester. Someone has to move fourteen weeks of slides, quizzes and due dates. You are someone."
   choices:
     - label: "Do it carefully"
-      text: "A full day of copy, paste and check. Every due date is right, which no student will ever notice."
+      text: "It takes a full day of copying and checking. Every due date is right, and no student will ever notice."
       effects: { days: -1, sanity: "-4±1" }
     - label: "Move only what's due this month"
       text: "Done by dinner. Next month you'll do it again, with less memory of how."
@@ -250,13 +250,13 @@
   cooldown: 13
   when: { status_any: [ta] }
   text:
-    - "A student's essay begins with the words \"As an AI language model\". The rest is confident, polished, and about a different book."
+    - "A student's essay begins with the words \"As an AI language model\". The rest is very confident and about a different book."
   choices:
     - label: "Fill in the six-page integrity form"
-      text: "Six pages, two signatures and a flowchart. The professor is impressed. The office asks for it again on a newer template."
+      text: "The form takes six pages and a flowchart. The professor is impressed, and the office asks you to redo it on a newer template."
       effects: { days: -1, sanity: "-4±1", network: "+2±1" }
     - label: "Talk to the student first"
-      text: "They turn red and rewrite it by Friday. The new essay is shorter, messier, and clearly theirs."
+      text: "They turn red and rewrite it by Friday. The new essay is messier, and clearly theirs."
       effects: { sanity: "-2±1", energy: "-2±1", presenting: "+1" }
     - label: "Forward it to the professor"
       text: "The professor takes it from here, with a sigh you can hear through email."
@@ -302,7 +302,7 @@
       text: "You remember most of it. For the parts you don't, {labmate} jumps in, kindly."
       effects: { sanity: "-3±1", knowledge: "+2±1", labmates_rel: "+1" }
     - label: "Run a brainstorm instead"
-      text: "Sticky notes, a whiteboard, one good idea. Nobody notices you prepared nothing, except {advisor}."
+      text: "A wall of sticky notes produces one good idea. Nobody notices you prepared nothing, except {advisor}."
       effects: { sanity: "-1", presenting: "+1", advisor_rel: "-2±1" }
 
 - id: tsk_open_house_slide
@@ -316,10 +316,10 @@
     - "The department open house for admitted students needs one slide about your research, in two hours. The required template is purple."
   choices:
     - label: "Make one clean slide"
-      text: "One figure, one sentence, a lot of white space. It's the best slide you've ever made, and it took the whole afternoon."
+      text: "You use one figure and one sentence. It's the best slide you've ever made, and it takes the whole afternoon."
       effects: { days: -1, sanity: "-3±1", presenting: "+2±1" }
     - label: "Reuse your last title slide"
-      text: "Your name, your paper's title, last year's date. An admitted student asks what your research is. The slide does not say."
+      text: "It shows your name and last year's date. An admitted student asks what your research is about, and the slide does not say."
       effects: { sanity: "-1", network: "-1" }
     - label: "Use one striking figure, no words"
       check: { stat: presenting, vs: 45, spread: 20 }
@@ -343,13 +343,13 @@
     - "The dean tours the building tomorrow, and {advisor} has promised a live demo of {project}. It has not run since Tuesday."
   choices:
     - label: "Polish it tonight"
-      text: "It runs, it's fast, and the dean says \"fascinating\" twice. You slept three hours."
+      text: "It runs, and the dean says \"fascinating\" twice. You got three hours of sleep."
       effects: { energy: "-5±2", health: "-3±1", sanity: "-4±1", coding: "+2±1", project.progress: "+3±1", advisor_rel: "+3±1" }
     - label: "Record a backup video"
       text: "The live demo crashes in the first minute. The video plays perfectly, and the dean never knows."
       effects: { days: -1, sanity: "-3±1", presenting: "+1", advisor_rel: "+1" }
     - label: "Show slides instead"
-      text: "Clear slides, zero risk. The dean nods politely and asks to see \"the real thing\" next time. {advisor} winces."
+      text: "The dean nods politely and asks to see \"the real thing\" next time. {advisor} winces."
       effects: { sanity: "-1", advisor_rel: "-2±1" }
 
 # --- Onboarding -------------------------------------------------------------
@@ -368,7 +368,7 @@
       text: "Thursdays at 4, with snacks. By week three, first-years you've never met start showing up."
       effects: { days: -1, sanity: "-2±1", labmates_rel: "+3±1", presenting: "+1" }
     - label: "Answer every message"
-      text: "You reply within minutes, every time. They adore you. Your own jobs sit in the queue, untouched."
+      text: "You reply within minutes, every time, and they adore you. Your own jobs sit in the queue, untouched."
       effects: { sanity: "-5±1", energy: "-2±1", labmates_rel: "+2±1" }
     - label: "Point them to the docs"
       text: "There are no docs. They find this out on their own, and stop asking you anything, including to lunch."
@@ -385,13 +385,13 @@
     - "Eleven people asked you the same cluster question this month. Three of them were the same person."
   choices:
     - label: "Write the onboarding doc"
-      text: "A full day, twelve screenshots and a troubleshooting section. The questions stop, and the lab treats you like a hero."
+      text: "It takes a full day and twelve screenshots. The questions stop, and the lab treats you like a hero."
       effects: { days: -1, sanity: "-3±1", labmates_rel: "+4±1", writing: "+1" }
     - label: "Record a ten-minute video"
       text: "Four takes. People watch it at double speed and still ask you, but less often."
       effects: { sanity: "-2±1", presenting: "+1", labmates_rel: "+1" }
     - label: "Pin your best Slack answer"
-      text: "Pinned. Nobody reads pinned messages. Questions twelve through fifteen arrive by Friday."
+      text: "Nobody reads pinned messages. Questions twelve through fifteen arrive by Friday."
       effects: { sanity: "-1", energy: "-3±1" }
 
 - id: tsk_postdoc_access
@@ -428,10 +428,10 @@
       text: "By Friday they've built a tiny classifier and a slide deck with spinning transitions. You're prouder than you expected."
       effects: { days: -2, sanity: "-4±1", presenting: "+2±1", network: "+1" }
     - label: "Let them test your prototype"
-      text: "They break it four new ways in one afternoon. That's real user testing, and it was free."
+      text: "They break it four new ways in one afternoon, which is free user testing."
       effects: { days: -1, sanity: "-3±1", coding: "+1", taste: "+1" }
     - label: "Show them lab life, snacks included"
-      text: "A tour, a whiteboard and a lot of snacks. One of them says grad school looks \"chill\". You don't correct them."
+      text: "You give them a tour and a lot of snacks. One of them decides grad school looks \"chill\", and you don't correct them."
       effects: { sanity: "-1", energy: "-3±1", labmates_rel: "+1" }
 
 # --- Admin and forms --------------------------------------------------------
@@ -447,13 +447,13 @@
     - "Your travel reimbursement is rejected. The receipt is a photo of a receipt, in another currency, partly covered by your thumb."
   choices:
     - label: "Find the original"
-      text: "An evening of emptying every bag you own. It's folded inside your boarding pass. Approved in a week."
+      text: "You empty every bag you own and find it folded inside your boarding pass. Approved in a week."
       effects: { sanity: "-3±1", energy: "-2±1" }
     - label: "Fill in the \"missing receipt\" form"
-      text: "Four pages, a signed statement about a sandwich, and a currency table. Approved in six weeks."
+      text: "The form is four pages long and includes a signed statement about a sandwich. Approved in six weeks."
       effects: { days: -1, sanity: "-3±1" }
     - label: "Let the $43 go"
-      text: "Peace, at a price. It's instant noodles for the rest of the week."
+      text: "No more forms. It's instant noodles for the rest of the week."
       effects: { sanity: "+1", health: "-2±1" }
 
 - id: tsk_ethics_refresher
@@ -469,7 +469,7 @@
     - "The annual research-ethics refresher is due Friday: eight modules with quizzes, or your study approval is paused."
   choices:
     - label: "Do it properly"
-      text: "Eight modules, eight quizzes, one certificate. You learn two things you probably should have known."
+      text: "You get the certificate and learn two things you probably should have known already."
       effects: { days: -1, sanity: "-3±1", knowledge: "+2±1" }
     - label: "Click through at double speed"
       check: { stat: knowledge, vs: 45, spread: 20 }
@@ -477,7 +477,7 @@
         text: "All eight quizzes passed at double speed. The narrator sounded like a chipmunk, but a well-informed one."
         effects: { sanity: "-1" }
       failure:
-        text: "You fail the module 6 quiz three times and have to rewatch it at normal speed. Twice."
+        text: "You fail the module 6 quiz three times, then rewatch it twice at normal speed."
         effects: { sanity: "-4±1", energy: "-2±1" }
     - label: "Do it during lab meeting"
       text: "You pass all eight modules. {advisor} asks you a question twice and gets no answer either time."
@@ -497,7 +497,7 @@
     - label: "Ask the grad office about e-signatures"
       check: { stat: network, vs: 40, spread: 20 }
       success:
-        text: "E-signatures have been fine for years, the office says. Nobody told the form. Done in an hour."
+        text: "The office says e-signatures have been fine for years. Nobody told the form, but it's done in an hour."
         effects: { sanity: "-1" }
       failure:
         text: "Three emails later: e-signatures are accepted on every form except this one."
@@ -523,7 +523,7 @@
       text: "Papers on the left, code on the right. {labmate} had been eyeing that monitor for a year."
       effects: { sanity: "-2±1", coding: "+1", writing: "+1", labmates_rel: "-2±1" }
     - label: "Tag them to the lab and move on"
-      text: "Twenty minutes, three stickers. The lab now officially owns three monitors nobody can explain."
+      text: "Three stickers later, the lab officially owns three monitors nobody can explain."
       effects: { sanity: "-1" }
 
 - id: tsk_survey_subscription
@@ -570,7 +570,7 @@
     - label: "Build a sign-off form"
       check: { stat: coding, vs: 45, spread: 20 }
       success:
-        text: "A two-minute form with a signature box. 38 people sign within a day. You will reuse this forever."
+        text: "You build a two-minute form with a signature box, and 38 people sign within a day. You will reuse it forever."
         effects: { sanity: "-2±1", coding: "+2±1" }
       failure:
         text: "The form works, but its emails go straight to spam. You find out a week later."
@@ -638,7 +638,7 @@
     - "{advisor} asks you to draft your own recommendation letter. \"You know your work best.\" You have never once called yourself \"exceptional\"."
   choices:
     - label: "Write it honestly"
-      text: "Clear, accurate and a bit modest. {advisor} adds two sentences that make you blush."
+      text: "Your draft is accurate and a bit modest. {advisor} adds two sentences that make you blush."
       effects: { days: -1, sanity: "-3±1", writing: "+1", advisor_rel: "+2±1", career_prep: "+1" }
     - label: "Write it boldly"
       text: "\"Among the top 1% of students I have known.\" {advisor} tones it down to 5%, still the nicest thing anyone has said about you."
@@ -678,7 +678,7 @@
     - "The annual progress report needs a committee meeting and three signatures by the end of the month. Your committee has three calendars and no overlap."
   choices:
     - label: "Get everyone in one room"
-      text: "Eleven emails and a 7:30 am slot. The meeting is actually useful, and {committee} has a great idea for your next project."
+      text: "It takes eleven emails and a 7:30 am slot. The meeting turns out to be useful, and {committee} has a great idea for your next project."
       effects: { days: -1, sanity: "-4±1", taste: "+2±1", advisor_rel: "+1" }
     - label: "Collect signatures by email"
       text: "Three signatures in three weeks, plus one reply that just says \"signed (where?)\"."
@@ -709,8 +709,8 @@
       failure:
         text: "{committee} asks how goal 4 led to project 7. It didn't, and now everyone knows."
         effects: { sanity: "-4±1", advisor_rel: "-1" }
-    - label: "Quietly reword last year's goals"
-      text: "Last year's goals now describe this year perfectly. {advisor} still has the original. {advisor} says nothing."
+    - label: "Edit last year's goals to match"
+      text: "Last year's goals now describe this year perfectly. {advisor} still has the original and says nothing."
       effects: { sanity: "-1", advisor_rel: "-3±1" }
 
 - id: tsk_graduation_date
@@ -724,10 +724,10 @@
     - "A form asks for your expected graduation date. You and {advisor} fill in your parts separately, and write different years."
   choices:
     - label: "Talk it through"
-      text: "An hour about the next two years. You leave with a plan, a date, and a slightly faster heartbeat."
+      text: "After an hour on the next two years, you leave with a plan and a date. Your heart beats a little faster."
       effects: { days: -1, sanity: "-3±1", advisor_rel: "+3±1", taste: "+1" }
     - label: "Use your advisor's year"
-      text: "The later one. It's on an official form now, which makes it feel very real."
+      text: "You write the later year. Now it's on an official form, which makes it feel very real."
       effects: { sanity: "-4±1", advisor_rel: "+1" }
     - label: "Write a range"
       text: "\"Spring or fall, this year or next.\" The grad office accepts it. {advisor} raises an eyebrow."
@@ -746,10 +746,10 @@
     - "A friend from another lab asks you to co-organize a workshop at next year's conference. \"It'll be fun! Just a few calls.\""
   choices:
     - label: "Say yes"
-      text: "It is not a few calls. It's a call for papers, a reviewer pool and a keynote who replies monthly. Everyone learns your name."
+      text: "It is many calls, plus a call for papers and a keynote speaker who replies once a month. Everyone learns your name."
       effects: { days: -1, sanity: "-5±1", network: "+5±1", career_prep: "+1" }
     - label: "Offer to run just the website"
-      text: "A tidy site in an evening, two updates, and your name on the organizer list anyway."
+      text: "The site takes one evening. Your name goes on the organizer list anyway."
       effects: { sanity: "-2±1", coding: "+1", network: "+2±1" }
     - label: "Decline kindly"
       text: "Your friend understands and asks someone else. Next year you see the workshop on the program, a little wistfully."
@@ -813,7 +813,7 @@
     - "{venue} offers a reproducibility badge for {paper} if its code runs in a container by next week. Right now it runs on your laptop, on a good day."
   choices:
     - label: "Containerize it"
-      text: "Three days of dependency fights, then it builds. The badge is small, orange and deeply satisfying."
+      text: "After three days of dependency fights, it builds. The badge is small and orange, and you love it."
       effects: { days: -2, sanity: "-5±1", coding: "+3±1", paper.citations: "+2±1" }
     - label: "Skip the badge"
       text: "No badge, and the week is yours. Months later, someone emails to ask whether the code runs. It does not."
@@ -833,10 +833,10 @@
     - "The proceedings want a 150-word plain-language summary of {paper}. Your first draft says \"leverage\" four times and \"novel\" twice."
   choices:
     - label: "Write it properly"
-      text: "Three drafts later, it says what you did and why it matters, with no leveraging at all. Your best paragraph this year."
+      text: "Three drafts later, it says what you did and why it matters, with no leveraging at all. It may be the best paragraph you write this year."
       effects: { days: -1, sanity: "-3±1", writing: "+3±1", paper.citations: "+2±1" }
     - label: "Ask a non-academic friend to read it"
-      text: "Your friend reads it twice and asks, \"So it's a chatbot?\" You rewrite it around that question. It's much better."
+      text: "Your friend reads it twice and asks, \"So it's a chatbot?\" You rewrite it around that question, and it's much better."
       effects: { sanity: "-2±1", writing: "+2±1", friends_rel: "+1" }
       tip: "How to Communicate"
     - label: "Simplify the abstract and send it"
@@ -854,10 +854,10 @@
     - "{venue} accepts an optional video figure for {project}. Your narration is on take 14. On take 13, the radiator joined in."
   choices:
     - label: "Finish it properly"
-      text: "Take 22 is the one: calm, clear and under three minutes. Your work has never sounded this good."
+      text: "Take 22 is the one, and it's under three minutes. Your work has never sounded this good."
       effects: { days_next: -1, sanity: "-4±1", presenting: "+3±1" }
     - label: "Record the screen, add captions"
-      text: "No voice, just captions and a slow, confident cursor. Clear, quick, and only slightly eerie."
+      text: "The video is all captions and a slow, confident cursor. It's clear and only slightly eerie."
       effects: { sanity: "-2±1", presenting: "+1" }
     - label: "Skip it"
       text: "It's optional. You close the recorder and go to sleep. Most papers don't have one either."

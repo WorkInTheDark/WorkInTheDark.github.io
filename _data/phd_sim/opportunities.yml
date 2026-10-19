@@ -10,7 +10,7 @@
   when: { turn: [7, 7] }
   chance: 0.9
   days: family
-  text: "Home cooking, old friends, and nobody asking about your h-index. Mostly."
+  text: "You eat home cooking and see old friends. Only one relative asks about your h-index."
   effects: { sanity: "+10±3", energy: "+6±2", family_rel: "+8±2" }
 - id: opp_winter_break
   label: "Take the winter break off"
@@ -18,11 +18,11 @@
   when: { turn: [9, 9] }
   chance: 0.95
   days: rest
-  text: "A real break. You come back into the new year with your head clear."
+  text: "You take a real break and start the new year with a clear head."
   effects: { sanity: "+12±3", energy: "+8±2", family_rel: "+5±2" }
 - id: opp_lunar_new_year
   label: "Celebrate Lunar New Year"
-  reason: "Dumplings, red envelopes, and calls home."
+  reason: "Lunar New Year is here, and the family group chat is busy."
   when: { turn: [11, 12] }
   chance: 0.63
   cooldown: 13
@@ -35,7 +35,7 @@
   when: { turn: [14, 14] }
   chance: 0.8
   days: hobby
-  text: "Sun, bad snacks, and not a single paper. You come back lighter."
+  text: "You spend a week in the sun without reading a single paper."
   effects: { sanity: "+10±3", energy: "+6±2", friends_rel: "+6±2" }
 - id: opp_summer_vacation
   label: "Take a real vacation"
@@ -53,7 +53,7 @@
   chance: 0.36
   cooldown: 26
   days: read
-  text: "Lectures by people whose papers you've read, and a group chat that lasts for years."
+  text: "You hear lectures from people whose papers you've read and join a group chat that lasts for years."
   effects: { knowledge: "+3±1", taste: "+2±1", network: "+6±2", sanity: "+2±1" }
 - id: opp_hackathon
   label: "Join a hackathon"
@@ -62,17 +62,17 @@
   chance: 0.054
   cooldown: 13
   days: network
-  text: "Very little sleep, one working demo, and three new people who want to collaborate."
+  text: "You barely sleep for a week. The demo works, and three teammates want to keep going."
   effects: { coding: "+4±2", energy: "-6±2", sanity: "+3±2", network: "+3±1" }
 - id: opp_writing_retreat
   label: "Join the writing retreat for “{project}”"
-  reason: "The department's writing retreat has a seat: a quiet room, coffee, and no meetings."
+  reason: "The department's writing retreat has a seat open, in a quiet room with no meetings."
   when: { project: { stage: [consolidation, revise] } }
   chance: 0.108
   cooldown: 8
   days: project
   boost: 1.4
-  text: "Five days of uninterrupted writing. The draft grows faster than it has all month."
+  text: "Five quiet days later, the draft has grown more than it did all month."
   effects: { writing: "+2±1" }
 - id: opp_empty_cluster
   label: "Run everything on the empty GPU cluster"
@@ -82,7 +82,7 @@
   cooldown: 8
   days: project
   boost: 1.6
-  text: "No queue, no waiting. A month of experiments in a week."
+  text: "With no queue, you run a month of experiments in a week."
   effects: { coding: "+1±1" }
 - id: opp_clinic_open
   label: "Run study sessions while the clinic has openings"
@@ -92,7 +92,7 @@
   cooldown: 8
   days: project
   boost: 1.5
-  text: "Back-to-back sessions, and the clinicians actually show up."
+  text: "You run back-to-back sessions, and the clinicians all show up."
   effects: { presenting: "+1±1" }
   flag_set: [clinical_partner]
 - id: opp_advisor_free_week
@@ -103,7 +103,7 @@
   cooldown: 13
   days: project
   boost: 1.3
-  text: "Two weeks of whiteboards and quick feedback. You learn how your advisor thinks."
+  text: "You spend two weeks at the whiteboard with your advisor and learn how they think."
   effects: { advisor_rel: "+5±2", taste: "+2±1", project.quality.N: "+3±1" }
 - id: opp_collaborator_visit
   label: "Visit a collaborator's lab for two weeks"
@@ -113,7 +113,7 @@
   cooldown: 26
   days: project
   boost: 1.25
-  text: "New eyes on your project, and a lab that does things a little differently."
+  text: "Their lab does things differently, and they spot problems you had stopped seeing."
   effects: { network: "+5±2", project.quality.S: "+3±1" }
 - id: opp_labmate_deadline
   label: "Help {labmate} make their deadline"
@@ -131,7 +131,7 @@
   chance: 0.072
   cooldown: 26
   days: mentor
-  text: "You spend two weeks setting them up. Teaching it makes you understand it better."
+  text: "You spend two weeks setting them up, and explaining your work helps you understand it better."
   effects: { presenting: "+2±1", labmates_rel: "+3±1" }
   flag_set: [has_undergrad_mentee]
 - id: opp_career_fair
@@ -141,7 +141,7 @@
   chance: 0.45
   cooldown: 13
   days: career
-  text: "A polished CV, a practiced pitch, and a tote bag full of stickers."
+  text: "You polish your CV and pitch, and come home with a tote bag of stickers."
   effects: { network: "+4±1", career_prep: "+2" }
 - id: opp_invited_talk
   label: "Give an invited talk at another university"
@@ -159,7 +159,7 @@
   chance: 0.045
   cooldown: 13
   days: read
-  text: "Ten papers, five arguments, one shared sense of where the field is going."
+  text: "Ten papers and five arguments later, the lab roughly agrees on where the field is going."
   effects: { taste: "+2±1", labmates_rel: "+3±1" }
 - id: opp_teach_lectures
   label: "Teach the next two weeks of lectures"
@@ -168,7 +168,7 @@
   chance: 0.108
   cooldown: 13
   days: career
-  text: "Three lectures. Your slides improve every time you give them."
+  text: "You give three lectures, and your slides improve each time."
   effects: { presenting: "+4±1", energy: "-4±2" }
 - id: opp_visit_day
   label: "Host prospective students at visit day"
@@ -196,5 +196,5 @@
   chance: 0.45
   cooldown: 13
   days: writing_day
-  text: "Eight hours of writing a day, in a room full of people doing the same. A chapter appears."
+  text: "You write eight hours a day next to people doing the same. By Friday you have a chapter."
   effects: { writing: "+2±1" }

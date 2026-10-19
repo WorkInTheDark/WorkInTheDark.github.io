@@ -39,10 +39,10 @@ export const ACTIVITIES = [
     arrows: [{ stat: "sanity", dir: "up", strength: 2 }] },
   { id: "hobby", label: "Hobby", kind: "self", desc: "Something that has nothing to do with research.",
     arrows: [{ stat: "sanity", dir: "up", strength: 1 }, { stat: "energy", dir: "up", strength: 1 }] },
-  { id: "family", label: "Call family", kind: "self", desc: "They miss you. You miss them.",
+  { id: "family", label: "Call family", kind: "self", desc: "They miss you, and you miss them.",
     arrows: [{ stat: "sanity", dir: "up", strength: 1 }, { stat: "energy", dir: "up", strength: 1 }] }
 ];
-ACTIVITIES.push({ id: "recharge", label: "Recharge", kind: "self", desc: "Sleep in, see friends, move your body, do nothing useful. It counts.",
+ACTIVITIES.push({ id: "recharge", label: "Recharge", kind: "self", desc: "Sleep in, see friends, or do nothing useful for a while.",
   arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }, { stat: "health", dir: "up", strength: 2 }] });
 ACTIVITIES.push({ id: "writing_day", label: "Write", kind: "work", desc: "Statements, proposals, chapters.",
   arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
@@ -53,7 +53,7 @@ ACTIVITIES.push({ id: "quals_study", label: "Prepare for quals", kind: "work", d
 export const DEFAULT_ACTIONS = [
   { id: "read", label: "Read and learn", desc: "Two weeks with papers. Projects inch forward; sometimes you get an idea.",
     arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }] },
-  { id: "recharge", label: "Recharge", desc: "Sleep in, see friends, move your body, do nothing useful. It counts.",
+  { id: "recharge", label: "Recharge", desc: "Sleep in, see friends, or do nothing useful for a while.",
     arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }, { stat: "health", dir: "up", strength: 2 }] }
 ];
 export const ACTIVITY_BY_ID = {};

@@ -33,7 +33,7 @@
     has_advisor: true
     project: { type: empirical, stage: [experiments, consolidation], turns_to_deadline: "<=2" }
   text:
-    - "An arXiv alert, two weeks before your deadline: a new paper from {biglab} does almost exactly what {project} does. Same task, same idea, nicer figures."
+    - "An arXiv alert, two weeks before your deadline: a new paper from {biglab} does almost exactly what {project} does, with nicer figures."
     - "{labmate} drops a link in the lab chat: \"isn't this yours??\" It is. Someone else's version of {project}, posted two weeks before your deadline."
   choices:
     - label: "Read it line by line tonight"
@@ -44,7 +44,7 @@
         flag_set: [scoop_gap]
         schedule: { event: res_scooped_2, in: [1, 1], chance: 1.0 }
       failure:
-        text: "Same task, same datasets, even the same ablation. It really is your paper, with nicer figures."
+        text: "They use your datasets and even run your ablation. It really is your paper, only posted first."
         effects: { energy: "-4±2", sanity: "-8±3" }
         flag_set: [scoop_same]
         schedule: { event: res_scooped_2, in: [1, 1], chance: 1.0 }
@@ -61,7 +61,7 @@
         flag_set: [scoop_same]
         schedule: { event: res_scooped_2, in: [1, 1], chance: 1.0 }
     - label: "Close the laptop, take a walk"
-      text: "An hour outside. The paper is still there when you get back, but you're calmer, and calm thinks better."
+      text: "You walk for an hour. The paper is still there when you get back, but now you can read it without panicking."
       effects: { energy: "+3±1", sanity: "+2±1" }
       schedule: { event: res_scooped_2, in: [1, 1], chance: 1.0 }
 
@@ -79,7 +79,7 @@
     - label: "Build the paper around the gap"
       requires: { flags_all: [scoop_gap] }
       tag: "Found the gap"
-      text: "You cite them in the first paragraph, then show what they missed. The paper gets sharper, not smaller."
+      text: "You cite them in the first paragraph, then show what they missed. The paper ends up sharper than before."
       effects: { energy: "-6±2", days: -2, project.quality.N: "-3±1", project.quality.C: "+6±2", health: "-2±1", sanity: "-2±1" }
       flag_set: [scoop_cited]
       schedule: { event: res_scooped_cited, in: [3, 5], chance: 1.0 }
@@ -87,7 +87,7 @@
     - label: "Differentiate and cite them"
       check: { stat: writing, vs: 55, spread: 20 }
       success:
-        text: "A new framing, a fair comparison, a generous citation. It reads like a follow-up, not a copy."
+        text: "You reframe the paper, compare fairly and cite them generously. Now it reads like a follow-up."
         effects: { energy: "-6±2", days: -2, project.quality.N: "-5±2", project.quality.S: "+4±2", health: "-2±1", sanity: "-2±1" }
         flag_set: [scoop_cited]
         schedule: { event: res_scooped_cited, in: [3, 5], chance: 1.0 }
@@ -103,7 +103,7 @@
       flag_set: [scoop_rushed]
       schedule: { event: res_scooped_rushed, in: [2, 3], chance: 1.0 }
     - label: "Pivot to a new angle"
-      text: "You keep the code, the data and the lessons, and go back to the whiteboard. It stings, then it feels like room to breathe."
+      text: "You keep the code and the data and go back to the whiteboard. It stings for a while, then it starts to be fun."
       effects: { sanity: "-4±2", taste: "+3±1", project.pivot: true }
       flag_set: [scoop_pivoted]
       schedule: { event: res_scooped_pivot, in: [3, 4], chance: 1.0 }
@@ -123,7 +123,7 @@
         effects: { sanity: "+4±2", network: "+5±2" }
         flag_set: [scoop_new_friend]
       failure:
-        text: "A polite reply, a promise to \"keep in touch\", and nothing after. That's fine too."
+        text: "They reply politely and promise to \"keep in touch\". Nobody does, and you don't mind."
         effects: { sanity: "+2±1", network: "+2±1" }
     - label: "Let it go"
       text: "Two groups had the same idea at the same time. You decide that means it was a good idea."
@@ -135,10 +135,10 @@
   trigger: scheduled
   arc: scooped
   text:
-    - "The rush is over. Whatever happens next, you got there fast, rough edges and all. For the first time, you read the other paper slowly."
+    - "Your paper is in, rough edges and all. Now, for the first time, you read the other paper slowly."
   choices:
     - label: "Draft the comparison you skipped"
-      text: "One careful page on how the two papers differ. Reviewers will ask, and now you're ready."
+      text: "You write one careful page on how the two papers differ, so you're ready when reviewers ask."
       effects: { energy: "-4±2", writing: "+2±1", knowledge: "+2±1" }
       flag_set: [scoop_comparison_ready]
     - label: "Sleep for most of a weekend"
@@ -156,15 +156,15 @@
   when:
     project: { type: empirical, stage: [idea, lit, pilot, experiments] }
   text:
-    - "A month after the pivot, {project} asks a question the other paper never did. You check arXiv twice a day. Nobody has it."
+    - "A month after the pivot, {project} asks a question the other paper never did. You check arXiv twice a day, and so far nobody else has asked it."
   choices:
     - label: "Commit to the new angle"
       check: { stat: taste, vs: 50, spread: 20 }
       success:
-        text: "It's a better paper than the one you lost. You didn't expect that, but it is."
+        text: "To your surprise, it's a better paper than the one you lost."
         effects: { sanity: "+6±2", taste: "+2±1", project.quality.N: "+8±3" }
       failure:
-        text: "It's a different paper, not a better one. Still, it's yours alone."
+        text: "It's a different paper, about as good as the old one. At least nobody else has written it."
         effects: { sanity: "+2±1", project.quality.N: "+3±1" }
     - label: "Reuse what survived"
       text: "Half the old code still runs, and the data still works. The pivot costs less than it felt like."
@@ -184,13 +184,13 @@
     - "{biglab} releases {model} the week before your deadline. Zero-shot, with no training at all, it beats the system you spent months fine-tuning."
   choices:
     - label: "Add it as a baseline"
-      text: "Three days of API calls and a new row in Table 2. Your system loses, but the comparison is honest."
+      text: "Three days of API calls get you a new row in Table 2. Your system loses, but the comparison is honest."
       effects: { energy: "-6±2", days: -3, project.quality.S: "+6±2", project.quality.N: "-3±1", health: "-2±1", sanity: "-3±1" }
       flag_set: [res_model_baselined]
     - label: "Reframe: where does it still fail?"
       check: { stat: taste, vs: 55, spread: 20 }
       success:
-        text: "It still fails on the cases your paper cares about most. That's your new contribution, and it's a good one."
+        text: "It still fails on the cases your paper cares about most, and those failures become your new contribution."
         effects: { days: -2, sanity: "+3±1", project.quality.N: "+7±3" }
       failure:
         text: "It fails less often than you hoped. The reframe eats a week and half your intro."
@@ -213,17 +213,17 @@
     - label: "Debug their code yourself"
       check: { stat: coding, vs: 55, spread: 20 }
       success:
-        text: "A missing flag, buried in a shell script. The numbers now match within half a point."
+        text: "You find a missing flag buried in a shell script. The numbers now match within half a point."
         effects: { energy: "-6±2", days: -2, coding: "+3±1", project.quality.S: "+5±2", health: "-2±1", sanity: "-2±1" }
       failure:
         text: "A week later you're still five points short. You report what you got and explain why."
         effects: { energy: "-8±2", days: -2, sanity: "-5±2", coding: "+2±1", health: "-2±1" }
     - label: "Email the authors"
-      text: "A polite email with three specific questions. No reply, not even an out-of-office. You use their published numbers for now."
+      text: "You send a polite email with three specific questions and get no reply, not even an out-of-office. For now, you use their published numbers."
       effects: { sanity: "-1", project.quality.S: "-2±1" }
       schedule: { event: res_baseline_reply, in: [22, 26], chance: 1.0 }
     - label: "Report their published numbers"
-      text: "A footnote: \"numbers from the original paper.\" Standard practice. Some reviewer will still ask."
+      text: "You add a footnote: \"numbers from the original paper.\" It's standard practice, and some reviewer will still ask."
       effects: { sanity: "+2±1", project.quality.S: "-3±1" }
 
 - id: res_baseline_reply
@@ -234,7 +234,7 @@
     - "A reply to an email you sent almost a year ago: \"Sorry for the delay! Learning rate 3e-5, and we used the dev set for early stopping.\" Your paper has long since moved on."
   choices:
     - label: "Rerun it, for closure"
-      text: "It reproduces on the first try. You feel a strange, quiet peace."
+      text: "It reproduces on the first try. You feel oddly at peace."
       effects: { energy: "-3±1", sanity: "+4±2", coding: "+1" }
     - label: "Add the details to your repo"
       text: "Your README now documents their baseline better than theirs does. Strangers start starring your repo."
@@ -252,18 +252,18 @@
     - "You rerun last month's evaluation through the {biglab} API. Every number has moved by two points. Same model name, no announcement."
   choices:
     - label: "Rerun everything on the new version"
-      text: "Two days of reruns. The tables agree with each other again, until the next silent update."
+      text: "After two days of reruns, the tables agree with each other again, until the next silent update."
       effects: { energy: "-5±2", days: -2, project.quality.S: "+4±2", sanity: "-2±1" }
     - label: "Report the version and date"
-      text: "A footnote with the exact version string and access date. Small, honest, and reviewers like it."
+      text: "You add a footnote with the exact version string and access date. Reviewers like that kind of thing."
       effects: { writing: "+1", project.quality.S: "+2±1" }
     - label: "Switch to a pinned open model"
       check: { stat: coding, vs: 55, spread: 20 }
       success:
-        text: "Weights on your own disk, results that never move. You sleep better."
+        text: "The weights sit on your own disk now, and the numbers finally stop moving."
         effects: { sanity: "+3±1", coding: "+2±1", project.progress: "-6±2", project.quality.S: "+6±2" }
       failure:
-        text: "The open model needs four GPUs you don't have. A week gone, and you're back on the API."
+        text: "The open model needs four GPUs you don't have. After a week, you're back on the API."
         effects: { sanity: "-4±2", project.progress: "-12±4" }
 
 - id: res_cluster_down
@@ -287,7 +287,7 @@
         text: "Everyone you know has the same deadline. Every cluster you know is full."
         effects: { sanity: "-4±2", project.progress: "-5±2" }
     - label: "Shrink the experiments to fit"
-      text: "Smaller model, fewer seeds, run on your laptop. The results are real, if a little thin."
+      text: "You run a smaller model with fewer seeds on your laptop. The results are real, if a little thin."
       effects: { energy: "-4±2", project.progress: "+6±2", project.quality.S: "-4±2" }
     - label: "Write the paper while you wait"
       text: "No GPUs, so you write. It turns out the intro was the real bottleneck."
@@ -315,10 +315,10 @@
         text: "They share. You now owe them coffee for a month, which is a fair price."
         effects: { labmates_rel: "-2±1", project.progress: "+5±2" }
       failure:
-        text: "\"Sorry, my deadline is Friday too.\" Fair. A little awkward, but fair."
+        text: "\"Sorry, my deadline is Friday too.\" Fair enough, if a little awkward."
         effects: { sanity: "-2±1", labmates_rel: "-3±1" }
     - label: "Shrink the experiment"
-      text: "Fewer seeds and a smaller model. It runs tonight. Reviewers may notice the smaller model."
+      text: "With fewer seeds and a smaller model, it runs tonight. Reviewers may notice."
       effects: { project.progress: "+4±2", project.quality.S: "-4±2" }
     - label: "Submit at 3 am instead"
       requires: { traits_any: [night_owl] }
@@ -347,7 +347,7 @@
         text: "It finishes, barely, with 200 MB to spare."
         effects: { sanity: "+2±1", project.progress: "+4±2" }
       failure:
-        text: "It dies at 98%. Progress, technically."
+        text: "This time it dies at 98%."
         effects: { sanity: "-5±2", project.progress: "-10±3" }
     - label: "Lie on the lab floor"
       text: "{labmate} steps over you without comment. It's a lab tradition."
@@ -363,18 +363,18 @@
     - "You paste the first half of a test example into {model}. It completes the rest word for word, including the typo."
   choices:
     - label: "Build a clean test split"
-      text: "New examples, written after the model's training cutoff. The scores drop, and now they mean something."
+      text: "You write new examples dated after the model's training cutoff. The scores drop, and now they mean something."
       effects: { energy: "-6±2", days: -3, project.quality.S: "+7±2", health: "-2±1", sanity: "-3±1" }
     - label: "Make contamination a finding"
       check: { stat: taste, vs: 55, spread: 20 }
       success:
-        text: "A whole new section on how much the model has memorized. It may be the most interesting part of the paper."
+        text: "You add a section on how much the model has memorized. It may be the most interesting part of the paper."
         effects: { energy: "-4±2", days: -2, taste: "+2±1", project.quality.N: "+7±3", sanity: "-2±1" }
       failure:
-        text: "Interesting, but it swallows the paper. Two weeks of side quest, and the main story is thinner."
+        text: "It's interesting, but it swallows the paper. After a two-week side quest, the main story is thinner."
         effects: { days: -2, sanity: "-4±2", project.progress: "-10±3" }
     - label: "Note it in Limitations"
-      text: "One honest sentence. Cheap, true, and a gift to Reviewer 2."
+      text: "One honest sentence. Reviewer 2 will quote it back to you."
       effects: { sanity: "+1", project.quality.S: "-3±1" }
 
 - id: res_one_line_change
@@ -388,7 +388,7 @@
     - label: "Find out why first"
       check: { stat: coding, vs: 50, spread: 20 }
       success:
-        text: "It's real: the old config was quietly cutting off long inputs. The gain holds across seeds, and now you can explain it."
+        text: "It's real: the old config was silently cutting off long inputs. The gain holds across seeds, and now you can explain it."
         effects: { days: -2, sanity: "+3±1", coding: "+2±1", project.quality.S: "+6±2" }
       failure:
         text: "It's a bug: the new line leaked test labels into training. You revert, a little sadder and much safer."
@@ -413,16 +413,16 @@
     - label: "Find out what's really working"
       check: { stat: taste, vs: 50, spread: 20 }
       success:
-        text: "It's the data-cleaning step you added for convenience. That's the real story, and it's a better one."
+        text: "It's the data-cleaning step you added for convenience. You rebuild the paper around it, and it's a better story."
         effects: { days: -2, project.quality.N: "+5±2", project.quality.S: "+4±2", sanity: "-2±1" }
       failure:
-        text: "Every part helps a little and nothing helps a lot. Two weeks of ablations, no clear story."
+        text: "Every part helps a little and nothing helps a lot. Two weeks of ablations leave you with no clear story."
         effects: { sanity: "-5±2", project.progress: "-12±4" }
     - label: "Reframe as an analysis paper"
       text: "\"What Actually Matters?\" is a less flashy title, and a more honest paper."
       effects: { sanity: "-2±1", project.progress: "-6±2", project.quality.N: "-4±2", project.quality.S: "+6±2" }
     - label: "Move it to the appendix"
-      text: "Appendix D, Table 9. Nobody reads Appendix D. Reviewer 2 reads Appendix D."
+      text: "It becomes Table 9 in Appendix D. Nobody reads Appendix D, except Reviewer 2."
       effects: { sanity: "+2±1", project.quality.S: "-5±2" }
 
 - id: res_negative_result
@@ -437,7 +437,7 @@
     - label: "Publish the negative result"
       check: { stat: writing, vs: 55, spread: 20 }
       success:
-        text: "A clear, careful paper on why the simple thing wins. {labmate} calls it the most useful thing they've read all year."
+        text: "You write a clear, careful paper on why the simple thing wins. {labmate} calls it the most useful thing they've read all year."
         effects: { sanity: "+4±2", project.quality.S: "+6±2", project.quality.C: "+4±2" }
         tip: "Results and Findings"
       failure:
@@ -469,7 +469,7 @@
     - "A month stuck on the same problem in {project}. Then, halfway through shampooing on your day off, the answer arrives, fully formed."
   choices:
     - label: "Run dripping to your laptop"
-      text: "You type it before it evaporates. It still works once you've dried off. The day off was the work day."
+      text: "You type it before it evaporates, and it still works once you've dried off. Apparently the day off was doing the work."
       effects: { sanity: "+4±2", project.progress: "+12±4", project.quality.N: "+5±2" }
       tip: "When and How to Rest"
     - label: "Sleep on it before trusting it"
@@ -478,7 +478,7 @@
         text: "Still good in the morning. Better, even: you can see how to test it in a day."
         effects: { sanity: "+5±2", project.progress: "+10±3", project.quality.N: "+6±2" }
       failure:
-        text: "By morning you find the hole in it. But it points somewhere new, and that's not nothing."
+        text: "By morning you've found the hole in it, but it still points somewhere new."
         effects: { sanity: "+1", project.quality.N: "+3±1" }
     - label: "Text {labmate} right away"
       text: "11:40 pm, from {labmate}: \"wait. that's actually good.\" You start sketching it together."
@@ -566,7 +566,7 @@
         counter: { resched: +1 }
         schedule: { event: res_clinicians_3, in: [1, 2], chance: 1.0 }
     - label: "Recruit backups from another clinic"
-      text: "Five cold emails, two yeses. Now you have a plan B, while plan A keeps slipping."
+      text: "Five cold emails get you two yeses. Now you have a plan B, while plan A keeps slipping."
       effects: { energy: "-5±2", days_next: -1, network: "+3±1", project.delay: 1 }
       counter: { resched: +1 }
       flag_set: [clinicians_backup]
@@ -585,14 +585,14 @@
     - "For the third time, the clinicians reschedule. They're truly sorry. Their first open slot is {roll:3-5} weeks out, after your submission deadline."
   choices:
     - label: "Wait for the next deadline"
-      text: "You move {project} to the next cycle. It stings for a day, then it feels like room to breathe."
+      text: "You move {project} to the next cycle. It stings for a day, then you're relieved to have the time."
       effects: { sanity: "-3±1", energy: "+3±1", project.delay: 2 }
       counter: { resched: +1 }
       schedule: { event: res_clinicians_wait, in: [2, 3], chance: 1.0 }
     - label: "Ask {advisor} to email their PI"
       check: { stat: advisor_rel, vs: 50, spread: 20 }
       success:
-        text: "Two polite lines from your advisor to their PI. By morning, three slots appear, all before the deadline. Your advisor seems glad to help."
+        text: "Your advisor sends their PI two polite lines and seems glad to help. By morning, three slots appear, all before the deadline."
         effects: { sanity: "+5±2", advisor_rel: "+2±1", project.progress: "+8±3" }
         counter: { resched: +1 }
         flag_set: [clinical_partner]
@@ -602,7 +602,7 @@
         counter: { resched: +1 }
         schedule: { event: res_clinicians_wait, in: [2, 3], chance: 1.0 }
     - label: "Switch to interviewing nurses"
-      text: "A new recruiting email and a small IRB amendment. The nurses' station replies within the hour."
+      text: "You send a new recruiting email and file a small IRB amendment. The nurses' station replies within the hour."
       effects: { energy: "-6±2", project.delay: 1, project.quality.N: "+4±2", project.quality.S: "-3±1", health: "-2±1" }
       counter: { resched: +1 }
       flag_set: [clinicians_nurses]
@@ -610,7 +610,7 @@
     - label: "Run sessions with your backups"
       requires: { flags_all: [clinicians_backup] }
       tag: "Plan B"
-      text: "Plan B was a good plan. The backups show up on time, every time, and the deadline survives."
+      text: "The backups show up on time, every time, and you make the deadline."
       effects: { sanity: "+4±2", project.progress: "+12±4", project.quality.S: "-2±1" }
       counter: { resched: +1 }
 
@@ -629,7 +629,7 @@
       effects: { network: "+4±2", project.progress: "+8±3" }
       flag_set: [clinical_partner]
     - label: "Write everything down tonight"
-      text: "Twelve pages of notes before bed. Some of the best data you'll ever collect, and you know it."
+      text: "You write twelve pages of notes before bed. It's some of the best data you'll ever collect."
       effects: { energy: "-3±1", sanity: "+3±1", knowledge: "+3±1", project.quality.S: "+5±2" }
       tip: "Sustain Through the Journey"
 
@@ -644,11 +644,11 @@
     - "The nurses sign up in a day and show up on time. They're blunter than the physicians, and they know where every workaround in the EHR is hidden."
   choices:
     - label: "Center the paper on nurses"
-      text: "A study of the people who actually click the buttons. It's a sharper paper than the one you planned."
+      text: "The paper becomes a study of the people who actually click the buttons. It's sharper than the one you planned."
       effects: { sanity: "+4±2", project.progress: "+6±2", project.quality.N: "+5±2" }
       flag_set: [clinical_partner]
     - label: "Keep both perspectives"
-      text: "Nurses now, physicians when they're free. More work, and a fuller picture."
+      text: "You interview nurses now and physicians whenever they're free. It's more work, and you get a fuller picture."
       effects: { energy: "-4±2", knowledge: "+3±1", project.delay: 1, project.quality.S: "+5±2" }
 
 # ---------------------------------------------------------------------------
@@ -664,7 +664,7 @@
     - "The IRB sends your protocol back. The problem: one sentence in the consent form says \"may\" where it should say \"will\"."
   choices:
     - label: "Fix it and resubmit today"
-      text: "Fixed in ten seconds. Back in the queue for two weeks."
+      text: "You fix it in ten seconds, and it goes back in the queue for two weeks."
       effects: { sanity: "-2±1", project.delay: 1 }
     - label: "Call the IRB office"
       check: { stat: presenting, vs: 45, spread: 20 }
@@ -672,10 +672,10 @@
         text: "A friendly coordinator approves the change while you're still on the phone. You could hug them."
         effects: { sanity: "+3±1", network: "+1" }
       failure:
-        text: "Voicemail. Then an email. Then two weeks in the queue anyway."
+        text: "You get voicemail, then an email, then two weeks in the queue anyway."
         effects: { sanity: "-3±1", project.delay: 1 }
     - label: "Rewrite the whole form, carefully"
-      text: "If it's going back anyway, it's going back perfect. Every vague word in the protocol is now a precise one."
+      text: "If it's going back anyway, it's going back perfect. You swap every vague word in the protocol for a precise one."
       effects: { energy: "-3±1", writing: "+1", knowledge: "+2±1", project.delay: 1, project.quality.S: "+2±1" }
 
 - id: res_irb_eight_weeks
@@ -693,14 +693,14 @@
     - label: "Email the coordinator, politely"
       check: { stat: presenting, vs: 50, spread: 20 }
       success:
-        text: "Your protocol was sitting in the wrong reviewer's pile. Approved by Thursday."
+        text: "Your protocol was sitting in the wrong reviewer's pile. It's approved by Thursday."
         effects: { sanity: "+3±1" }
       failure:
         text: "\"Thank you for your patience.\" Two more weeks of patience, as it turns out."
         effects: { sanity: "-4±2", project.delay: 2 }
         achievement: irb_purgatory
     - label: "Read and plan while you wait"
-      text: "Twenty papers read and the analysis plan drafted by week eight. The wait stops feeling wasted."
+      text: "By week eight you've read twenty papers and drafted the analysis plan, so the wait doesn't feel wasted."
       effects: { sanity: "+2±1", knowledge: "+3±1", project.delay: 2 }
       achievement: irb_purgatory
 
@@ -710,18 +710,18 @@
   when:
     project: { stage: [sessions, study] }
   text:
-    - "You booked the room, printed the consent forms and bought snacks. Three participants in a row don't show up."
+    - "You booked the room and bought snacks. Three participants in a row don't show up."
   choices:
     - label: "Set up automatic reminders"
-      text: "A reminder the day before, another an hour before. Next week, everyone shows up."
+      text: "You send a reminder the day before and another an hour before. Next week, everyone shows up."
       effects: { energy: "-2±1", project.progress: "-4±2", project.quality.S: "+2±1" }
     - label: "Eat the snacks and rebook"
-      text: "The snacks were good. Rebooking takes an afternoon. Neither is a disaster."
+      text: "The snacks are good, and rebooking only takes an afternoon."
       effects: { energy: "+2±1", sanity: "+2±1", project.progress: "-6±2" }
     - label: "Overbook the next round"
       check: { stat: knowledge, vs: 45, spread: 20 }
       success:
-        text: "Just enough people show up this time. Five sessions in one day, and a lot of good data."
+        text: "Just enough people show up this time: five sessions in one day, and a lot of good data."
         effects: { energy: "-8±2", project.progress: "+8±3", health: "-2±1" }
       failure:
         text: "Everyone shows up this time, at once. You run two sessions in parallel, badly."
@@ -741,7 +741,7 @@
         text: "A gentle \"great point, and what about this part?\" works. You get the last 20 minutes back."
         effects: { presenting: "+2±1", project.progress: "+5±2" }
       failure:
-        text: "They agree, then mention the font again. And again."
+        text: "They agree, then mention the font twice more."
         effects: { sanity: "-3±1", project.progress: "+2±1" }
     - label: "Let them talk; take notes"
       text: "Half your notes are about letter spacing. One line, about where the eye lands first, ends up in your design implications."
@@ -759,18 +759,18 @@
     - "Your pilot participant was {labmate}, who finished every task in four minutes. Your first real participant takes forty and never finds the Submit button."
   choices:
     - label: "Redesign the tasks now"
-      text: "Two days of rework. The next sessions finally measure what you meant them to."
+      text: "After two days of rework, the next sessions finally measure what you meant them to."
       effects: { energy: "-5±2", project.progress: "-8±3", project.quality.S: "+6±2" }
     - label: "Keep going; it's a finding too"
       check: { stat: taste, vs: 50, spread: 20 }
       success:
-        text: "\"Usability barriers\" becomes a section of the paper, and a good one."
+        text: "\"Usability barriers\" becomes its own section of the paper."
         effects: { project.progress: "+4±2", project.quality.N: "+4±2" }
       failure:
         text: "Half your sessions test the tasks, half test the button. It's two messy studies in one."
         effects: { sanity: "-3±1", project.quality.S: "-4±2" }
     - label: "Pilot again with an outsider"
-      text: "A friend from another department tries it. They can't find the button either. Now you know for sure."
+      text: "A friend from another department tries it and can't find the button either. Now you know for sure."
       effects: { days: -1, friends_rel: "+2±1", project.progress: "-3±1", project.quality.S: "+3±1" }
 
 - id: res_prototype_crash
@@ -779,21 +779,21 @@
   when:
     project: { type: system, stage: study }
   text:
-    - "Twenty minutes into the session, your prototype freezes, prints an error and quits. The participant looks at you, kindly."
+    - "Twenty minutes into the session, your prototype freezes and quits with an error. The participant looks at you kindly."
   choices:
     - label: "Restart it and keep smiling"
       check: { stat: coding, vs: 50, spread: 20 }
       success:
-        text: "It's back in thirty seconds. You make a joke about live demos. They laugh. Session saved."
+        text: "It's back in thirty seconds. You make a joke about live demos, they laugh, and the session goes on."
         effects: { presenting: "+1", project.progress: "+4±2" }
       failure:
         text: "It crashes again at minute 25. You finish the session by sketching the screens on paper."
         effects: { sanity: "-4±2", project.progress: "-4±2" }
     - label: "Switch to a paper mock-up"
-      text: "Low-tech, but it works, and they start drawing on it. Some of the drawings beat your design."
+      text: "The paper version works, and they start drawing on it. Some of the drawings beat your design."
       effects: { project.progress: "+2±1", project.quality.N: "+3±1", project.quality.S: "-2±1" }
     - label: "End early and fix it tonight"
-      text: "A long night with the logs. By morning that bug is gone, along with two others you hadn't met yet."
+      text: "You spend the night with the logs. By morning that bug is gone, along with two others you hadn't met yet."
       effects: { energy: "-6±2", coding: "+3±1", project.progress: "-4±2", project.quality.S: "+3±1", health: "-2±1" }
 
 - id: res_hospital_wifi
@@ -805,7 +805,7 @@
     - "On site at the hospital, you open your study tool. The hospital Wi-Fi blocks it: \"Category: Uncategorized. Access denied.\""
   choices:
     - label: "Tether to your phone"
-      text: "One bar, in one corner of the room. It works as long as nobody moves."
+      text: "You get one bar, in one corner of the room. It works as long as nobody moves."
       effects: { sanity: "-2±1", project.progress: "+4±2" }
     - label: "Ask the staff for help"
       check: { stat: network, vs: 50, spread: 20 }
@@ -818,7 +818,7 @@
     - label: "Build an offline version tonight"
       check: { stat: coding, vs: 55, spread: 20 }
       success:
-        text: "An offline build that runs from a laptop. It's faster than the online one, which is a little embarrassing."
+        text: "The offline build runs from a laptop and is faster than the online one, which is a little embarrassing."
         effects: { energy: "-7±2", coding: "+3±1", project.progress: "+6±2", health: "-2±1" }
       failure:
         text: "At 3 am it half-works. The next session runs on the half that works."
@@ -838,7 +838,7 @@
       flag_set: [clinical_partner]
       tip: "Understanding Workflows"
     - label: "Shadow a clinic shift first"
-      text: "Eight hours on your feet. You come back with three better scenarios and very tired legs."
+      text: "After eight hours on your feet, you come back with three better scenarios and very tired legs."
       effects: { energy: "-6±2", days: -2, knowledge: "+6±2", project.quality.S: "+6±2", project.quality.N: "+2±1", health: "-2±1", sanity: "-2±1" }
     - label: "Keep it; it's a controlled study"
       text: "Controlled, yes. Reviewers from medicine will have notes."
@@ -854,7 +854,7 @@
     - "Waiting for the elevator, a nurse asks what you're working on. In three minutes, they explain the real problem better than your entire related work section."
   choices:
     - label: "Take notes right there"
-      text: "You miss two elevators and fill four screens of notes. Worth it."
+      text: "You miss two elevators and fill four screens of notes."
       effects: { sanity: "+4±2", knowledge: "+3±1", project.quality.N: "+6±2" }
     - label: "Invite them to your study"
       text: "They say yes, and bring a colleague. Both are better participants than anyone on your list."
@@ -878,7 +878,7 @@
     - "Your online survey gets {roll:300-450} responses overnight. Most took under a minute, and every open answer says \"Good survey, very nice.\""
   choices:
     - label: "Clean it by hand"
-      text: "You flag every response that's too fast, too tidy or too nice. About 30% goes. What's left is real."
+      text: "You flag every response that's too fast, too tidy or too nice, and about 30% goes."
       effects: { energy: "-7±2", days: -2, project.quality.S: "+5±2", health: "-2±1", sanity: "-2±1" }
     - label: "Add attention checks, relaunch"
       text: "Round two asks: \"Select purple.\" The bots select blue. The humans, mostly, select purple."
@@ -886,7 +886,7 @@
     - label: "Write a filter script"
       check: { stat: coding, vs: 50, spread: 20 }
       success:
-        text: "Timing, duplicate answers and pasted text. The script catches nearly all of them in an hour."
+        text: "The script checks timing, duplicate answers and pasted text, and catches nearly all the bots in an hour."
         effects: { coding: "+2±1", project.quality.S: "+4±2" }
       failure:
         text: "The script flags half your real participants too. You end up cleaning by hand anyway."
@@ -903,16 +903,16 @@
     - label: "Lean on the interviews instead"
       check: { stat: knowledge, vs: 50, spread: 20 }
       success:
-        text: "The interviews were where the story was all along. The flat chart becomes one honest sentence."
+        text: "The story was in the interviews all along. The flat chart shrinks to one sentence."
         effects: { project.quality.N: "+4±2", project.quality.S: "+3±1" }
       failure:
-        text: "The interviews are polite and vague too. You start to suspect the tasks, not the participants."
+        text: "The interviews are polite and vague too. You start to suspect the problem is your tasks."
         effects: { sanity: "-4±2", project.progress: "-8±3" }
     - label: "Report \"no clear preference\""
-      text: "An honest null result in one paragraph. Not exciting, but true."
+      text: "You report the null result in one paragraph. It's the least exciting paragraph in the paper."
       effects: { project.quality.S: "+2±1", project.quality.N: "-3±1" }
     - label: "Fix the questionnaire next time"
-      text: "A note to future you: drop the middle option and ask about specific moments. Lesson learned, the slow way."
+      text: "You leave a note for future you: drop the middle option and ask about specific moments."
       effects: { sanity: "-2±1", taste: "+3±1", knowledge: "+2±1" }
 
 - id: res_inaudible
@@ -924,7 +924,7 @@
     - "The transcripts are back. The best quote of the whole study reads: \"The real problem is [inaudible], and that's why we [inaudible].\""
   choices:
     - label: "Re-listen and fix them yourself"
-      text: "Ten hours in headphones. You now know every participant's voice, laugh and favorite filler word."
+      text: "After ten hours in headphones, you know every participant's laugh and favorite filler word."
       effects: { energy: "-6±2", days: -2, knowledge: "+3±1", project.quality.S: "+5±2", health: "-2±1", sanity: "-2±1" }
     - label: "Ask the participant to recall it"
       check: { stat: network, vs: 45, spread: 20 }
@@ -949,16 +949,16 @@
     - label: "Reframe around what they used"
       check: { stat: taste, vs: 50, spread: 20 }
       success:
-        text: "What people actually wanted turns out to be the finding. It's honest, surprising and very publishable."
+        text: "The paper becomes about what people actually wanted, which is more surprising than what you planned."
         effects: { project.progress: "-5±2", project.quality.N: "+7±3" }
       failure:
         text: "The reframe never quite lands. Is it a paper about export buttons now?"
         effects: { sanity: "-4±2", project.progress: "-10±3" }
     - label: "Redesign so they find the AI"
-      text: "The AI feature moves front and center. Another round of sessions, and this time they use it."
+      text: "You move the AI feature front and center. In the next round of sessions, they use it."
       effects: { energy: "-5±2", coding: "+2±1", project.progress: "-10±3", project.quality.S: "+5±2" }
     - label: "Report both, honestly"
-      text: "A section on the feature you built and one on the feature they loved. Reviewers like candor."
+      text: "You write one section on the feature you built and another on the export button they loved."
       effects: { writing: "+1", project.quality.S: "+3±1", project.quality.N: "-2±1" }
 
 - id: res_larger_study
@@ -976,7 +976,7 @@
     - label: "Argue depth over breadth"
       check: { stat: writing, vs: 55, spread: 20 }
       success:
-        text: "A new paragraph on why 12 deep sessions with experts beat 100 shallow ones. It's convincing, even to you."
+        text: "You write a paragraph on why 12 deep sessions with experts beat 100 shallow ones. It even convinces you."
         effects: { writing: "+2±1", project.quality.S: "+3±1", project.quality.C: "+4±2" }
       failure:
         text: "It reads as defensive. You rewrite it twice, and it still reads a little defensive."
@@ -1005,21 +1005,21 @@
     has_advisor: true
     flags_any: [scoop_cited, scoop_rushed]
   text:
-    - "Out of curiosity, you rerun the paper that scooped you. Their test set overlaps their training set. Fixed, their gain disappears, and your method is the better one after all."
+    - "Out of curiosity, you rerun the paper that scooped you. Their test set overlaps their training set, and once you fix that, your method is the better one after all."
   choices:
     - label: "Email the authors, privately"
       check: { stat: network, vs: 45, spread: 20 }
       success:
-        text: "They confirm it within a day and post a correction that thanks you by name. Classy, on both sides."
+        text: "They confirm it within a day and post a correction that thanks you by name."
         effects: { sanity: "+6±2", network: "+4±2", citations: "+3±2" }
       failure:
-        text: "\"Thanks, we'll look into it.\" The correction never comes. But you know, and your numbers know."
+        text: "\"Thanks, we'll look into it.\" The correction never comes, but at least you know your own numbers are right."
         effects: { sanity: "+2±1", network: "+1" }
     - label: "Write it up as a short note"
-      text: "Four careful, kind pages on reproducing their result. More people read it than either original paper."
+      text: "You write four careful, kind pages on reproducing their result. More people read it than either original paper."
       effects: { energy: "-6±2", days: -2, writing: "+2±1", knowledge: "+2±1", citations: "+6±3", sanity: "-2±1" }
-    - label: "Smile quietly and say nothing"
-      text: "You tell no one. You just reread your related work, slowly, with a small private grin."
+    - label: "Smile and say nothing"
+      text: "You tell no one and reread your related work, slowly, with a small private grin."
       effects: { sanity: "+5±2", energy: "+2±1" }
 
 # Your released benchmark (a dataset paper: same gate as dat_standard_benchmark).
@@ -1036,15 +1036,15 @@
     - "{biglab} releases {model}. Slide 14: {roll:97-99}% on your benchmark, six months after you released it. Your leaderboard is now a list of rounding errors."
   choices:
     - label: "Build a harder version 2"
-      text: "New examples, written to break exactly what {model} gets right. A lot of work, and the field will need it."
+      text: "You write new examples aimed at exactly what {model} gets right. It's a lot of work, and other labs pick it up right away."
       effects: { energy: "-6±2", days_next: -2, taste: "+3±1", citations: "+4±2", sanity: "-2±1" }
     - label: "Check what it really learned"
       check: { stat: taste, vs: 55, spread: 20 }
       success:
-        text: "It aces your benchmark and stumbles on a lightly reworded copy. That's a short paper, and a good one."
+        text: "It aces your benchmark and stumbles on a lightly reworded copy. That's a short paper right there."
         effects: { energy: "-3±1", taste: "+2±1", knowledge: "+2±1", citations: "+5±2" }
       failure:
-        text: "It really is that good, on everything you try. You learn a lot about the model and a little about humility."
+        text: "It really is that good, on everything you try. You learn a lot about the model, and nothing you can publish."
         effects: { energy: "-3±1", sanity: "-3±1", knowledge: "+2±1" }
     - label: "Call it a success"
       text: "Saturated means used. You add \"widely adopted\" to your CV and close the tab."
@@ -1062,19 +1062,19 @@
     - "You change the random seed, for no reason at all. Your three-point gain becomes a one-point loss."
   choices:
     - label: "Run ten seeds, report the mean"
-      text: "Ten runs, error bars and a gain of about two points that holds. Smaller, and real."
+      text: "With ten runs and error bars, the gain shrinks to about two points, and it holds."
       effects: { energy: "-4±2", days: -2, project.quality.S: "+7±2", sanity: "-2±1" }
       tip: "Hold Yourself to a High Standard"
     - label: "Find out why it's so fragile"
       check: { stat: coding, vs: 55, spread: 20 }
       success:
-        text: "A warmup schedule that only works on lucky seeds. Fixed, the gain is stable on all of them."
+        text: "The culprit is a warmup schedule that only works on lucky seeds. Once you fix it, the gain holds on all of them."
         effects: { days: -1, coding: "+3±1", project.quality.S: "+5±2", project.quality.N: "+2±1" }
       failure:
         text: "Two days of staring at loss curves. They look like modern art and explain about as much."
         effects: { days: -2, energy: "-5±2", sanity: "-4±2" }
     - label: "Report seed 42"
-      text: "Everyone uses 42. It's practically a standard. Reviewer 2 has heard that one before."
+      text: "Everyone uses 42, you tell yourself. Reviewer 2 has heard that one before."
       effects: { sanity: "+3±1", project.quality.S: "-6±2" }
       flag_set: [res_lucky_seed]
 
@@ -1088,7 +1088,7 @@
     - "{biglab} doubles its API prices, starting Monday. Your experiment plan, budgeted to the dollar, now covers exactly half of your experiments."
   choices:
     - label: "Cut the plan in half, carefully"
-      text: "You keep the experiments that answer the question and drop the ones that decorate it. A tighter paper."
+      text: "You keep the experiments that answer the question and drop the ones that only decorate it."
       effects: { sanity: "-2±1", taste: "+2±1", project.quality.S: "-3±1", project.quality.C: "+3±1" }
     - label: "Ask {advisor} for more budget"
       check: { stat: advisor_rel, vs: 55, spread: 20 }
@@ -1099,7 +1099,7 @@
         text: "\"Budgets are budgets.\" Your advisor suggests you get creative. You were afraid of that."
         effects: { sanity: "-4±2", advisor_rel: "-1", project.quality.S: "-3±1" }
     - label: "Move to an open model"
-      text: "A week of setup, then unlimited runs for the price of electricity and patience. Mostly patience."
+      text: "After a week of setup, every run costs only electricity and a lot of patience."
       effects: { energy: "-6±2", days: -2, coding: "+3±1", project.quality.S: "+3±1", sanity: "-2±1", health: "-1" }
 
 - id: res_demo_vs_test
@@ -1112,12 +1112,12 @@
     - "Your prompt nailed every example at lab meeting. On the full test set it scores {roll:31-44}%. The demo examples, you realize, are the ones you wrote the prompt on."
   choices:
     - label: "Hold out a real dev set"
-      text: "A clean split and a lower, honest number. The prompt now gets better slowly, and for real."
+      text: "You set aside a clean split and get a lower, honest number. From here the prompt improves slowly, and for real."
       effects: { energy: "-4±2", days: -1, project.progress: "-5±2", project.quality.S: "+6±2", sanity: "-2±1" }
     - label: "Study the failures first"
       check: { stat: taste, vs: 50, spread: 20 }
       success:
-        text: "The failures share a pattern: long inputs that ask two questions at once. That's a finding, not a bug."
+        text: "The failures share a pattern: long inputs that ask two questions at once. You can write that up as a finding."
         effects: { days: -1, taste: "+2±1", project.quality.N: "+5±2" }
       failure:
         text: "Every failure fails in its own way. You now have 400 rows of sadness in a spreadsheet."
@@ -1138,13 +1138,13 @@
     - label: "Tell {labmate} first, kindly"
       text: "They go pale, then thank you. You fix both copies together over a long lunch, and they insist on paying."
       effects: { days: -1, labmates_rel: "+4±2", project.progress: "-5±2", project.quality.S: "+5±2", sanity: "-2±1" }
-    - label: "Quietly fix your own copy"
-      text: "Your numbers drop and become true. {labmate}'s code still has the bug, and that sits with you all week."
+    - label: "Fix only your own copy"
+      text: "Your numbers drop to their true values. {labmate}'s code still has the bug, and that bothers you all week."
       effects: { project.progress: "-3±1", project.quality.S: "+5±2", sanity: "-4±2" }
     - label: "Raise it at lab meeting"
       check: { stat: presenting, vs: 50, spread: 20 }
       success:
-        text: "You frame it as \"a bug any of us could have\". Three people check their code that night. Two find it."
+        text: "You frame it as \"a bug any of us could have\". Three people check their code that night, and two of them find it."
         effects: { presenting: "+1", labmates_rel: "+2±1", advisor_rel: "+2±1", project.progress: "-4±2", project.quality.S: "+5±2" }
       failure:
         text: "It comes out sounding like an accusation. {labmate} is very polite to you for a week, which is worse."
@@ -1173,7 +1173,7 @@
         text: "\"Drift is how research works,\" your advisor says. \"Just write down why.\" You feel much lighter."
         effects: { sanity: "+4±2", advisor_rel: "+2±1", taste: "+1" }
       failure:
-        text: "Your advisor asks which question you'd rather defend. You don't know yet. That's your homework."
+        text: "Your advisor asks which question you'd rather defend. You don't know yet, so that becomes your homework."
         effects: { days: -1, sanity: "-3±1", taste: "+1" }
 
 - id: res_fifth_dataset
@@ -1191,7 +1191,7 @@
       text: "You close the tab and fix the introduction instead. Reviewers read the intro first, and some read only that."
       effects: { energy: "-3±1", days: -1, writing: "+2±1", project.quality.C: "+5±2" }
     - label: "Put it in future work"
-      text: "One line in the conclusion. If a reviewer asks, you'll have an answer ready, and a little guilt."
+      text: "It gets one line in the conclusion. If a reviewer asks, you have an answer ready, along with a little guilt."
       effects: { sanity: "+3±1", project.quality.S: "-2±1" }
 
 - id: res_open_model_easy
@@ -1210,7 +1210,7 @@
     - label: "Aim higher with the time saved"
       check: { stat: taste, vs: 55, spread: 20 }
       success:
-        text: "If the easy part is free, the hard part is the paper. {project} grows a much better question."
+        text: "With the easy part done for you, {project} takes on a harder and better question."
         effects: { taste: "+2±1", project.progress: "-4±2", project.quality.N: "+7±3", sanity: "+2±1" }
       failure:
         text: "The bigger question is bigger than you thought. Your scope doubles, and so does your to-do list."
@@ -1225,18 +1225,18 @@
   when:
     project: { type: empirical, stage: [experiments, consolidation] }
   text:
-    - "Your LLM judge rates outputs from its own model family {roll:8-15} points higher, even when you hide which system wrote what. It's grading its siblings."
+    - "Your LLM judge rates outputs from its own model family {roll:8-15} points higher, even when you hide which system wrote what."
   choices:
     - label: "Add a human evaluation"
-      text: "Three annotators, 300 pairs, one long week. The humans don't care whose family is whose."
+      text: "Three annotators rate 300 pairs over one long week. The humans don't care whose family is whose."
       effects: { energy: "-6±2", days: -2, project.quality.S: "+7±2", health: "-2±1", sanity: "-2±1" }
     - label: "Use judges from three labs"
-      text: "Three judges, three families, one averaged score. It costs more and argues less."
+      text: "You average three judges from three model families. It costs more and argues less."
       effects: { sanity: "-1", project.progress: "-3±1", project.quality.S: "+4±2" }
     - label: "Make the bias a finding"
       check: { stat: taste, vs: 55, spread: 20 }
       success:
-        text: "A section on judges that favor their own family. It may end up the most cited part of the paper."
+        text: "You add a section on judges that favor their own family. It gets more attention than the rest of the paper."
         effects: { days: -1, taste: "+2±1", project.quality.N: "+6±2" }
       failure:
         text: "Interesting, but three papers found it last month. It shrinks to a footnote."
@@ -1251,13 +1251,13 @@
     - "As a sanity check, you score a system that just copies the input three times. It beats every model on your metric, including yours."
   choices:
     - label: "Switch to a better metric"
-      text: "A new metric, a rerun of every table, and numbers that finally move the right way."
+      text: "You switch metrics and rerun every table. The numbers finally move the right way."
       effects: { energy: "-5±2", days: -2, project.progress: "-5±2", project.quality.S: "+6±2", sanity: "-2±1" }
     - label: "Add the copy baseline to Table 2"
       text: "\"Copy x3\" joins Table 2 as a warning. Reviewers love a baseline that embarrasses a metric."
       effects: { writing: "+1", project.progress: "-2±1", project.quality.S: "+3±1", project.quality.N: "+2±1" }
     - label: "Never speak of it again"
-      text: "Copy x3 is closed, deleted and never mentioned. You sleep fine, mostly."
+      text: "You delete Copy x3 and never mention it again. You sleep fine, mostly."
       effects: { sanity: "+2±1", project.quality.S: "-5±2" }
 
 - id: res_dataset_takedown
@@ -1269,15 +1269,15 @@
     - "The dataset your whole project uses vanishes overnight: \"Removed due to licensing concerns.\" Your copy is still on the cluster. Are you still allowed to use it?"
   choices:
     - label: "Ask the university's lawyers"
-      text: "Three weeks and one very long email later: you may use it, but not share it. Fine."
+      text: "Three weeks and one very long email later, the answer: you may use it, but not share it."
       effects: { sanity: "-3±1", knowledge: "+1", project.delay: 1 }
     - label: "Switch to an open dataset"
-      text: "A cleaner license and a messier dataset. You rerun everything and sleep better."
+      text: "The license is cleaner and the dataset is messier. You rerun everything and sleep better."
       effects: { energy: "-6±2", days: -2, project.progress: "-8±3", project.quality.S: "+3±1", sanity: "-2±1" }
     - label: "Build a small replacement"
       check: { stat: coding, vs: 55, spread: 20 }
       success:
-        text: "Two weeks of collecting from open sources. Your replacement is smaller, cleaner and yours to release."
+        text: "After two weeks of collecting from open sources, you have a smaller, cleaner replacement that you're allowed to release."
         effects: { energy: "-8±2", days: -3, coding: "+2±1", project.quality.N: "+5±2", health: "-2±1" }
       failure:
         text: "Your replacement has 800 examples and a bad attitude. You end up switching to an open dataset anyway."
@@ -1296,10 +1296,10 @@
     - "You want to add one survey question: \"Anything else?\" The IRB says that needs an amendment, a revised protocol and a new consent form."
   choices:
     - label: "File the amendment"
-      text: "Eleven pages for two words. Approved in three weeks, with no changes requested. You're almost disappointed."
+      text: "You file eleven pages for two words. It's approved in three weeks with no changes, and you're almost disappointed."
       effects: { sanity: "-3±1", project.delay: 1, project.quality.S: "+2±1" }
     - label: "Fix four other things while you're at it"
-      text: "If you're amending anyway, you fix everything that bugged you. Slower, and a better study."
+      text: "If you're amending anyway, you fix everything that bugged you. It's slower, and the study is better for it."
       effects: { energy: "-3±1", knowledge: "+2±1", project.delay: 2, project.quality.S: "+6±2", sanity: "-2±1" }
     - label: "Drop the question"
       text: "The survey stays as approved. You'll always wonder what \"else\" there was."
@@ -1328,7 +1328,7 @@
       effects: { energy: "-4±2", days: -1, network: "+4±2", project.progress: "+3±1" }
       flag_set: [clinical_partner]
     - label: "Move on without them"
-      text: "You redesign {project} to need less clinical input. More doable, a little less exciting."
+      text: "You redesign {project} to need less clinical input. It's more doable and a little less exciting."
       effects: { sanity: "+2±1", project.progress: "+3±1", project.quality.N: "-3±1" }
 
 - id: res_flyer_one
@@ -1365,7 +1365,7 @@
     - "You and {labmate} coded the same ten interviews. Cohen's kappa: 0.2. You disagree on what counts as \"trust\", \"workaround\" and, somehow, \"the\"."
   choices:
     - label: "Reconcile it, code by code"
-      text: "Six hours, two pizzas, one shared codebook. Kappa: 0.71. You're still friends, mostly."
+      text: "Six hours and two pizzas later, you have one shared codebook and a kappa of 0.71. You're still friends, mostly."
       effects: { energy: "-6±2", days: -1, labmates_rel: "+2±1", project.quality.S: "+6±2", health: "-1", sanity: "-2±1" }
       tip: "How to Communicate"
     - label: "Switch to consensus coding"
@@ -1374,10 +1374,10 @@
     - label: "Rewrite the codebook first"
       check: { stat: writing, vs: 50, spread: 20 }
       success:
-        text: "A clear definition and an example for every code. Round two hits 0.68 without a single argument."
+        text: "Every code gets a clear definition and an example. Round two hits 0.68 without a single argument."
         effects: { days: -1, writing: "+2±1", project.quality.S: "+5±2" }
       failure:
-        text: "The new codebook is longer and just as vague. Kappa: 0.24. Progress, technically."
+        text: "The new codebook is longer and just as vague. Kappa rises to 0.24, which is technically progress."
         effects: { days: -1, sanity: "-4±2" }
 
 - id: res_think_aloud_quiet
@@ -1388,21 +1388,21 @@
   when:
     project: { stage: [sessions, study] }
   text:
-    - "Five minutes into the think-aloud, your participant goes quiet. They click, frown, click again. Thirty minutes of thinking, none of it aloud."
+    - "Five minutes into the think-aloud, your participant goes quiet. For thirty minutes they click, frown and click again, without a word."
   choices:
     - label: "Prompt gently: \"What are you thinking?\""
       check: { stat: presenting, vs: 45, spread: 20 }
       success:
-        text: "\"Oh! Sorry. I was thinking this button is lying to me.\" And they're off. Great data."
+        text: "\"Oh! Sorry. I was thinking this button is lying to me.\" After that, they don't stop talking."
         effects: { presenting: "+1", project.progress: "+5±2", project.quality.N: "+2±1" }
       failure:
         text: "\"Nothing much.\" They go quiet again, now slightly self-conscious."
         effects: { sanity: "-2±1", project.progress: "+2±1" }
     - label: "Let them work, ask after"
-      text: "A follow-up interview fills in some gaps. Memory is a generous editor."
+      text: "A follow-up interview fills in some gaps. Participants remember being much less confused than they looked."
       effects: { project.progress: "+3±1", project.quality.S: "-2±1" }
     - label: "Narrate the recording tonight"
-      text: "You narrate their clicks yourself from the screen recording. Tedious, and surprisingly revealing."
+      text: "You narrate their clicks yourself from the screen recording. It's tedious, and it tells you more than you expected."
       effects: { energy: "-4±2", knowledge: "+2±1", project.quality.S: "+3±1" }
 
 - id: res_keep_prototype
@@ -1417,10 +1417,10 @@
       text: "You fix the worst bugs and answer their emails. Their real-world use becomes the best part of the paper."
       effects: { energy: "-5±2", days_next: -1, coding: "+2±1", project.quality.N: "+5±2", sanity: "+2±1" }
     - label: "Add a field deployment"
-      text: "An IRB amendment and a month of real use. A much stronger paper, much later."
+      text: "It takes an IRB amendment and a month of real use. The paper gets much stronger, and much later."
       effects: { sanity: "-2±1", project.delay: 2, project.quality.S: "+7±2" }
     - label: "Thank them, but say no"
-      text: "They're disappointed. You're flattered. Their quote goes on a slide for your next talk."
+      text: "They're disappointed, and you're flattered. Their quote goes on a slide for your next talk."
       effects: { sanity: "+4±2", presenting: "+1" }
 
 - id: res_clinician_first_author
@@ -1436,7 +1436,7 @@
     - label: "Explain how CS authorship works"
       check: { stat: presenting, vs: 50, spread: 20 }
       success:
-        text: "You explain, kindly, with examples. They agree to be last author, the senior spot, and seem pleased with it."
+        text: "You explain kindly, with examples. They agree to be last author, the senior spot, and seem pleased with it."
         effects: { sanity: "+2±1", network: "+2±1", presenting: "+1" }
       failure:
         text: "They're polite and unconvinced. The thread grows to 31 emails."
@@ -1447,7 +1447,7 @@
         text: "Your advisor and theirs talk for ten minutes. You stay first author. Nobody tells you what was said."
         effects: { sanity: "+3±1", advisor_rel: "+1" }
       failure:
-        text: "Your advisor proposes co-first authorship and a footnote. It's a compromise, in every sense."
+        text: "Your advisor proposes co-first authorship and a footnote. The clinician takes it, and you try to be gracious."
         effects: { sanity: "-2±1", network: "+2±1" }
     - label: "Offer co-first authorship"
       text: "Two asterisks and a footnote. Everyone's happy, and the clinic starts sending you participants."
@@ -1480,14 +1480,14 @@
     - label: "Use the university's template"
       check: { stat: knowledge, vs: 50, spread: 20 }
       success:
-        text: "Their lawyers know the template by heart. Approved in a week. Someone clearly did this before you."
+        text: "Their lawyers know the template by heart, and it's approved in a week. Someone clearly did this before you."
         effects: { sanity: "+4±2", knowledge: "+2±1" }
       failure:
         text: "They have 14 comments on the template, numbered and lettered. Some have sub-letters."
         effects: { sanity: "-3±1", project.delay: 1 }
         schedule: { event: res_legal_2, in: [2, 3], chance: 1.0 }
     - label: "Start on public data meanwhile"
-      text: "You begin on a public dataset while the agreement crawls along. Two half-projects beat none."
+      text: "You begin on a public dataset while the agreement crawls along. At least something is moving."
       effects: { energy: "-4±2", project.progress: "+4±2", project.quality.N: "-2±1" }
       schedule: { event: res_legal_2, in: [3, 4], chance: 1.0 }
 
@@ -1499,12 +1499,12 @@
   when:
     project: { type: [study, system, dataset] }
   text:
-    - "The agreement comes back with {roll:20-40} tracked changes. Most turn \"shall\" into \"will\". One quietly gives the hospital the rights to your thesis."
+    - "The agreement comes back with {roll:20-40} tracked changes. Most turn \"shall\" into \"will\". One, on page 9, gives the hospital the rights to your thesis."
   choices:
     - label: "Strike that one, accept the rest"
       check: { stat: presenting, vs: 50, spread: 20 }
       success:
-        text: "A short, polite call. They agree the thesis clause was \"just the template\". Signed by Friday."
+        text: "On a short, polite call, they agree the thesis clause was \"just the template\". It's signed by Friday."
         effects: { sanity: "+5±2", presenting: "+1" }
       failure:
         text: "They counter your counter. A meeting is scheduled to plan the meeting about it."
@@ -1530,10 +1530,10 @@
     - "Round three of the data-sharing agreement. You now know what \"indemnification\" means, and you wish you didn't."
   choices:
     - label: "Sign their version, carefully"
-      text: "You read it twice. Your thesis is still yours. One more week for signatures, and it's done."
+      text: "You read it twice, and your thesis is still yours. One more week for signatures, and it's done."
       effects: { sanity: "+3±1", knowledge: "+1", project.delay: 1, project.quality.S: "+3±1" }
     - label: "Drop the hospital data"
-      text: "You switch to public clinical notes. Less realistic, and blissfully free of paperwork."
+      text: "You switch to public clinical notes. They're less realistic and come with no paperwork at all."
       effects: { sanity: "+5±2", project.quality.N: "-4±2" }
 
 - id: res_compensation_out
@@ -1548,13 +1548,13 @@
     - label: "Ask {advisor} for more"
       check: { stat: advisor_rel, vs: 50, spread: 20 }
       success:
-        text: "Your advisor sighs, finds the money and asks you to check the next budget twice. Fair."
+        text: "Your advisor sighs, finds the money and asks you to check the next budget twice."
         effects: { sanity: "+2±1", advisor_rel: "-1" }
       failure:
         text: "\"We'll have to stop at 14.\" Your study just became a lot more qualitative."
         effects: { sanity: "-4±2", project.quality.S: "-4±2" }
     - label: "Apply for a small department grant"
-      text: "Two pages and a budget table. Approved in three weeks, and you finally learn to write a budget."
+      text: "You write two pages and a budget table. It's approved in three weeks, and you finally learn how budgets work."
       effects: { sanity: "-2±1", writing: "+2±1", project.delay: 1 }
     - label: "Halve the cards for the rest"
       text: "Recruiting slows a little. A reviewer may ask why half your participants got less."
@@ -1573,7 +1573,7 @@
     has_advisor: true
     project: { stage: [sessions, study] }
   text:
-    - "It's a Wizard-of-Oz study, so the \"AI\" is you, typing from the next room. Six sessions back to back. Participant 3 asks the AI if it's tired."
+    - "It's a Wizard-of-Oz study, so the \"AI\" is you, typing from the next room for six sessions back to back. Participant 3 asks the AI if it's tired."
   choices:
     - label: "Type fast and stay in character"
       text: "By session six you type like a language model and feel like one. The data is great."
@@ -1584,7 +1584,7 @@
     - label: "Take shifts with {labmate}"
       check: { stat: labmates_rel, vs: 50, spread: 15 }
       success:
-        text: "Three sessions each. One participant says the AI's personality changed halfway. It did."
+        text: "You take three sessions each. One participant says the AI's personality changed halfway, which it did."
         effects: { energy: "-4±2", labmates_rel: "+2±1", project.progress: "+7±2" }
       failure:
         text: "{labmate} has a deadline. You type all six sessions yourself, a little resentfully."
@@ -1596,13 +1596,13 @@
   when:
     project: { type: [study, system], stage: [design, build, analysis] }
   text:
-    - "Your participatory design workshop produced 412 sticky notes. Some say \"trust\". One says \"lunch?\". All of them need a theme."
+    - "Your participatory design workshop produced 412 sticky notes, and every one needs a theme. One just says \"lunch?\"."
   choices:
     - label: "Affinity-map them on the lab wall"
-      text: "A whole weekend on a stepladder. The wall looks like a detective's corkboard, and the themes are excellent."
+      text: "You spend a weekend on a stepladder. The wall looks like a detective's corkboard, and the themes are excellent."
       effects: { energy: "-7±2", days: -2, health: "-2±1", project.quality.N: "+5±2", project.quality.S: "+3±1" }
     - label: "Photograph and code them on screen"
-      text: "Searchable, sortable and somehow less inspiring. The themes are tidy and a little flat."
+      text: "On screen the notes are searchable and somehow less inspiring. The themes come out tidy and a little flat."
       effects: { energy: "-4±2", project.progress: "+5±2", project.quality.N: "+1" }
     - label: "Ask the participants to vote on themes"
       check: { stat: network, vs: 45, spread: 20 }
@@ -1622,15 +1622,15 @@
     - "You share your findings with a participant, as promised. They reply within the hour: \"That's not what I meant. At all.\" Your favorite theme is built on their quote."
   choices:
     - label: "Revise the theme"
-      text: "Two days of rereading transcripts. The new theme is less striking and much more true."
+      text: "After two days of rereading transcripts, the new theme is less striking and much more accurate."
       effects: { energy: "-4±2", days: -2, project.quality.S: "+6±2", project.quality.N: "-2±1", sanity: "-2±1" }
     - label: "Add their correction as a quote"
-      text: "Their reply goes into the paper next to your reading. A reviewer calls it \"reflexive\". You'll take it."
+      text: "Their reply goes into the paper next to your reading, and a reviewer praises the paper as \"reflexive\"."
       effects: { writing: "+1", project.quality.S: "+3±1", project.quality.N: "+2±1" }
     - label: "Explain your reading to them"
       check: { stat: presenting, vs: 55, spread: 20 }
       success:
-        text: "After a call, they agree: \"Okay, I did kind of mean that.\" You both learn something."
+        text: "After a call, they agree: \"Okay, I did kind of mean that.\""
         effects: { presenting: "+2±1", sanity: "+3±1", project.quality.S: "+2±1" }
       failure:
         text: "The call ends with each of you more sure you're right."
@@ -1644,10 +1644,10 @@
   when:
     project: { stage: [sessions, study] }
   text:
-    - "Twenty minutes in, your interviewee starts the story of the clinic's old pager system. It has villains. It has a twist. It's not on your interview guide."
+    - "Twenty minutes in, your interviewee starts telling the story of the clinic's old pager system. It has villains and a twist, and it's nowhere on your interview guide."
   choices:
     - label: "Let them talk"
-      text: "Forty minutes on pagers, and somewhere in there, the best quote about workarounds you've ever heard."
+      text: "They talk about pagers for forty minutes, and somewhere in there is the best quote about workarounds you've ever heard."
       effects: { sanity: "+2±1", project.progress: "+2±1", project.quality.N: "+4±2" }
       tip: "Understanding Workflows"
     - label: "Steer back, politely"
@@ -1659,7 +1659,7 @@
         text: "You steer back. They steer to the fax machine."
         effects: { sanity: "-2±1", project.progress: "+2±1" }
     - label: "Book a follow-up for the story"
-      text: "A second, unofficial hour next week. You lose an afternoon and gain a friend in the clinic."
+      text: "The extra hour next week costs you an afternoon and gets you a friend in the clinic."
       effects: { days_next: -1, network: "+3±1", project.progress: "+4±2" }
       flag_set: [clinical_partner]
 
@@ -1669,10 +1669,10 @@
   when:
     project: { stage: [sessions, study, analysis] }
   text:
-    - "Your best session of the study, the one where everything clicked. You open the screen recording: 0 seconds, 0 bytes. The audio is fine."
+    - "You open the screen recording of your best session, the one where everything clicked: 0 seconds, 0 bytes. The audio is fine."
   choices:
     - label: "Rebuild it from your notes"
-      text: "Audio, notes and memory, stitched together over an evening. Mostly right, you think."
+      text: "You spend an evening stitching the audio and your notes together. It's mostly right, you think."
       effects: { energy: "-4±2", sanity: "-2±1", project.quality.N: "+2±1" }
     - label: "Ask the participant for a follow-up"
       check: { stat: network, vs: 45, spread: 20 }
@@ -1683,7 +1683,7 @@
         text: "They're away for a month. You make do with the audio."
         effects: { sanity: "-3±1" }
     - label: "Drop the session"
-      text: "Clean and rigorous. Your best session becomes one sentence in Limitations. It stings a little."
+      text: "Your best session becomes one sentence in Limitations. It's the rigorous choice, and it stings a little."
       effects: { sanity: "-3±1", project.quality.S: "+2±1", project.quality.N: "-3±1" }
 
 - id: res_manipulation_check
@@ -1695,18 +1695,18 @@
     - "The manipulation check is in: participants can't tell the AI condition from the no-AI condition. Half think both had AI. A few think neither did."
   choices:
     - label: "Redesign the conditions"
-      text: "New conditions, a new pilot, a new round of sessions. Now the study tests what it says it does."
+      text: "After a new pilot and another round of sessions, the study tests what it says it does."
       effects: { energy: "-3±1", sanity: "-3±1", project.delay: 1, project.quality.S: "+7±2" }
     - label: "Reframe it as a finding"
       check: { stat: taste, vs: 55, spread: 20 }
       success:
-        text: "\"People can't tell when AI is helping\" is a finding, and a striking one. You rewrite the framing."
+        text: "You rewrite the framing around a new finding: people can't tell when AI is helping."
         effects: { taste: "+2±1", project.quality.N: "+6±2" }
       failure:
         text: "Reviewers will see a failed manipulation, and so do you. The reframe doesn't hold."
         effects: { sanity: "-4±2", project.quality.S: "-3±1" }
     - label: "Make the AI more visible"
-      text: "A sparkle icon and the word \"AI\" in bold. Now everyone notices. Some notice too much."
+      text: "You add a sparkle icon and the word \"AI\" in bold. Now everyone notices, and some notice too much."
       effects: { energy: "-2±1", project.progress: "+3±1", project.quality.S: "+3±1", project.quality.N: "-2±1" }
 
 - id: res_attention_check
@@ -1719,7 +1719,7 @@
     - "You pilot your survey on {advisor}. Your attention check is so clever that {advisor} fails it, then argues for ten minutes that it was ambiguous."
   choices:
     - label: "Simplify it"
-      text: "\"Select 'Strongly agree' for this item.\" Not clever, but it works. Your advisor passes."
+      text: "\"Select 'Strongly agree' for this item.\" It isn't clever, and your advisor passes it."
       effects: { sanity: "+1", advisor_rel: "+1", project.quality.S: "+3±1" }
     - label: "Keep it and call it rigor"
       text: "Rigor! It filters out bots and, apparently, professors. Your advisor will remember this."
@@ -1738,15 +1738,15 @@
     - "Your counterbalanced design needs 24 participants, one for each order. You have 23. Participant 24 cancelled this morning, very apologetically."
   choices:
     - label: "Recruit one more"
-      text: "One more flyer, one more week, one more gift card. The design is balanced, and so are you."
+      text: "One more flyer and one more week get you participant 24. The design is balanced again."
       effects: { sanity: "-1", project.delay: 1, project.quality.S: "+4±2" }
     - label: "Report the unbalanced order"
-      text: "One honest sentence in the method section. A reviewer will count, but you counted first."
+      text: "You admit it in one sentence in the method section. A reviewer will count, but you counted first."
       effects: { sanity: "+2±1", writing: "+1", project.quality.S: "-2±1" }
     - label: "Ask {advisor} if 23 is basically 24"
       check: { stat: advisor_rel, vs: 55, spread: 20 }
       success:
-        text: "Your advisor laughs, then helps you rerun the analysis with order as a factor. It holds."
+        text: "Your advisor laughs, then helps you rerun the analysis with order as a factor, and the result holds."
         effects: { sanity: "+3±1", advisor_rel: "+1", project.quality.S: "+2±1" }
       failure:
         text: "\"Is it?\" asks your advisor, and waits. You go and find participant 24."
@@ -1769,7 +1769,7 @@
     - label: "Make off-task replies a finding"
       check: { stat: taste, vs: 50, spread: 20 }
       success:
-        text: "You find 11 more off-topic replies in the logs. They become a section on trust, and a good one."
+        text: "You find 11 more off-topic replies in the logs, enough for a section on trust."
         effects: { days: -1, taste: "+1", project.quality.N: "+5±2" }
       failure:
         text: "It's one soup. A finding needs more than one soup."
@@ -1784,10 +1784,10 @@
     - "The clinicians like your tool, with one condition: it has to work in the 30 seconds between patients. Right now, logging in takes 40."
   choices:
     - label: "Redesign for 30 seconds"
-      text: "You cut every screen you can. What's left is small, fast and better than before."
+      text: "You cut every screen you can. What's left fits in 30 seconds, with a few to spare."
       effects: { energy: "-5±2", days: -1, coding: "+2±1", project.progress: "-4±2", project.quality.S: "+4±2", project.quality.N: "+2±1" }
     - label: "Time how long it really takes"
-      text: "A stopwatch and a day in the clinic. The real gap is 22 seconds, and now you know where they go."
+      text: "You spend a day in the clinic with a stopwatch. The real gap is 22 seconds, and now you know where they go."
       effects: { energy: "-3±1", days: -1, knowledge: "+3±1", project.quality.S: "+4±2" }
       tip: "Understanding Workflows"
     - label: "Argue for a different moment"
@@ -1796,7 +1796,7 @@
         text: "You propose a review at the end of the shift instead. They think it over and agree it's better."
         effects: { presenting: "+1", project.quality.N: "+4±2" }
       failure:
-        text: "\"There is no other moment,\" they say, kindly. You believe them."
+        text: "\"There is no other moment,\" they say, kindly."
         effects: { sanity: "-3±1", knowledge: "+1" }
 
 - id: res_accessibility
@@ -1805,16 +1805,16 @@
   when:
     project: { type: system, stage: [build, study] }
   text:
-    - "A quick accessibility check before the study: the screen reader announces every button in your prototype as \"button\". All 23 of them."
+    - "A quick accessibility check before the study: the screen reader announces all 23 buttons in your prototype as \"button\"."
   choices:
     - label: "Fix it all before the study"
-      text: "Labels, focus order, contrast. A week of work, and your prototype is better for everyone."
+      text: "You fix labels, focus order and contrast. It takes a week, and the prototype is better for everyone."
       effects: { energy: "-3±1", coding: "+2±1", project.delay: 1, project.quality.S: "+5±2" }
     - label: "Fix the worst three issues"
       text: "The main flow works now. The settings page remains a mystery, read aloud."
       effects: { energy: "-2±1", project.progress: "-2±1", project.quality.S: "+2±1" }
     - label: "Note it as a limitation"
-      text: "One sentence in Limitations. Accurate, and a little uncomfortable to type."
+      text: "It gets one sentence in Limitations, which is accurate and a little uncomfortable to type."
       effects: { sanity: "-1", project.quality.S: "-3±1" }
 
 - id: res_eleven_implications
@@ -1833,7 +1833,7 @@
     - label: "Group them into three themes"
       check: { stat: writing, vs: 55, spread: 20 }
       success:
-        text: "Three themes, eleven ideas, nothing lost. Your advisor replies: \"Yes.\""
+        text: "All eleven ideas fit under three themes. Your advisor replies: \"Yes.\""
         effects: { writing: "+2±1", advisor_rel: "+2±1", project.quality.C: "+5±2" }
       failure:
         text: "The three themes are called \"Design\", \"More design\" and \"Other\"."
@@ -1858,7 +1858,7 @@
     - "You switched on model-suggested labels to speed up annotation. It worked: your annotators accept the suggestion {roll:96-99}% of the time, including the wrong ones."
   choices:
     - label: "Add a no-suggestion condition"
-      text: "Half the annotators label without help. Slower, but now you can measure how much the suggestions steer them."
+      text: "Half the annotators label without help. It's slower, but now you can measure how much the suggestions steer them."
       effects: { sanity: "-2±1", project.delay: 1, project.quality.S: "+6±2" }
     - label: "Make it a paper of its own"
       check: { stat: taste, vs: 55, spread: 20 }
@@ -1866,7 +1866,7 @@
         text: "It's a whole second paper about annotators trusting the model. You add it to the list, happily."
         effects: { energy: "-3±1", taste: "+2±1", knowledge: "+2±1", sanity: "+3±1" }
       failure:
-        text: "Someone wrote that paper last year. You read it. It's good, and it stings."
+        text: "Someone wrote that paper last year, and it's good, which somehow makes it worse."
         effects: { energy: "-3±1", knowledge: "+2±1", sanity: "-2±1" }
     - label: "Hide suggestions until they choose"
       text: "Annotators label first, then see the model's guess. Speed drops, and so does the copying."
@@ -1889,7 +1889,7 @@
         text: "Your rules fix \"May\" and miss a real name. You catch it in review, and start over, more carefully."
         effects: { energy: "-3±1", sanity: "-4±2", project.progress: "-3±1" }
     - label: "Try another tool"
-      text: "The second tool is careful with months. It also removes every number. Trade-offs."
+      text: "The second tool is careful with months, and also removes every number."
       effects: { energy: "-3±1", project.progress: "-3±1", project.quality.S: "+2±1" }
     - label: "Write up what de-identification breaks"
       text: "A short workshop paper on [NAME] and other casualties. Clinical NLP people love it."
@@ -1952,10 +1952,10 @@
     - "Output 300 of 500. You notice you've started your emails with \"Certainly!\" and ended one with \"I hope this helps!\" It was to {advisor}."
   choices:
     - label: "Take a break"
-      text: "A walk, a sandwich and an hour without text. You come back sounding human."
+      text: "You take a walk and eat a sandwich, an hour away from all text. You come back sounding human."
       effects: { energy: "+3±1", sanity: "+4±2", project.progress: "-3±1" }
     - label: "Sort the errors into categories"
-      text: "Seven error types, one chart and a much better analysis section. Output 301 is easier to read."
+      text: "Seven error types fit in one chart, and your analysis section gets much better. Output 301 is easier to read."
       effects: { energy: "-3±1", taste: "+2±1", project.progress: "+3±1", project.quality.S: "+4±2" }
     - label: "Finish all 500 today"
       text: "Done by midnight. You dream in bullet points. Certainly!"
@@ -1971,7 +1971,7 @@
     - "Your model cites a paper that doesn't exist and credits it to {advisor}. The title sounds exactly like something {advisor} would write. You check twice."
   choices:
     - label: "Add a citation check to your evaluation"
-      text: "Every reference now gets checked against a real database. 14% are invented. That's a result."
+      text: "Every reference now gets checked against a real database, and 14% turn out to be invented."
       effects: { energy: "-4±2", days: -1, coding: "+1", project.quality.S: "+5±2", project.quality.N: "+2±1" }
     - label: "Show {advisor}"
       check: { stat: advisor_rel, vs: 45, spread: 20 }
@@ -1993,10 +1993,10 @@
   when:
     project: { type: empirical, stage: [pilot, experiments] }
   text:
-    - "Same prompt, temperature zero, three runs. Three different answers. Temperature zero, it turns out, is more of a mood."
+    - "You run the same prompt three times at temperature zero and get three different answers. Temperature zero, it turns out, is more of a mood."
   choices:
     - label: "Run it five times, report the spread"
-      text: "Five runs, a mean and a standard deviation. Five times the cost, and honest."
+      text: "You report a mean and standard deviation over five runs. It costs five times as much, and it's honest."
       effects: { energy: "-2±1", sanity: "-1", project.progress: "-3±1", project.quality.S: "+5±2" }
     - label: "Switch to a local model"
       check: { stat: coding, vs: 55, spread: 20 }
@@ -2022,7 +2022,7 @@
     - label: "Tell {advisor} right away"
       check: { stat: advisor_rel, vs: 45, spread: 20 }
       success:
-        text: "\"Thanks for telling me first. It happens.\" Your advisor moves some money around. You could hug them."
+        text: "\"Thanks for telling me first. It happens.\" Your advisor moves some money around."
         effects: { sanity: "+3±1", advisor_rel: "+3±1" }
       failure:
         text: "A long pause, then: \"Please write up what happened.\" You do, in great detail."
@@ -2031,7 +2031,7 @@
       text: "Development moves to a tiny model that costs almost nothing. This month's results are rougher."
       effects: { sanity: "-2±1", project.progress: "-5±2", project.quality.S: "-2±1" }
     - label: "Write a budget guard"
-      text: "A hard spending cap, an alert and a test for the retry loop. It won't happen again, to anyone in the lab."
+      text: "You add a hard spending cap, an alert and a test for the retry loop. Nobody in the lab can do this again."
       effects: { energy: "-4±2", days: -1, sanity: "-2±1", coding: "+3±1", labmates_rel: "+2±1" }
 
 - id: res_model_retired
@@ -2043,15 +2043,15 @@
     - "{biglab} announces that the model your paper evaluates will be retired next month. Soon, nobody will be able to reproduce a single number in it."
   choices:
     - label: "Rerun everything on its replacement"
-      text: "A week of reruns. The new model is better on average and worse on your examples, which is interesting."
+      text: "A week of reruns shows the new model is better on average and worse on your examples, which is interesting."
       effects: { energy: "-6±2", days: -2, health: "-1", sanity: "-2±1", project.quality.S: "+4±2", project.quality.N: "+2±1" }
     - label: "Release your saved outputs"
-      text: "Every prompt and response, archived and released. Anyone can check your work after the model is gone."
+      text: "You archive and release every prompt and response, so anyone can check your work after the model is gone."
       effects: { energy: "-2±1", citations: "+2±1", project.quality.S: "+4±2" }
     - label: "Switch to an open model"
       check: { stat: coding, vs: 55, spread: 20 }
       success:
-        text: "Open weights, frozen forever. Your results will reproduce long after you graduate."
+        text: "Open weights never change, so your results will reproduce long after you graduate."
         effects: { coding: "+2±1", project.progress: "-6±2", project.quality.S: "+6±2" }
       failure:
         text: "The open model needs more GPUs than your lab owns. You fall back to saving your outputs."
@@ -2069,12 +2069,12 @@
       text: "\"You are a helpful clinical assistant.\" It works for the ankle. The knees remain controversial."
       effects: { energy: "-2±1", project.progress: "+4±2", project.quality.S: "-1" }
     - label: "Use an open model"
-      text: "No refusals, more mistakes. You trade one problem for a more measurable one."
+      text: "The open model never refuses and makes more mistakes. You trade one problem for a more measurable one."
       effects: { coding: "+1", project.progress: "-3±1", project.quality.S: "+3±1" }
     - label: "Count refusals as a result"
       check: { stat: taste, vs: 50, spread: 20 }
       success:
-        text: "A table of refusal rates by body part. It's absurd, and it's the table everyone screenshots."
+        text: "You make a table of refusal rates by body part. It's absurd, and everyone screenshots it."
         effects: { taste: "+1", citations: "+2±1", project.quality.N: "+5±2" }
       failure:
         text: "Refusal rates are already a well-known table. Yours is one more row."
@@ -2112,10 +2112,10 @@
     - "Your human raters prefer the baseline. You read their comments: \"shorter\", \"shorter\", \"got to the point\", \"shorter\"."
   choices:
     - label: "Control for length"
-      text: "Length-matched pairs and a second round of ratings. Your system wins, by a little, fairly."
+      text: "With length-matched pairs and a second round of ratings, your system wins, by a little, fairly."
       effects: { energy: "-5±2", days: -1, sanity: "-2±1", project.progress: "-3±1", project.quality.S: "+6±2" }
     - label: "Report it as a finding"
-      text: "\"Raters prefer brevity\" isn't new, but your data shows how much. One honest paragraph."
+      text: "\"Raters prefer brevity\" isn't new, but your data shows exactly how much."
       effects: { writing: "+1", project.quality.S: "+3±1", project.quality.N: "-2±1" }
     - label: "Shorten your system's answers"
       check: { stat: taste, vs: 50, spread: 20 }
@@ -2137,18 +2137,18 @@
     - "Your best result came from a notebook with 400 cells, run out of order over three weeks. Cell 212 depends on cell 388. You don't remember why."
   choices:
     - label: "Rewrite it as a clean script"
-      text: "A day of untangling. The script runs top to bottom, and the result holds, minus half a point."
+      text: "After a day of untangling, the script runs top to bottom, and the result holds, minus half a point."
       effects: { energy: "-3±1", days: -1, coding: "+3±1", project.quality.S: "+5±2" }
     - label: "Rerun it top to bottom and hope"
       check: { stat: coding, vs: 60, spread: 20 }
       success:
-        text: "It runs. Same number. You vow never to touch that notebook again."
+        text: "It runs and gives the same number. You vow never to touch that notebook again."
         effects: { sanity: "+4±2", project.progress: "+3±1" }
       failure:
         text: "Cell 17 throws an error that cell 388 was hiding. The best result is gone."
         effects: { sanity: "-6±2", project.progress: "-6±2" }
     - label: "Report the result you can reproduce"
-      text: "The number you can reproduce is two points lower. It goes in the paper, and you sleep fine."
+      text: "The number you can reproduce is two points lower. It goes in the paper, and you stop worrying about cell 212."
       effects: { sanity: "+2±1", project.quality.S: "+3±1", project.quality.N: "-2±1" }
 
 - id: res_checkpoint_commit
@@ -2163,7 +2163,7 @@
     - label: "Rewrite the history"
       check: { stat: coding, vs: 60, spread: 20 }
       success:
-        text: "One careful force-push, and the checkpoint is gone from history. Nobody's work is lost. You're a legend now."
+        text: "One careful force-push removes the checkpoint from history without losing anyone's work. The lab chat calls you a legend."
         effects: { coding: "+3±1", labmates_rel: "+2±1", sanity: "+2±1" }
       failure:
         text: "The rewrite works, and also eats {labmate}'s last two commits. They're recoverable, eventually."

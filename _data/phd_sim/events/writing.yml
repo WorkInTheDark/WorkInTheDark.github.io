@@ -47,7 +47,7 @@
         text: "The correction ends up in paragraph four. Reviewer 2 finds it there and now doubts every number in the paper."
         effects: { paper.score: "-4±2", sanity: "-3±1" }
         flag_set: [eval_bug_disclosed]
-    - label: "Fix the numbers quietly in the camera-ready"
+    - label: "Fix it in the camera-ready, tell nobody"
       text: "You add \"update Table 2\" to your to-do list and tell nobody. It sits there like a pebble in your shoe."
       effects: { sanity: "-1" }
       flag_set: [eval_bug_quiet_fix]
@@ -70,7 +70,7 @@
     - "A careful reader emails you. The numbers in Table 2 of your latest version differ from the ones reviewers saw, and nothing in the paper says why."
   choices:
     - label: "Add a correction note today"
-      text: "Two sentences and a footnote explain the fix. It costs a little pride, earns some quiet respect, and should have been there from the start."
+      text: "Two sentences and a footnote explain the fix. It costs you a little pride and earns you some respect."
       effects: { sanity: "-2±1", network: "+2±1" }
       flag_clear: [eval_bug_quiet_fix]
       flag_set: [eval_bug_disclosed]
@@ -95,7 +95,7 @@
     - "A student at another university ran your released code and got numbers two points below your paper. Their email is very polite, and they attached their logs."
   choices:
     - label: "Thank them and post a correction"
-      text: "The correction goes up with their name in it. It's late, but it's right, and they cite you anyway."
+      text: "The correction goes up, late, with their name in it. They cite you anyway."
       effects: { sanity: "-4±2", network: "+3±1", taste: "+1" }
       flag_clear: [eval_bug_ignored]
       flag_set: [eval_bug_disclosed]
@@ -128,17 +128,17 @@
       - { project: { stage: revise } }
       - { project: { turns_to_deadline: "<=3" } }
   text:
-    - "Winter break. The building is empty, the heating is off, and for once the GPU queue is empty too. {project} still needs two experiments and half a rewrite."
+    - "Winter break. The building is empty, and for once so is the GPU queue. {project} still needs two experiments and half a rewrite."
     - "Your family asks when you're coming home for the holidays. You look at {project}, then at the empty GPU queue, then back at the message."
   choices:
     - label: "Spend the whole break on it"
-      text: "Experiments by day, rewriting by night, family calls on mute. By New Year the paper is much better, and you are much more tired."
+      text: "You run experiments by day and rewrite by night, with family calls on mute. By New Year the paper is much better, and you are much more tired."
       effects: { project.progress: "+20±5", project.quality.S: "+7±2", project.quality.C: "+5±2", energy: "-14±4", sanity: "-8±3", family_rel: "-5±2", health: "-3±1" }
     - label: "Work mornings, family evenings"
       text: "The experiments run while you eat dinner. Progress is slower, but you will remember that the holidays happened."
       effects: { project.progress: "+10±3", project.quality.S: "+3±1", project.quality.C: "+2±1", energy: "-3±1", family_rel: "+2±1" }
-    - label: "Take the break. Really take it."
-      text: "No laptop for two weeks, just family and too much food. You come back rested, with the same paper and a clearer idea of what it needs."
+    - label: "Take the whole break off"
+      text: "You leave the laptop closed for two weeks and eat too much. You come back rested, with the same paper and a clearer idea of what it needs."
       effects: { energy: "+12±3", sanity: "+8±3", family_rel: "+5±2", taste: "+1" }
       tip: "When and How to Rest"
     - label: "Run jobs while everyone sleeps"
@@ -160,7 +160,7 @@
   cooldown: 10
   text:
     - "The draft of {project} is 12 pages. {venue} allows 8. The deadline is tomorrow night."
-    - "You compile the final draft and scroll to the end. Page 12. The limit is 8."
+    - "You compile the final draft and scroll to the end: page 12. The limit is 8."
   choices:
     - label: "Cut it sentence by sentence"
       check: { stat: writing, vs: 50, spread: 20 }
@@ -169,7 +169,7 @@
         effects: { project.quality.C: "+4±2", energy: "-6±2", writing: "+2±1", health: "-2±1" }
         tip: "Paper Writing 101"
       failure:
-        text: "Eight pages. Section 4 lost the sentences that explained it, and now nobody, you included, can follow it."
+        text: "It fits in eight pages, but Section 4 lost the sentences that explained it. Now nobody, including you, can follow it."
         effects: { project.quality.C: "-4±2", energy: "-6±2", health: "-2±1" }
     - label: "Move everything to the appendix"
       text: "The main paper fits. Reviewers don't have to read the appendix, and they won't."
@@ -180,7 +180,7 @@
     - label: "Rewrite it in half the words"
       requires: { traits_any: [wordsmith] }
       tag: "Wordsmith"
-      text: "Every paragraph, half the words. It reads better than the long version ever did."
+      text: "You cut every paragraph in half, and it reads better than the long version ever did."
       effects: { project.quality.C: "+6±2", energy: "-5±2" }
 
 - id: wri_overleaf_down
@@ -190,7 +190,7 @@
   hook: deadline
   text:
     - "Two hours before the {venue} deadline, Overleaf stops loading. The status page says \"investigating\". So does everyone in your lab chat."
-    - "You click Recompile. Nothing happens. You refresh. Overleaf is down, and the {venue} deadline is in two hours."
+    - "You click Recompile and nothing happens, so you refresh. Overleaf is down, and the {venue} deadline is in two hours."
   choices:
     - label: "Compile locally from your last sync"
       check: { stat: coding, vs: 45, spread: 20 }
@@ -213,7 +213,7 @@
     - label: "Build it from your own git mirror"
       requires: { traits_any: [code_wizard] }
       tag: "Code Wizard"
-      text: "Your mirror syncs every five minutes, set up two years ago for exactly this night. You submit calmly."
+      text: "The mirror you set up two years ago, for exactly this night, is five minutes behind. You submit calmly."
       effects: { sanity: "+4±1" }
       achievement: overleaf_survivor
 
@@ -229,7 +229,7 @@
     - label: "Keep every change"
       check: { stat: coding, vs: 50, spread: 20 }
       success:
-        text: "It compiles, and the new version is good. Better than yours, honestly."
+        text: "It compiles, and the new version is honestly better than yours."
         effects: { project.quality.C: "+3±1", project.quality.S: "+2±1", sanity: "-2±1" }
       failure:
         text: "It compiles with 14 undefined references. Every cell of the new table reads \"??\"."
@@ -238,7 +238,7 @@
       text: "You submit your version at 11:57. {labmate} says \"no worries\" in a tone that suggests worries."
       effects: { labmates_rel: "-4±2", sanity: "+1" }
     - label: "Merge only what you can check"
-      text: "You read each change once and keep about half. Submitted at 11:59:40, heart racing."
+      text: "You read each change once and keep about half. You submit at 11:59:40, heart racing."
       effects: { project.quality.C: "+1", energy: "-4±2", sanity: "-3±1", labmates_rel: "+1" }
 
 - id: wri_deadline_extended
@@ -247,14 +247,14 @@
   rarity: uncommon
   hook: deadline
   text:
-    - "At 9 pm, the chairs announce that the {venue} deadline is extended by 48 hours. {project} was nearly done. Nearly."
+    - "At 9 pm, the chairs extend the {venue} deadline by 48 hours. {project} was nearly done, and now it doesn't have to be."
   choices:
     - label: "Use all 48 hours"
-      text: "You use all 48. The paper is better. You are not."
+      text: "You use all 48 hours. The paper gets better and you get worse."
       effects: { project.quality.S: "+5±2", project.quality.C: "+4±2", energy: "-12±3", sanity: "-5±2", health: "-3±1" }
       trait_add: deadline_junkie
     - label: "Polish for one day, then sleep"
-      text: "One day of fixes, one long night of sleep, and a submission with 20 hours to spare. Nobody in your lab believes you."
+      text: "After a day of fixes and a full night's sleep, you submit with 20 hours to spare. Nobody in your lab believes you."
       effects: { project.quality.C: "+3±1", energy: "-4±2" }
     - label: "Submit now and go to bed"
       text: "You submit at 9:15 pm and sleep for eleven hours. Everyone else uses all 48."
@@ -305,7 +305,7 @@
     - "Fifty minutes to go. {advisor} writes: \"New title idea. Hear me out.\" It has a colon and a pun."
   choices:
     - label: "Take it and fix every mention"
-      text: "The new title is catchier. You fix it in the PDF, the abstract and the form, then find it in a seventh place."
+      text: "The new title is catchier. You change it in six places, then find a seventh."
       effects: { project.quality.N: "+2±1", energy: "-3±1", sanity: "-2±1", advisor_rel: "+3±1" }
     - label: "\"Can we keep the current one?\""
       check: { stat: advisor_rel, vs: 45, spread: 20 }
@@ -325,12 +325,12 @@
   rarity: uncommon
   hook: deadline
   text:
-    - "11:58 pm. You click Submit. The {venue} submission system shows a spinning wheel, then \"503 Service Unavailable\"."
+    - "At 11:58 pm you click Submit. The {venue} submission system shows a spinning wheel, then \"503 Service Unavailable\"."
   choices:
     - label: "Refresh and submit again"
       check: { stat: energy, vs: 40, spread: 20 }
       success:
-        text: "12:00:41. It goes through anyway, because the server's clock was down too."
+        text: "It goes through at 12:00:41 and counts anyway, because the server's clock was down too."
         effects: { sanity: "-2±1" }
       failure:
         text: "It goes through at 12:03, with final_v2.pdf instead of final_v3.pdf. Your hands were shaking."
@@ -353,10 +353,10 @@
     - label: "Write honest, specific limitations"
       check: { stat: writing, vs: 45, spread: 20 }
       success:
-        text: "Small sample, one language, one site. Written down plainly, they make the paper more convincing, not less."
+        text: "You list them plainly: small sample, one language, one site. The paper is more convincing for it."
         effects: { project.quality.S: "+3±1", project.quality.C: "+2±1", energy: "-5±2" }
       failure:
-        text: "Honest, specific, and slightly unhinged. One sentence begins with \"Frankly,\". You'll fix the tone in the camera-ready."
+        text: "It's honest and slightly unhinged. One sentence starts with \"Frankly,\", which you'll fix in the camera-ready."
         effects: { project.quality.C: "-2±1", energy: "-5±2" }
     - label: "Paste the generic version"
       text: "\"Our method may not generalize to all settings.\" Reviewers have read that sentence four hundred times."
@@ -371,7 +371,7 @@
         effects: { project.quality.C: "+3±1", project.quality.S: "+2±1", energy: "+4±2" }
         tip: "How to Spend a Day"
       failure:
-        text: "You sleep through two alarms and write the section in 12 minutes. It shows."
+        text: "You sleep through two alarms and write the whole section in 12 minutes, mostly as bullet points."
         effects: { project.quality.C: "-3±1", sanity: "-3±1", energy: "+4±2" }
 
 - id: wri_acronym_taken
@@ -385,7 +385,7 @@
     - label: "Invent a new acronym, fast"
       check: { stat: writing, vs: 50, spread: 20 }
       success:
-        text: "Twenty minutes of backronyms later, you have a name that is short, unused, and almost spells a word."
+        text: "Twenty minutes of backronyms later, you have a name nobody has used. It almost spells a word."
         effects: { project.quality.N: "+2±1", sanity: "-1" }
       failure:
         text: "The best you can manage has a hyphen and the number 2 in it. It is unique, at least."
@@ -394,7 +394,7 @@
       text: "Somebody will check. A reviewer will write: \"Not to be confused with the four other methods of the same name.\""
       effects: { project.quality.N: "-2±1", sanity: "+1" }
     - label: "Drop it and say \"our method\""
-      text: "No acronym, no problem. The paper reads a little plainer and a little clearer."
+      text: "Without the acronym, the paper reads a little plainer and a little clearer."
       effects: { project.quality.C: "+1", project.quality.N: "-1", sanity: "+2±1" }
 
 # ===========================================================================
@@ -413,28 +413,28 @@
   when:
     flags_none: [anonymity_checklist]
   text:
-    - "Rereading the submitted PDF, you click the code link. It opens your personal GitHub page: your name, your photo, and a README thanking your advisor."
+    - "Rereading the submitted PDF, you click the code link. It opens your personal GitHub page, with your photo and a README thanking your advisor."
     - "An hour after submitting {paper}, you realize the footnote with the code link was never anonymized. It points straight to your GitHub account."
   choices:
     - label: "Take the repo down tonight"
-      text: "The link now leads to a 404. One reviewer will write \"code not available\", which is fair, and survivable."
+      text: "The link now leads to a 404. One reviewer will write \"code not available\", which is fair."
       effects: { paper.score: "-2±1", sanity: "-2±1" }
       flag_set: [anonymity_checklist]
     - label: "Scrub the repo and rename the account"
       check: { stat: coding, vs: 50, spread: 20 }
       success:
-        text: "New account name, clean history, a README that thanks nobody. The link now belongs to a stranger."
+        text: "You rename the account and wipe its history, down to a README that thanks nobody. The link now belongs to a stranger."
         effects: { energy: "-4±2", coding: "+1" }
         flag_set: [anonymity_checklist]
       failure:
-        text: "A search engine had already cached the old page. The program chairs find it before any reviewer does. Desk rejected."
+        text: "A search engine had already cached the old page, and the program chairs find it before any reviewer does. Desk rejected."
         effects: { paper.desk_reject: true, sanity: "-10±3" }
         achievement: desk_rejected
         flag_set: [anonymity_checklist]
     - label: "Email the program chairs"
       check: { stat: writing, vs: 35, spread: 20 }
       success:
-        text: "The chairs reply within a day: send an anonymous link and they'll pass it to the reviewers. No harm done."
+        text: "The chairs reply within a day: send an anonymous link, and they'll pass it on to the reviewers."
         effects: { sanity: "+2±1" }
         flag_set: [anonymity_checklist]
       failure:
@@ -458,9 +458,9 @@
         text: "Moved within a day, with a smiley face. The chairs see this every cycle."
         effects: { sanity: "+1" }
       failure:
-        text: "Reviewers were already assigned. The chairs are sorry. The reviewers will be sorry too."
+        text: "Reviewers were already assigned, and the chairs are sorry. The reviewers will be sorry too."
         effects: { paper.score: "-5±2", sanity: "-3±1" }
-    - label: "Leave it. Fresh eyes might help."
+    - label: "Leave it there for fresh eyes"
       check: { stat: knowledge, vs: 60, spread: 20 }
       success:
         text: "The out-of-area reviewers find the paper refreshing. One calls it \"a welcome change of pace\"."
@@ -493,7 +493,7 @@
       text: "The chairs fix it eventually. The lunch, slightly awkward, fixes the friendship right away."
       effects: { labmates_rel: "+3±1", energy: "-3±1", sanity: "-2±1" }
     - label: "Fix the preprint and move on"
-      text: "The preprint is right. The official version is wrong forever. {labmate} says it's fine, twice."
+      text: "The preprint is right, and the official version is wrong forever. {labmate} says it's fine, twice."
       effects: { labmates_rel: "-3±1", sanity: "+1" }
 
 - id: wri_camera_ready_typo
@@ -540,18 +540,18 @@
     project: { stage: consolidation }
   text:
     - "Figure 1 for {project} is on its third day. It has been a pipeline diagram, a comic strip, and a pipeline diagram again."
-    - "You've spent three days on Figure 1. It's a box, an arrow, and another box, and it's still not right."
+    - "You've spent three days on Figure 1. It's two boxes and an arrow, and it's still not right."
   choices:
     - label: "Give it one more day"
       text: "On day four it clicks: one picture that explains the whole paper. Reviewers will look at it before they read a word."
       effects: { days: -1, project.quality.C: "+5±2", project.quality.N: "+2±1", sanity: "-2±1" }
     - label: "Ship the version from day one"
-      text: "It's fine. Nobody has ever rejected a paper over a fine Figure 1. Probably."
+      text: "Nobody has ever rejected a paper over a fine Figure 1, probably."
       effects: { project.quality.C: "-1", project.progress: "+8±3", sanity: "+3±1" }
     - label: "Ask {labmate} for a design eye"
       check: { stat: labmates_rel, vs: 50, spread: 20 }
       success:
-        text: "{labmate} moves one arrow, deletes two boxes, and the whole figure suddenly makes sense."
+        text: "{labmate} moves one arrow and deletes two boxes, and suddenly the figure makes sense."
         effects: { project.quality.C: "+6±2", labmates_rel: "+1" }
       failure:
         text: "{labmate} suggests making it 3D. You thank them and lose another afternoon talking them out of it."
@@ -564,7 +564,7 @@
   when:
     project: { stage: consolidation }
   text:
-    - "You open intro_v7.tex. Then, out of curiosity, intro_v1.tex. Version one was better."
+    - "You open intro_v7.tex, then, out of curiosity, intro_v1.tex. Version one was better."
     - "The seventh rewrite of the introduction to {project} is done. You reread the first one, and it was better."
   choices:
     - label: "Go back to version one"
@@ -599,7 +599,7 @@
     - "The submission site wants a title and abstract for {project} by Friday, a week before the full paper. You have a title."
   choices:
     - label: "Submit a placeholder abstract"
-      text: "\"We study an important problem and find interesting results.\" Everyone does it. Deadline-night you can rewrite it."
+      text: "\"We study an important problem and find interesting results.\" Everyone does this, and you can rewrite it on deadline night."
       effects: { sanity: "+2±1", project.quality.C: "-2±1" }
     - label: "Write the real abstract now"
       text: "Two hundred words take a whole day and force you to say what's actually new. Now you know what the paper is about."
@@ -608,7 +608,7 @@
     - label: "Write the abstract you hope is true"
       check: { stat: taste, vs: 50, spread: 20 }
       success:
-        text: "The results come in and match it almost word for word. Your hunch was a plan all along."
+        text: "The results come in and match it almost word for word. You decide you planned it that way."
         effects: { project.quality.N: "+3±1", sanity: "+2±1" }
       failure:
         text: "The results come in and disagree with paragraph two. You rewrite the abstract, then the paper around it."
@@ -629,7 +629,7 @@
     - label: "Cut it to half a page"
       check: { stat: writing, vs: 50, spread: 20 }
       success:
-        text: "Three themes, one paragraph each, and a last sentence on what nobody has done yet. The gap is suddenly obvious."
+        text: "You sort it into three themes, one paragraph each, and end on what nobody has done yet. Now the gap is obvious."
         effects: { project.quality.C: "+4±1", project.quality.N: "+1", energy: "-3±1" }
         tip: "Stakeholders and Gap"
       failure:
@@ -639,7 +639,7 @@
       text: "Every reviewer will find their own paper in there. The method now starts on page five."
       effects: { project.quality.C: "-3±1", knowledge: "+1", sanity: "+2±1" }
     - label: "Turn it into a comparison table"
-      text: "Twelve prior papers, five columns, and yours as the only row with every checkmark. It takes a day."
+      text: "The table takes a day. Of thirteen rows, yours is the only one with every checkmark."
       effects: { days: -1, energy: "-2±1", project.quality.C: "+3±1", project.quality.N: "+2±1" }
 
 - id: wri_anywhere_on_earth
@@ -651,13 +651,13 @@
     - "At 11:40 pm, {labmate} reminds you that the {venue} deadline is Anywhere on Earth, which you had converted wrong. You have four more hours than you thought."
   choices:
     - label: "Use all four hours"
-      text: "A fixed table, a sharper introduction, and a 4 am sunrise you didn't ask for."
+      text: "You fix a table and sharpen the introduction. Then you watch a 4 am sunrise you didn't ask for."
       effects: { project.quality.S: "+2±1", project.quality.C: "+3±1", energy: "-6±2", health: "-2±1" }
     - label: "Submit now and go to bed"
       text: "You submit at 11:45 pm, as planned, and sleep while the rest of your lab finds new typos."
       effects: { energy: "+4±1", sanity: "+3±1" }
     - label: "Fix Figure 1, then stop"
-      text: "One hour on the figure everyone looks at first. Then you submit, and stop while you're ahead."
+      text: "You spend one hour on the figure everyone looks at first, then submit while you're ahead."
       effects: { project.quality.C: "+2±1", energy: "-2±1", sanity: "+1" }
 
 - id: wri_checklist_question
@@ -680,7 +680,7 @@
         text: "Half the logs were deleted to save disk space. You report an estimate, with a footnote that apologizes."
         effects: { energy: "-3±1", sanity: "-2±1" }
     - label: "Answer \"No\" and explain why"
-      text: "\"No, but here is roughly what it would be.\" An honest no costs one paragraph and fools nobody, which is the point."
+      text: "\"No, but here is roughly what it would be.\" It costs one paragraph, and nobody can say you hid anything."
       effects: { project.quality.S: "+1", sanity: "-1" }
     - label: "Answer \"N/A\""
       text: "It is applicable. You both know it is applicable. You click Submit anyway."
