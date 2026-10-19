@@ -181,7 +181,12 @@ All the remaining weekdays go to the focus. You get 5 fewer when you're sick, an
 
 ### 4.2 Focus choices
 A few are always there:
-- **Work on "<project>"**, for each active project, unless it's waiting (IRB, recruiting, annotation) or on hold. A finished paper has no work choice (Polish was removed, 2026-10-17: it changed nothing); it waits for its deadline card.
+- **Work on "<project>"**, for each active project, unless it's waiting (IRB, recruiting, annotation) or on hold.
+- **Refine "<paper>"** (Arthur, 2026-10-18), for a finished paper waiting for its deadline. It replaces the old Polish choice, which was removed on 2026-10-17 because it changed nothing.
+  - Each work day adds `progress.refine_per_day` (1.1) to the paper's weakest part (novelty, soundness or clarity) and a quarter of that to clarity.
+  - Each full turn of refining is worth `refine_decay` (0.6) of the one before: about +2 quality, then +1.2, then +0.7. The count restarts when the paper goes out.
+  - The tile shows Quality ↑↑ for the first pass and ↑ after. The result card names the part that got stronger, and the tracker reads "Refined ✨".
+  - Measured: a refined paper is accepted about 8 points more often (top tier 25% vs 17%, mid tier 55% vs 41%). The turns come out of other projects, so total output and Arthur's careful-player limits hold.
 - **Read and learn:** moves a project in **Related work** a lot (1.3× working on it, versus 0.8× for "Work on" in that phase) and every other project a little. Sometimes an idea.
 - **Recharge:** about +28 Energy, −18 Stress and **+7 Health** (it was +4, 2026-10-17: Health could only go down) for the turn, on top of the weekends, however busy the turn is. It's the one rest choice; "Get healthy" was dropped because it duplicated it.
 
@@ -902,7 +907,10 @@ Arthur: the full-height layout was too tall, had too much text, and felt like a 
   - **Decisions on your papers** pop up before you plan the turn (a rejection changes what you'd plan), not after the focus.
   - **Learning weekend picks** (reading group, coffee with the visiting speaker, a nearby workshop) give the project you're working on (or your busiest one) a progress nudge.
   - **The fellowship win** is its own pop-up and unlocks the Fellow achievement right away.
-  - **Rebuttal previews:** under each reviewer, one line says what the chosen reply tends to do (its trade-off and cost), not the result: whether the reviewer is right stays the player's call.
+  - **Rebuttal previews (Arthur, 2026-10-18):** the score dots show what the chosen reply could do, with no text. A dashed green dot is a point the reply could gain, and a striped dot is a point it could lose.
+    - `replyOutlook` in reviews.js plays each reply 200 times. It uses each concern's prior chance of being fair (`validP`), not the hidden answer, so whether the reviewer is right stays the player's call.
+    - "Could gain" is the 90th percentile and "could lose" the 10th. It uses its own seeded dice, so the game's random numbers don't move.
+    - The real rebuttal and the preview share `replyEffect`.
 - **Cut:** How to play, the Log, the advisor matching screen, committee answer pickers, and most explanatory text. Descriptions are a few words ("Idea · likely · ACL 4w").
 
 ### 14.3 Event card

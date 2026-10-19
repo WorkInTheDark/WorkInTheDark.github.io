@@ -22,6 +22,7 @@ function weeksShort(turns) {
 function actionIcon(G, a) {
   if (a.kind === "opportunity") return "\u{1F39F}️";
   if (a.id.indexOf("crunch:") === 0) return "\u{1F525}";
+  if (a.id.indexOf("refine:") === 0) return "✨";
   if (a.id.indexOf("p:") === 0 || a.id.indexOf("intern_weekend:") === 0) {
     const p = G.state.projects.find(function (x) { return x.id === a.id.slice(a.id.indexOf(":") + 1); });
     if (p && p.ready) return "✨";
@@ -171,7 +172,8 @@ function trackerHtml(G, p, locked, moved) {
   }).join("");
   const due = p.target && p.target.turn !== null && p.target.turn !== undefined ? (p.target.rrPaper ? "R&R" : deadlineLabel(G, p)) + " " + weeksShort(p.target.turn - s.turn) : "";
   const tries = p.revise && p.submissions ? " · try " + (p.submissions + 1) : "";
-  const state = (info.ready ? "Ready ✨" : info.wait ? info.label + " ⏳" : info.label) + tries;
+  const ready = p.refineTurns ? "Refined ✨" + (p.refineTurns > 1 ? "×" + p.refineTurns : "") : "Ready ✨";
+  const state = (info.ready ? ready : info.wait ? info.label + " ⏳" : info.label) + tries;
   return '<button class="ps-tracker' + (info.ready ? " ps-tracker-ready" : "") + (moved ? " ps-tracker-moved" : "") + '" data-action="inspect" data-id="' + esc(p.id) + '"' + (locked ? " disabled" : "") +
     ' title="' + esc(p.title + " — " + (info.ready ? "ready to submit" : info.label + ", " + info.hint)) + '">' +
     '<span class="ps-tracker-name"><span aria-hidden="true">' + KIND_ICON[p.type] + "</span> " + esc(p.short) + "</span>" +

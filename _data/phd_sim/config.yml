@@ -80,6 +80,8 @@ progress:
   revise_chance: 0.6     # chance a turn of work finishes the revision
   step_down_after: 2     # after this many rejections, a paper re-aims at the next mid-tier deadline (within half a year)
   resubmit_min_turns: 4  # a rejected paper's next deadline is at least 8 weeks out (time to revise)
+  refine_per_day: 1.1     # a ready paper you keep working on: its weakest part gains this much per work day (Arthur 2026-10-18)
+  refine_decay: 0.6       # each full turn of refining is worth this much of the one before
 
 quality:
   base: 22               # day quality = base + per_skill * skill

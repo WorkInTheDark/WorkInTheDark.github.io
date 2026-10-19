@@ -73,35 +73,43 @@ export function scoreDots(score) {
   return '<span class="ps-score-dots" role="img" aria-label="' + score + ' out of 5">' + d + "</span>";
 }
 
-const SEVERITY = { fatal: 4, critical: 3, major: 2, minor: 1 };
-// What each reply tends to do: the trade-off, not the result (whether the reviewer is right is
-// the judgment call).
-const REPLY_PREVIEW = {
-  clarify: "Works if they misread. Low risk.",
-  concede: "Safe for small points. You'll owe the fixes later.",
-  experiment: "Strong for doubts about the results. Costs 2 days next turn and Energy.",
-  pushback: "Good if they're wrong but open-minded. Risky.",
-  passive: "Satisfying to write. Usually backfires.",
-  flag: "Asks the area chair to discount this review."
-};
+// A review score with where the chosen reply could take it: dashed dots for points it could
+// gain if the reply goes well, faded dots for points it could lose if it goes badly.
+function outlookDots(score, o) {
+  if (!o) return scoreDots(score);
+  const up = Math.max(score, o.up), down = Math.min(score, o.down);
+  const cls = score >= 4 ? "ps-sd-good" : score >= 3 ? "ps-sd-mid" : "ps-sd-bad";
+  let d = "";
+  for (let i = 1; i <= 5; i++) {
+    d += i <= down ? '<i class="' + cls + '"></i>' : i <= score ? '<i class="' + cls + ' ps-sd-risk"></i>' : i <= up ? '<i class="ps-sd-gain"></i>' : "<i></i>";
+  }
+  const say = score + " out of 5" + (up > score ? ", could rise to " + up : "") + (down < score ? ", could fall to " + down : "") +
+    (o.half ? ", counts half if the chair agrees" : "");
+  return '<span class="ps-score-dots ps-outlook' + (o.half ? " ps-sd-half" : "") + '" role="img" aria-label="' + say + '" title="' + say + '">' + d + "</span>";
+}
 
-// One row per reviewer: score, their main concern, and your reply.
+const SEVERITY = { fatal: 4, critical: 3, major: 2, minor: 1 };
+
+// One row per reviewer: score, their main concern, and your reply. The dots show what the reply
+// could do to the score.
 export function rebuttalHtml(p, sel) {
   const exp = p.reviews.filter(function (r, i) { return sel.responses[i] === "experiment"; }).length * 2;
   return '<div class="ps-kicker">Author response · ' + esc(p.venue) + '</div><h3 id="ps-dialog-title">' + esc(p.title) + "</h3>" +
     '<p class="ps-text">Pick a reply for each reviewer.</p>' +
+    '<p class="ps-outlook-key"><span class="ps-score-dots ps-outlook" aria-hidden="true"><i class="ps-sd-gain"></i></span> could gain' +
+    '<span class="ps-score-dots ps-outlook" aria-hidden="true"><i class="ps-sd-mid ps-sd-risk"></i></span> could lose</p>' +
     p.reviews.map(function (r, ri) {
       const cur = sel.responses[ri] || "clarify";
       const opts = p.options.filter(function (o) { return !o.llmOnly || r.llm; });
       const main = r.concerns.slice().sort(function (a, b) { return (SEVERITY[b.severity] || 0) - (SEVERITY[a.severity] || 0); })[0];
-      return '<div class="ps-review"><span class="ps-review-who"><b>R' + r.n + "</b>" + scoreDots(r.score) + "</span>" +
+      return '<div class="ps-review"><span class="ps-review-who"><b>R' + r.n + "</b>" + outlookDots(r.score, p.outlook && p.outlook[ri] && p.outlook[ri][cur]) + "</span>" +
         '<span class="ps-review-concern" title="' + esc(r.concerns.map(function (c) { return c.text; }).join(" ")) + '">' + esc(main ? main.text : "") +
         (r.concerns.length > 1 ? ' <span class="ps-muted">+' + (r.concerns.length - 1) + "</span>" : "") + "</span>" +
         '<select class="ps-select" data-action="respond" data-i="' + ri + '" aria-label="Reply to reviewer ' + r.n + '">' +
         opts.map(function (o) { return '<option value="' + o.id + '"' + (cur === o.id ? " selected" : "") + ">" + esc(o.label) + "</option>"; }).join("") +
-        '</select><span class="ps-review-preview">\u2192 ' + esc(REPLY_PREVIEW[cur] || "") + "</span></div>";
+        "</select></div>";
     }).join("") +
-    (exp ? '<p class="ps-meta">New experiments cost ' + exp + " days next turn.</p>" : "") +
+    (exp ? '<p class="ps-meta">New experiments cost ' + exp + " days next turn and some Energy.</p>" : "") +
     '<div class="ps-foot"><button class="ps-btn ps-btn-primary" data-action="submit-rebuttal">Send the response</button></div>';
 }
 

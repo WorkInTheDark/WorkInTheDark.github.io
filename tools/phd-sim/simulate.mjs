@@ -23,6 +23,7 @@ function pickAction(p, policy, rng, stats) {
   const stayOn = policy === "scholar" && p.turn < 4.5 * TURNS;
   const notYet = policy === "scholar" && p.turn < 4 * TURNS;
   const A = p.actions.filter((a) => !(stayOn && a.id === "defense") && !(notYet && a.id === "job_market"));
+  const careful = policy === "scholar";
   if (policy === "scholar") policy = "balanced";
   // Bots prepare for quals on about half of the turns it's offered.
   const skipQuals = rng.chance(0.5);
@@ -31,14 +32,17 @@ function pickAction(p, policy, rng, stats) {
   const sanityOpp = by("opportunity").find((a) => (a.arrows || []).some((x) => x.stat === "sanity" && x.dir === "up"));
   const boostOpp = by("opportunity").find((a) => (a.arrows || []).some((x) => x.stat === "progress"));
   const crunch = A.find((a) => a.id.indexOf("crunch:") === 0);
-  const projects = by("project");
+  // "Refine" tiles polish a finished paper; bots refine only when no other project needs the time.
+  const refine = by("project").filter((a) => a.id.indexOf("refine:") === 0);
+  const projects = by("project").filter((a) => a.id.indexOf("refine:") !== 0);
   const litRead = A.find((a) => a.id === "read" && (a.arrows || []).some((x) => x.stat === "progress" && x.strength > 1));
   const care = () => (has("recharge") ? "recharge" : A[0].id);
   if (policy === "random") return rng.pick(A).id;
   if (policy === "slacker") {
     if (by("opportunity").length && rng.chance(0.8)) return rng.pick(by("opportunity")).id;
     if (by("milestone").length && rng.chance(0.25)) return by("milestone")[0].id;
-    if (rng.chance(0.45) || !projects.length) return has("recharge") ? "recharge" : A[0].id;
+    if (rng.chance(0.45) || !(projects.length + refine.length)) return has("recharge") ? "recharge" : A[0].id;
+    if (!projects.length) return rng.pick(refine).id;
     return rng.pick(projects).id;
   }
   if (policy === "workaholic") {
@@ -47,6 +51,7 @@ function pickAction(p, policy, rng, stats) {
     if (by("milestone").length) return by("milestone")[0].id;
     if (boostOpp) return boostOpp.id;
     if (projects.length) return projects[Math.floor(rng.next() * Math.min(2, projects.length))].id;
+    if (refine.length) return refine[0].id;
     return "read";
   }
   if (policy === "pusher" || policy === "swinger") {
@@ -56,7 +61,7 @@ function pickAction(p, policy, rng, stats) {
     if (policy === "swinger" && rng.chance(0.45)) return rng.pick(A.filter((a) => a.kind === "core" || a.kind === "opportunity")).id;
     if (litRead) return litRead.id;
     if (boostOpp) return boostOpp.id;
-    return projects.length ? projects[0].id : has("read") ? "read" : A[0].id;
+    return projects.length ? projects[0].id : refine.length ? refine[0].id : has("read") ? "read" : A[0].id;
   }
   // A reasonable player: research most weeks, reacting to the bars and to what comes up.
   if (stats.energy < 35) return has("recharge") ? "recharge" : A[0].id;
@@ -66,6 +71,9 @@ function pickAction(p, policy, rng, stats) {
   if (boostOpp) return boostOpp.id;
   if (sanityOpp && stats.sanity < 65 && rng.chance(0.6)) return sanityOpp.id;
   if (crunch && stats.energy > 55 && rng.chance(0.5)) return crunch.id;
+  // Before a close deadline, a finished paper gets one more pass (careful players do this more often).
+  const lastPass = refine.find((a) => / (now|2w|4w)$/.test(a.desc) && a.arrows.some((x) => x.stat === "quality" && x.strength > 1));
+  if (lastPass && rng.chance(careful ? 0.7 : 0.5)) return lastPass.id;
   if (litRead && rng.chance(0.8)) return litRead.id;
   if (rng.chance(0.06) && has("read")) return "read";
   if (projects.length) {
@@ -73,6 +81,7 @@ function pickAction(p, policy, rng, stats) {
     const soon = projects.slice().sort((x, y) => dl(x) - dl(y));
     return (rng.chance(0.7) ? soon[0] : rng.pick(projects)).id;
   }
+  if (refine.length) return refine[0].id;
   return has("read") ? "read" : A[0].id;
 }
 
@@ -106,6 +115,7 @@ const overlaps = [];
 const errors = [];
 const promptTypes = {};
 const perTurn = { turns: 0, offered: 0, withOpp: 0, kinds: {} };
+const refinedTiers = {};
 const t0 = Date.now();
 for (let r = 0; r < RUNS; r++) {
   const policy = POLICY === "mixed" ? POLICIES[r % POLICIES.length] : POLICY;
@@ -139,8 +149,8 @@ for (let r = 0; r < RUNS; r++) {
         const opps = p.actions.filter((a) => a.kind === "opportunity").length;
         const choice = pickAction(p, policy, rng, game.state.stats);
         perTurn.turns++; perTurn.offered += opps; if (opps) perTurn.withOpp++;
-        const kind = (p.actions.find((a) => a.id === choice) || {}).kind || "?";
-        if (policy === "balanced") perTurn.kinds[kind] = (perTurn.kinds[kind] || 0) + 1;
+        const kind = choice.indexOf("refine:") === 0 ? "refine" : (p.actions.find((a) => a.id === choice) || {}).kind || "?";
+        if (policy === (POLICY === "mixed" ? "balanced" : POLICY)) perTurn.kinds[kind] = (perTurn.kinds[kind] || 0) + 1;
         // Bots take the weekend pick when one is offered (it used to be a pop-up they always answered).
         game.submitPlan({ action: choice, side: p.side && p.side.length ? p.side[0].id : null });
         continue;
@@ -174,6 +184,9 @@ for (let r = 0; r < RUNS; r++) {
     const k = p.tier === "findings" ? "top" : p.tier;
     tiers[k] = tiers[k] || { sub: 0, acc: 0 };
     if (p.status === "accepted" || p.status === "rejected") { tiers[k].sub++; if (p.status === "accepted") tiers[k].acc++; }
+    const kr = k + (p.refined ? " refined" : " unrefined");
+    refinedTiers[kr] = refinedTiers[kr] || { sub: 0, acc: 0 };
+    if (p.status === "accepted" || p.status === "rejected") { refinedTiers[kr].sub++; if (p.status === "accepted") refinedTiers[kr].acc++; }
   });
   results.push({
     policy, ending: s.ending.id, graduated: s.ending.graduated, years: s.turn / TURNS, pubs: firstAuthorPubs(game),
@@ -252,13 +265,14 @@ console.log("Quals: " + count("quals") + " | Proposal: " + count("proposal"));
   console.log("Offers, " + line(POLICY === "mixed" ? "balanced" : POLICY, results.filter((x) => x.policy === (POLICY === "mixed" ? "balanced" : POLICY))));
   if (POLICY === "mixed") console.log("Offers, " + line("all bots", results));
 }
+console.log("Acceptance with and without a refine pass: " + ["top", "mid"].map((k) => k + " " + pct(refinedTiers[k + " refined"].acc, refinedTiers[k + " refined"].sub) + " refined (n=" + refinedTiers[k + " refined"].sub + ") vs " + pct(refinedTiers[k + " unrefined"].acc, refinedTiers[k + " unrefined"].sub)).join(", "));
 const agg = {};
 all.forEach((x) => Object.entries(x.tiers).forEach(([k, v]) => { agg[k] = agg[k] || { sub: 0, acc: 0 }; agg[k].sub += v.sub; agg[k].acc += v.acc; }));
 console.log("Acceptance by tier (first-author, decided): " + Object.entries(agg).map(([k, v]) => k + " " + pct(v.acc, v.sub) + " of " + v.sub).join(", "));
 console.log("Years (all runs): " + [1, 2, 3, 4, 5, 6, 7, 8, 9].map((y) => y + ":" + all.filter((x) => Math.ceil(x.years) === y).length).join(" "));
 console.log("Prompts by type (per turn): " + Object.entries(promptTypes).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + " " + (v / Math.max(1, perTurn.turns)).toFixed(3)).join(", "));
 console.log("Only-this-turn options: " + (perTurn.withOpp / Math.max(1, perTurn.turns) * 100).toFixed(0) + "% of turns offer at least one, avg " + (perTurn.offered / Math.max(1, perTurn.turns)).toFixed(2) + " per turn");
-console.log("Balanced bot's choices: " + Object.entries(perTurn.kinds).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + " " + v).join(", "));
+console.log((POLICY === "mixed" ? "balanced" : POLICY) + " bot's choices: " + Object.entries(perTurn.kinds).sort((a, b) => b[1] - a[1]).map(([k, v]) => k + " " + v).join(", "));
 console.log("Random-event overlap between consecutive runs: median " + pct(median(overlaps) * 100, 100) + ", unique random events per run avg " + avg(all.map((x) => x.uniqueRandom)));
 const pool = D.events.filter((e) => e.trigger !== "scheduled").length;
 console.log("Random pool size: " + pool + ", seen at least once across all runs: " + Object.keys(meta.seenRuns).length);

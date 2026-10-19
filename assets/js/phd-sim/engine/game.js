@@ -264,8 +264,14 @@ export class Game {
         if (st.kind === "wait" || p.pause > 0) return;
         const dl = ttd === 0 ? " \u00b7 " + deadlineLabel(self, p) + " now" :
           ttd !== null && ttd > 0 && ttd <= 3 ? " \u00b7 " + deadlineLabel(self, p) + " " + ttd * WEEKS_PER_TURN + "w" : "";
-        // A finished paper just waits for its deadline card; there's nothing left to do on it.
-        if (info.ready) return;
+        // A finished paper waits for its deadline card, but you can keep refining it. Each pass helps
+        // the reviews a little less than the one before.
+        if (info.ready) {
+          out.push({ id: "refine:" + p.id, kind: "project", label: "Refine \u201c" + p.short + "\u201d",
+            desc: "Ready" + (p.target && ttd !== null && ttd >= 0 ? " \u00b7 " + deadlineLabel(self, p) + " " + (ttd ? ttd * WEEKS_PER_TURN + "w" : "now") : ""),
+            arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "quality", dir: "up", strength: (p.refineTurns || 0) < 1 ? 2 : 1 }] });
+          return;
+        }
         out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",
           desc: info.label + dl + (st.id === "lit" ? " \u00b7 reading is faster" : ""),
           arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: st.id === "lit" ? 1 : 2 }] });
@@ -520,6 +526,7 @@ export class Game {
       let effD = eff;
       if (action.indexOf("p:") === 0) dayKey = action;
       else if (action.indexOf("crunch:") === 0) dayKey = "p:" + action.slice(7);
+      else if (action.indexOf("refine:") === 0) dayKey = "p:" + action.slice(7);
       else if (action === "quals_prep") dayKey = "quals_study";
       else if (ACTION_EXTRAS.indexOf(action) >= 0) dayKey = action === "apply_fellowship" || action === "proposal" || action === "defense" ? "writing_day" : "career";
       else if (action === "read") dayKey = "read";
@@ -653,7 +660,7 @@ export class Game {
     const lines = s.log.filter(function (e) { return e.turn === s.turn && e.phase === "resolve" && e.kind !== "flavor" && e.kind !== "tip"; })
       .map(function (e) { return e.text; });
     const action = (s.plan && s.plan.action) || "";
-    const m = /^(?:p|crunch|intern_weekend):(.+)$/.exec(action);
+    const m = /^(?:p|crunch|refine|intern_weekend):(.+)$/.exec(action);
     const p = m && s.projects.find(function (x) { return x.id === m[1]; });
     if (p) {
       // The card's title already names the project.

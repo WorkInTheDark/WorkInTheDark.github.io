@@ -111,6 +111,7 @@ export function rollStages(G, log) {
     const st = currentStage(G, p);
     const effort = p.turnEffort || 0;
     p.turnEffort = 0;
+    if (p.ready && p.refineGain) { refineLog(G, p, log); return; }
     if (effort <= 0 || st.kind === "wait" || p.ready) return;
     p.lastWorked = G.state.turn;
     const c = turnChance(G, p, effort);
@@ -124,6 +125,20 @@ export function rollStages(G, log) {
       advanceStage(G, p, log);
     }
   });
+}
+
+// What a turn of refining did, in words: the part that got the most work.
+const PART_NAMES = { N: "framing", S: "evidence", C: "writing" };
+function refineLog(G, p, log) {
+  const gain = p.refineGain;
+  p.refineGain = null;
+  p.refineTurns = (p.refineTurns || 0) + 1;
+  p.lastWorked = G.state.turn;
+  const top = Object.keys(gain).sort(function (a, b) { return gain[b] - gain[a]; })[0];
+  const total = Object.keys(gain).reduce(function (t, k) { return t + gain[k]; }, 0);
+  if (!log) return;
+  if (total < 1) log(p.short + ": you tidy a few things, but the paper was already about as good as you can make it.");
+  else log(p.short + ": the " + PART_NAMES[top] + " is stronger now" + (p.refineTurns > 1 ? ", though each pass finds less to fix." : ", so it should review better."));
 }
 
 // For display: where a project stands, in words.
@@ -372,7 +387,18 @@ export function workDay(G, p, eff, log, opts) {
   if (st.stats && hasTrait(G, "stats_nerd")) dayQ += 5;
   if ((p.type === "study" || p.type === "system") && hasTrait(G, "career_switcher")) dayQ += 4;
   if (st.comp === "C" && s.advisor && s.advisor.archetype === "kind_funded") dayQ *= 1.1;
-  if (p.revise) {
+  if (p.ready) {
+    // Refining a finished paper shores up its weakest part, a little less with every turn spent on it.
+    const full = cfg.progress.full_turn || 6.5;
+    const k = Math.pow(cfg.progress.refine_decay || 0.6, (p.refineDays || 0) / full);
+    const per = (cfg.progress.refine_per_day || 0) * k * eff;
+    const weak = weakestComp(components(G, p));
+    p.bonus[weak] += per;
+    p.bonus.C += per * 0.25;
+    p.refineDays = (p.refineDays || 0) + eff;
+    p.refineGain = p.refineGain || {};
+    p.refineGain[weak] = (p.refineGain[weak] || 0) + per;
+  } else if (p.revise) {
     // Revising addresses the weakest components.
     const comps = components(G, p);
     const weak = weakestComp(comps);

@@ -7,8 +7,8 @@ import { dirname, join } from "node:path";
 import { parseValue, compare } from "../../../assets/js/phd-sim/engine/util.js";
 import { Rng } from "../../../assets/js/phd-sim/engine/rng.js";
 import { prepareData, newRun, rollTraits, Game } from "../../../assets/js/phd-sim/engine/index.js";
-import { activeProjects, rollStages, currentStage, stageChance, fieldOf, autoTarget, venuesFor, PROJECT_TYPES } from "../../../assets/js/phd-sim/engine/projects.js";
-import { resolveRebuttal } from "../../../assets/js/phd-sim/engine/reviews.js";
+import { activeProjects, rollStages, currentStage, stageChance, fieldOf, autoTarget, venuesFor, PROJECT_TYPES, workDay, components, qualityFor } from "../../../assets/js/phd-sim/engine/projects.js";
+import { resolveRebuttal, replyOutlook } from "../../../assets/js/phd-sim/engine/reviews.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const D = prepareData(JSON.parse(readFileSync(join(here, "..", "out", "data.json"), "utf8")));
@@ -240,6 +240,40 @@ test("the rebuttal takes one response per reviewer and defaults to clarifying", 
   assert.ok(paper.reviews[2].flagged !== undefined, "the LLM-looking review can be flagged");
   const res2 = resolveRebuttal(g, { promises: 0, reviews: [{ raw: 50, score: 3, openness: 1, llm: false, concerns: [{ key: "x", valid: false, severity: "minor", comp: "C" }] }] }, { responses: { 0: "flag" } });
   assert.ok(!/area chair/.test(res2.reviews[0].lines.join(" ")), "flagging a normal review falls back to clarifying");
+});
+
+test("a ready paper can be refined, and each pass helps less than the one before", () => {
+  const g = gameWithProject("refine-1");
+  const p = activeProjects(g)[0];
+  p.type = "empirical"; p.field = "nlp"; p.stageIdx = PROJECT_TYPES.empirical.stages.length - 1;
+  p.ready = true; p.revise = false; p.pause = 0;
+  const tile = g.actionList().find((a) => a.id === "refine:" + p.id);
+  assert.ok(tile, "a finished paper offers a Refine tile");
+  assert.ok(!g.actionList().some((a) => a.id === "p:" + p.id), "and no plain Work tile");
+  const Q = () => qualityFor(g, components(g, p), "arr");
+  const q = [Q()];
+  for (let t = 0; t < 3; t++) { for (let d = 0; d < 7; d++) workDay(g, p, 0.9, null); rollStages(g, null); q.push(Q()); }
+  assert.ok(q[1] > q[0] + 1, "the first pass makes a real difference");
+  assert.ok(q[2] - q[1] < q[1] - q[0] && q[3] - q[2] < q[2] - q[1], "later passes help less");
+  assert.equal(p.refineTurns, 3);
+  assert.ok(p.ready, "refining never un-finishes the paper");
+});
+
+test("the rebuttal preview shows where each reply could take a score, without touching the game's dice", () => {
+  const g = gameWithProject("outlook-1");
+  const paper = { id: "x9", reviews: [
+    { raw: 54, score: 2, openness: 1, silent: false, llm: true, concerns: [{ key: "a", validP: 0.3, severity: "minor", comp: "C" }, { key: "b", validP: 0.3, severity: "major", comp: "S" }] },
+    { raw: 54, score: 2, openness: 0, silent: true, llm: false, concerns: [{ key: "c", validP: 0.5, severity: "minor", comp: "N" }] }
+  ] };
+  const before = g.rng.state();
+  const o = replyOutlook(g, paper);
+  assert.deepEqual(g.rng.state(), before, "the preview has its own dice");
+  assert.ok(o[0].clarify.up >= 3, "clarifying a likely misread could raise the score");
+  assert.ok(o[0].passive.down < 2, "a passive-aggressive reply could lower it");
+  assert.ok(o[0].flag && o[0].flag.half, "an LLM-looking review can be flagged");
+  assert.ok(!o[1].flag, "a normal review can't");
+  assert.equal(o[1].clarify.up, 2, "a reviewer who won't read the response doesn't move");
+  assert.deepEqual(replyOutlook(g, paper), o, "the same paper gives the same preview");
 });
 
 test("the same seed and the same answers give the same PhD", () => {

@@ -6,6 +6,7 @@ import { hasTrait } from "./derived.js";
 import { span } from "./state.js";
 import { unlock } from "./achievements.js";
 import { spendDays } from "./effects.js";
+import { Rng } from "./rng.js";
 
 // One response per reviewer, covering all of their concerns. Clarify is the default.
 export const RESPONSES = [
@@ -58,7 +59,8 @@ export function makePaper(G, p, opts) {
     breakout: 1,
     bonusCites: 0,
     scoreBonus: 0,
-    promises: 0
+    promises: 0,
+    refined: p.refineTurns || 0
   };
   // One citation stream per project: earlier versions of this work hand their citations on.
   s.papers.forEach(function (old) {
@@ -76,6 +78,9 @@ export function makePaper(G, p, opts) {
   p.revise = false;
   p.submitting = false;
   p.fixedComp = null;
+  // A new version of the paper: refining it again starts fresh.
+  p.refineDays = 0;
+  p.refineTurns = 0;
   s.telemetry.submissions++;
   if (p.submissions > 1) s.telemetry.resubmissions++;
   return paper;
@@ -118,6 +123,7 @@ export function generateReviews(G, paper) {
         comp: def.component,
         severity: def.severity || "minor",
         valid: G.rng.chance(validP),
+        validP: validP,
         pre: !!(paper.fixedComp && def.component === paper.fixedComp)
       });
     }
@@ -159,45 +165,80 @@ export function rebuttalPrompt(G, paper) {
         concerns: r.concerns.map(function (c) { return { key: c.key, text: c.text, severity: c.severity, comp: c.comp, pre: c.pre }; })
       };
     }),
+    outlook: replyOutlook(G, paper),
     options: RESPONSES
   };
 }
 
-function respond(G, paper, r, c, resp) {
-  const st = G.state.stats;
-  if (c.pre) {
-    unlock(G, "saw_it_coming");
-    return { d: 8, line: "You'd already fixed this before submitting. The reply writes itself." };
-  }
+// One reply to one concern: how far it moves the reviewer (before their openness) and what they say.
+// `valid` is whether the concern is fair. The real rebuttal and the preview dots both use this.
+function replyEffect(rng, st, c, resp, valid) {
+  if (c.pre) return { d: 8, line: "You'd already fixed this before submitting. The reply writes itself.", pre: true };
   switch (resp) {
     case "clarify":
-      if (!c.valid) {
-        return G.rng.chance(0.55 + st.writing / 200)
-          ? { d: G.rng.triangular(6, 2), line: "Your clarification lands." }
+      if (!valid) {
+        return rng.chance(0.55 + st.writing / 200)
+          ? { d: rng.triangular(6, 2), line: "Your clarification lands." }
           : { d: 1, line: "They skim your clarification." };
       }
       return { d: c.severity === "minor" ? 1 : 0, line: "Clarifying doesn't fix a real problem." };
     case "concede":
-      paper.promises++;
-      return { d: c.severity === "minor" ? G.rng.triangular(4, 1) : 2, line: "They appreciate the honesty." };
+      return { d: c.severity === "minor" ? rng.triangular(4, 1) : 2, line: "They appreciate the honesty.", promise: true };
     case "experiment":
-      if (G.rng.chance(clamp(0.5 + (st.coding - 50) / 40, 0.1, 0.9))) {
-        if (c.comp === "S" || c.comp === "fit") return { d: c.valid ? G.rng.triangular(8, 3) : 4, line: "The new results convince them." };
+      if (rng.chance(clamp(0.5 + (st.coding - 50) / 40, 0.1, 0.9))) {
+        if (c.comp === "S" || c.comp === "fit") return { d: valid ? rng.triangular(8, 3) : 4, line: "The new results convince them." };
         return { d: 3, line: "Nice results, though not quite what they asked." };
       }
-      return G.rng.chance(0.25)
+      return rng.chance(0.25)
         ? { d: -2, line: "The new baseline beats you. You report it honestly." }
         : { d: 1, line: "The experiment doesn't finish in time." };
     case "pushback":
-      if (!c.valid) return { d: G.rng.triangular(5, 2), line: "Your pushback is fair, and they see it." };
+      if (!valid) return { d: rng.triangular(5, 2), line: "Your pushback is fair, and they see it." };
       return { d: -4, line: "They don't enjoy being contradicted on a real issue." };
     case "passive":
-      if (G.rng.chance(0.02)) { unlock(G, "legendary_passive_aggressive"); return { d: 15, line: "Somehow, it works. Legendary." }; }
+      if (rng.chance(0.02)) return { d: 15, line: "Somehow, it works. Legendary.", legendary: true };
       return { d: -8, line: "They noticed the tone." };
     default:
-      return { d: c.severity === "major" && c.valid ? -1 : 0, line: "" };
+      return { d: c.severity === "major" && valid ? -1 : 0, line: "" };
   }
 }
+
+function respond(G, paper, r, c, resp) {
+  const o = replyEffect(G.rng, G.state.stats, c, resp, c.valid);
+  if (o.pre) unlock(G, "saw_it_coming");
+  if (o.promise) paper.promises++;
+  if (o.legendary) unlock(G, "legendary_passive_aggressive");
+  return o;
+}
+
+// For the dots on the rebuttal screen: where each reply could take each reviewer's score, if it goes
+// well (up) and if it goes badly (down). It plays each reply out many times without knowing which
+// concerns are fair (the player doesn't either), on its own random numbers so the game's stay put.
+export function replyOutlook(G, paper) {
+  const st = G.state.stats;
+  return paper.reviews.map(function (r, i) {
+    const out = {};
+    RESPONSES.forEach(function (o) {
+      if (o.llmOnly && !r.llm) return;
+      if (o.id === "flag" || r.silent) { out[o.id] = { up: r.score, down: r.score, half: o.id === "flag" }; return; }
+      const rng = new Rng(paper.id + ":" + i + ":" + o.id);
+      const scores = [];
+      for (let k = 0; k < OUTLOOK_RUNS; k++) {
+        let delta = 0;
+        r.concerns.forEach(function (c) {
+          const valid = rng.chance(c.validP === undefined ? 0.6 : c.validP);
+          const d = replyEffect(rng, st, c, o.id, valid).d;
+          delta += d * (d > 0 ? r.openness : 1);
+        });
+        scores.push(scoreOf(r.raw + delta));
+      }
+      scores.sort(function (a, b) { return a - b; });
+      out[o.id] = { up: scores[Math.floor(OUTLOOK_RUNS * 0.9)], down: scores[Math.floor(OUTLOOK_RUNS * 0.1)] };
+    });
+    return out;
+  });
+}
+const OUTLOOK_RUNS = 200;
 
 // answer.responses: { reviewerIndex: responseId }. Anything missing is a clarification.
 export function resolveRebuttal(G, paper, answer) {

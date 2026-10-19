@@ -5,7 +5,7 @@ export const esc = escapeHtml;
 
 // The engine's "sanity" is shown as Stress = 100 − sanity: arrows and numbers flip, colors don't
 // (green is always good for you).
-const SHORT = { energy: "Energy", sanity: "Stress", health: "Health", citations: "Citations", progress: "Progress", quals: "Quals odds" };
+const SHORT = { energy: "Energy", sanity: "Stress", health: "Health", citations: "Citations", progress: "Progress", quality: "Quality", quals: "Quals odds" };
 const SYM = { up: ["↑", "↑↑"], down: ["↓", "↓↓"], mixed: ["↕", "↕"] };
 const WORD = { up: "up", down: "down", mixed: "could go either way" };
 const FLIP = { up: "down", down: "up", mixed: "mixed" };
