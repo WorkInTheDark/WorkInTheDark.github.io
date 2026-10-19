@@ -106,10 +106,11 @@ reviews:
   findings_band: 7
   rr_band: 10
   lesson_bonus: 7        # each rejection improves the paper: +3.5 to every part, +7 to its weakest (2026-10-18)
+  first_paper_bonus: 10  # until your first first-author acceptance, your advisor's extra work adds this to every submission (Arthur 2026-10-20: 2-3 rejections before the first paper, was ~5)
   # How a reviewer's hidden 0-100 score shows as 1-5: round((raw - score_floor) / score_width).
-  # Floor 32 puts the top-venue bar (84) at an average of about 3.5, like real ACL or CHI (Arthur 2026-10-20; was 20,
-  # which put the bar at about 4.3). Display only: decisions use the hidden scores.
-  score_floor: 32
+  # Floor 28 puts the top-venue bar (80) at an average of about 3.5, like real ACL or CHI (Arthur 2026-10-20; was 20,
+  # which put the bar at about 4.3). Display only: decisions use the hidden scores. Move it with the venue bars.
+  score_floor: 28
   score_width: 15
 
 citations:
@@ -139,8 +140,8 @@ graduation_pubs: 3
 # `simulate.mjs N balanced|scholar`: sensible players median about 67, 90th percentile about 95; careful
 # five-year players (applying in Year 5) median about 85, 75th percentile about 101.
 offers:
-  tenure_track_score: 102     # tenure-track: careful five-year players clear it ~25% of the time, sensible ones ~6% (then a 50% roll)
-  famous_postdoc_score: 80    # postdoc in a famous lab: the top 25% (then a 70% roll)
+  tenure_track_score: 116     # tenure-track: careful five-year players clear it ~29% of the time, sensible ones ~5% (then a 50% roll; was 102 before the 2026-10-20 easier venues)
+  famous_postdoc_score: 98    # postdoc in a famous lab: about the top 25% of research records (then a 70% roll; was 80 before the 2026-10-20 easier venues)
   frontier_lab_score: 121     # frontier lab: industry score of about the top 15% of graduates (then a 70% roll)
   frontier_lab_coding: 75
   return_base: 0.04           # return offer after an internship: base + per_all_in x turns you gave it your all (max 6)
@@ -154,7 +155,7 @@ quals_prep_turns: 4      # "Prepare for quals" is on offer this many turns (8 we
 quals_prep_per_day: 1.5  # readiness per free day spent preparing (the exam counts up to 15)
 quals_odds: { base: 0.2, per_prep: 0.045, retake: 0.12 }  # chance each quals answer lands: base + per_prep x readiness (max 15) + (skill - 40) / 200, + retake on the second try
 proposal_prep_turns: 4
-proposal_min_pubs: 1      # the proposal is about the thesis plan: one accepted paper is enough (was 2 until 2026-10-18)
+proposal_min_pubs: 2      # two accepted papers before the proposal (back from 1 on 2026-10-20: with easier venues, 1 made graduation 3.8 years)
 proposal_min_year: 3
 defense_after_proposal_turns: 26  # defense prep can start a year after the proposal passes: time for the job market and more papers
 tip_spacing: 6

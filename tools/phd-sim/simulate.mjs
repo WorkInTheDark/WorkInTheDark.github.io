@@ -201,6 +201,12 @@ for (let r = 0; r < RUNS; r++) {
       ...Object.fromEntries(s.papers.filter((p) => p.firstAuthor && p.pubTurn !== null && p.pubTurn !== undefined).map((p) => p.pubTurn).sort((a, b) => a - b).slice(0, 3).map((t, i) => ["paper" + (i + 1), t / TURNS]))
     },
     submissions: s.telemetry.submissions,
+    // First-author rejections decided before the first acceptance (null if the run never published).
+    rejBeforeFirst: (() => {
+      const fa = s.papers.filter((p) => p.firstAuthor && p.decisionTurn !== undefined);
+      const first = fa.filter((p) => p.status === "accepted").sort((a, b) => a.decisionTurn - b.decisionTurn)[0];
+      return first ? fa.filter((p) => p.status === "rejected" && p.decisionTurn < first.decisionTurn).length : null;
+    })(),
     pubsBy: [3, 4, 5, 6].map((y) => s.papers.filter((p) => p.firstAuthor && p.status === "accepted" && p.pubTurn !== null && p.pubTurn !== undefined && p.pubTurn < y * TURNS).length),
     offerLog: s.offerLog || null,
     score: s.ending.numbers.score,
@@ -252,6 +258,8 @@ console.log("Quals: " + count("quals") + " | Proposal: " + count("proposal"));
   console.log("Timeline (" + (POLICY === "mixed" ? "balanced" : POLICY) + ", graduates, median year): 1st paper " + med("paper1") + ", 2nd " + med("paper2") + ", 3rd " + med("paper3") +
     ", proposal " + med("proposal") + ", defense prep " + med("defensePrep") + ", graduation " + (B.length ? median(B.map((x) => x.years)).toFixed(1) : "-") +
     " | first-author submissions per run " + avg(B.map((x) => x.submissions)));
+  const rb = results.filter((x) => x.policy === (POLICY === "mixed" ? "balanced" : POLICY) && x.rejBeforeFirst !== null).map((x) => x.rejBeforeFirst);
+  console.log("Rejections before the first paper (" + (POLICY === "mixed" ? "balanced" : POLICY) + "): median " + median(rb) + ", mean " + avg(rb));
 }
 {
   // Academic score when offers were made (graduates), and who could get the two scarcest offers.
