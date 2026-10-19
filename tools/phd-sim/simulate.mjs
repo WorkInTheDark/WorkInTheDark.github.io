@@ -72,7 +72,7 @@ function pickAction(p, policy, rng, stats) {
   if (sanityOpp && stats.sanity < 65 && rng.chance(0.6)) return sanityOpp.id;
   if (crunch && stats.energy > 55 && rng.chance(0.5)) return crunch.id;
   // Before a close deadline, a finished paper gets one more pass (careful players do this more often).
-  const lastPass = refine.find((a) => / (now|2w|4w)$/.test(a.desc) && a.arrows.some((x) => x.stat === "quality" && x.strength > 1));
+  const lastPass = refine.find((a) => / (now|2w|4w)$/.test(a.desc));
   if (lastPass && rng.chance(careful ? 0.7 : 0.5)) return lastPass.id;
   if (litRead && rng.chance(0.8)) return litRead.id;
   if (rng.chance(0.06) && has("read")) return "read";

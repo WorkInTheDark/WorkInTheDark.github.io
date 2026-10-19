@@ -183,10 +183,11 @@ All the remaining weekdays go to the focus. You get 5 fewer when you're sick, an
 A few are always there:
 - **Work on "<project>"**, for each active project, unless it's waiting (IRB, recruiting, annotation) or on hold.
 - **Refine "<paper>"** (Arthur, 2026-10-18), for a finished paper waiting for its deadline. It replaces the old Polish choice, which was removed on 2026-10-17 because it changed nothing.
-  - Each work day adds `progress.refine_per_day` (1.1) to the paper's weakest part (novelty, soundness or clarity) and a quarter of that to clarity.
-  - Each full turn of refining is worth `refine_decay` (0.6) of the one before: about +2 quality, then +1.2, then +0.7. The count restarts when the paper goes out.
-  - The tile shows Quality ↑↑ for the first pass and ↑ after. The result card names the part that got stronger, and the tracker reads "Refined ✨".
-  - Measured: a refined paper is accepted about 8 points more often (top tier 25% vs 17%, mid tier 55% vs 41%). The turns come out of other projects, so total output and Arthur's careful-player limits hold.
+  - Each turn of refining is one pass worth `progress.refine_pass` (+1.5 quality), every time, as Arthur asked. Most of it goes to the weakest part (novelty, soundness or clarity).
+  - The count and the gains stay with the project after a rejection. A paper that went through a round of reviews comes back stronger, on top of the rejection's lesson bonus.
+  - The tile shows Quality ↑. The result card names the part that got stronger, and the tracker reads "Refined ✨" (×N after more than one pass).
+  - Measured: a refined paper is accepted about 9 points more often (top tier 25% vs 16%, mid tier 51% vs 32%). The turns come out of other projects, so output stays within Arthur's careful-player limits. Careful: 5+ papers 37%, tenure-track bar 20%, offer 11%. Sensible: 3 papers by Year 4 49%, graduation 4.4 years.
+  - Refining at every chance isn't an exploit. Each paper does better (top tier 31%), but careful players then reach 5+ papers only 21% of the time.
 - **Read and learn:** moves a project in **Related work** a lot (1.3× working on it, versus 0.8× for "Work on" in that phase) and every other project a little. Sometimes an idea.
 - **Recharge:** about +28 Energy, −18 Stress and **+7 Health** (it was +4, 2026-10-17: Health could only go down) for the turn, on top of the weekends, however busy the turn is. It's the one rest choice; "Get healthy" was dropped because it duplicated it.
 

@@ -78,9 +78,6 @@ export function makePaper(G, p, opts) {
   p.revise = false;
   p.submitting = false;
   p.fixedComp = null;
-  // A new version of the paper: refining it again starts fresh.
-  p.refineDays = 0;
-  p.refineTurns = 0;
   s.telemetry.submissions++;
   if (p.submissions > 1) s.telemetry.resubmissions++;
   return paper;

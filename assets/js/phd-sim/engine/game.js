@@ -264,12 +264,11 @@ export class Game {
         if (st.kind === "wait" || p.pause > 0) return;
         const dl = ttd === 0 ? " \u00b7 " + deadlineLabel(self, p) + " now" :
           ttd !== null && ttd > 0 && ttd <= 3 ? " \u00b7 " + deadlineLabel(self, p) + " " + ttd * WEEKS_PER_TURN + "w" : "";
-        // A finished paper waits for its deadline card, but you can keep refining it. Each pass helps
-        // the reviews a little less than the one before.
+        // A finished paper waits for its deadline card, but you can keep refining it.
         if (info.ready) {
           out.push({ id: "refine:" + p.id, kind: "project", label: "Refine \u201c" + p.short + "\u201d",
             desc: "Ready" + (p.target && ttd !== null && ttd >= 0 ? " \u00b7 " + deadlineLabel(self, p) + " " + (ttd ? ttd * WEEKS_PER_TURN + "w" : "now") : ""),
-            arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "quality", dir: "up", strength: (p.refineTurns || 0) < 1 ? 2 : 1 }] });
+            arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "quality", dir: "up", strength: 1 }] });
           return;
         }
         out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",

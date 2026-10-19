@@ -242,7 +242,7 @@ test("the rebuttal takes one response per reviewer and defaults to clarifying", 
   assert.ok(!/area chair/.test(res2.reviews[0].lines.join(" ")), "flagging a normal review falls back to clarifying");
 });
 
-test("a ready paper can be refined, and each pass helps less than the one before", () => {
+test("a ready paper can be refined, every pass adds about the same, and the work survives a rejection", () => {
   const g = gameWithProject("refine-1");
   const p = activeProjects(g)[0];
   p.type = "empirical"; p.field = "nlp"; p.stageIdx = PROJECT_TYPES.empirical.stages.length - 1;
@@ -253,10 +253,13 @@ test("a ready paper can be refined, and each pass helps less than the one before
   const Q = () => qualityFor(g, components(g, p), "arr");
   const q = [Q()];
   for (let t = 0; t < 3; t++) { for (let d = 0; d < 7; d++) workDay(g, p, 0.9, null); rollStages(g, null); q.push(Q()); }
-  assert.ok(q[1] > q[0] + 1, "the first pass makes a real difference");
-  assert.ok(q[2] - q[1] < q[1] - q[0] && q[3] - q[2] < q[2] - q[1], "later passes help less");
+  for (let t = 1; t <= 3; t++) assert.ok(Math.abs(q[t] - q[t - 1] - 1.5) < 0.25, "pass " + t + " adds about 1.5 quality");
   assert.equal(p.refineTurns, 3);
   assert.ok(p.ready, "refining never un-finishes the paper");
+  // Out for review and back with a rejection: the count and the gains stay with the project.
+  p.ready = false; p.revise = true;
+  assert.equal(p.refineTurns, 3);
+  assert.ok(Q() >= q[3] - 0.01, "the refined quality is kept");
 });
 
 test("the rebuttal preview shows where each reply could take a score, without touching the game's dice", () => {
