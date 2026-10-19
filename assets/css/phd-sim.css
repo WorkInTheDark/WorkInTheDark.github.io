@@ -347,6 +347,8 @@ html[data-theme='dark'] .ps-rarity-system { border-top-color: var(--ps-hud-muted
 .ps-overlay-uncommon { --ps-ray: var(--ps-uncommon); }
 .ps-overlay-rare { --ps-ray: var(--ps-rare); }
 .ps-overlay-legendary { --ps-ray: var(--ps-legendary); }
+.ps-overlay-celebrate { --ps-ray: var(--ps-legendary); background: repeating-conic-gradient(from 0deg at 50% 40%, color-mix(in srgb, var(--ps-ray) 26%, transparent) 0 9deg, transparent 9deg 18deg), color-mix(in srgb, var(--ps-hud) 66%, transparent); }
+.ps-overlay > .ps-accept-card h3 { color: var(--ps-legendary); }
 .ps-overlay > .ps-dialog { width: 100%; max-width: 540px; flex-shrink: 0; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18), 0 16px 40px rgba(0, 0, 0, 0.3); }
 /* a random event: the picture in a column on the left, the story and choices on the right */
 /* the result of the turn's focus: small, calm, before anything else */

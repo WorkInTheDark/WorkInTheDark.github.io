@@ -39,8 +39,14 @@ function choiceButtons(choices) {
   }).join("") + "</div>";
 }
 
+// A first-author acceptance is the best news in the game, so its card gets the gold treatment.
+export function isAcceptance(p) {
+  return !!p && p.type === "sys" && p.sys === "decision" && !!p.data && p.data.outcome === "accept" && !p.data.coauthor;
+}
+
 export function promptClass(p) {
   if (p.type === "event") return "ps-rarity-" + p.rarity;
+  if (isAcceptance(p)) return "ps-rarity-legendary ps-accept-card";
   if (p.sys === "focus_result") return "ps-rarity-system ps-focus-card";
   return "ps-rarity-system";
 }

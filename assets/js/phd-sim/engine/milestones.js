@@ -1077,13 +1077,10 @@ export function queuePapers(G) {
           log(G, who + "'s paper, with you as a co-author, is rejected. " + who + " shrugs and starts revising.", "news");
         }
       } else if (outcome === "accept") {
+        // An acceptance gets its own card before the plan; celebrating it (Stress down, a pleased
+        // advisor) happens when you answer.
         acceptPaper(G, pp, false);
-        let san = G.rng.triangular(10, 3);
-        if (hasTrait(G, "imposter_syndrome")) san -= 3;
-        addStat(G, "sanity", san);
-        addStat(G, "advisor_rel", 3);
-        const line = metaLine(G, "accept");
-        log(G, "Accepted at " + pp.venueName + ": \u201c" + pp.title + "\u201d!" + (line ? " Meta-review: \u201c" + line + "\u201d" : ""), "good");
+        items.push({ kind: "sys", sys: "decision", data: { paperId: pp.id, outcome: outcome } });
       } else if (outcome === "findings") {
         items.push({ kind: "sys", sys: "decision", data: { paperId: pp.id, outcome: outcome } });
       } else if (outcome === "revise" || outcome === "major_revision") {
