@@ -25,7 +25,7 @@ function artHtml(p) {
 }
 
 const SYS_KICKER = {
-  notice: ["\u{1F4CC}", "News"], side: ["\u{1F388}", "On the side"], submit: ["\u{1F4E4}", "Deadline"], qa_result: ["\u{1F393}", "Committee"],
+  notice: ["\u{1F4CC}", "News"], quals_notice: ["\u{1F393}", "Quals"], side: ["\u{1F388}", "On the side"], submit: ["\u{1F4E4}", "Deadline"], qa_result: ["\u{1F393}", "Committee"],
   first_project: ["\u{1F9EA}", "Year 1"], focus_result: ["\u{1F4CB}", "Your two weeks"], decision: ["\u{1F4E8}", "Decision"], conference: ["\u2708\uFE0F", "Conference"], leave: ["\u{1F6AA}", "Crossroads"]
 };
 
@@ -39,8 +39,14 @@ function choiceButtons(choices) {
   }).join("") + "</div>";
 }
 
+// A first-author acceptance is the best news in the game, so its card gets the gold treatment.
+export function isAcceptance(p) {
+  return !!p && p.type === "sys" && p.sys === "decision" && !!p.data && p.data.outcome === "accept" && !p.data.coauthor;
+}
+
 export function promptClass(p) {
   if (p.type === "event") return "ps-rarity-" + p.rarity;
+  if (isAcceptance(p)) return "ps-rarity-legendary ps-accept-card";
   if (p.sys === "focus_result") return "ps-rarity-system ps-focus-card";
   return "ps-rarity-system";
 }

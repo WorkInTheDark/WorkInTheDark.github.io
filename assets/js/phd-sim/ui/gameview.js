@@ -6,6 +6,7 @@ import {
   yearOf, turnDates, absTurn, WEEKS_PER_TURN, PROJECT_TYPES, STAGE_LABELS, FIELD_LABELS, fieldOf, stageInfo,
   deadlineLabel, venuesFor, totalCitations, firstAuthorPubs, qualsPassChance, chanceWord, defenseOpensAt
 } from "../engine/index.js";
+import { isAcceptance } from "./prompts.js";
 
 const KIND_ICON = { empirical: "\u{1F9EA}", study: "\u{1F5E3}️", system: "\u{1F6E0}️", dataset: "\u{1F5C2}️", position: "\u{1F9ED}" };
 const STATUS_ICON = {
@@ -297,8 +298,9 @@ function turnStripHtml(G, ui) {
 function popupHtml(G, ui, promptInner, promptCls) {
   const p = ui.modal && ui.modal.prompt;
   const isEvent = p && p.type === "event";
-  const anim = ui.modal && ui.modal.fresh && !ui.modal.result ? (isEvent ? " ps-pop" : " ps-rise") : "";
-  return '<div class="ps-overlay ' + (isEvent ? "ps-overlay-event ps-overlay-" + esc(p.rarity || "common") : "ps-overlay-update") + '">' +
+  const party = isAcceptance(p);
+  const anim = ui.modal && ui.modal.fresh && !ui.modal.result ? (isEvent || party ? " ps-pop" : " ps-rise") : "";
+  return '<div class="ps-overlay ' + (isEvent ? "ps-overlay-event ps-overlay-" + esc(p.rarity || "common") : party ? "ps-overlay-update ps-overlay-celebrate" : "ps-overlay-update") + '">' +
     turnStripHtml(G, ui) +
     '<div class="ps-card ps-dialog' + anim + " " + (promptCls || "") + '" role="dialog" aria-modal="true" aria-labelledby="ps-dialog-title">' + promptInner + "</div></div>";
 }

@@ -2,7 +2,7 @@
 // defense, internships, fellowships, the job market, and leaving. Each builder returns a
 // prompt; handleSys applies the player's choice.
 import { clamp, asList } from "./util.js";
-import { yearOf, tOf, absTurn, STAT_LABELS, span, WEEKS_PER_TURN } from "./state.js";
+import { yearOf, tOf, absTurn, STAT_LABELS, span, WEEKS_PER_TURN, turnDates } from "./state.js";
 import { hasTrait, hasStatus, firstAuthorPubs, pendingFirstAuthor, acceptedPapers } from "./derived.js";
 import { applyOutcome, addStat, addStatus, removeStatus, spendDays } from "./effects.js";
 import { unlock } from "./achievements.js";
@@ -142,9 +142,13 @@ function questionPrompt(G, p) {
 // ---- Decisions and conferences ---------------------------------------------
 
 // Reviews are new work (a rebuttal to write) and, usually, bad news.
-function sanityFromScores(reviews) {
+// Scores averaging about 3.3 on the original scale (floor 20) cost a couple of points, worse ones
+// more; the center moves with config reviews.score_floor so the Stress matches the hidden scores.
+function sanityFromScores(G, reviews) {
+  const c = G.D.config.reviews || {};
+  const center = 3.3 - ((c.score_floor === undefined ? 20 : c.score_floor) - 20) / (c.score_width || 15);
   const avg = reviews.reduce(function (a, r) { return a + r.score; }, 0) / reviews.length;
-  return Math.round((avg - 3.3) * 5 - 2);
+  return Math.round((avg - center) * 5 - 2);
 }
 
 function decisionPrompt(G, pp, outcome) {
@@ -156,7 +160,7 @@ function decisionPrompt(G, pp, outcome) {
         : who + "'s paper, with you as a co-author, didn't make it. " + who + " shrugs and starts revising.",
       [{ label: good ? "Congratulate " + who : "Send " + who + " a sympathetic emoji" }], { paperId: pp.id, outcome: outcome, coauthor: true });
   }
-  const line = metaLine(G, outcome === "findings" ? "findings" : outcome === "accept" ? "accept" : outcome === "reject" ? "reject" : "revise");
+  const line = metaLine(G, outcome === "findings" ? "findings" : outcome === "accept" ? "accept" : outcome === "reject" ? "reject" : "revise", pp);
   const scores = pp.reviews ? pp.reviews.map(function (r) { return r.score; }).join(" · ") : "";
   const head = (scores ? "Scores " + scores + "." : "") + (line ? " “" + line + "”" : "");
   if (outcome === "accept") {
@@ -599,6 +603,23 @@ export function buildSys(G, item) {
         [{ label: "Start a new project" }, { label: "Keep reading for now" }]);
     case "notice":
       return notice(d.title, d.text);
+    case "quals_notice": {
+      // The pass odds now and after preparing, in the same words as the "Prepare for quals" tile.
+      const gain = qualsPrepGain(G);
+      const now = chanceWord(qualsPassChance(G, 0));
+      const one = chanceWord(qualsPassChance(G, gain));
+      const two = chanceWord(qualsPassChance(G, 2 * gain));
+      if (d.stage === "last") {
+        return sys("quals_notice", "Quals in two weeks",
+          "You haven't prepared yet. Pass odds: " + now + " now, " + one + " if you choose \u201cPrepare for quals\u201d this turn.",
+          [{ label: "Got it" }], {});
+      }
+      return sys("quals_notice", "Quals in " + d.weeks + " weeks",
+        "Your qualifying exam is set for " + turnDates(d.exam) + ". The committee asks four questions, and two good answers pass. " +
+        "Choose \u201cPrepare for quals\u201d on the turns before it to raise your odds. Pass odds: " + now + " now, " + one +
+        " after one turn of preparing" + (two !== one ? ", " + two + " after two." : "."),
+        [{ label: "Got it" }], { visible: d.stress ? [{ stat: "sanity", amount: d.stress }] : [] });
+    }
     default:
       return null;
   }
@@ -626,6 +647,7 @@ export function handleSys(G, prompt, choice) {
   const d = prompt.data || {};
   switch (prompt.sys) {
     case "notice": return null;
+    case "quals_notice": return null;
     case "qa_result": return null;
     case "focus_result": return null;
     case "first_project":
@@ -822,7 +844,18 @@ export function queueMilestones(G) {
   const qualsYear = m.quals === "failed_once" ? m.qualsYear + 1 : m.qualsYear;
   if (m.quals !== "passed" && y === qualsYear && s.advisor) {
     const prepTurns = cfg.quals_prep_turns || 4;
-    if (t === cfg.quals_turn - prepTurns) { addStatus(G, "quals_prep", span(prepTurns)); s.readiness = 0; log(G, "Quals are in " + prepTurns * WEEKS_PER_TURN + " weeks. You can spend turns preparing." + stressHit(G, 6), "news"); }
+    // When the prep window opens, a card before the plan says so (and again two weeks out if you
+    // haven't prepared at all), so "Prepare for quals" never goes unnoticed.
+    if (t === cfg.quals_turn - prepTurns) {
+      addStatus(G, "quals_prep", span(prepTurns));
+      s.readiness = 0;
+      const before = s.stats.sanity;
+      stressHit(G, 6);
+      items.push({ kind: "sys", sys: "quals_notice", data: { stage: "open", weeks: prepTurns * WEEKS_PER_TURN, exam: absTurn(y, cfg.quals_turn), stress: s.stats.sanity - before } });
+    }
+    if (t === cfg.quals_turn - 1 && hasStatus(G, "quals_prep") && (s.readiness || 0) < 1) {
+      items.push({ kind: "sys", sys: "quals_notice", data: { stage: "last", exam: absTurn(y, cfg.quals_turn) } });
+    }
     if (t === cfg.quals_turn) items.push({ kind: "sys", sys: "qa", data: { stage: "quals" } });
   }
 
@@ -1028,7 +1061,7 @@ export function queuePapers(G) {
     }
     if (pp.status === "under_review" && pp.rebuttal && pp.reviewsTurn === s.turn && !pp.reviews && pp.firstAuthor) {
       generateReviews(G, pp);
-      const hit = sanityFromScores(pp.reviews);
+      const hit = sanityFromScores(G, pp.reviews);
       const d = addStat(G, "sanity", hit);
       log(G, "Reviews are in for \u201c" + pp.short + "\u201d: " + pp.reviews.map(function (r) { return r.score; }).join(", ") + " out of 5." +
         (d < -0.5 ? " Stress +" + Math.round(-d) + "." : ""), "news");
@@ -1048,13 +1081,10 @@ export function queuePapers(G) {
           log(G, who + "'s paper, with you as a co-author, is rejected. " + who + " shrugs and starts revising.", "news");
         }
       } else if (outcome === "accept") {
+        // An acceptance gets its own card before the plan; celebrating it (Stress down, a pleased
+        // advisor) happens when you answer.
         acceptPaper(G, pp, false);
-        let san = G.rng.triangular(10, 3);
-        if (hasTrait(G, "imposter_syndrome")) san -= 3;
-        addStat(G, "sanity", san);
-        addStat(G, "advisor_rel", 3);
-        const line = metaLine(G, "accept");
-        log(G, "Accepted at " + pp.venueName + ": \u201c" + pp.title + "\u201d!" + (line ? " Meta-review: \u201c" + line + "\u201d" : ""), "good");
+        items.push({ kind: "sys", sys: "decision", data: { paperId: pp.id, outcome: outcome } });
       } else if (outcome === "findings") {
         items.push({ kind: "sys", sys: "decision", data: { paperId: pp.id, outcome: outcome } });
       } else if (outcome === "revise" || outcome === "major_revision") {
