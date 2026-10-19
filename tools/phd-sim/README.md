@@ -22,5 +22,5 @@ ruby tools/phd-sim/export-data.rb && node --experimental-default-type=module too
 
 Notes:
 - All tuning numbers live in `_data/phd_sim/config.yml`; venue thresholds in `_data/phd_sim/venues.yml`.
-- The game's JS and data are excluded from `jekyll-minifier` (see `jekyll-minifier.exclude` in `_config.yml`), so modern module syntax and non-ASCII text are served as written.
+- The game's JS, data and CSS are excluded from `jekyll-minifier` (see `jekyll-minifier.exclude` in `_config.yml`), so modern module syntax and non-ASCII text are served as written. The CSS is excluded because the minifier mangles `calc(var(--x) + y)` into invalid CSS (2026-10-20: event pictures covered the text on the live site).
 - A local `bundle exec jekyll build` on Ruby 3.3 needs a UTF-8 locale (`LANG=en_US.UTF-8`) and hits a known Jekyll 4.3.2 logger incompatibility; CI uses Ruby 3.2 and is unaffected.

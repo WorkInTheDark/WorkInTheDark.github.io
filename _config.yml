@@ -253,7 +253,7 @@ defaults:
 # -----------------------------------------------------------------------------
 
 jekyll-minifier:
-  exclude: ['robots.txt', 'assets/js/phd-sim/*', 'assets/phd-sim/*']   # the PhD Simulator's modules and data are served as written
+  exclude: ['robots.txt', 'assets/js/phd-sim/*', 'assets/phd-sim/*', 'assets/css/phd-sim.css']   # the PhD Simulator's modules, data and styles are served as written (the CSS minifier breaks calc(var(--x) + y))
   uglifier_args:
     harmony: true
 
