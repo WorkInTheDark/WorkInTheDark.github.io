@@ -953,6 +953,7 @@ concerns:
       - "The broader impact of this work could be discussed more thoroughly."
       - "The authors may wish to consider the broader implications of their work for society."
 
+# Meta-review lines. A line that mentions the rebuttal or author response only goes to papers that had one.
 meta:
   accept:
     - "The reviewers agree that the paper makes a clear contribution, and the rebuttal resolved the main concerns. Accept."

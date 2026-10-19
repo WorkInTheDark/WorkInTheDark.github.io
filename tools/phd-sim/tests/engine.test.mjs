@@ -266,8 +266,8 @@ test("a ready paper can be refined, every pass adds about the same, and the work
 test("the rebuttal preview shows where each reply could take a score, without touching the game's dice", () => {
   const g = gameWithProject("outlook-1");
   const paper = { id: "x9", reviews: [
-    { raw: 54, score: 2, openness: 1, silent: false, llm: true, concerns: [{ key: "a", validP: 0.3, severity: "minor", comp: "C" }, { key: "b", validP: 0.3, severity: "major", comp: "S" }] },
-    { raw: 54, score: 2, openness: 0, silent: true, llm: false, concerns: [{ key: "c", validP: 0.5, severity: "minor", comp: "N" }] }
+    { raw: 66, score: 2, openness: 1, silent: false, llm: true, concerns: [{ key: "a", validP: 0.3, severity: "minor", comp: "C" }, { key: "b", validP: 0.3, severity: "major", comp: "S" }] },
+    { raw: 66, score: 2, openness: 0, silent: true, llm: false, concerns: [{ key: "c", validP: 0.5, severity: "minor", comp: "N" }] }
   ] };
   const before = g.rng.state();
   const o = replyOutlook(g, paper);

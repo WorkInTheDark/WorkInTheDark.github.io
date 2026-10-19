@@ -142,9 +142,13 @@ function questionPrompt(G, p) {
 // ---- Decisions and conferences ---------------------------------------------
 
 // Reviews are new work (a rebuttal to write) and, usually, bad news.
-function sanityFromScores(reviews) {
+// Scores averaging about 3.3 on the original scale (floor 20) cost a couple of points, worse ones
+// more; the center moves with config reviews.score_floor so the Stress matches the hidden scores.
+function sanityFromScores(G, reviews) {
+  const c = G.D.config.reviews || {};
+  const center = 3.3 - ((c.score_floor === undefined ? 20 : c.score_floor) - 20) / (c.score_width || 15);
   const avg = reviews.reduce(function (a, r) { return a + r.score; }, 0) / reviews.length;
-  return Math.round((avg - 3.3) * 5 - 2);
+  return Math.round((avg - center) * 5 - 2);
 }
 
 function decisionPrompt(G, pp, outcome) {
@@ -156,7 +160,7 @@ function decisionPrompt(G, pp, outcome) {
         : who + "'s paper, with you as a co-author, didn't make it. " + who + " shrugs and starts revising.",
       [{ label: good ? "Congratulate " + who : "Send " + who + " a sympathetic emoji" }], { paperId: pp.id, outcome: outcome, coauthor: true });
   }
-  const line = metaLine(G, outcome === "findings" ? "findings" : outcome === "accept" ? "accept" : outcome === "reject" ? "reject" : "revise");
+  const line = metaLine(G, outcome === "findings" ? "findings" : outcome === "accept" ? "accept" : outcome === "reject" ? "reject" : "revise", pp);
   const scores = pp.reviews ? pp.reviews.map(function (r) { return r.score; }).join(" · ") : "";
   const head = (scores ? "Scores " + scores + "." : "") + (line ? " “" + line + "”" : "");
   if (outcome === "accept") {
@@ -1057,7 +1061,7 @@ export function queuePapers(G) {
     }
     if (pp.status === "under_review" && pp.rebuttal && pp.reviewsTurn === s.turn && !pp.reviews && pp.firstAuthor) {
       generateReviews(G, pp);
-      const hit = sanityFromScores(pp.reviews);
+      const hit = sanityFromScores(G, pp.reviews);
       const d = addStat(G, "sanity", hit);
       log(G, "Reviews are in for \u201c" + pp.short + "\u201d: " + pp.reviews.map(function (r) { return r.score; }).join(", ") + " out of 5." +
         (d < -0.5 ? " Stress +" + Math.round(-d) + "." : ""), "news");

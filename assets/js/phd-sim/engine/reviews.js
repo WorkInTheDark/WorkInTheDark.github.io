@@ -87,8 +87,11 @@ function pickPersona(G) {
   return G.rng.weighted(G.D.reviews.personas, function (pp) { return pp.weight === undefined ? 1 : pp.weight; });
 }
 
-function scoreOf(raw) {
-  return clamp(Math.round((raw - 20) / 15), 1, 5);
+// The 1-5 score a reviewer shows for a hidden 0-100 one (config reviews.score_floor / score_width).
+export function scoreOf(G, raw) {
+  const c = G.D.config.reviews || {};
+  const floor = c.score_floor === undefined ? 20 : c.score_floor;
+  return clamp(Math.round((raw - floor) / (c.score_width || 15)), 1, 5);
 }
 
 export function generateReviews(G, paper) {
@@ -128,7 +131,7 @@ export function generateReviews(G, paper) {
       persona: persona.id,
       opener: fill(G.rng.pick(asList(persona.openers)), G, ctx),
       raw: raw,
-      score: scoreOf(raw),
+      score: scoreOf(G, raw),
       confidence: G.rng.int(2, 5),
       concerns: concerns,
       flagged: false,
@@ -227,7 +230,7 @@ export function replyOutlook(G, paper) {
           const d = replyEffect(rng, st, c, o.id, valid).d;
           delta += d * (d > 0 ? r.openness : 1);
         });
-        scores.push(scoreOf(r.raw + delta));
+        scores.push(scoreOf(G, r.raw + delta));
       }
       scores.sort(function (a, b) { return a - b; });
       out[o.id] = { up: scores[Math.floor(OUTLOOK_RUNS * 0.9)], down: scores[Math.floor(OUTLOOK_RUNS * 0.1)] };
@@ -263,7 +266,7 @@ export function resolveRebuttal(G, paper, answer) {
     if (r.silent) lines.push("No sign this reviewer read the response.");
     if (!r.silent && G.rng.chance(0.1)) { delta -= 4; lines.push("After reading the other reviews, they lower their score."); }
     r.raw += delta;
-    r.score = scoreOf(r.raw);
+    r.score = scoreOf(G, r.raw);
     out.push({ n: i + 1, before: before, after: r.score, lines: lines });
   });
   if (days) spendDays(G, days);
@@ -298,10 +301,19 @@ export function decide(G, paper) {
   return "reject";
 }
 
-export function metaLine(G, kind) {
+// The meta-review's one line. Lines about the rebuttal or author response only go to papers that
+// had one (not CHI, CSCW, workshops or a revised second round), and {venue} / {topic} are this paper's.
+const MENTIONS_RESPONSE = /rebuttal|author response/i;
+export function metaLine(G, kind, paper) {
   const meta = G.D.reviews.meta || {};
-  const pool = asList(meta[kind === "major_revision" ? "revise" : kind]);
-  return pool.length ? fill(G.rng.pick(pool), G, {}) : "";
+  let pool = asList(meta[kind === "major_revision" ? "revise" : kind]);
+  if (paper && !paper.rebutted) {
+    const plain = pool.filter(function (l) { return !MENTIONS_RESPONSE.test(l); });
+    if (plain.length) pool = plain;
+  }
+  if (!pool.length) return "";
+  const topic = paper && G.state.world.topics.find(function (t) { return t.id === paper.topic; });
+  return fill(G.rng.pick(pool), G, paper ? { tok: {}, venue: paper.venueName, topicName: topic ? topic.name : undefined } : {});
 }
 
 // After a rejection, aim for the next deadline. A paper rejected several times aims lower by default
