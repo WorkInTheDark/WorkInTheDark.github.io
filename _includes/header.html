@@ -67,13 +67,19 @@
               {%- for p in sorted_pages -%}
               {%- if p.nav and p.autogen == nil -%}
               {%- if p.dropdown %}
-              <li class="nav-item dropdown {% if page.title == p.title %}active{% endif %}">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ p.title }}
-                  {%- if page.title == p.title -%}
+              {%- comment -%} A dropdown is current on its own page and on any page it lists. {%- endcomment -%}
+              {%- assign dropdown_current = false -%}
+              {%- if page.title == p.title -%}{%- assign dropdown_current = true -%}{%- endif -%}
+              {%- for child in p.children -%}
+              {%- if child.permalink and child.permalink == page.permalink -%}{%- assign dropdown_current = true -%}{%- endif -%}
+              {%- endfor %}
+              <li class="nav-item dropdown {% if dropdown_current %}active{% endif %}">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown{{ forloop.index }}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ p.title }}
+                  {%- if dropdown_current -%}
                   <span class="sr-only">(current)</span>
                   {%- endif -%}
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown{{ forloop.index }}">
                   {%- for child in p.children -%}
                   {%- if child.title == 'divider' %}
                   <div class="dropdown-divider"></div>
