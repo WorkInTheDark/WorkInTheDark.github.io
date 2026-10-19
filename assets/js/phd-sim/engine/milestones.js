@@ -409,7 +409,8 @@ export function answerQa(G, resp) {
     removeStatus(G, "proposal_prep");
     if (frac >= 0.5) {
       m.proposal = "passed";
-      res.text = "Your proposal passes. You are officially a PhD candidate.";
+      m.proposalPassedTurn = s.turn;
+      res.text = "Your proposal passes. You are officially a PhD candidate. The defense can come a year from now.";
       res.visible.push({ stat: "sanity", amount: addStat(G, "sanity", 8) });
       addStat(G, "advisor_rel", 4);
     } else {
@@ -901,6 +902,17 @@ export function queueMilestones(G) {
 
 // Things you can choose to do this turn beyond the everyday activities.
 // `slot: true` uses one of the turn's choices; the rest are free.
+// Defense prep opens a year after the proposal (config defense_after_proposal_turns).
+export function defenseOpensAt(G) {
+  const m = G.state.milestones;
+  if (m.proposal !== "passed" || m.proposalPassedTurn === undefined) return null;
+  return m.proposalPassedTurn + span(G.D.config.defense_after_proposal_turns || 0);
+}
+function defenseOpen(G) {
+  const at = defenseOpensAt(G);
+  return at === null || G.state.turn >= at;
+}
+
 export function planExtras(G) {
   const s = G.state;
   const cfg = G.D.config;
@@ -934,7 +946,7 @@ export function planExtras(G) {
     out.push({ id: "proposal", kind: "milestone", label: "Schedule your thesis proposal",
       desc: "Present in " + span(cfg.proposal_prep_turns || 4) * WEEKS_PER_TURN + " weeks" });
   }
-  if (m.proposal === "passed" && !m.defensePrepStart && t !== 9) {
+  if (m.proposal === "passed" && !m.defensePrepStart && t !== 9 && defenseOpen(G)) {
     const acc = firstAuthorPubs(G);
     const need = cfg.graduation_pubs || 3;
     const strictNoEarly = s.advisor.archetype === "methods_purist";

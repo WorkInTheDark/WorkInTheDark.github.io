@@ -4,7 +4,7 @@
 import { esc, rich, bar, plural, arrowsHtml, shownStat } from "./common.js";
 import {
   yearOf, turnDates, absTurn, WEEKS_PER_TURN, PROJECT_TYPES, STAGE_LABELS, FIELD_LABELS, fieldOf, stageInfo,
-  deadlineLabel, venuesFor, totalCitations, firstAuthorPubs, qualsPassChance, chanceWord
+  deadlineLabel, venuesFor, totalCitations, firstAuthorPubs, qualsPassChance, chanceWord, defenseOpensAt
 } from "../engine/index.js";
 
 const KIND_ICON = { empirical: "\u{1F9EA}", study: "\u{1F5E3}️", system: "\u{1F6E0}️", dataset: "\u{1F5C2}️", position: "\u{1F9ED}" };
@@ -215,6 +215,9 @@ function statusChips(G) {
   if (m.quals !== "passed" && s.advisor) next.push(["Quals", absTurn(qy, G.D.config.quals_turn || 18)]);
   if (m.proposalAt && m.proposal === "pending") next.push(["Proposal", m.proposalAt]);
   if (m.defenseAt) next.push(["Defense", m.defenseAt]);
+  // After the proposal, a countdown to when defense prep can start.
+  const opens = !m.defensePrepStart ? defenseOpensAt(G) : null;
+  if (opens !== null && opens > s.turn) chips.push('<span class="ps-chip" title="Defense prep can start a year after the proposal.">\u{1F393} Defense opens in ' + weeksShort(opens - s.turn) + "</span>");
   next.filter(function (x) { return x[1] >= s.turn && x[1] - s.turn <= 8; }).forEach(function (x) {
     const odds = x[0] === "Quals" ? " \u00b7 odds " + chanceWord(qualsPassChance(G, 0)) : "";
     chips.push('<span class="ps-chip ps-chip-soon"' + (prepTip[x[0]] ? ' title="' + esc(prepTip[x[0]]) + '"' : "") + ">\u{1F393} " + x[0] + " " + weeksShort(x[1] - s.turn) + odds + "</span>");

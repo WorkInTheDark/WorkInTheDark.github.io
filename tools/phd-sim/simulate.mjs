@@ -19,8 +19,10 @@ const POLICIES = ["balanced", "workaholic", "slacker", "random", "pusher", "swin
 
 // Picks one action for the week, the way each kind of player might.
 function pickAction(p, policy, rng, stats) {
+  // The scholar defends at year 4.5 and goes on the job market in its final year (year 5).
   const stayOn = policy === "scholar" && p.turn < 4.5 * TURNS;
-  const A = stayOn ? p.actions.filter((a) => a.id !== "defense") : p.actions;
+  const notYet = policy === "scholar" && p.turn < 4 * TURNS;
+  const A = p.actions.filter((a) => !(stayOn && a.id === "defense") && !(notYet && a.id === "job_market"));
   if (policy === "scholar") policy = "balanced";
   // Bots prepare for quals on about half of the turns it's offered.
   const skipQuals = rng.chance(0.5);
@@ -85,6 +87,7 @@ function answerPrompt(game, p, policy, rng) {
     case "sys": {
       if (p.sys === "leave") return { choice: p.choices.length - 1 };
       if (p.sys === "defense_offer" && policy === "scholar" && game.state.turn < 4.5 * TURNS) return { choice: 1 };
+      if (p.sys === "job_market_start" && policy === "scholar" && game.state.turn < 4 * TURNS) return { choice: p.choices.length - 1 };
       // A paper due this turn: submit it, unless a slacker can't be bothered.
       if (p.sys === "submit") return { choice: policy === "slacker" && rng.chance(0.3) ? 2 : policy === "random" ? rng.int(0, 2) : 0 };
       if (p.sys === "internship_apply") return { choice: policy === "slacker" ? 2 : 0 };
