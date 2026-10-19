@@ -2,7 +2,7 @@
 // defense, internships, fellowships, the job market, and leaving. Each builder returns a
 // prompt; handleSys applies the player's choice.
 import { clamp, asList } from "./util.js";
-import { yearOf, tOf, absTurn, STAT_LABELS, span, WEEKS_PER_TURN } from "./state.js";
+import { yearOf, tOf, absTurn, STAT_LABELS, span, WEEKS_PER_TURN, turnDates } from "./state.js";
 import { hasTrait, hasStatus, firstAuthorPubs, pendingFirstAuthor, acceptedPapers } from "./derived.js";
 import { applyOutcome, addStat, addStatus, removeStatus, spendDays } from "./effects.js";
 import { unlock } from "./achievements.js";
@@ -599,6 +599,23 @@ export function buildSys(G, item) {
         [{ label: "Start a new project" }, { label: "Keep reading for now" }]);
     case "notice":
       return notice(d.title, d.text);
+    case "quals_notice": {
+      // The pass odds now and after preparing, in the same words as the "Prepare for quals" tile.
+      const gain = qualsPrepGain(G);
+      const now = chanceWord(qualsPassChance(G, 0));
+      const one = chanceWord(qualsPassChance(G, gain));
+      const two = chanceWord(qualsPassChance(G, 2 * gain));
+      if (d.stage === "last") {
+        return sys("quals_notice", "Quals in two weeks",
+          "You haven't prepared yet. Pass odds: " + now + " now, " + one + " if you choose \u201cPrepare for quals\u201d this turn.",
+          [{ label: "Got it" }], {});
+      }
+      return sys("quals_notice", "Quals in " + d.weeks + " weeks",
+        "Your qualifying exam is set for " + turnDates(d.exam) + ". The committee asks four questions, and two good answers pass. " +
+        "Choose \u201cPrepare for quals\u201d on the turns before it to raise your odds. Pass odds: " + now + " now, " + one +
+        " after one turn of preparing" + (two !== one ? ", " + two + " after two." : "."),
+        [{ label: "Got it" }], { visible: d.stress ? [{ stat: "sanity", amount: d.stress }] : [] });
+    }
     default:
       return null;
   }
@@ -626,6 +643,7 @@ export function handleSys(G, prompt, choice) {
   const d = prompt.data || {};
   switch (prompt.sys) {
     case "notice": return null;
+    case "quals_notice": return null;
     case "qa_result": return null;
     case "focus_result": return null;
     case "first_project":
@@ -822,7 +840,18 @@ export function queueMilestones(G) {
   const qualsYear = m.quals === "failed_once" ? m.qualsYear + 1 : m.qualsYear;
   if (m.quals !== "passed" && y === qualsYear && s.advisor) {
     const prepTurns = cfg.quals_prep_turns || 4;
-    if (t === cfg.quals_turn - prepTurns) { addStatus(G, "quals_prep", span(prepTurns)); s.readiness = 0; log(G, "Quals are in " + prepTurns * WEEKS_PER_TURN + " weeks. You can spend turns preparing." + stressHit(G, 6), "news"); }
+    // When the prep window opens, a card before the plan says so (and again two weeks out if you
+    // haven't prepared at all), so "Prepare for quals" never goes unnoticed.
+    if (t === cfg.quals_turn - prepTurns) {
+      addStatus(G, "quals_prep", span(prepTurns));
+      s.readiness = 0;
+      const before = s.stats.sanity;
+      stressHit(G, 6);
+      items.push({ kind: "sys", sys: "quals_notice", data: { stage: "open", weeks: prepTurns * WEEKS_PER_TURN, exam: absTurn(y, cfg.quals_turn), stress: s.stats.sanity - before } });
+    }
+    if (t === cfg.quals_turn - 1 && hasStatus(G, "quals_prep") && (s.readiness || 0) < 1) {
+      items.push({ kind: "sys", sys: "quals_notice", data: { stage: "last", exam: absTurn(y, cfg.quals_turn) } });
+    }
     if (t === cfg.quals_turn) items.push({ kind: "sys", sys: "qa", data: { stage: "quals" } });
   }
 
