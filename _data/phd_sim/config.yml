@@ -71,7 +71,7 @@ skills:
 # (in projects.js). A normal full turn gets exactly that chance; a short or tired turn keeps
 # 50–100% of it (chance × (0.5 + 0.5 × effort / full_turn)); a crunch adds at most 15%.
 progress:
-  full_turn: 4.5         # effective work days that count as a full turn: a normal turn gets the stage's set chance (was 6.5, which made real odds 10-15 points lower)
+  full_turn: 5.25        # effective work days that count as a full turn (6.5 until 2026-10-18; 4.5 made careful players too productive)
   read_lit: 1.3          # reading during Related work, relative to working on it
   work_lit: 0.8          # "Work on" during Related work
   read_trickle: 0.05     # effort per reading day for projects in other stages
@@ -104,7 +104,7 @@ reviews:
   ac_sigma: 8
   findings_band: 7
   rr_band: 10
-  lesson_bonus: 12       # each rejection improves the paper: +6 to every part, +12 to its weakest (2026-10-18)
+  lesson_bonus: 7        # each rejection improves the paper: +3.5 to every part, +7 to its weakest (2026-10-18)
 
 citations:
   venue_base: { top: 55, journal: 40, mid: 32, findings: 25, workshop: 10 }
@@ -132,7 +132,7 @@ graduation_pubs: 3
 # Job offers. The academic score (endings.js profile) when offers are made, measured over sensible-player
 # runs with `simulate.mjs N`: median about 70, 75th percentile about 80, 90th about 91 (2026-10-17).
 offers:
-  tenure_track_score: 91      # tenure-track: only the top 10% of profiles can get it (then a 50% roll)
+  tenure_track_score: 95      # tenure-track: careful five-year players clear it ~25% of the time, sensible ones ~7% (then a 50% roll)
   famous_postdoc_score: 80    # postdoc in a famous lab: the top 25% (then a 70% roll)
   frontier_lab_score: 121     # frontier lab: industry score of about the top 15% of graduates (then a 70% roll)
   frontier_lab_coding: 75
