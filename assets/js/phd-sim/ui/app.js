@@ -90,7 +90,14 @@ export class App {
     const scrollY = window.scrollY;
     const oldScene = this.root.querySelector(".ps-overlay") || this.root.querySelector(".ps-scene");
     const keepScene = oldScene ? oldScene.scrollTop : 0;
-    this.root.innerHTML = '<div class="ps-app ps-app-' + this.screen + '"><div class="ps-screen">' + body + "</div>" +
+    // Redrawing the same view (picking a reply, a toast) mustn't replay entrance animations, or the
+    // window blinks: only a new pop-up, panel or plan animates in.
+    const popKey = this.screen === "game" ? (this.modal ? "m" + this.modal.n : this.panel ? "p:" + this.panel : "-") : this.screen;
+    const sceneKey = this.screen + "|" + (this.inspect || "") + "|" + (this.planN || 0);
+    const still = (popKey === this.lastPopKey ? " ps-still-pop" : "") + (sceneKey === this.lastSceneKey ? " ps-still-scene" : "");
+    this.lastPopKey = popKey;
+    this.lastSceneKey = sceneKey;
+    this.root.innerHTML = '<div class="ps-app ps-app-' + this.screen + still + '"><div class="ps-screen">' + body + "</div>" +
       (this.toast ? '<div class="ps-toast" role="status">' + esc(this.toast) + "</div>" : "") + "</div>";
     if (this.keepScroll) window.scrollTo(0, scrollY);
     const scene = this.root.querySelector(".ps-overlay") || this.root.querySelector(".ps-scene");
@@ -184,7 +191,8 @@ export class App {
   }
 
   setPlan(p) {
-    if (!this.plan || !p || this.plan.turn !== p.turn) this.sidePick = null;
+    // A new turn's plan animates in; the same turn's plan updating (a new project, a shelved one) doesn't.
+    if (!this.plan || !p || this.plan.turn !== p.turn) { this.sidePick = null; this.planN = (this.planN || 0) + 1; }
     this.plan = p;
   }
 
@@ -230,7 +238,8 @@ export class App {
   }
 
   showPrompt(p, ui) {
-    this.modal = { prompt: p, result: null, fresh: true, ui: !!ui };
+    this.popN = (this.popN || 0) + 1;
+    this.modal = { prompt: p, result: null, fresh: true, ui: !!ui, n: this.popN };
     // The cards seen so far this turn, for the pop-up's "where am I" strip.
     const turn = this.game.state.turn;
     if (!this.trail || this.trail.turn !== turn) this.trail = { turn: turn, items: [] };
@@ -249,7 +258,8 @@ export class App {
     this.persist();
     this.checkAchievements();
     if (res && (res.text || (res.visible && res.visible.length) || res.reviews || res.qa || (res.notes && res.notes.length))) {
-      this.modal = { prompt: p, result: res, fresh: true, ui: ui };
+      // The result replaces the card's content in place; the pop-up itself stays put.
+      this.modal = { prompt: p, result: res, fresh: true, ui: ui, n: this.modal.n };
       this.keepScroll = true;
       this.render();
       return;
