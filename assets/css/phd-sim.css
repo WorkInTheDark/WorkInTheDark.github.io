@@ -128,11 +128,12 @@ html[data-theme='dark'] .ps-app {
 .ps-input { font: inherit; width: 100%; max-width: 20rem; padding: 0.5rem 0.7rem; border-radius: 10px; border: 2px solid var(--ps-line); background: var(--ps-card); color: var(--ps-text); }
 .ps-trait-fixed { cursor: default; }
 
-/* ---- Game screen: top strip, scene, tray ---- */
-.ps-game { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; }
+/* ---- Game screen: top strip, progress band, scene, tip footer ---- */
+.ps-game { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; height: 100%; }
 .ps-game > .ps-hud { grid-row: 1; grid-column: 1; }
-.ps-game > .ps-scene { grid-row: 2; grid-column: 1; }
-.ps-game > .ps-tray { grid-row: 3; grid-column: 1; }
+.ps-game > .ps-band { grid-row: 2; grid-column: 1; }
+.ps-game > .ps-scene { grid-row: 3; grid-column: 1; }
+.ps-game > .ps-tipshelf { grid-row: 4; grid-column: 1; }
 
 .ps-hud {
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 0.9rem;
@@ -298,7 +299,34 @@ html[data-theme='dark'] .ps-rarity-system { border-top-color: var(--ps-hud-muted
 .ps-field { font-size: 0.85rem; color: var(--ps-muted); display: inline-flex; gap: 0.4rem; align-items: center; }
 
 /* tray: what's affecting you, and project trackers */
-.ps-tray { border-top: 2px solid var(--ps-line); background: color-mix(in srgb, var(--ps-bg) 70%, var(--ps-card)); padding: 0.5rem 0.8rem 0.6rem; }
+/* The progress band hangs off the top strip: status in the dashboard's colors, flat so it never
+   reads as one of the turn's choices. */
+.ps-band { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.35rem 0.8rem 0.5rem; color: var(--ps-hud-ink);
+  background: color-mix(in srgb, var(--ps-hud) 90%, var(--ps-hud-ink)); border-top: 1px solid var(--ps-hud-track); box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.12); }
+.ps-band .ps-trackers { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.3rem 0.45rem; overflow: visible; padding: 0; }
+.ps-band .ps-tracker { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) 76px; align-items: center; column-gap: 0.5rem; row-gap: 0.05rem;
+  padding: 0.22rem 0.5rem 0.26rem; border-radius: 9px; border: 1px solid var(--ps-hud-track); background: rgba(255, 255, 255, 0.05); box-shadow: none; color: var(--ps-hud-ink); }
+.ps-band .ps-tracker:hover:not([disabled]) { border-color: var(--ps-accent-solid); background: rgba(255, 255, 255, 0.09); }
+.ps-band .ps-tracker[disabled] { opacity: 1; }
+.ps-band .ps-tracker-name { font-size: 0.8rem; }
+.ps-band .ps-tracker-foot { grid-column: 1 / -1; font-size: 0.68rem; color: var(--ps-hud-muted); }
+.ps-band .ps-tracker-foot span:first-child { color: var(--ps-hud-ink); }
+.ps-band .ps-tracker-foot span:last-child { flex-shrink: 0; white-space: nowrap; }
+.ps-band .ps-tracker-ready { border-color: color-mix(in srgb, var(--ps-good) 80%, var(--ps-hud-ink)); }
+.ps-band .ps-dots i::before { border-color: var(--ps-hud-muted); background: var(--ps-hud); }
+.ps-band .ps-dots i::after { background: var(--ps-hud-track); }
+.ps-band .ps-dots i.ps-dot-done::before { background: var(--ps-good); border-color: var(--ps-good); }
+.ps-band .ps-dots i.ps-dot-done::after { background: var(--ps-good); }
+.ps-band .ps-dots i.ps-dot-now::before { background: var(--ps-accent-solid); border-color: var(--ps-accent-solid); }
+.ps-band .ps-tracker-review { background: transparent; border-style: dashed; border-color: var(--ps-hud-muted); }
+.ps-band .ps-stamp { color: #a9c1f0; }
+.ps-band .ps-wait { background: var(--ps-hud-track); }
+.ps-band .ps-chips { margin: 0; }
+.ps-band .ps-chip { background: transparent; border-color: var(--ps-hud-track); color: var(--ps-hud-ink); }
+.ps-band .ps-chip-adv { border-color: var(--ps-hud-muted); }
+.ps-band .ps-chip-soon { border-color: var(--ps-accent-solid); color: #f4a988; }
+.ps-band .ps-tray-empty { color: var(--ps-hud-muted); padding: 0.1rem 0; }
+.ps-newproj { border-style: dashed; color: var(--ps-muted); gap: 0.35rem; display: inline-flex; align-items: center; }
 .ps-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.45rem; }
 .ps-chip { font-size: 0.74rem; font-weight: 600; border: 1.5px solid var(--ps-line); border-radius: 99px; padding: 0.02rem 0.5rem; color: var(--ps-text); background: var(--ps-card); cursor: default; white-space: nowrap; }
 .ps-chip-adv { border-color: var(--ps-hud); }
@@ -316,7 +344,6 @@ html[data-theme='dark'] .ps-rarity-system { border-top-color: var(--ps-hud-muted
 .ps-tracker-ready { border-color: var(--ps-good); }
 .ps-tracker-foot { display: flex; justify-content: space-between; gap: 0.4rem; font-size: 0.72rem; color: var(--ps-muted); }
 .ps-tracker-foot span:first-child { font-weight: 700; color: var(--ps-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ps-tracker-new { flex-basis: 150px; align-items: center; justify-content: center; border-style: dashed; color: var(--ps-muted); font-weight: 600; font-size: 0.85rem; }
 /* a submitted paper: a letter in the mail, waiting for the decision */
 .ps-tracker-review { cursor: default; background: var(--ps-bg); border-style: dashed; box-shadow: none; }
 .ps-mail { display: flex; align-items: center; gap: 0.45rem; height: 13px; }
@@ -339,7 +366,7 @@ html[data-theme='dark'] .ps-rarity-system { border-top-color: var(--ps-hud-muted
 
 /* pop-ups: what comes up during the turn sits over the game, so it never reads as this turn's choices */
 .ps-overlay {
-  grid-row: 2 / 4; grid-column: 1; z-index: 4; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  grid-row: 2 / 5; grid-column: 1; z-index: 4; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
   display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem 1rem;
   background: color-mix(in srgb, var(--ps-hud) 62%, transparent); backdrop-filter: blur(2px); animation: ps-fade 0.18s ease both;
 }
@@ -380,12 +407,13 @@ html[data-theme='dark'] .ps-art img { filter: brightness(0.88); }
 .ps-rise { animation: ps-rise 0.28s ease both; }
 
 /* PhD 101 pointers, above the projects */
-.ps-tipshelf { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.45rem; }
-.ps-app .ps-tip { display: flex; align-items: center; gap: 0.5rem; min-width: 0; padding: 0.3rem 0.6rem; border-radius: 10px; text-decoration: none; color: var(--ps-text);
-  background: color-mix(in srgb, var(--ps-energy) 22%, var(--ps-card)); border: 2px solid color-mix(in srgb, var(--ps-energy) 60%, var(--ps-line)); font-size: 0.8rem; }
-.ps-app .ps-tip:hover { border-color: var(--ps-accent); }
+/* PhD 101 pointers: one quiet line at the bottom of the window, apart from status and choices */
+.ps-tipshelf { display: flex; gap: 0.4rem; padding: 0.3rem 0.8rem 0.4rem; border-top: 2px solid var(--ps-line); background: color-mix(in srgb, var(--ps-bg) 70%, var(--ps-card)); }
+.ps-app .ps-tip { flex: 1 1 0; display: flex; align-items: center; gap: 0.45rem; min-width: 0; padding: 0.18rem 0.5rem; border-radius: 9px; text-decoration: none; color: var(--ps-text);
+  background: transparent; border: 1.5px solid color-mix(in srgb, var(--ps-energy) 55%, var(--ps-line)); font-size: 0.76rem; }
+.ps-app .ps-tip:hover { border-color: var(--ps-accent); background: color-mix(in srgb, var(--ps-energy) 12%, transparent); }
 .ps-tip-badge { flex-shrink: 0; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.05rem 0.4rem; border-radius: 6px; background: var(--ps-hud); color: var(--ps-hud-ink); }
-.ps-tip b { flex-shrink: 0; font-family: var(--ps-display); font-weight: 600; }
+.ps-tip b { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--ps-display); font-weight: 600; }
 .ps-tip-note { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ps-muted); }
 
 /* the achievement list */
@@ -464,6 +492,11 @@ html[data-theme='dark'] .ps-art img { filter: brightness(0.88); }
   .ps-hud-btns { order: 2; }
   .ps-meters { grid-column: 1 / -1; order: 3; gap: 0.5rem; }
   .ps-tiles { grid-template-columns: minmax(0, 1fr); }
+  .ps-band { padding: 0.35rem 0.6rem 0.5rem; }
+  /* two trackers a row on phones, each stacked (name, stage dots, where it stands), so the band stays short */
+  .ps-band .ps-trackers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ps-band .ps-tracker { grid-template-columns: minmax(0, 1fr); row-gap: 0.15rem; }
+  .ps-tipshelf { flex-direction: column; padding: 0.3rem 0.6rem 0.45rem; }
   .ps-ach-list { grid-template-columns: minmax(0, 1fr); }
   .ps-review { grid-template-columns: auto minmax(0, 1fr); }
   .ps-review > .ps-select { grid-column: 1 / -1; }

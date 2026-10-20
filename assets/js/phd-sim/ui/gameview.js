@@ -1,6 +1,7 @@
 // The game screen: a compact window that sits inside the page, like the original game's box.
-// A top strip (date, bars, score), a scene in the middle (this turn's choices, or whatever is
-// happening), and a tray of project trackers at the bottom.
+// A top strip (date, bars, score) with a progress band under it (project trackers and what's
+// affecting you), a scene in the middle (this turn's choices, or whatever is happening), and a
+// quiet footer with PhD 101 pointers.
 import { esc, rich, bar, plural, arrowsHtml, shownStat } from "./common.js";
 import {
   yearOf, turnDates, absTurn, WEEKS_PER_TURN, PROJECT_TYPES, STAGE_LABELS, FIELD_LABELS, fieldOf, stageInfo,
@@ -103,9 +104,13 @@ function recapHtml(G, report) {
 
 function planHtml(G, ui) {
   const opts = orderedActions(ui.plan);
+  // Starting a project is an action, so it sits with the turn's choices (it doesn't use the turn).
+  const canNew = ui.plan.canStartProject && !ui.modal;
   return '<div class="ps-plan ps-enter">' + recapHtml(G, ui.report) +
     '<div class="ps-scene-head"><h2 class="ps-scene-title">' + (ui.plan.internship ? "Internship weeks" : ui.plan.onLeave ? "On leave" : "Your next two weeks") + "</h2>" +
-    (G.state.turn <= 1 ? '<span class="ps-scene-hint">Pick one. Keep Energy up, Stress down, Health up.</span>' : "") + "</div>" +
+    (G.state.turn <= 1 ? '<span class="ps-scene-hint">Pick one. Keep Energy up, Stress down, Health up.</span>' : "") +
+    (canNew ? '<button class="ps-btn ps-btn-sm ps-newproj" data-action="new-project" title="Doesn’t use the turn. Adds Stress.">+ New project ' +
+      arrowsHtml([{ stat: "sanity", dir: "down", strength: ui.plan.newProjectStress >= 10 ? 2 : 1 }]) + "</button>" : "") + "</div>" +
     '<div class="ps-tiles">' + opts.map(function (a, i) { return tileHtml(G, a, i + 1); }).join("") + "</div>" + sideHtml(ui) + "</div>";
 }
 
@@ -229,16 +234,16 @@ function statusChips(G) {
   return chips.join("");
 }
 
-// PhD 101 pointers from senior labmates and events, kept where they're easy to find.
+// PhD 101 pointers from senior labmates and events: a quiet line at the bottom of the window.
 function tipShelfHtml(G) {
   const s = G.state;
   const recent = (s.tipShelf || []).filter(function (t) { return s.turn - t.turn <= 6; }).slice(0, 2);
   if (!recent.length) return "";
-  return '<div class="ps-tipshelf">' + recent.map(function (t) {
+  return '<footer class="ps-tipshelf">' + recent.map(function (t) {
     return '<a class="ps-tip" href="' + esc(t.url) + '" target="_blank" rel="noopener" title="' + esc(t.note || "") + '">' +
       '<span class="ps-tip-badge">\u{1F4D6} PhD 101</span><b>' + esc(t.title) + "</b>" +
       (t.note ? '<span class="ps-tip-note">' + rich(t.note) + "</span>" : "") + '<span aria-hidden="true">\u2192</span></a>';
-  }).join("") + "</div>";
+  }).join("") + "</footer>";
 }
 
 // Every achievement: the ones you have, and the rest (secret ones stay hidden).
@@ -259,22 +264,21 @@ function achievementsHtml(G) {
     }).join("") + "</ul></div></div>";
 }
 
-function trayHtml(G, ui) {
+// The progress band under the top strip: where each project stands, and what's affecting you.
+// It's status, not a choice, so it hangs off the dashboard rather than sitting with the tiles.
+function bandHtml(G, ui) {
   const s = G.state;
   const active = s.projects.filter(function (p) { return p.status === "active"; });
   const inReview = s.projects.filter(function (p) { return p.status === "submitted"; });
-  const canNew = ui.plan && ui.plan.canStartProject && !ui.modal;
   // Trackers that changed last turn get a short glow (only on the turn's planning screen).
   const moved = {};
   if (ui.report && ui.plan) ui.report.projects.forEach(function (x) { if (x.from && x.id) moved[x.id] = true; });
-  return '<footer class="ps-tray">' + tipShelfHtml(G) +
-    '<div class="ps-chips">' + statusChips(G) + "</div>" +
-    '<div class="ps-trackers">' + active.map(function (p) { return trackerHtml(G, p, !!ui.modal, moved[p.id]); }).join("") +
-    inReview.map(function (p) { return reviewTrackerHtml(G, p, moved[p.id]); }).join("") +
-    (canNew ? '<button class="ps-tracker ps-tracker-new" data-action="new-project" title="Doesn’t use the turn. Adds Stress.">+ New project ' +
-      arrowsHtml([{ stat: "sanity", dir: "down", strength: ui.plan.newProjectStress >= 10 ? 2 : 1 }]) + "</button>" : "") +
-    (!active.length && !inReview.length && !canNew ? '<span class="ps-tray-empty">No projects yet.</span>' : "") +
-    "</div></footer>";
+  const chips = statusChips(G);
+  const trackers = active.map(function (p) { return trackerHtml(G, p, !!ui.modal, moved[p.id]); }).join("") +
+    inReview.map(function (p) { return reviewTrackerHtml(G, p, moved[p.id]); }).join("");
+  return '<section class="ps-band" aria-label="Your progress">' +
+    (trackers ? '<div class="ps-trackers">' + trackers + "</div>" : '<span class="ps-tray-empty">No projects yet.</span>') +
+    (chips ? '<div class="ps-chips">' + chips + "</div>" : "") + "</section>";
 }
 
 // ---- The whole screen -------------------------------------------------------------------------
@@ -310,6 +314,6 @@ export function gameHtml(G, ui, promptInner, promptCls) {
   if (promptInner) scene = ui.plan ? planHtml(G, ui) : "";
   else if (ui.inspect && G.state.projects.some(function (p) { return p.id === ui.inspect && p.status === "active"; })) scene = inspectHtml(G, G.state.projects.find(function (p) { return p.id === ui.inspect; }));
   else scene = ui.plan ? planHtml(G, ui) : "";
-  return '<div class="ps-game">' + hudHtml(G) + '<main class="ps-scene"' + (promptInner ? ' aria-hidden="true"' : "") + ">" + scene + "</main>" + trayHtml(G, ui) +
+  return '<div class="ps-game">' + hudHtml(G) + bandHtml(G, ui) + '<main class="ps-scene"' + (promptInner ? ' aria-hidden="true"' : "") + ">" + scene + "</main>" + tipShelfHtml(G) +
     (promptInner ? popupHtml(G, ui, promptInner, promptCls) : ui.panel === "ach" ? achievementsHtml(G) : "") + "</div>";
 }

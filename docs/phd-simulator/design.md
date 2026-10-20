@@ -922,6 +922,11 @@ Arthur: the full-height layout was too tall, had too much text, and felt like a 
 - **Middle, the scene:** this turn's choices as **tiles** (icon, label, one short line, arrows, number key). Above the tiles, last turn as **chips**: the bar changes, up to two things that happened (good or bad news; on a quiet turn, a flavor one-liner). Project changes are not repeated here (2026-10-17): the tracker that changed glows instead, and a senior student's tip with its PhD 101 link when there is one.
 - **Pop-ups (2026-10-17):** anything that comes up during the turn (random events, deadlines, decisions, the committee, the rebuttal) **pops up over the game** with a dimmed backdrop, so it never reads as one of the turn's choices. Random events stand out further: a burst of rays in the rarity color behind them, a bouncy pop-in, a **picture** for their category with a "Random event" ribbon (a few per category, picked by event id). Since 2026-10-17 the picture is a **column on the left** of the card (190 px; a small thumbnail beside the title on phones), so events fit without scrolling. The pictures are being replaced by **AI-generated art** Arthur makes from `art-prompts.md` (portrait 2:3); `tools/phd-sim/import-art.py` imports them and rewrites `ui/art-manifest.js`, the list the game reads. All 41 slots were replaced with Arthur's art on 2026-10-18 (360 × 540 JPEGs, about 70 KB each; one loads per event); the earlier flat SVGs (`art-style.md`) are in git history. Updates slide up without a picture. Above every pop-up, a **turn strip** keeps you oriented: the dates, "This turn: <your focus>", and a dot per card so far this turn (diamonds for random events).
 - **Bottom, the tray:** chips for the advisor (Prof. Surname), statuses, and upcoming quals / proposal / defense (within 16 weeks); then one **tracker** per project (name, a dot per stage: done, now with a pulse, waiting dashed; the stage and deadline) and a **+ New project** tracker with its Stress arrow. Clicking a tracker opens the project close-up in the scene (all stages, the target venue, Shelve). **A submitted paper stays in the tray** as a dashed "letter": a venue stamp, a striped bar that fills until the decision, "Under review" (or the review scores once they're in) and the weeks to the decision.
+- **The tray moved to the top (playtest feedback via Arthur, 2026-10-20).** Players read the bottom tray as more of the turn's choices. It's now three parts:
+  - **Progress band** under the top strip, in the strip's dark colors: compact flat trackers (name, stage dots, where it stands, deadline) in a grid, then the chips. Tap a tracker for the close-up as before. On phones the trackers sit two per row.
+  - **"+ New project"** is a small button beside "Your next two weeks", because it's an action.
+  - **PhD 101 pointers** are a quiet one-line footer at the bottom of the window.
+  - Pop-ups cover everything below the top strip.
 - **Round of 2026-10-18 (Arthur's notes):**
   - **Less text:** choice cards keep only facts (costs, timing, the next deadline); flavor descriptions under choices are gone, and project tiles no longer show an odds word.
   - **Titles stand out:** the run's paper and project titles (full or short, quoted or not) render in italic semibold wherever they appear.
@@ -987,7 +992,7 @@ assets/js/phd-sim/
     conditions.js effects.js events.js templating.js projects.js reviews.js
     citations.js people.js world.js milestones.js endings.js achievements.js save.js
   ui/                            # rendering only
-    app.js (flow and input) gameview.js (top strip, scene tiles, tray of trackers, project close-up)
+    app.js (flow and input) gameview.js (top strip, progress band of trackers, scene tiles, tip footer, project close-up)
     prompts.js (events, rebuttal, committee cards) screens.js (setup, codex, end card)
 tools/phd-sim/                   # excluded from the site build
   export-data.rb                 # YAML → JSON with the same shape as data.json
