@@ -9,7 +9,7 @@ import { eachText } from "../../assets/js/phd-sim/engine/i18n.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..", "..");
-const out = process.argv[2] || join(here, "out", "zh-review.html");
+const out = process.argv.slice(2).filter((a) => a.indexOf("--") !== 0)[0] || join(here, "out", "zh-review.html");
 const data = JSON.parse(readFileSync(join(here, "out", "data.json"), "utf8")).data;
 const tables = JSON.parse(readFileSync(join(here, "out", "i18n-zh.json"), "utf8"));
 
@@ -18,8 +18,8 @@ function groupsFor(src) {
   const groups = [];
   const seen = new Set();
   const push = (label, strings) => {
-    const rows = strings.filter((s) => !seen.has(s));
-    rows.forEach((s) => seen.add(s));
+    const rows = [];
+    strings.forEach((s) => { if (!seen.has(s)) { seen.add(s); rows.push(s); } });
     if (rows.length) groups.push({ label, strings: rows });
   };
   const collect = (wrapped) => { const list = []; eachText(wrapped, (s, en) => list.push(en)); return list; };
@@ -55,6 +55,12 @@ const files = Object.keys(tables).filter((s) => s !== "_stale").sort((a, b) => {
   return { src, n: zh.size, groups };
 });
 
+// --json writes the grouped rows instead of the page (tools/phd-sim/i18n-xlsx.py builds the spreadsheet from it).
+if (process.argv.includes("--json")) {
+  writeFileSync(out, JSON.stringify({ built: new Date().toISOString().slice(0, 10), files }));
+  console.log("wrote " + out + " (" + files.length + " tables)");
+  process.exit(0);
+}
 const payload = JSON.stringify({ built: new Date().toISOString().slice(0, 10), files }).replace(/</g, "\\u003c");
 const tpl = readFileSync(join(here, "i18n-review.html"), "utf8");
 writeFileSync(out, tpl.replace("/*DATA*/null", payload));
