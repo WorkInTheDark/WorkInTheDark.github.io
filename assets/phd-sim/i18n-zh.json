@@ -1,0 +1,6 @@
+---
+layout: none
+permalink: /assets/phd-sim/i18n-zh.json
+sitemap: false
+---
+{{ site.data.phd_sim_i18n.zh | jsonify }}

@@ -38,3 +38,24 @@ end
 payload = { "phd101" => phd101, "data" => load_tree(data_dir) }
 File.write(out_path, JSON.generate(payload))
 puts "wrote #{out_path} (#{File.size(out_path) / 1024} KB, #{phd101.size} PhD 101 topics)"
+
+# Translation tables (_data/phd_sim_i18n/<lang>/*.yml), the same shape Jekyll renders at
+# /assets/phd-sim/i18n-<lang>.json: { source: [{ en, <lang> }] }.
+i18n_dir = File.join(root, "_data", "phd_sim_i18n")
+if Dir.exist?(i18n_dir)
+  Dir.children(i18n_dir).sort.each do |lang|
+    dir = File.join(i18n_dir, lang)
+    next unless File.directory?(dir)
+    tree = load_tree(dir)
+    flat = {}
+    walk = lambda do |t, prefix|
+      t.each { |k, v| v.is_a?(Hash) ? walk.call(v, prefix + k + "/") : flat[prefix + k] = v }
+    end
+    walk.call(tree, "")
+    path = File.join(File.dirname(out_path), "i18n-#{lang}.json")
+    File.write(path, JSON.generate(flat))
+    done = flat.values.flatten.count { |r| r.is_a?(Hash) && r[lang].to_s.strip != "" }
+    total = flat.values.flatten.count { |r| r.is_a?(Hash) }
+    puts "wrote #{path} (#{File.size(path) / 1024} KB, #{done} of #{total} strings translated)"
+  end
+end
