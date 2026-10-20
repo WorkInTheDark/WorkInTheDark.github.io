@@ -4,7 +4,12 @@
   export: ruby tools/phd-sim/export-data.rb
           node --experimental-default-type=module tools/phd-sim/i18n-review.mjs <rows.json> --json
           python3 tools/phd-sim/i18n-xlsx.py export <rows.json> <out.xlsx> [--literal <git ref>]
+                  [--prev <git ref>] [--reviewed <reviewed.json>] [--notes <notes.json>]
   import: python3 tools/phd-sim/i18n-xlsx.py import <edited.xlsx>
+
+For a later round, --prev marks what changed since that version (with the old text beside it),
+--reviewed marks rows Arthur already reviewed ({"reviewed": [[table, English], ...]}), and --notes
+explains changes to them ({"<table>\t<English>": "why"}).
 
 Rows are matched by table + English, so sorting or filtering the sheet is fine. An edited 中文 cell
 replaces that line's translation in _data/phd_sim_i18n/zh/<table>.yml, and in any other table with
@@ -20,8 +25,10 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 ZH_DIR = os.path.join(ROOT, "_data", "phd_sim_i18n", "zh")
 SHEETS = [("事件 Events", lambda s: s.startswith("events/")), ("游戏文本 Game text", lambda s: not s.startswith("events/") and s != "code"),
           ("界面 Interface", lambda s: s == "code")]
-HEAD = ["表 Table", "位置 Where", "English", "中文（在此修改）", "直译版 Literal first pass", "本次改写 Localized", "备注 Notes for Claude"]
-WIDTH = [16, 30, 60, 60, 46, 10, 30]
+WIDTH = {"表 Table": 16, "位置 Where": 30, "English": 60, "中文（在此修改）": 60, "本次改写 Localized": 10, "本轮改动 Changed": 10,
+         "Claude 的说明": 36, "上一版 Previous": 46, "已审 Reviewed": 9, "直译版 Literal first pass": 40, "备注 Notes for Claude": 30}
+GREY = ("表 Table", "位置 Where", "上一版 Previous", "直译版 Literal first pass")
+WRAP = ("English", "中文（在此修改）", "Claude 的说明", "上一版 Previous", "直译版 Literal first pass", "备注 Notes for Claude")
 FONT = "Arial"
 PAIR = re.compile(r'^- en: (".*")\n  zh: (".*")$', re.M)
 
@@ -41,9 +48,16 @@ def literal_tables(ref):
     return out
 
 
-def export(rows_json, out_path, ref):
+def export(rows_json, out_path, ref, prev_ref=None, reviewed_json=None, notes_json=None):
     data = json.load(open(rows_json, encoding="utf-8"))
     lit = literal_tables(ref)
+    prev = literal_tables(prev_ref) if prev_ref else None
+    reviewed = {tuple(r) for r in json.load(open(reviewed_json, encoding="utf-8"))["reviewed"]} if reviewed_json else None
+    notes = json.load(open(notes_json, encoding="utf-8")) if notes_json else {}
+    head = ["表 Table", "位置 Where", "English", "中文（在此修改）"]
+    head += ["本轮改动 Changed", "Claude 的说明", "上一版 Previous"] if prev is not None else ["本次改写 Localized"]
+    head += ["已审 Reviewed"] if reviewed is not None else []
+    head += ["直译版 Literal first pass", "备注 Notes for Claude"]
     wb = Workbook()
     readme = wb.active
     readme.title = "说明 README"
@@ -52,7 +66,8 @@ def export(rows_json, out_path, ref):
         ("每一行是游戏里的一句话。只改黄色的「中文（在此修改）」一列；其他列请不要改（导入时按「表 + English」对行）。", False),
         ("可以排序、筛选、加批注；想让 Claude 处理的问题写在「备注 Notes for Claude」里。", False),
         ("{advisor}、{labmate}、{n} 这类花括号是游戏自动填的内容（人名、数字等），请原样保留，可以挪位置。", False),
-        ("「直译版」是第一版直译，只供对照；「本次改写」标 ✓ 的行是这次本地化改过的。", False),
+        ("「直译版」是第一版直译，只供对照；「本次改写」标 ✓ 的行是这次本地化改过的。", False) if prev is None else
+        ("「已审」标 ✓ 的是你审过的行。筛选「本轮改动」= ✓ 能看到 Claude 这一轮改了哪些；改你审过的行时，理由写在「Claude 的说明」。「上一版」是这一轮之前的中文，「直译版」是最早的直译。", False),
         ("同一句英文在多个表里出现时，游戏只用一种中文：改其中一处，导入时会同步到所有地方。", False),
         ("改完把文件发回给 Claude（或放回原处），Claude 会导入、检查并在游戏里测试。", False),
         ("", False),
@@ -81,7 +96,7 @@ def export(rows_json, out_path, ref):
     counts = {}
     for title, pick in SHEETS:
         ws = wb.create_sheet(title)
-        for j, h in enumerate(HEAD, 1):
+        for j, h in enumerate(head, 1):
             c = ws.cell(row=1, column=j, value=h)
             c.font = Font(name=FONT, bold=True, color="FFFFFF")
             c.fill = head_fill
@@ -91,22 +106,30 @@ def export(rows_json, out_path, ref):
             if not pick(f["src"]):
                 continue
             old = lit.get(f["src"], {})
+            before = prev.get(f["src"], {}) if prev is not None else {}
             for g in f["groups"]:
                 for en, zh in g["rows"]:
                     was = old.get(en, "")
-                    vals = [f["src"], g["label"], en, zh, was, "✓" if was and was != zh else "", ""]
-                    for j, v in enumerate(vals, 1):
-                        c = ws.cell(row=r, column=j, value=v)
-                        c.font = Font(name=FONT, size=10, color="777777" if j in (1, 2, 5) else "000000")
-                        c.alignment = Alignment(wrap_text=j in (3, 4, 5, 7), vertical="top")
+                    v = {"表 Table": f["src"], "位置 Where": g["label"], "English": en, "中文（在此修改）": zh,
+                         "本次改写 Localized": "✓" if was and was != zh else "", "直译版 Literal first pass": was}
+                    if prev is not None:
+                        b = before.get(en, "")
+                        v.update({"本轮改动 Changed": "✓" if b and b != zh else "", "上一版 Previous": b if b != zh else "",
+                                  "Claude 的说明": notes.get(f["src"] + "\t" + en, "")})
+                    if reviewed is not None:
+                        v["已审 Reviewed"] = "✓" if (f["src"], en) in reviewed else ""
+                    for j, h in enumerate(head, 1):
+                        c = ws.cell(row=r, column=j, value=v.get(h, ""))
+                        c.font = Font(name=FONT, size=10, color="777777" if h in GREY else "000000")
+                        c.alignment = Alignment(wrap_text=h in WRAP, vertical="top")
                         c.border = Border(bottom=thin)
                     ws.cell(row=r, column=4).fill = edit_fill
                     r += 1
         counts[title] = r - 2
-        for j, w in enumerate(WIDTH, 1):
-            ws.column_dimensions[get_column_letter(j)].width = w
+        for j, h in enumerate(head, 1):
+            ws.column_dimensions[get_column_letter(j)].width = WIDTH[h]
         ws.freeze_panes = "C2"
-        ws.auto_filter.ref = "A1:" + get_column_letter(len(HEAD)) + str(max(2, r - 1))
+        ws.auto_filter.ref = "A1:" + get_column_letter(len(head)) + str(max(2, r - 1))
     wb.save(out_path)
     print("wrote", out_path, counts)
 
@@ -177,8 +200,8 @@ def do_import(xlsx):
 
 if __name__ == "__main__":
     if len(sys.argv) >= 4 and sys.argv[1] == "export":
-        ref = sys.argv[sys.argv.index("--literal") + 1] if "--literal" in sys.argv else "zh-literal-pass"
-        export(sys.argv[2], sys.argv[3], ref)
+        opt = lambda k, d=None: sys.argv[sys.argv.index(k) + 1] if k in sys.argv else d
+        export(sys.argv[2], sys.argv[3], opt("--literal", "zh-literal-pass"), opt("--prev"), opt("--reviewed"), opt("--notes"))
     elif len(sys.argv) == 3 and sys.argv[1] == "import":
         do_import(sys.argv[2])
     else:

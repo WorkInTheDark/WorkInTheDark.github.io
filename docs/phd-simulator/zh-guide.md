@@ -159,6 +159,42 @@ Arthur wants the Chinese to feel written for Chinese PhD students, with their sl
 | 三个审稿人，三种看法。 | 三个审稿人，四种意见，其中一种来自 2 号审稿人的第二段。 |
 | 你把每篇相关论文都读了。 | 相关工作读了个遍，读到你怀疑自己的想法早就有人做过了。 |
 
+## Round 2: what Arthur's own edits show (2026-10-20)
+
+Arthur reviewed spreadsheet rows 2–800 (the advisor, career, data, exits and lab events) and changed 62 lines. His main complaint: some lines still read 生硬, translated. His edits fall into the patterns below; follow them everywhere else. Where this section and the earlier rules disagree, this one wins.
+
+1. **Link the sentences.** English stacks short sentences. Spoken Chinese joins them with the word a person would actually say: 但, 于是, 倒, 只是, 反而, 心想.
+   - 你的实验没察觉到搬家，你的腰察觉到了。 → ……没察觉到搬家，**但**你的腰察觉到了。
+   - 有人问起表 3。大家一起认识了表 3。 → ……**于是**大家一起认识了表 3。
+   - 一半的意见已经改过了。另一半提得很好。 → ……已经改完了。另一半**倒**提得很好。
+2. **Say what people actually say.** Dialogue, emails and choice labels use the phrase a Chinese advisor, labmate or HR person would use, not a rendering of the English phrase.
+   - "Quick question" → “有个小问题”, not “简单问一下”
+   - "thx" → “感谢”; "Of course." → “没问题。”; "Nothing changes!" → “一切照旧！”; "perfect" → “做得不错”
+   - "I have a deadline too." → “抱歉，我也有截稿。”
+   - Send a written update → 改发邮件汇报进展; "a starter allocation" → “基础配额”
+3. **Spell out what the English leaves implied.** If a literal line makes the reader stop and work it out, say it plainly, even if it gets a few characters longer. Clarity beats the "keep it short" rule, but don't pad.
+   - 第二封邮件已经回答了第一封。 → 第二封邮件说，第一封里的问题已经解决了。
+   - 两张都上了第一页。 → 两张最终都被放在了第一页。
+   - 然后要了你的论文。 → 然后记下了你的论文标题。
+   - 可你只够写好一份。 → 可你只够精力写好一份。
+4. **Concrete, and a little funny when it comes naturally.** His own touches: a number instead of a percentage, a body part filing a request, a self-aware verb, a local food.
+   - 薪资部分你读了 100% → 薪资部分你读了 3 遍
+   - 你的眼睛有话要说 → 你的眼睛在申请带薪休假
+   - 做个快速版 → 先糊弄一版; 即兴发挥 → 东拉西扯
+   - Now You're the Senior One → 你成老艺术家了！
+   - celebrate with dumplings → 吃火锅庆祝
+5. **Clear beats insider.** He undid slang that only some readers know or that sounded forced: 基金本子 → 基金申请, 好卡 → 有卡, 预约好的卡 → 预约好的显卡集群, 蹲在停车场 → 坐在停车场, HC → Head Count. One joke that lands is plenty for an event. A plain, natural line beats a forced meme.
+6. **Natural word pairs.** 落下好印象 → 留下好印象; 对此非常宽容 → 非常包容; 比你担心的高 → 比你估计的高; 晚了一周 → 拖了一周; 最爱的课题 → 最喜欢的课题.
+
+**What a stiff line usually looks like**
+- English order kept: one idea per sentence with no connective, "然后" chains, the reason or time tacked on at the end.
+- Echoes of English pronouns and possessives: 你的……你的……, 它, 对此, 这让你……
+- Literal images that aren't Chinese: 有话要说, 让天平倾斜, 想法立住了, 标准基准.
+- Quotes nobody says in Chinese: 完美, 当然, written-English politeness.
+- Nouns where Chinese uses a verb: 进行了讨论 → 聊了聊.
+
+The pronoun rule still holds: no 他 or 她 for the advisor or anyone whose gender isn't given. Restructure the sentence instead.
+
 ## Checklist for every file
 
 1. Every row has a `zh`, and every `{token}` appears in the translation the same number of times.
