@@ -199,6 +199,28 @@ for (const c of new Set(D.events.map((e) => (e.category === "legion" ? "advisor"
   for (const f of list) if (!existsSync(join(here, "../../assets/phd-sim/art/" + f))) err("art", "missing " + f + " (rerun tools/phd-sim/import-art.py)");
 }
 
+// Translations (tools/phd-sim/out/i18n-<lang>.json from export-data.rb): {tokens} must survive, and
+// untranslated lines are counted (they fall back to English, so they're not errors).
+for (const lang of ["zh"]) {
+  const path = join(here, "out", "i18n-" + lang + ".json");
+  if (!existsSync(path)) continue;
+  const tree = JSON.parse(readFileSync(path, "utf8"));
+  const TOK = /\{[a-z0-9_]+(?:\.[a-z0-9_]+)?(?::\d+-\d+)?(?:\|[a-z]+)?\}/gi;
+  let rows = 0, done = 0;
+  for (const [src, list] of Object.entries(tree)) {
+    if (src === "_stale") continue;
+    (list || []).forEach((r) => {
+      rows++;
+      const tr = (r && r[lang]) || "";
+      if (!tr.trim()) return;
+      done++;
+      const a = (r.en.match(TOK) || []).sort().join(" "), b = (tr.match(TOK) || []).sort().join(" ");
+      if (a !== b) err("i18n " + lang + "/" + src, "tokens differ in \"" + r.en.slice(0, 50) + "\": [" + a + "] vs [" + b + "]");
+    });
+  }
+  console.log("Translations (" + lang + "): " + done + " of " + rows + " strings");
+}
+
 const byFile = {};
 D.events.forEach((e) => { byFile[e.file] = (byFile[e.file] || 0) + 1; });
 console.log("Events: " + D.events.length + " " + JSON.stringify(byFile));

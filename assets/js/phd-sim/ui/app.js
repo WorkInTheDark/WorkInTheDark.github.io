@@ -6,6 +6,7 @@ import { gameHtml, orderedActions } from "./gameview.js";
 import { eventHtml, sysHtml, rebuttalHtml, resultHtml, promptClass } from "./prompts.js";
 import { titleHtml, setupHtml, codexHtml, endHtml } from "./screens.js";
 import { readSharedFromLocation, sharedHtml, shareTargets, shareText, cardBlob } from "./share.js";
+import { t } from "../engine/i18n.js";
 
 export class App {
   constructor(root, rawData) {
@@ -67,7 +68,7 @@ export class App {
     if (this.modal.result) {
       // Keep the question visible, replace the choices with the outcome.
       inner = inner.replace(/<div class="ps-choices">[\s\S]*$/, "");
-      if (p.type !== "event" && p.type !== "sys") inner = '<div class="ps-kicker">Result</div><h3 id="ps-dialog-title">' + esc(p.title || "") + "</h3>";
+      if (p.type !== "event" && p.type !== "sys") inner = '<div class="ps-kicker">' + esc(t("Result")) + '</div><h3 id="ps-dialog-title">' + esc(p.title || "") + "</h3>";
       inner += resultHtml(this.modal.result, p);
     }
     return inner;
@@ -126,8 +127,8 @@ export class App {
     clearTimeout(this.toastTimer);
     this.toastTimer = setTimeout(function () {
       self.toast = null;
-      const t = self.root.querySelector(".ps-toast");
-      if (t) t.remove();
+      const el = self.root.querySelector(".ps-toast");
+      if (el) el.remove();
     }, 3500);
   }
 
@@ -229,7 +230,7 @@ export class App {
       setTimeout(function () {
         const el = document.createElement("div");
         el.className = "ps-ach-pop";
-        el.innerHTML = '<span class="ps-ach-icon" aria-hidden="true">\u{1F3C6}</span><span class="ps-ach-body"><small>Achievement unlocked</small><b>' +
+        el.innerHTML = '<span class="ps-ach-icon" aria-hidden="true">\u{1F3C6}</span><span class="ps-ach-body"><small>' + esc(t("Achievement unlocked")) + "</small><b>" +
           esc(a.name) + "</b><span>" + esc(a.desc || "") + "</span></span>";
         layer.appendChild(el);
         setTimeout(function () { el.classList.add("ps-ach-out"); setTimeout(function () { el.remove(); }, 450); }, 5200);
@@ -243,7 +244,7 @@ export class App {
     // The cards seen so far this turn, for the pop-up's "where am I" strip.
     const turn = this.game.state.turn;
     if (!this.trail || this.trail.turn !== turn) this.trail = { turn: turn, items: [] };
-    this.trail.items.push({ title: p.title || "Update", event: p.type === "event" });
+    this.trail.items.push({ title: p.title || t("Update"), event: p.type === "event" });
     if (p.type === "rebuttal") this.psel = { responses: {} };
     else this.psel = {};
     this.keepScroll = true;
@@ -330,7 +331,7 @@ export class App {
       case "do": this.doAction(id); break;
       case "side": this.sidePick = this.sidePick === id ? null : id; this.keepScroll = true; this.render(); break;
       case "shelve":
-        if (window.confirm("Shelve this project? You can't bring it back.")) { this.game.shelveProject(id); this.inspect = null; this.persist(); this.setPlan(this.game.planPrompt()); this.keepScroll = true; this.render(); }
+        if (window.confirm(t("Shelve this project? You can't bring it back."))) { this.game.shelveProject(id); this.inspect = null; this.persist(); this.setPlan(this.game.planPrompt()); this.keepScroll = true; this.render(); }
         break;
       case "new-project": {
         const before = this.game.state.stats.sanity;
@@ -338,7 +339,7 @@ export class App {
         if (p) {
           this.persist();
           const up = Math.round(before - this.game.state.stats.sanity);
-          this.flashToast("New project: " + p.short + (up > 0 ? ". Stress +" + up + "." : "."));
+          this.flashToast(up > 0 ? t("New project: {project}. Stress +{n}.", { project: p.short, n: up }) : t("New project: {project}.", { project: p.short }));
           this.setPlan(this.game.planPrompt());
           this.keepScroll = true; this.render();
         }
@@ -352,15 +353,15 @@ export class App {
       case "shared-daily": this.leaveShared(); this.newSetup(true); break;
       case "copy-link": {
         const url = shareTargets(this.ending, this.D).url;
-        const done = function () { self.flashToast("Link copied."); self.render(); };
-        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function () { window.prompt("Copy this link:", url); });
-        else window.prompt("Copy this link:", url);
+        const done = function () { self.flashToast(t("Link copied.")); self.render(); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function () { window.prompt(t("Copy this link:"), url); });
+        else window.prompt(t("Copy this link:"), url);
         break;
       }
       case "share-native": {
         // The device's share sheet, with the image attached where the browser allows files.
-        const t = shareTargets(this.ending, this.D);
-        const data = { title: "PhD Simulator", text: shareText(this.ending), url: t.url };
+        const tg = shareTargets(this.ending, this.D);
+        const data = { title: t("PhD Simulator"), text: shareText(this.ending), url: tg.url };
         const file = this.cardFile;
         navigator.share(file && navigator.canShare && navigator.canShare({ files: [file] }) ? Object.assign({ files: [file] }, data) : data).catch(function () {});
         break;

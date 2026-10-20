@@ -17,13 +17,14 @@ Arthur reviews every line before the Chinese version goes live.
   - Event text: one to three sentences.
 - **No filler.** No 堪称, 无疑, 毋庸置疑, 值得一提的是, or 不仅……而且…… unless the English has that structure. Don't add judgments the English doesn't make.
 - **No serious topics.** Same rule as the English: burnout is a light, recoverable state, and nothing about grief, illness beyond colds, harassment or politics.
-- **People whose gender isn't given** (labmates, reviewers, committee members): don't use 他 or 她. Repeat the name, restructure the sentence, or use TA sparingly. 他们 is fine for groups.
+- **People whose gender isn't given** (labmates, reviewers, committee members): don't use 他 or 她. Repeat the name, restructure the sentence, or use 对方 / 那位同学 / 导师. Don't use TA: it reads as 助教 in this game. 他们 is fine for groups.
 
 ## Punctuation and spacing
 
 - Full-width Chinese punctuation: ，。？！：；（）. Quotation marks are “ ” and ‘ ’. Use 《》 only for book titles, not paper titles.
 - **No dashes (—— or —).** The English avoids them too. Use a comma, a colon or a full stop.
 - Put a half-width space between Chinese and English words or numbers: 投稿到 ACL, 3 篇论文, 第 2 号审稿人. There's no space before full-width punctuation.
+- Tokens follow the same rule by what they render: a space next to tokens that show Latin text (`{labmate} 忘了来`, `投到 {venue}`), but none after `{advisor}` or `{committee}`, which end in 教授 (`去找 {advisor}聊聊`).
 - Use ASCII digits. Keep "%" half-width: 30%.
 
 ## Tokens
@@ -115,6 +116,10 @@ Keep every `{token}` exactly as written. You may move it within the sentence. Th
 | startup | 创业公司 |
 | conference / poster / talk | 会议 / 海报 / 报告 |
 | Got it / Continue / Celebrate | 知道了 / 继续 / 庆祝 |
+| Coding / Writing / Network / Domain knowledge | 编程 / 写作 / 人脉 / 领域知识 |
+| free days | 可用天数 |
+| Prepare for quals | 准备资格考试 |
+| deadline mode | 截稿冲刺 |
 
 ## Checklist for every file
 

@@ -38,3 +38,8 @@ export function saveRun(state) { return write(RUN_KEY, state); }
 export function clearRun() { return write(RUN_KEY, null); }
 export function loadMeta() { return read(META_KEY) || { runs: 0, runsCompleted: 0, achievements: {}, seenRuns: {}, codex: {}, settings: {} }; }
 export function saveMeta(meta) { return write(META_KEY, meta); }
+
+// The player's language choice, read before the game data loads (null until they pick one).
+const LANG_KEY = "phdsim:lang";
+export function loadLang() { try { return window.localStorage.getItem(LANG_KEY); } catch (e) { return null; } }
+export function saveLang(lang) { try { window.localStorage.setItem(LANG_KEY, lang); return true; } catch (e) { return false; } }

@@ -2,6 +2,7 @@
 import { clamp } from "./util.js";
 import { absTurn, yearOf, tOf, TURNS, span, turnDates } from "./state.js";
 import { hasTrait, hasStatus } from "./derived.js";
+import { t, T_ } from "./i18n.js";
 
 function S(id, kind, comp, skill, chance, extra) {
   const st = { id: id, kind: kind, comp: comp, skill: skill, chance: chance };
@@ -17,33 +18,33 @@ function S(id, kind, comp, skill, chance, extra) {
 // together into one paper and tailors it to the venue.
 export const PROJECT_TYPES = {
   empirical: {
-    label: "Empirical NLP",
+    label: T_("Empirical NLP"),
     stages: [S("idea", "work", "N", "taste", 0.8), S("lit", "work", "N", "knowledge", 0.7),
       S("pilot", "work", "S", "coding", 0.6), S("experiments", "work", "S", "coding", 0.5, { compute: true }),
       S("consolidation", "work", "C", "writing", 0.6)]
   },
   study: {
-    label: "Human-centered study",
+    label: T_("Human-centered study"),
     stages: [S("idea", "work", "N", "taste", 0.8), S("lit", "work", "N", "knowledge", 0.7),
       S("design", "work", "S", "knowledge", 0.65), S("irb", "wait", null, null, 0, { wait: [1, 2] }),
       S("recruiting", "wait", null, null, 0, { wait: [1, 1] }), S("sessions", "work", "S", "presenting", 0.55),
       S("analysis", "work", "S", "knowledge", 0.6, { stats: true }), S("consolidation", "work", "C", "writing", 0.6)]
   },
   system: {
-    label: "System + evaluation",
+    label: T_("System + evaluation"),
     stages: [S("idea", "work", "N", "taste", 0.8), S("lit", "work", "N", "knowledge", 0.7),
       S("build", "work", "S", "coding", 0.5), S("irb", "wait", null, null, 0, { wait: [1, 2] }),
       S("study", "work", "S", "presenting", 0.55), S("analysis", "work", "S", "knowledge", 0.6, { stats: true }),
       S("consolidation", "work", "C", "writing", 0.6)]
   },
   dataset: {
-    label: "Dataset / benchmark",
+    label: T_("Dataset / benchmark"),
     stages: [S("idea", "work", "N", "taste", 0.8), S("lit", "work", "N", "knowledge", 0.7),
       S("guidelines", "work", "S", "knowledge", 0.65), S("annotation", "wait", null, null, 0, { wait: [1, 2] }),
       S("baselines", "work", "S", "coding", 0.5), S("consolidation", "work", "C", "writing", 0.6)]
   },
   position: {
-    label: "Position / survey",
+    label: T_("Position / survey"),
     stages: [S("idea", "work", "N", "taste", 0.8), S("lit", "work", "N", "knowledge", 0.5),
       S("consolidation", "work", "C", "writing", 0.55)]
   }
@@ -53,16 +54,16 @@ export const PROJECT_TYPES = {
 export const REVISE_STAGE = S("revise", "work", "C", "writing", 0.6);
 
 // Which community a paper is for: NLP papers go to NLP venues, HCI papers to HCI venues.
-export const FIELD_LABELS = { nlp: "NLP", hci: "HCI", ml: "ML" };
+export const FIELD_LABELS = { nlp: T_("NLP"), hci: T_("HCI"), ml: T_("ML") };
 export function fieldOf(p) {
   return p.field || (p.type === "study" || p.type === "system" ? "hci" : "nlp");
 }
 
 export const STAGE_LABELS = {
-  idea: "Idea", lit: "Related work", pilot: "Pilot", experiments: "Experiments", consolidation: "Consolidation",
-  design: "Study design", irb: "IRB review", recruiting: "Recruiting", sessions: "Study sessions",
-  analysis: "Analysis", build: "Building", study: "User study", guidelines: "Annotation guidelines",
-  annotation: "Annotation", baselines: "Baselines", revise: "Revising"
+  idea: T_("Idea"), lit: T_("Related work"), pilot: T_("Pilot"), experiments: T_("Experiments"), consolidation: T_("Consolidation"),
+  design: T_("Study design"), irb: T_("IRB review"), recruiting: T_("Recruiting"), sessions: T_("Study sessions"),
+  analysis: T_("Analysis"), build: T_("Building"), study: T_("User study"), guidelines: T_("Annotation guidelines"),
+  annotation: T_("Annotation"), baselines: T_("Baselines"), revise: T_("Revising")
 };
 
 export function currentStage(G, p) {
@@ -99,10 +100,11 @@ export function turnChance(G, p, effort) {
   return clamp(stageChance(G, p) * f + (p.nudge || 0), 0, 0.95);
 }
 
-const CHANCE_WORDS = [[0.8, "very likely"], [0.6, "likely"], [0.45, "about even"], [0.3, "unlikely"], [0, "a long shot"]];
+const CHANCE_WORDS = [[0.8, T_("very likely")], [0.6, T_("likely")], [0.45, T_("about even")], [0.3, T_("unlikely")], [0, T_("a long shot")]];
+// Already translated, so every caller can show it as is.
 export function chanceWord(c) {
-  for (let i = 0; i < CHANCE_WORDS.length; i++) if (c >= CHANCE_WORDS[i][0]) return CHANCE_WORDS[i][1];
-  return "a long shot";
+  for (let i = 0; i < CHANCE_WORDS.length; i++) if (c >= CHANCE_WORDS[i][0]) return t(CHANCE_WORDS[i][1]);
+  return t("a long shot");
 }
 
 // End of turn: each project you worked on gets one try at finishing its stage.
@@ -120,7 +122,7 @@ export function rollStages(G, log) {
     p.stuck = 0;
     if (finalStage(st)) {
       p.ready = true;
-      if (log) log(p.short + ": " + (p.revise ? "the revision is done." : "it all comes together.") + " Ready to submit.");
+      if (log) log(p.revise ? t("{title}: the revision is done. Ready to submit.", { title: p.short }) : t("{title}: it all comes together. Ready to submit.", { title: p.short }));
     } else {
       advanceStage(G, p, log);
     }
@@ -130,7 +132,7 @@ export function rollStages(G, log) {
 // A turn of refining a ready paper: the same gain every pass (config progress.refine_pass, about
 // that much on the venue's quality score), most of it to the weakest part. The count stays with the
 // project, so a paper refined before a rejection keeps that work.
-const PART_NAMES = { N: "framing", S: "evidence", C: "writing" };
+const PART_NAMES = { N: T_("framing"), S: T_("evidence"), C: T_("writing") };
 export function refinePass(G, p, log) {
   p.refining = false;
   p.refineTurns = (p.refineTurns || 0) + 1;
@@ -138,7 +140,7 @@ export function refinePass(G, p, log) {
   const pass = G.D.config.progress.refine_pass || 0;
   const weak = weakestComp(components(G, p));
   ["N", "S", "C"].forEach(function (k) { p.bonus[k] += pass * (k === weak ? 5 / 3 : 2 / 3); });
-  if (log) log(p.short + ": the " + PART_NAMES[weak] + " is stronger now, so it should review better.");
+  if (log) log(t("{title}: the {part} is stronger now, so it should review better.", { title: p.short, part: t(PART_NAMES[weak]) }));
 }
 
 // For display: where a project stands, in words.
@@ -146,12 +148,14 @@ export function stageInfo(G, p) {
   const st = currentStage(G, p);
   const stages = PROJECT_TYPES[p.type].stages;
   let hint = "";
-  if (st.kind === "wait") hint = "waiting, about " + Math.max(1, p.wait) * 2 + " weeks";
-  else if (p.pause > 0) hint = "on hold for " + p.pause * 2 + " weeks";
-  else if (p.ready) hint = "ready to submit";
-  else hint = chanceWord(stageChance(G, p)) + " to finish in a full turn of work";
+  if (st.kind === "wait") hint = t("waiting, about {weeks} weeks", { weeks: Math.max(1, p.wait) * 2 });
+  else if (p.pause > 0) hint = t("on hold for {weeks} weeks", { weeks: p.pause * 2 });
+  else if (p.ready) hint = t("ready to submit");
+  else hint = t("{chance} to finish in a full turn of work", { chance: chanceWord(stageChance(G, p)) });
+  const id = p.revise ? "revise" : st.id;
   return {
-    label: p.revise ? STAGE_LABELS.revise : STAGE_LABELS[st.id],
+    id: id,   // the stage's id, for code that compares stages (label and hint are translated)
+    label: t(STAGE_LABELS[id]),
     n: p.revise ? stages.length : Math.min(p.stageIdx, stages.length - 1) + 1,
     of: stages.length,
     hint: hint,
@@ -177,7 +181,7 @@ export function writingCompletion(G, p) {
 }
 
 function shortTitle(title) {
-  const head = title.split(":")[0];
+  const head = title.split(/[:\uff1a]/)[0];
   if (head.length <= 44) return head;
   return title.split(" ").slice(0, 6).join(" ") + "…";
 }
@@ -192,7 +196,7 @@ export function newProjectObject(G, type, topicId, opts) {
   const pool = (data.titles && data.titles[field]) || [];
   const unused = pool.filter(function (t) { return topic.used.indexOf(t) < 0; });
   let title = opts.title || (unused.length ? G.rng.pick(unused) : null);
-  if (!title) title = "More on " + topic.name.charAt(0).toUpperCase() + topic.name.slice(1) + " (Part " + (topic.used.length + 1) + ")";
+  if (!title) title = t("More on {topic} (Part {n})", { topic: topic.name.charAt(0).toUpperCase() + topic.name.slice(1), n: topic.used.length + 1 });
   topic.used.push(title);
   const p = {
     id: "p" + s.nextId++,
@@ -423,8 +427,10 @@ export function advanceStage(G, p, log) {
   p.ready = false;
   const next = currentStage(G, p);
   if (next.kind === "wait") p.wait = G.rng.int(next.wait[0], next.wait[1]);
-  if (log) log(p.short + ": " + STAGE_LABELS[done.id] + " is done. On to " + STAGE_LABELS[next.id] +
-    (next.kind === "wait" ? " (about " + p.wait * 2 + " weeks)" : "") + ".");
+  if (log) {
+    const v = { title: p.short, done: t(STAGE_LABELS[done.id]), next: t(STAGE_LABELS[next.id]), weeks: p.wait * 2 };
+    log(next.kind === "wait" ? t("{title}: {done} is done. On to {next} (about {weeks} weeks).", v) : t("{title}: {done} is done. On to {next}.", v));
+  }
   if (next.id === "consolidation" && !p.target) autoTarget(G, p);
 }
 
@@ -468,7 +474,7 @@ export function deadlineLabel(G, p) {
 }
 
 export function absToLabel(G, turn) {
-  return "Y" + yearOf(turn) + " " + turnDates(turn);
+  return t("Y{year} {dates}", { year: yearOf(turn), dates: turnDates(turn) });
 }
 
 export { TURNS };

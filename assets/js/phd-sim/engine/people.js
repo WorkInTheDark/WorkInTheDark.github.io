@@ -1,10 +1,27 @@
 // Advisors, candidates, labmates, committees.
 import { clone } from "./util.js";
+import { t, T_ } from "./i18n.js";
 
 const PERSONALITIES = [
   "Helpful Senior", "Competitive Peer", "Chaotic Genius", "Quiet Workhorse",
   "Social Glue", "Perpetual Fifth-Year", "Industry Dreamer", "Meme Curator"
 ];
+
+// Where labmates go when they leave. `fate` is what the labmate keeps (saved games have it); `news` is
+// the log line when they leave and `later` the epilogue line, whole sentences so they translate.
+const FATES = [
+  { fate: "graduated and joined a big tech lab", news: T_("{name} graduated and joined a big tech lab."), later: T_("{name}, your old labmate, joined a big tech lab.") },
+  { fate: "graduated and started a postdoc", news: T_("{name} graduated and started a postdoc."), later: T_("{name}, your old labmate, started a postdoc.") },
+  { fate: "graduated and founded a startup", news: T_("{name} graduated and founded a startup."), later: T_("{name}, your old labmate, founded a startup.") },
+  { fate: "graduated and took a faculty job", news: T_("{name} graduated and took a faculty job."), later: T_("{name}, your old labmate, took a faculty job.") },
+  { fate: "graduated and moved home to teach", news: T_("{name} graduated and moved home to teach."), later: T_("{name}, your old labmate, moved home to teach.") }
+];
+
+// The end-screen line about a labmate who left.
+export function fateLine(l) {
+  const f = FATES.find(function (x) { return x.fate === l.fate; });
+  return f ? t(f.later, { name: l.name }) : l.name + ", your old labmate, " + String(l.fate).replace(/^graduated and /, "") + ".";
+}
 
 export function personName(G) {
   const n = G.D.names;
@@ -32,7 +49,7 @@ export function genCandidates(G) {
     const topic = G.rng.pick(G.state.world.topics);
     out.push({
       archetype: a.id, first: nm.first, surname: nm.last, quirks: quirks,
-      rumor: rumor, revealed: false, area: topic ? topic.name : "NLP"
+      rumor: rumor, revealed: false, area: topic ? topic.name : t("NLP")
     });
   }
   return out;
@@ -76,16 +93,16 @@ export function yearlyLabmates(G, log) {
     l.year++;
     if (l.year > 6 || (l.year >= 5 && G.rng.chance(0.4))) {
       l.present = false;
-      l.fate = G.rng.pick(["graduated and joined a big tech lab", "graduated and started a postdoc",
-        "graduated and founded a startup", "graduated and took a faculty job", "graduated and moved home to teach"]);
-      log(l.name + " " + l.fate + ".");
+      const f = G.rng.pick(FATES);
+      l.fate = f.fate;
+      log(t(f.news, { name: l.name }));
     }
   });
   if (s.advisor) {
     const nm = personName(G);
     s.labmates.push({ id: "l" + s.nextId++, name: nm.first, full: nm.first + " " + nm.last, year: 1,
       personality: G.rng.pick(PERSONALITIES), present: true });
-    log(nm.first + " joins the lab as a first-year.");
+    log(t("{name} joins the lab as a first-year.", { name: nm.first }));
   }
 }
 
@@ -94,6 +111,6 @@ export function genCommittee(G, n) {
   const picks = G.rng.shuffle(members).slice(0, n);
   return picks.map(function (m) {
     const nm = personName(G);
-    return { name: "Prof. " + nm.last, label: m.label, prefers: m.prefers || [] };
+    return { name: t("Prof. {name}", { name: nm.last }), label: m.label, prefers: m.prefers || [] };
   });
 }

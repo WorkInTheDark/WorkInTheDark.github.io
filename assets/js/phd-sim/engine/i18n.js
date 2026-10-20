@@ -16,6 +16,10 @@ export function setLanguage(lang, table) {
 
 export function language() { return LANG; }
 
+// Marks an English literal for the extractor without translating it yet: for constants defined at
+// import time (stage names, chance words) that are translated where they're shown, with t(CONST[id]).
+export function T_(en) { return en; }
+
 // The translation of an English string, with {name} placeholders filled from vars. A placeholder
 // with no value is left alone, so content tokens like {advisor} still reach fill().
 export function t(en, vars) {

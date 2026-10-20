@@ -1,6 +1,7 @@
 // Constants, calendar helpers and run creation.
 import { Rng } from "./rng.js";
 import { clamp, parseValue } from "./util.js";
+import { T_, language } from "./i18n.js";
 
 // One turn is two weeks (T1–T26 a year, starting 1 September). Content and config count in turns.
 export const TURNS = 26;
@@ -12,14 +13,16 @@ export const HIDDEN = SKILLS.concat(RELS, ["network"]);
 export const STAT_IDS = VISIBLE.concat(HIDDEN);
 
 export const STAT_LABELS = {
-  energy: "Energy", sanity: "Stress", citations: "Citations", health: "Health",
-  taste: "Research taste", coding: "Coding", writing: "Writing", presenting: "Presenting",
-  knowledge: "Domain knowledge", advisor_rel: "Advisor relationship", labmates_rel: "Labmates",
-  family_rel: "Family", friends_rel: "Friends", network: "Network"
+  energy: T_("Energy"), sanity: T_("Stress"), citations: T_("Citations"), health: T_("Health"),
+  taste: T_("Research taste"), coding: T_("Coding"), writing: T_("Writing"), presenting: T_("Presenting"),
+  knowledge: T_("Domain knowledge"), advisor_rel: T_("Advisor relationship"), labmates_rel: T_("Labmates"),
+  family_rel: T_("Family"), friends_rel: T_("Friends"), network: T_("Network")
 };
 
 // Day activities: what a focus, an opportunity or a side activity spends days on.
 // `arrows` preview the visible effects (players never see numbers before choosing).
+// Only ids, kinds and arrows are used: players never see these labels and descs, so they aren't
+// translated. Mark them with T_() and show them with t() if that changes.
 export const ACTIVITIES = [
   { id: "read", label: "Read papers", kind: "work", desc: "Domain knowledge and research taste. Sometimes an idea.",
     arrows: [{ stat: "energy", dir: "down", strength: 1 }] },
@@ -51,9 +54,9 @@ ACTIVITIES.push({ id: "quals_study", label: "Prepare for quals", kind: "work", d
 
 // The few things you can always focus a turn on. Everything else comes up as an opportunity.
 export const DEFAULT_ACTIONS = [
-  { id: "read", label: "Read and learn", desc: "Two weeks with papers. Projects inch forward; sometimes you get an idea.",
+  { id: "read", label: T_("Read and learn"), desc: T_("Two weeks with papers. Projects inch forward; sometimes you get an idea."),
     arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 1 }] },
-  { id: "recharge", label: "Recharge", desc: "Sleep in, see friends, or do nothing useful for a while.",
+  { id: "recharge", label: T_("Recharge"), desc: T_("Sleep in, see friends, or do nothing useful for a while."),
     arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 2 }, { stat: "health", dir: "up", strength: 2 }] }
 ];
 export const ACTIVITY_BY_ID = {};
@@ -74,10 +77,20 @@ function dayToDate(d) {
   while (m < 11 && d >= MONTH_DAYS[m]) { d -= MONTH_DAYS[m]; m++; }
   return { m: m, d: d + 1 };
 }
+// "Sep 1" in English, "9月1日" in Chinese (month 0 is September).
+function dateLabel(dt) {
+  return language() === "zh" ? ((dt.m + 8) % 12 + 1) + "月" + dt.d + "日" : MONTHS[dt.m] + " " + dt.d;
+}
+// A turn's two weeks: "Sep 1–14" / "Feb 16–Mar 1"; in Chinese "9月1日–14日" / "2月16日–3月1日".
 export function turnDates(turn) {
   const start = dayToDate((turn % TURNS) * 14);
   const end = dayToDate((turn % TURNS) * 14 + 13);
+  if (language() === "zh") return dateLabel(start) + "\u2013" + (end.m === start.m ? end.d + "日" : dateLabel(end));
   return MONTHS[start.m] + " " + start.d + "\u2013" + (end.m === start.m ? "" : MONTHS[end.m] + " ") + end.d;
+}
+// The turn's first day, for the calendar badge: "Sep 1" / "9月1日".
+export function turnStartLabel(turn) {
+  return dateLabel(dayToDate((turn % TURNS) * 14));
 }
 export function semesterOf(t) {
   if (t <= 8) return "fall";

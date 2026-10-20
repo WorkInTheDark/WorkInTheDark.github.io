@@ -4,6 +4,8 @@ import { fill } from "./templating.js";
 import { totalCitations, hIndex, acceptedPapers, firstAuthorPubs, hasTrait, paperCitations } from "./derived.js";
 import { yearOf, tOf, STAT_LABELS, HIDDEN, TURNS } from "./state.js";
 import { unlock, checkAchievements } from "./achievements.js";
+import { fateLine } from "./people.js";
+import { t } from "./i18n.js";
 
 export function profile(G) {
   const s = G.state;
@@ -54,7 +56,7 @@ export function computeOffers(G, tracks) {
   const roll = function (p) { return G.rng.chance(Math.max(0, Math.min(0.97, p * (P.hiring)))); };
   const talk = s.job && s.job.talkScore !== undefined ? 0.7 + 0.6 * s.job.talkScore : 1;
   const rollA = function (p) { return roll(p * talk); };
-  const has = function (t) { return tracks.indexOf(t) >= 0; };
+  const has = function (track) { return tracks.indexOf(track) >= 0; };
   const bar = offerBars(G);
   if (has("academia")) {
     // Only the strongest profiles can get these two (config offers: about the top 10% and 25%).
@@ -100,7 +102,7 @@ function pickTitle(G) {
   for (let i = 0; i < titles.length; i++) {
     if (!titles[i].when || check(titles[i].when, G, {})) return titles[i];
   }
-  return { id: "steady_hand", name: "The Steady Hand" };
+  return { id: "steady_hand", name: t("The Steady Hand") };
 }
 
 function pickEpilogue(G) {
@@ -112,11 +114,11 @@ function pickEpilogue(G) {
   const gone = s.labmates.filter(function (l) { return l.fate; });
   if (gone.length) {
     const l = G.rng.pick(gone);
-    lines.push(l.name + ", your old labmate, " + l.fate.replace(/^graduated and /, "") + ".");
+    lines.push(fateLine(l));
   }
   const best = acceptedPapers(G).slice().sort(function (a, b) { return paperCitations(b) - paperCitations(a); })[0];
   if (best && paperCitations(best) > 0) {
-    lines.push("“" + best.short + "” keeps getting cited: " + paperCitations(best) + " times and counting.");
+    lines.push(t("“{paper}” keeps getting cited: {n} times and counting.", { paper: best.short, n: paperCitations(best) }));
   }
   return lines;
 }
@@ -201,7 +203,7 @@ export function finalize(G, endingId) {
       return { title: p.title, venue: p.venueName, tier: p.tier, status: p.status, cites: paperCitations(p), first: p.firstAuthor };
     }),
     achievements: Object.keys(s.runAchievements || {}),
-    advisor: s.advisor ? { label: s.advisor.label, name: "Prof. " + s.advisor.surname } : null
+    advisor: s.advisor ? { label: s.advisor.label, name: t("Prof. {name}", { name: s.advisor.surname }) } : null
   };
   const meta = G.meta;
   meta.codex = meta.codex || {};

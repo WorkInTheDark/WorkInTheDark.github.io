@@ -29,6 +29,7 @@
   --ps-radius: 12px;
   --ps-shadow: 0 2px 0 rgba(43, 38, 32, 0.08), 0 10px 30px rgba(43, 38, 32, 0.12);
   --ps-display: "Fredoka", "Nunito", ui-rounded, system-ui, sans-serif;
+  --ps-cjk: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
   position: relative;
   max-width: 760px;
   margin: 0 auto;
@@ -71,6 +72,10 @@ html[data-theme='dark'] .ps-app {
 /* The site theme sets color and fonts on p, div, span, li, ... directly, which would break inheritance inside the
    game (dark text on the dark top strip). :where() keeps this reset weaker than any class rule below. */
 .ps-app :where(p, h1, h2, h3, h4, h5, h6, em, div, li, span, strong, b, i, small, label) { color: inherit; font-family: inherit; }
+/* Chinese: Fredoka has no Chinese characters, so the rounded font covers Latin and numbers and a
+   Chinese system font covers the rest. Italics read badly in Chinese, so emphasis stays upright. */
+:lang(zh) .ps-app, .ps-app:lang(zh) { font-family: system-ui, -apple-system, var(--ps-cjk); --ps-display: "Fredoka", var(--ps-cjk); }
+.ps-app:lang(zh) em, .ps-app:lang(zh) i, .ps-app:lang(zh) .ps-ttl { font-style: normal; }
 .ps-app :where(p, li) { line-height: inherit; }
 .ps-app h2, .ps-app h3, .ps-app h4 { color: var(--ps-text); margin: 0 0 0.5rem; font-family: var(--ps-display); font-weight: 600; letter-spacing: 0.01em; }
 .ps-app h2 { font-size: 1.35rem; }
