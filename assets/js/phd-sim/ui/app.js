@@ -6,7 +6,7 @@ import { gameHtml, orderedActions } from "./gameview.js";
 import { eventHtml, sysHtml, rebuttalHtml, resultHtml, promptClass } from "./prompts.js";
 import { titleHtml, setupHtml, codexHtml, endHtml } from "./screens.js";
 import { readSharedFromLocation, sharedHtml, shareTargets, shareText, cardBlob } from "./share.js";
-import { t } from "../engine/i18n.js";
+import { t, language } from "../engine/i18n.js";
 
 export class App {
   constructor(root, rawData) {
@@ -93,6 +93,9 @@ export class App {
     const keepScene = oldScene ? oldScene.scrollTop : 0;
     // Redrawing the same view (picking a reply, a toast) mustn't replay entrance animations, or the
     // window blinks: only a new pop-up, panel or plan animates in.
+    // Chinese runs sentences together: drop the space English-style joins leave after full-width
+    // punctuation ("。 压力 +6。" -> "。压力 +6。"), but not before a tag.
+    if (language() === "zh") body = body.replace(/([。！？；：，、”’）》])[ \t]+(?=[^\s<])/g, "$1");
     const popKey = this.screen === "game" ? (this.modal ? "m" + this.modal.n : this.panel ? "p:" + this.panel : "-") : this.screen;
     const sceneKey = this.screen + "|" + (this.inspect || "") + "|" + (this.planN || 0);
     const still = (popKey === this.lastPopKey ? " ps-still-pop" : "") + (sceneKey === this.lastSceneKey ? " ps-still-scene" : "");
@@ -305,6 +308,18 @@ export class App {
     window.scrollTo(0, Math.max(0, this.root.getBoundingClientRect().top + window.scrollY - 80));
   }
 
+  // The language comes from the saved choice when the page loads (main.js), so switching saves the
+  // run and the choice and reloads; the game picks up where it was, in the new language.
+  switchLanguage(id) {
+    if (!id || id === language()) return;
+    if (this.game && this.game.state.phase !== "ended") storage.saveRun(this.game.state);
+    storage.saveMeta(this.meta);
+    storage.saveLang(id);
+    const u = new URL(location.href);
+    if (u.searchParams.has("lang")) { u.searchParams.delete("lang"); history.replaceState(null, "", u.toString()); }
+    location.reload();
+  }
+
   // ---- Input ----------------------------------------------------------------
 
   onClick(e) {
@@ -322,6 +337,7 @@ export class App {
       case "resume": this.resume(); break;
       case "title": this.savedRun = this.game && this.game.state.phase !== "ended" ? this.game.state : storage.loadRun(); this.screen = "title"; this.render(); break;
       case "codex": this.prev = this.screen; this.screen = "codex"; this.render(); break;
+      case "lang": this.switchLanguage(id); break;
       case "back": this.screen = this.prev || "title"; this.render(); break;
       case "inspect": if (!this.modal) { this.inspect = id; this.keepScroll = true; this.render(); } break;
       case "close-inspect": this.inspect = null; this.keepScroll = true; this.render(); break;

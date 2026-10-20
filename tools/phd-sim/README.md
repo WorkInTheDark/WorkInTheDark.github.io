@@ -10,6 +10,9 @@ Local tooling for the game at `/phd-simulator/`. Nothing in `tools/` is publishe
 | `node --experimental-default-type=module --test tools/phd-sim/tests/` | Engine unit tests (determinism, save and reload, many full runs). |
 | `node --experimental-default-type=module tools/phd-sim/simulate.mjs 5000 mixed --percentiles` | Rewrites `_data/phd_sim/percentiles.yml`, the table behind the end screen's "Better than N% of simulated PhDs". Rerun after balance changes. |
 | `python3 tools/phd-sim/og/render-og.py` | Renders `og/og.html` with headless Chrome into `assets/phd-sim/og.jpg`, the link preview for `/phd-simulator/`. |
+| `node --experimental-default-type=module tools/phd-sim/i18n-extract.mjs` | After `export-data.rb`: adds a row to `_data/phd_sim_i18n/zh/*.yml` for every new or changed player-facing English string (content fields and `t("…")` in the code). Keeps existing translations, and moves outdated ones to `_stale.yml`. |
+| `ruby tools/phd-sim/i18n-check.rb [files]` | Checks translation tables for missing rows, broken `{tokens}`, dashes and English punctuation inside Chinese. |
+| `node --experimental-default-type=module tools/phd-sim/i18n-review.mjs <out.html>` | Builds the side-by-side review page (English beside Chinese, grouped by event, with flags), from `i18n-review.html`. |
 | `python3 tools/phd-sim/serve.py` | No-cache static server. Open http://127.0.0.1:8766/tools/phd-sim/dev/index.html for the dev page (uses the exported JSON, has a dark-mode toggle and a "clear saves" button). |
 
 The `--experimental-default-type=module` flag (Node 20.10+) lets Node load the engine's `.js` files as ES modules without a `package.json`.

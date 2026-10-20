@@ -2,7 +2,7 @@
 // opens it sees a read-only card. Only ids and numbers go in the link; every name and sentence on the
 // card comes from the game's own data, so a hand-made link can't put new words on the page.
 import { esc } from "./common.js";
-import { t } from "../engine/i18n.js";
+import { t, language } from "../engine/i18n.js";
 
 const NUMS = ["y", "p", "c", "h", "r", "b"];
 
@@ -83,7 +83,9 @@ export function shareText(e) {
   const counts = n.pubs === 1
     ? (n.rejections === 1 ? t("{years} years, 1 first-author paper, {citations} citations, 1 rejection.", v) : t("{years} years, 1 first-author paper, {citations} citations, {rejections} rejections.", v))
     : (n.rejections === 1 ? t("{years} years, {pubs} first-author papers, {citations} citations, 1 rejection.", v) : t("{years} years, {pubs} first-author papers, {citations} citations, {rejections} rejections.", v));
-  return t("My PhD Simulator run: {ending}, “{title}.”", { ending: e.name, title: e.title.name }) + " " + counts + (beats ? " " + beats : "");
+  // Chinese runs sentences together without spaces.
+  const gap = language() === "zh" ? "" : " ";
+  return t("My PhD Simulator run: {ending}, “{title}.”", { ending: e.name, title: e.title.name }) + gap + counts + (beats ? gap + beats : "");
 }
 
 export function shareTargets(e, D) {

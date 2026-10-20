@@ -839,6 +839,24 @@ An end card has three parts: **career outcome + life epilogue + title**.
   - **Link previews:** LinkedIn and X don't run JavaScript, so a pasted link previews as the game page: `og_image` = `assets/phd-sim/og.jpg`. The page uses the large Twitter card when it has its own image. Re-render the image with `python3 tools/phd-sim/og/render-og.py` (headless Chrome).
 - **Play again** and **Codex**.
 
+### 12.2b Languages (Chinese, 2026-10-20)
+
+Arthur asked for a Chinese version of everything: Simplified only, auto-detected with a switch, and he reviews every line before it goes live.
+
+- **English is the single source.** `_data/phd_sim_i18n/zh/<source>.yml` holds `{en, zh}` pairs, one table per content file plus `code.yml`, so mechanics never fork.
+  - `engine/i18n.js` `eachText()` names the player-facing content fields. Ids, flags, paper titles and venue names are never translated.
+  - `translateData()` swaps content at load, and `t()` / `T_()` handle text written by the code (`docs/phd-simulator/i18n-code.md`).
+- **Loading.** `main.js` picks the language from `?lang=`, then the saved choice (`phdsim:lang`), then the browser. It fetches `/assets/phd-sim/i18n-zh.json` (Jekyll renders `site.data.phd_sim_i18n.zh`) and falls back to English if the fetch fails.
+- **Switching.** The title screen has an EN / 中文 switch. Switching saves the run and reloads.
+- **In Chinese:**
+  - Dates read 9月1日–14日, ordinals read 第 N, and "Prof. {name}" becomes {name}教授.
+  - A Chinese font stack is used, and emphasis is upright.
+  - A render-time pass drops the space left after full-width punctuation.
+- **Workflow:** translate, then run `i18n-check.rb`, then rebuild the review page (`tools/phd-sim/i18n-review.mjs`). Arthur's flags are stored in that page's database, and Claude reads them back and fixes them.
+  - After English edits, rerun `export-data.rb` and `i18n-extract.mjs`. New and changed lines show up untranslated, and old translations go to `_stale.yml`.
+  - The voice and glossary are in `docs/phd-simulator/zh-guide.md`.
+- **Shared lookup.** One English string has one translation across all tables, so the same label in two files reads the same everywhere. Conflicts were unified on 2026-10-20.
+
 ### 12.3 Achievements
 - Target 100 (50 in Phase 2), each with `id`, `name`, `description`, `secret`, and a `condition` in the same vocabulary as events, evaluated against run stats.
 - Secret ones stay hidden in the Codex until earned.

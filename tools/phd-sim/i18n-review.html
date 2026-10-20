@@ -1,0 +1,291 @@
+<title>PhD Simulator 中文审阅</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;600&display=swap">
+<style>
+/* Layout: a file rail on the left, the selected table on the right as EN | 中文 pairs grouped by event;
+   flagged lines carry a red seal, like a proofreader's stamp. On phones the rail becomes a picker. */
+:root {
+  --bg: #f2f4f8; --panel: #ffffff; --ink: #1f2638; --muted: #667089; --line: #dce1ea;
+  --navy: #283454; --navy-ink: #f6efe0; --seal: #c4433a; --seal-wash: #fbeceb; --ok: #2f7f52; --tok: #e8ecf5; --hi: #fff3c4;
+  --display: "Fredoka", "Noto Sans SC", ui-rounded, system-ui, sans-serif;
+  --en: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --zh: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #10131a; --panel: #181c26; --ink: #e6e9f0; --muted: #98a0b5; --line: #2a3142;
+  --navy: #9bb0e0; --navy-ink: #10131a; --seal: #ff7d70; --seal-wash: #3a1f1f; --ok: #6fcf98; --tok: #242b3b; --hi: #4a3f12; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #10131a; --panel: #181c26; --ink: #e6e9f0; --muted: #98a0b5; --line: #2a3142;
+  --navy: #9bb0e0; --navy-ink: #10131a; --seal: #ff7d70; --seal-wash: #3a1f1f; --ok: #6fcf98; --tok: #242b3b; --hi: #4a3f12; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--en); }
+button, input, textarea, select { font: inherit; color: inherit; }
+.wrap { display: grid; grid-template-columns: 272px minmax(0, 1fr); height: 100%; }
+aside { border-right: 1px solid var(--line); background: var(--panel); overflow-y: auto; padding-block: 18px 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: 14px; }
+main { overflow-y: auto; padding-block: 18px 48px; padding-left: 24px; padding-right: max(16px, env(safe-area-inset-right, 0px)); min-width: 0; }
+h1 { font: 600 1.35rem/1.2 var(--display); margin: 0 0 4px; text-wrap: balance; }
+.sub { color: var(--muted); font-size: 0.82rem; margin: 0 0 14px; }
+.meter { height: 6px; border-radius: 99px; background: var(--tok); overflow: hidden; margin: 6px 0 4px; }
+.meter i { display: block; height: 100%; background: var(--ok); }
+.totals { display: flex; gap: 12px; font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.totals b { color: var(--ink); }
+.search { display: grid; gap: 6px; margin: 16px 0 12px; }
+.search input { width: 100%; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.search label { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--muted); }
+.grp { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 14px 0 4px; }
+.files { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.files button { width: 100%; display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 6px; align-items: center; text-align: left; border: 0; background: transparent; padding: 5px 8px; border-radius: 7px; cursor: pointer; font-size: 0.86rem; }
+.files button:hover { background: var(--tok); }
+.files button[aria-current="true"] { background: var(--navy); color: var(--navy-ink); }
+.files .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); font-size: 0.8rem; }
+.files .ct { font-size: 0.74rem; font-variant-numeric: tabular-nums; opacity: 0.8; display: flex; gap: 6px; }
+.files .fl { color: var(--seal); font-weight: 600; }
+.files button[aria-current="true"] .fl { color: inherit; }
+.mark { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--line); display: inline-grid; place-items: center; font-size: 9px; }
+.mark.done { background: var(--ok); border-color: var(--ok); color: var(--panel); }
+.picker { display: none; }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px 16px; margin-bottom: 6px; }
+.head h2 { font: 600 1.15rem/1.3 var(--mono); margin: 0; }
+.head .hint { color: var(--muted); font-size: 0.82rem; }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 5px 11px; cursor: pointer; font-size: 0.84rem; font-weight: 600; }
+.btn:hover { border-color: var(--navy); }
+.btn.primary { background: var(--navy); color: var(--navy-ink); border-color: var(--navy); }
+.btn.ok { color: var(--ok); border-color: var(--ok); }
+.btn.danger { color: var(--seal); }
+.btn:focus-visible, .files button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+.note { margin: 8px 0 14px; font-size: 0.84rem; color: var(--muted); max-width: 70ch; }
+.note.warn { color: var(--seal); }
+section.g { margin-top: 18px; }
+section.g h3 { font: 600 0.8rem/1.3 var(--mono); color: var(--muted); margin: 0 0 6px; padding-bottom: 4px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 6px 18px; padding: 8px 10px; border-radius: 8px; align-items: start; position: relative; }
+.row:hover { background: var(--panel); }
+.row .en { font-family: var(--en); color: var(--ink); font-size: 0.92rem; overflow-wrap: anywhere; }
+.row .zh { font-family: var(--zh); font-size: 1rem; overflow-wrap: anywhere; }
+.row .zh.empty { color: var(--muted); font-style: italic; }
+.row .act { display: flex; gap: 6px; }
+.tok { font-family: var(--mono); font-size: 0.82em; background: var(--tok); border-radius: 4px; padding: 0 4px; white-space: nowrap; }
+mark { background: var(--hi); color: inherit; border-radius: 2px; }
+.row.flagged { background: var(--seal-wash); }
+.row.flagged::before { content: "改"; position: absolute; left: -34px; top: 8px; width: 24px; height: 24px; display: grid; place-items: center; font: 600 13px/1 var(--zh); color: var(--seal); border: 2px solid var(--seal); border-radius: 4px; transform: rotate(-8deg); }
+.fix { grid-column: 1 / -1; display: grid; gap: 6px; margin-top: 4px; font-size: 0.88rem; }
+.fix .sug { font-family: var(--zh); }
+.fix .lab { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.fix textarea, .fix input { width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.fix textarea { font-family: var(--zh); min-height: 3.2em; resize: vertical; }
+.fix .bar { display: flex; flex-wrap: wrap; gap: 6px; }
+.empty-state { padding: 40px 0; color: var(--muted); }
+.res-file { margin-top: 18px; font: 600 0.84rem var(--mono); }
+.res-file button { border: 0; background: none; color: var(--navy); cursor: pointer; padding: 0; font: inherit; text-decoration: underline; }
+@media (max-width: 860px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); height: auto; }
+  aside { border-right: 0; border-bottom: 1px solid var(--line); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  aside .files, aside .grp { display: none; }
+  .picker { display: block; width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+  main { padding-left: max(16px, env(safe-area-inset-left, 0px)); overflow: visible; }
+  .row { grid-template-columns: minmax(0, 1fr); }
+  .row.flagged::before { left: auto; right: 8px; top: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <aside>
+    <h1>PhD Simulator 中文审阅</h1>
+    <p class="sub" id="sub">Every Chinese line in the game, beside its English.</p>
+    <div class="meter" aria-hidden="true"><i id="meterBar" style="width:0%"></i></div>
+    <div class="totals"><span><b id="tFiles">0</b> of <span id="tAll">0</span> tables reviewed</span><span><b id="tFlags">0</b> flagged</span></div>
+    <div class="search">
+      <input id="q" type="search" placeholder="Search English or 中文" aria-label="Search every table">
+      <label for="onlyFlagged"><input id="onlyFlagged" type="checkbox"> Only flagged lines</label>
+    </div>
+    <select class="picker" id="picker" aria-label="Table"></select>
+    <div id="rail"></div>
+  </aside>
+  <main id="main" aria-live="polite"></main>
+</div>
+
+<script id="data" type="application/json">/*DATA*/null</script>
+<script>
+(function () {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("data").textContent || "null") || { files: [] };
+  const FILES = DATA.files;
+  const TOK = /\{[a-z0-9_]+(?:\.[a-z0-9_]+)?(?::\d+-\d+)?(?:\|[a-z]+)?\}/gi;
+  const state = { file: null, q: "", onlyFlagged: false, flags: {}, reviewed: {}, editing: null, db: null, writable: true };
+
+  // A stable key for a line: its table and English text (rows keep their flags if the order changes).
+  function key(src, en) {
+    let h = 0x811c9dc5;
+    const s = src + "\u0000" + en;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return "f" + h.toString(16).padStart(8, "0");
+  }
+  const slug = (src) => src.replace(/\//g, "__");
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  function show(text, q) {
+    let h = esc(text).replace(TOK, (m) => '<span class="tok">' + m + "</span>");
+    if (q) {
+      const re = new RegExp("(" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "gi");
+      h = h.replace(/(<[^>]+>)|([^<]+)/g, (m, tag, txt) => tag || txt.replace(re, "<mark>$1</mark>"));
+    }
+    return h;
+  }
+  function flagsIn(src) { return Object.values(state.flags).filter((f) => f.src === src).length; }
+
+  try { const saved = localStorage.getItem("zh-review:file"); if (saved && FILES.some((f) => f.src === saved)) state.file = saved; } catch (e) {}
+  if (!state.file && FILES.length) state.file = FILES[0].src;
+
+  function renderRail() {
+    const label = (src) => src.startsWith("events/") ? "Events" : src === "code" ? "Game interface" : "Game text";
+    let html = "", last = "";
+    FILES.forEach((f) => {
+      const g = label(f.src);
+      if (g !== last) { if (last) html += "</ul>"; html += '<div class="grp">' + g + '</div><ul class="files">'; last = g; }
+      const n = flagsIn(f.src), done = !!state.reviewed[slug(f.src)];
+      html += '<li><button data-file="' + esc(f.src) + '" aria-current="' + (f.src === state.file && !state.q) + '">' +
+        '<span class="mark' + (done ? " done" : "") + '" aria-label="' + (done ? "reviewed" : "not reviewed") + '">' + (done ? "✓" : "") + "</span>" +
+        '<span class="nm">' + esc(f.src) + '</span><span class="ct">' + (n ? '<span class="fl">' + n + " ⚑</span>" : "") + "<span>" + f.n + "</span></span></button></li>";
+    });
+    document.getElementById("rail").innerHTML = html + (last ? "</ul>" : "");
+    document.getElementById("picker").innerHTML = FILES.map((f) => '<option value="' + esc(f.src) + '"' + (f.src === state.file ? " selected" : "") + ">" +
+      (state.reviewed[slug(f.src)] ? "✓ " : "") + esc(f.src) + " (" + f.n + (flagsIn(f.src) ? ", " + flagsIn(f.src) + " flagged" : "") + ")</option>").join("");
+    const doneN = FILES.filter((f) => state.reviewed[slug(f.src)]).length;
+    document.getElementById("tFiles").textContent = doneN;
+    document.getElementById("tAll").textContent = FILES.length;
+    document.getElementById("tFlags").textContent = Object.keys(state.flags).length;
+    document.getElementById("meterBar").style.width = (FILES.length ? Math.round(100 * doneN / FILES.length) : 0) + "%";
+    document.getElementById("sub").textContent = FILES.reduce((t, f) => t + f.n, 0).toLocaleString() + " lines in " + FILES.length + " tables · built " + DATA.built;
+  }
+
+  function rowHtml(src, en, zh, q) {
+    const k = key(src, en), fl = state.flags[k], editing = state.editing === k;
+    let h = '<div class="row' + (fl ? " flagged" : "") + '" id="r-' + k + '"><div class="en">' + show(en, q) + "</div>" +
+      '<div class="zh' + (zh ? "" : " empty") + '" lang="zh-Hans">' + (zh ? show(zh, q) : "not translated yet") + "</div>" +
+      '<div class="act">' + (editing ? "" : '<button class="btn' + (fl ? "" : "") + '" data-edit="' + k + '" data-src="' + esc(src) + '">' + (fl ? "Edit flag" : "Flag") + "</button>") + "</div>";
+    if (editing) {
+      const sug = fl ? fl.suggestion : zh;
+      h += '<div class="fix"><span class="lab">Suggested Chinese</span><textarea id="sug-' + k + '" lang="zh-Hans">' + esc(sug || "") + "</textarea>" +
+        '<span class="lab">Note (optional)</span><input id="note-' + k + '" value="' + esc(fl ? fl.note || "" : "") + '" placeholder="What should change, or why">' +
+        '<div class="bar"><button class="btn primary" data-save="' + k + '" data-src="' + esc(src) + '">Save flag</button>' +
+        (fl ? '<button class="btn danger" data-unflag="' + k + '">Remove flag</button>' : "") + '<button class="btn" data-cancel="1">Cancel</button></div></div>';
+    } else if (fl) {
+      h += '<div class="fix">' + (fl.suggestion && fl.suggestion !== zh ? '<span class="lab">Suggested</span><span class="sug" lang="zh-Hans">' + show(fl.suggestion) + "</span>" : "") +
+        (fl.note ? '<span class="lab">Note</span><span>' + esc(fl.note) + "</span>" : "") + "</div>";
+    }
+    return h + "</div>";
+  }
+
+  function renderMain() {
+    const main = document.getElementById("main");
+    const q = state.q.trim().toLowerCase();
+    if (q || state.onlyFlagged) {
+      let html = '<div class="head"><h2>' + (q ? "Search: " + esc(state.q) : "Flagged lines") + '</h2><span class="hint" id="hits"></span></div>';
+      let hits = 0;
+      FILES.forEach((f) => {
+        const rows = [];
+        f.groups.forEach((g) => g.rows.forEach(([en, zh]) => {
+          if (state.onlyFlagged && !state.flags[key(f.src, en)]) return;
+          if (q && en.toLowerCase().indexOf(q) < 0 && (zh || "").toLowerCase().indexOf(q) < 0) return;
+          rows.push(rowHtml(f.src, en, zh, q));
+        }));
+        if (!rows.length) return;
+        hits += rows.length;
+        html += '<div class="res-file"><button data-file="' + esc(f.src) + '">' + esc(f.src) + "</button> · " + rows.length + "</div>" + rows.slice(0, 200).join("") +
+          (rows.length > 200 ? '<p class="note">' + (rows.length - 200) + " more in this table. Narrow the search.</p>" : "");
+      });
+      main.innerHTML = hits ? html : html + '<p class="empty-state">' + (state.onlyFlagged && !q ? "Nothing flagged yet. Use Flag on any line to suggest a fix." : "No lines match.") + "</p>";
+      const hn = document.getElementById("hits"); if (hn) hn.textContent = hits + " lines";
+      return;
+    }
+    const f = FILES.find((x) => x.src === state.file);
+    if (!f) { main.innerHTML = '<p class="empty-state">No tables in this build.</p>'; return; }
+    const done = !!state.reviewed[slug(f.src)];
+    let html = '<div class="head"><h2>' + esc(f.src) + '</h2><span class="hint">' + f.n + " lines" + (flagsIn(f.src) ? " · " + flagsIn(f.src) + " flagged" : "") + "</span>" +
+      '<button class="btn' + (done ? " ok" : "") + '" data-review="' + esc(f.src) + '"' + (state.writable ? "" : " disabled") + ">" + (done ? "✓ Reviewed" : "Mark table reviewed") + "</button></div>";
+    if (!state.db) html += '<p class="note warn">Flags and review marks can’t be saved in this view. You can still read every line.</p>';
+    else if (!state.writable) html += '<p class="note warn">You can read this page, but only its owner can save flags.</p>';
+    else if (!Object.keys(state.flags).length) html += '<p class="note">Read each pair; use Flag on any line that needs a change, and mark the table reviewed when you’re done. Claude reads the flags back and fixes them.</p>';
+    f.groups.forEach((g) => { html += '<section class="g"><h3>' + esc(g.label) + "</h3>" + g.rows.map(([en, zh]) => rowHtml(f.src, en, zh, "")).join("") + "</section>"; });
+    main.innerHTML = html;
+  }
+  function render() { renderRail(); renderMain(); }
+
+  function pick(src) {
+    state.file = src; state.q = ""; state.editing = null;
+    document.getElementById("q").value = "";
+    try { localStorage.setItem("zh-review:file", src); } catch (e) {}
+    render();
+    document.getElementById("main").scrollTop = 0;
+    window.scrollTo(0, 0);
+  }
+
+  document.addEventListener("click", async (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.file) return pick(b.dataset.file);
+    if (b.dataset.edit) { state.editing = b.dataset.edit; renderMain(); const ta = document.getElementById("sug-" + b.dataset.edit); if (ta) ta.focus(); return; }
+    if (b.dataset.cancel) { state.editing = null; return renderMain(); }
+    if (!state.db) return;
+    try {
+      if (b.dataset.save) {
+        const k = b.dataset.save, src = b.dataset.src;
+        const f = FILES.find((x) => x.src === src);
+        let en = "", zh = "";
+        f.groups.forEach((g) => g.rows.forEach((r) => { if (key(src, r[0]) === k) { en = r[0]; zh = r[1]; } }));
+        const body = { src, en, zh, suggestion: document.getElementById("sug-" + k).value, note: document.getElementById("note-" + k).value, status: "open", at: new Date().toISOString() };
+        b.disabled = true;
+        await state.db.collection("flags").doc(k).set(body);
+        state.flags[k] = body; state.editing = null; render();
+      } else if (b.dataset.unflag) {
+        b.disabled = true;
+        await state.db.collection("flags").doc(b.dataset.unflag).delete();
+        delete state.flags[b.dataset.unflag]; state.editing = null; render();
+      } else if (b.dataset.review) {
+        const s = slug(b.dataset.review);
+        b.disabled = true;
+        if (state.reviewed[s]) { await state.db.collection("files").doc(s).delete(); delete state.reviewed[s]; }
+        else { const body = { src: b.dataset.review, reviewed: true, at: new Date().toISOString() }; await state.db.collection("files").doc(s).set(body); state.reviewed[s] = body; }
+        render();
+      }
+    } catch (err) {
+      if (err && err.code === "invalid_argument") state.writable = false;
+      b.disabled = false;
+      const n = document.createElement("p");
+      n.className = "note warn";
+      n.textContent = err && err.code === "invalid_argument" ? "This view can’t save flags." : "That didn’t save (" + ((err && err.code) || "error") + "). Try again in a moment.";
+      b.closest(".row, .head").after(n);
+    }
+  });
+  document.getElementById("picker").addEventListener("change", (e) => pick(e.target.value));
+  let timer = 0;
+  document.getElementById("q").addEventListener("input", (e) => { clearTimeout(timer); timer = setTimeout(() => { state.q = e.target.value; state.editing = null; render(); }, 180); });
+  document.getElementById("onlyFlagged").addEventListener("change", (e) => { state.onlyFlagged = e.target.checked; state.editing = null; render(); });
+
+  render();
+
+  // Flags and review marks live in the page's database, so they reach Claude and survive republishes.
+  if (window.claude && window.claude.use) {
+    window.claude.use("db").then((db) => {
+      if (!db) { render(); return; }
+      state.db = db;
+      db.collection("flags").onSnapshot((snap) => {
+        const m = {}; snap.docs.forEach((d) => { if (d.exists) m[d.id] = d.data(); });
+        state.flags = m; if (!state.editing) render(); else renderRail();
+      }, () => {});
+      db.collection("files").onSnapshot((snap) => {
+        const m = {}; snap.docs.forEach((d) => { if (d.exists) m[d.id] = d.data(); });
+        state.reviewed = m; if (!state.editing) render(); else renderRail();
+      }, () => {});
+      render();
+    });
+    window.claude.use("user").then((u) => {
+      if (!u) return;
+      Promise.resolve(u.can ? u.can("data.write") : null).then((ok) => { if (ok === false) { state.writable = false; render(); } });
+    });
+  }
+})();
+</script>

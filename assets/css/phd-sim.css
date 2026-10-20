@@ -126,6 +126,11 @@ html[data-theme='dark'] .ps-app {
 .ps-app .ps-hero-title { font-size: 2.4rem; margin: 0; }
 .ps-hero .ps-tagline { color: var(--ps-muted); max-width: 30rem; margin: 0.3rem auto 1.2rem; }
 .ps-menu { display: grid; gap: 0.6rem; width: 100%; max-width: 20rem; margin: 0 auto; }
+.ps-langs { display: inline-flex; margin-top: 0.9rem; border: 2px solid var(--ps-line); border-radius: 99px; padding: 2px; background: var(--ps-card); }
+.ps-lang { font: inherit; font-size: 0.82rem; font-weight: 700; border: 0; border-radius: 99px; padding: 0.2rem 0.75rem; background: transparent; color: var(--ps-muted); cursor: pointer; }
+.ps-lang:hover { color: var(--ps-text); }
+.ps-lang-on { background: var(--ps-hud); color: var(--ps-hud-ink); }
+.ps-lang:focus-visible { outline: 3px solid var(--ps-accent); outline-offset: 2px; }
 .ps-grid { display: grid; gap: 0.6rem; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
 .ps-pick { font: inherit; text-align: left; width: 100%; border: 2px solid var(--ps-line); border-radius: var(--ps-radius); background: var(--ps-card); color: var(--ps-text); padding: 0.7rem 0.8rem; display: block; }
 .ps-pick strong { display: block; margin-bottom: 0.15rem; font-family: var(--ps-display); font-weight: 600; font-size: 1rem; }
