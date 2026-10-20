@@ -121,6 +121,44 @@ Keep every `{token}` exactly as written. You may move it within the sentence. Th
 | Prepare for quals | 准备资格考试 |
 | deadline mode | 截稿冲刺 |
 
+## Localization: make it local, not translated (Arthur, 2026-10-20)
+
+Arthur wants the Chinese to feel written for Chinese PhD students, with their slang, memes, cold jokes and everyday context, not a careful rendering of an American text. This second pass rewrites the first translation where a local version is funnier or more natural.
+
+**What to adapt**
+- **Jokes, puns and idioms.** Replace them with a Chinese joke that lands for the same reason. A 冷笑话, a pun on a Chinese word, or a twist on a 成语 or 俗语 is welcome. If the English joke works literally, keep it.
+- **Everyday context** that is only flavor: food, family, social media, shopping, pop culture.
+  - Use 朋友圈, 微信群, 小红书, B站, 知乎, 外卖, 奶茶, 火锅, 七大姑八大姨, 过年回家被问.
+  - Thanksgiving potluck can become 组里聚餐. "Your aunt shares it" can become 被转进家族群.
+  - Keep anything a mechanic or the calendar depends on: a holiday tied to its date, a venue, a deadline.
+- **Grad-school vernacular**, as Chinese students actually say it:
+  - 老板 (for the advisor, in a student's own voice), 组会, 跑实验, 炼丹, 调参, 刷榜, 水一篇, 学术裁缝
+  - 中了 / 挂了, 投稿, 被拒, 延毕, 青椒, 非升即走, 上岸, 早八, 卡 (GPU)
+  - DDL (sparingly; 截稿 in system text)
+- **Internet slang, used lightly.** One touch per event at most, and only where it fits the moment.
+  - Mood and reactions: 卷 / 内卷 / 卷王, 躺平, 摸鱼, 画饼, 破防, 绷不住了, 红温, 下头, 离谱, 整活, 社死, 凡尔赛, emo (light), 已读不回, 小作文
+  - People and roles: 嘴替, 显眼包, 搭子, 牛马 / 科研牛马, i 人 / e 人
+  - Situations: 班味, 情绪价值, 松弛感, 电子榨菜, 脆皮大学生, 特种兵式开会, 主打一个……, 家人们谁懂啊, 小丑竟是我自己, 已老实
+
+**Limits**
+- **Readability first.** A line should read naturally to a Chinese student in 2026 who isn't extremely online. Avoid stacking slang, slang that is already stale (栓Q, 芭比Q, yyds), and anything you'd have to explain.
+- **No serious topics, same rule as before.** No PUA or abuse jokes, death or funeral jokes, mental-illness jokes (light "emo" is fine), politics, region or ethnic stereotypes, sexual or crude humor.
+- **Don't change what happens.**
+  - Choices must still match their outcomes.
+  - Numbers, names, tokens and who did what stay the same.
+  - The hidden effects implied by a line (Stress, the advisor's mood) must still read the same way.
+- **Keep these plain:** UI labels and system text (stats, buttons, trait effects, rule explanations), and Arthur's fixed advisor quirks (translate them faithfully, no jokes).
+- **Keep it short.** A local line shouldn't be longer than the literal one.
+
+**Examples**
+
+| Literal first pass | Local |
+|---|---|
+| 你的导师说“行吧”，听起来不太行。 | {advisor}回了句“行吧”。懂的都懂，这不太行。 |
+| 你的 GPU 跑了一整夜。 | 卡跑了一整夜，你也陪着炼了一整夜丹。 |
+| 三个审稿人，三种看法。 | 三个审稿人，四种意见，其中一种来自 2 号审稿人的第二段。 |
+| 你把每篇相关论文都读了。 | 相关工作读了个遍，读到你怀疑自己的想法早就有人做过了。 |
+
 ## Checklist for every file
 
 1. Every row has a `zh`, and every `{token}` appears in the translation the same number of times.
