@@ -27,7 +27,7 @@ eachText(data, (src, en) => add(src, en));
 function jsFiles(dir) {
   return readdirSync(dir).flatMap((f) => { const p = join(dir, f); return statSync(p).isDirectory() ? jsFiles(p) : p.endsWith(".js") ? [p] : []; });
 }
-const T_RE = /\bt\(\s*"((?:[^"\\\n]|\\.)*)"/g;
+const T_RE = /\b(?:t|T_)\(\s*"((?:[^"\\\n]|\\.)*)"/g;
 jsFiles(join(root, "assets", "js", "phd-sim")).forEach((f) => {
   const src = readFileSync(f, "utf8");
   for (const m of src.matchAll(T_RE)) add("code", JSON.parse('"' + m[1] + '"'));
