@@ -1,4 +1,5 @@
 // Small shared helpers. Kept to ES2017 syntax so any minifier can read it.
+import { language } from "./i18n.js";
 
 export function clamp(x, lo, hi) {
   return x < lo ? lo : x > hi ? hi : x;
@@ -47,7 +48,9 @@ export function asList(x) {
   return Array.isArray(x) ? x : [x];
 }
 
+// "3rd" in English; "第3" in Chinese (translators write "你{counter.x|ordinal}次").
 export function ordinal(n) {
+  if (language() === "zh") return "第" + n;
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);

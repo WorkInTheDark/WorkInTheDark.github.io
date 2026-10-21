@@ -2,6 +2,7 @@
 // opens it sees a read-only card. Only ids and numbers go in the link; every name and sentence on the
 // card comes from the game's own data, so a hand-made link can't put new words on the page.
 import { esc } from "./common.js";
+import { t, language } from "../engine/i18n.js";
 
 const NUMS = ["y", "p", "c", "h", "r", "b"];
 
@@ -43,7 +44,7 @@ export function decodeResult(token, D) {
     if (!r || r.v !== 1) return null;
     const ending = D.endingById[r.e];
     if (!ending) return null;
-    const title = (D.titles || []).find(function (t) { return t.id === r.t; });
+    const title = (D.titles || []).find(function (ti) { return ti.id === r.t; });
     const out = { ending: ending, title: title || null, graduated: r.g === 1, achievements: [] };
     NUMS.forEach(function (k) {
       const v = Number(r[k]);
@@ -68,17 +69,23 @@ export function shareUrl(e, D) {
   return location.origin + location.pathname + "#r=" + encodeResult(e, D);
 }
 
-export function beatsLine(k) {
-  return k !== null && k !== undefined && k > 0 ? "Better than " + k + "% of simulated PhDs" : "";
+// As a label, or with `sentence` set, as a sentence with its full stop.
+export function beatsLine(k, sentence) {
+  if (k === null || k === undefined || !(k > 0)) return "";
+  return sentence ? t("Better than {n}% of simulated PhDs.", { n: k }) : t("Better than {n}% of simulated PhDs", { n: k });
 }
 
 // The post that goes with the link (short enough for X with the link attached).
 export function shareText(e) {
   const n = e.numbers;
-  const beats = beatsLine(n.beats);
-  return "My PhD Simulator run: " + e.name + ", “" + e.title.name + ".” " + n.years + " years, " +
-    n.pubs + " first-author paper" + (n.pubs === 1 ? "" : "s") + ", " + n.citations + " citations, " +
-    n.rejections + " rejection" + (n.rejections === 1 ? "" : "s") + "." + (beats ? " " + beats + "." : "");
+  const beats = beatsLine(n.beats, true);
+  const v = { years: n.years, pubs: n.pubs, citations: n.citations, rejections: n.rejections };
+  const counts = n.pubs === 1
+    ? (n.rejections === 1 ? t("{years} years, 1 first-author paper, {citations} citations, 1 rejection.", v) : t("{years} years, 1 first-author paper, {citations} citations, {rejections} rejections.", v))
+    : (n.rejections === 1 ? t("{years} years, {pubs} first-author papers, {citations} citations, 1 rejection.", v) : t("{years} years, {pubs} first-author papers, {citations} citations, {rejections} rejections.", v));
+  // Chinese runs sentences together without spaces.
+  const gap = language() === "zh" ? "" : " ";
+  return t("My PhD Simulator run: {ending}, “{title}.”", { ending: e.name, title: e.title.name }) + gap + counts + (beats ? gap + beats : "");
 }
 
 export function shareTargets(e, D) {
@@ -95,14 +102,14 @@ export function shareTargets(e, D) {
 
 // The share row on the end screen. The device share sheet only shows where the browser has one.
 export function shareRowHtml(e, D, canNativeShare) {
-  const t = shareTargets(e, D);
+  const tg = shareTargets(e, D);
   const link = function (href, label) { return '<a class="ps-btn ps-btn-sm" href="' + esc(href) + '" target="_blank" rel="noopener">' + label + "</a>"; };
-  return '<div class="ps-section ps-share"><h3 class="ps-section-title">Share your PhD</h3><div class="ps-share-row">' +
-    (canNativeShare ? '<button class="ps-btn ps-btn-sm ps-btn-primary" data-action="share-native">Share…</button>' : "") +
-    link(t.x, "X") + link(t.bluesky, "Bluesky") + link(t.linkedin, "LinkedIn") +
-    '<button class="ps-btn ps-btn-sm" data-action="copy-link">Copy link</button>' +
-    '<button class="ps-btn ps-btn-sm" data-action="save-image">Save image</button></div>' +
-    '<p class="ps-muted ps-small">The link carries your result, so whoever opens it sees this card. Nothing is stored on the site.</p></div>';
+  return '<div class="ps-section ps-share"><h3 class="ps-section-title">' + esc(t("Share your PhD")) + '</h3><div class="ps-share-row">' +
+    (canNativeShare ? '<button class="ps-btn ps-btn-sm ps-btn-primary" data-action="share-native">' + esc(t("Share…")) + "</button>" : "") +
+    link(tg.x, "X") + link(tg.bluesky, "Bluesky") + link(tg.linkedin, "LinkedIn") +
+    '<button class="ps-btn ps-btn-sm" data-action="copy-link">' + esc(t("Copy link")) + "</button>" +
+    '<button class="ps-btn ps-btn-sm" data-action="save-image">' + esc(t("Save image")) + "</button></div>" +
+    '<p class="ps-muted ps-small">' + esc(t("The link carries your result, so whoever opens it sees this card. Nothing is stored on the site.")) + "</p></div>";
 }
 
 // The read-only card someone sees when they open a shared link.
@@ -111,22 +118,22 @@ export function sharedHtml(app) {
   const D = app.D;
   const today = new Date().toISOString().slice(0, 10);
   const blurb = r.ending.text && r.ending.text.indexOf("{") < 0 ? r.ending.text : r.ending.offer || "";
-  const nums = [["Years", r.y], ["First-author papers", r.p], ["Citations", r.c], ["h-index", r.h], ["Rejections", r.r], ["Burnouts", r.b]];
-  return '<div class="ps-end ps-shared"><div class="ps-end-head"><div class="ps-kicker">Someone shared their PhD' +
-    (r.daily ? " · daily PhD " + esc(r.daily) : "") + "</div>" +
+  const nums = [[t("Years"), r.y], [t("First-author papers"), r.p], [t("Citations"), r.c], [t("h-index"), r.h], [t("Rejections"), r.r], [t("Burnouts"), r.b]];
+  return '<div class="ps-end ps-shared"><div class="ps-end-head"><div class="ps-kicker">' + esc(t("Someone shared their PhD")) +
+    (r.daily ? " · " + esc(t("daily PhD {date}", { date: r.daily })) : "") + "</div>" +
     "<h2>" + esc(r.ending.name) + "</h2>" +
     (r.title ? '<div class="ps-end-title">' + esc(r.title.name) + "</div>" + (r.title.desc ? '<div class="ps-muted ps-small">' + esc(r.title.desc) + "</div>" : "") : "") + "</div>" +
     (blurb ? '<div class="ps-card ps-section"><p class="ps-text">' + esc(blurb) + "</p></div>" : "") +
-    (beatsLine(r.beats) ? '<p class="ps-share-beats">' + esc(beatsLine(r.beats)) + ".</p>" : "") +
+    (beatsLine(r.beats) ? '<p class="ps-share-beats">' + esc(beatsLine(r.beats, true)) + "</p>" : "") +
     '<div class="ps-section"><div class="ps-numbers">' +
     nums.map(function (x) { return "<div><b>" + esc(x[1]) + "</b>" + esc(x[0]) + "</div>"; }).join("") + "</div></div>" +
-    (r.achievements.length ? '<div class="ps-section"><h3 class="ps-section-title">Achievements</h3><div class="ps-chips">' + r.achievements.map(function (id) {
+    (r.achievements.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("Achievements")) + '</h3><div class="ps-chips">' + r.achievements.map(function (id) {
       const a = D.achievementById[id];
       return '<span class="ps-chip ps-chip-accent" title="' + esc(a.desc || "") + '">' + esc(a.name) + "</span>";
     }).join("") + "</div></div>" : "") +
     '<div class="ps-foot" style="justify-content:center">' +
-    (r.daily === today ? '<button class="ps-btn" data-action="shared-daily">Play the same daily PhD</button>' : "") +
-    '<button class="ps-btn ps-btn-primary" data-action="shared-play">Play your own PhD</button></div></div>';
+    (r.daily === today ? '<button class="ps-btn" data-action="shared-daily">' + esc(t("Play the same daily PhD")) + "</button>" : "") +
+    '<button class="ps-btn ps-btn-primary" data-action="shared-play">' + esc(t("Play your own PhD")) + "</button></div></div>";
 }
 
 // The card as a PNG, once the game's rounded font is ready (a canvas can't wait for it on its own).
@@ -146,12 +153,12 @@ export function drawCard(e) {
   const n = e.numbers;
   x.fillStyle = "#f6efe0"; x.fillRect(0, 0, 1200, 630);
   x.fillStyle = "#283454"; x.fillRect(0, 0, 1200, 92);
-  x.fillStyle = "#f6efe0"; x.font = "600 34px " + display; x.fillText("\u{1F393} PhD Simulator", 60, 60);
+  x.fillStyle = "#f6efe0"; x.font = "600 34px " + display; x.fillText("\u{1F393} " + t("PhD Simulator"), 60, 60);
   x.fillStyle = "#aeb6cf"; x.font = "500 24px " + body; x.textAlign = "right"; x.fillText(location.host + location.pathname.replace(/index\.html$/, ""), 1140, 58); x.textAlign = "left";
-  x.fillStyle = "#857c6e"; x.font = "600 24px " + body; x.fillText((e.graduated ? "GRADUATED" : "LEFT THE PHD") + (e.group ? " · " + e.group.toUpperCase() : ""), 60, 158);
+  x.fillStyle = "#857c6e"; x.font = "600 24px " + body; x.fillText((e.graduated ? t("Graduated") : t("Left the PhD")).toUpperCase() + (e.group ? " · " + e.group.toUpperCase() : ""), 60, 158);
   x.fillStyle = "#2b2620"; x.font = "600 62px " + display; x.fillText(e.name, 60, 228, 1080);
   x.fillStyle = "#d65a32"; x.font = "600 36px " + display; x.fillText(e.title.name, 60, 282, 1080);
-  const cells = [["Years", n.years], ["Papers", n.pubs], ["Citations", n.citations], ["h-index", n.h], ["Rejections", n.rejections], ["Achievements", e.achievements.length]];
+  const cells = [[t("Years"), n.years], [t("Papers"), n.pubs], [t("Citations"), n.citations], [t("h-index"), n.h], [t("Rejections"), n.rejections], [t("Achievements"), e.achievements.length]];
   cells.forEach(function (cell, i) {
     const cx = 60 + i * 183, cy = 330;
     x.fillStyle = "#fffdf7"; x.strokeStyle = "#e4d9c3"; x.lineWidth = 3;
@@ -163,7 +170,7 @@ export function drawCard(e) {
   });
   const beats = beatsLine(n.beats);
   if (beats) { x.fillStyle = "#2f8a55"; x.font = "600 30px " + display; x.fillText(beats, 60, 520); }
-  x.fillStyle = "#857c6e"; x.font = "500 22px " + body; x.fillText("A game about doing a PhD in NLP and HCI. Play your own.", 60, 580);
+  x.fillStyle = "#857c6e"; x.font = "500 22px " + body; x.fillText(t("A game about doing a PhD in NLP and HCI. Play your own."), 60, 580);
   return c;
 }
 

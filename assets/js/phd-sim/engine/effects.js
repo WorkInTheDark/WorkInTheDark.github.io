@@ -5,18 +5,19 @@ import { hasTrait } from "./derived.js";
 import { fill } from "./templating.js";
 import { unlock } from "./achievements.js";
 import { currentStage, nudgeOdds, withdrawRevision } from "./projects.js";
+import { t, T_ } from "./i18n.js";
 
 const HIDDEN_LINES = {
-  advisor_rel: ["Your advisor seems pleased.", "Your advisor seems a little cooler toward you."],
-  labmates_rel: ["Your labmates warm to you.", "The lab feels a little colder."],
-  family_rel: ["Your family feels closer.", "Your family misses you."],
-  friends_rel: ["Your friends are glad to see you.", "Your friends haven't heard from you in a while."],
-  network: ["More people in the field know your name.", "You feel a bit out of the loop."],
-  taste: ["Your sense for good problems sharpens.", "You second-guess your research instincts."],
-  coding: ["Your code feels less fragile than last month.", "Your code feels shakier."],
-  writing: ["Your writing feels a little sharper.", "Your writing feels clumsier."],
-  presenting: ["You feel steadier in front of a room.", "Presenting feels harder than it used to."],
-  knowledge: ["You understand the field a little better.", "You feel behind on the literature."]
+  advisor_rel: [T_("Your advisor seems pleased."), T_("Your advisor seems a little cooler toward you.")],
+  labmates_rel: [T_("Your labmates warm to you."), T_("The lab feels a little colder.")],
+  family_rel: [T_("Your family feels closer."), T_("Your family misses you.")],
+  friends_rel: [T_("Your friends are glad to see you."), T_("Your friends haven't heard from you in a while.")],
+  network: [T_("More people in the field know your name."), T_("You feel a bit out of the loop.")],
+  taste: [T_("Your sense for good problems sharpens."), T_("You second-guess your research instincts.")],
+  coding: [T_("Your code feels less fragile than last month."), T_("Your code feels shakier.")],
+  writing: [T_("Your writing feels a little sharper."), T_("Your writing feels clumsier.")],
+  presenting: [T_("You feel steadier in front of a room."), T_("Presenting feels harder than it used to.")],
+  knowledge: [T_("You understand the field a little better."), T_("You feel behind on the literature.")]
 };
 
 // Stats the player can see: shown as numbers after a choice. Everything else is hinted.
@@ -100,7 +101,7 @@ function projectEffect(G, key, raw, ctx, res, hidden) {
     const n = rollRange(G, raw);
     if (p.bonus[c] === undefined) return;
     p.bonus[c] += n;
-    hidden.push({ line: n >= 0 ? "The project got stronger." : "The project got weaker.", amount: Math.abs(n) });
+    hidden.push({ line: n >= 0 ? t("The project got stronger.") : t("The project got weaker."), amount: Math.abs(n) });
   } else if (sub === "delay") {
     const n = rollRange(G, raw);
     const st = currentStage(G, p);
@@ -114,11 +115,11 @@ function projectEffect(G, key, raw, ctx, res, hidden) {
     p.bonus.N = p.bonus.N * 0.5;
     p.target = null;
     G.state.counters.pivots = (G.state.counters.pivots || 0) + 1;
-    res.notes.push(p.short + " goes back to the idea stage.");
+    res.notes.push(t("{project} goes back to the idea stage.", { project: p.short }));
   } else if (sub === "abandon") {
     withdrawRevision(G, p);
     p.status = "shelved";
-    res.notes.push(p.short + " is shelved.");
+    res.notes.push(t("{project} is shelved.", { project: p.short }));
   }
 }
 
@@ -129,7 +130,7 @@ function paperEffect(G, key, raw, ctx, res, hidden) {
   if (sub === "score") {
     const n = rollRange(G, raw);
     p.scoreBonus = (p.scoreBonus || 0) + n;
-    hidden.push({ line: n >= 0 ? "That may help with the reviewers." : "The reviewers may not like that.", amount: Math.abs(n) });
+    hidden.push({ line: n >= 0 ? t("That may help with the reviewers.") : t("The reviewers may not like that."), amount: Math.abs(n) });
   } else if (sub === "desk_reject") {
     if (p.status === "under_review") p.deskPending = true;
   } else if (sub === "citations") {
@@ -160,7 +161,7 @@ export function applyOutcome(G, out, ctx) {
     if (VISIBLE_KEYS.indexOf(key) >= 0) { if (d) res.visible.push({ stat: key, amount: d }); }
     else if (HIDDEN_LINES[key] && d !== 0) {
       const threshold = ["taste", "coding", "writing", "presenting", "knowledge"].indexOf(key) >= 0 ? 2 : 3;
-      if (Math.abs(d) >= threshold) hiddenDeltas.push({ line: HIDDEN_LINES[key][d > 0 ? 0 : 1], amount: Math.abs(d) });
+      if (Math.abs(d) >= threshold) hiddenDeltas.push({ line: t(HIDDEN_LINES[key][d > 0 ? 0 : 1]), amount: Math.abs(d) });
     }
   });
   hiddenDeltas.sort(function (a, b) { return b.amount - a.amount; });
@@ -175,8 +176,8 @@ export function applyOutcome(G, out, ctx) {
   asList(out.status_remove).forEach(function (id) { removeStatus(G, id); });
   if (out.trait_add && s.player.traits.indexOf(out.trait_add) < 0) {
     s.player.traits.push(out.trait_add);
-    const t = G.D.traitById[out.trait_add];
-    res.notes.push("New trait: " + (t ? t.name : out.trait_add) + ".");
+    const tr = G.D.traitById[out.trait_add];
+    res.notes.push(t("New trait: {trait}.", { trait: tr ? tr.name : out.trait_add }));
   }
   if (out.schedule) schedule(G, out.schedule, ctx);
   // Events can open up an extra option for this turn (or the next, once this turn's focus is chosen).
@@ -189,7 +190,8 @@ export function applyOutcome(G, out, ctx) {
       G.state.turnOpps = (G.state.turnOpps || []).filter(function (o) { return o.id !== id; }).concat([{ id: id, ctx: { projectId: ctx.projectId, tok: ctx.tok } }]);
     }
     const def = G.D.opportunityById[id];
-    res.notes.push("New option " + (beforeFocus ? "this turn" : "next turn") + ": " + fill(def.label, G, ctx) + ".");
+    const option = fill(def.label, G, ctx);
+    res.notes.push(beforeFocus ? t("New option this turn: {option}.", { option: option }) : t("New option next turn: {option}.", { option: option }));
   });
   asList(out.achievement).forEach(function (a) { unlock(G, a); });
   if (out.ending) { s.pendingEnding = out.ending; res.ending = out.ending; }

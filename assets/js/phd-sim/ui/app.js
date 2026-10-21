@@ -6,6 +6,7 @@ import { gameHtml, orderedActions } from "./gameview.js";
 import { eventHtml, sysHtml, rebuttalHtml, resultHtml, promptClass } from "./prompts.js";
 import { titleHtml, setupHtml, codexHtml, endHtml } from "./screens.js";
 import { readSharedFromLocation, sharedHtml, shareTargets, shareText, cardBlob } from "./share.js";
+import { t, language } from "../engine/i18n.js";
 
 export class App {
   constructor(root, rawData) {
@@ -67,7 +68,7 @@ export class App {
     if (this.modal.result) {
       // Keep the question visible, replace the choices with the outcome.
       inner = inner.replace(/<div class="ps-choices">[\s\S]*$/, "");
-      if (p.type !== "event" && p.type !== "sys") inner = '<div class="ps-kicker">Result</div><h3 id="ps-dialog-title">' + esc(p.title || "") + "</h3>";
+      if (p.type !== "event" && p.type !== "sys") inner = '<div class="ps-kicker">' + esc(t("Result")) + '</div><h3 id="ps-dialog-title">' + esc(p.title || "") + "</h3>";
       inner += resultHtml(this.modal.result, p);
     }
     return inner;
@@ -90,7 +91,17 @@ export class App {
     const scrollY = window.scrollY;
     const oldScene = this.root.querySelector(".ps-overlay") || this.root.querySelector(".ps-scene");
     const keepScene = oldScene ? oldScene.scrollTop : 0;
-    this.root.innerHTML = '<div class="ps-app ps-app-' + this.screen + '"><div class="ps-screen">' + body + "</div>" +
+    // Redrawing the same view (picking a reply, a toast) mustn't replay entrance animations, or the
+    // window blinks: only a new pop-up, panel or plan animates in.
+    // Chinese runs sentences together: drop the space English-style joins leave after full-width
+    // punctuation ("。 压力 +6。" -> "。压力 +6。"), but not before a tag.
+    if (language() === "zh") body = body.replace(/([。！？；：，、”’）》])[ \t]+(?=[^\s<])/g, "$1");
+    const popKey = this.screen === "game" ? (this.modal ? "m" + this.modal.n : this.panel ? "p:" + this.panel : "-") : this.screen;
+    const sceneKey = this.screen + "|" + (this.inspect || "") + "|" + (this.planN || 0);
+    const still = (popKey === this.lastPopKey ? " ps-still-pop" : "") + (sceneKey === this.lastSceneKey ? " ps-still-scene" : "");
+    this.lastPopKey = popKey;
+    this.lastSceneKey = sceneKey;
+    this.root.innerHTML = '<div class="ps-app ps-app-' + this.screen + still + '"><div class="ps-screen">' + body + "</div>" +
       (this.toast ? '<div class="ps-toast" role="status">' + esc(this.toast) + "</div>" : "") + "</div>";
     if (this.keepScroll) window.scrollTo(0, scrollY);
     const scene = this.root.querySelector(".ps-overlay") || this.root.querySelector(".ps-scene");
@@ -119,8 +130,8 @@ export class App {
     clearTimeout(this.toastTimer);
     this.toastTimer = setTimeout(function () {
       self.toast = null;
-      const t = self.root.querySelector(".ps-toast");
-      if (t) t.remove();
+      const el = self.root.querySelector(".ps-toast");
+      if (el) el.remove();
     }, 3500);
   }
 
@@ -184,7 +195,8 @@ export class App {
   }
 
   setPlan(p) {
-    if (!this.plan || !p || this.plan.turn !== p.turn) this.sidePick = null;
+    // A new turn's plan animates in; the same turn's plan updating (a new project, a shelved one) doesn't.
+    if (!this.plan || !p || this.plan.turn !== p.turn) { this.sidePick = null; this.planN = (this.planN || 0) + 1; }
     this.plan = p;
   }
 
@@ -221,7 +233,7 @@ export class App {
       setTimeout(function () {
         const el = document.createElement("div");
         el.className = "ps-ach-pop";
-        el.innerHTML = '<span class="ps-ach-icon" aria-hidden="true">\u{1F3C6}</span><span class="ps-ach-body"><small>Achievement unlocked</small><b>' +
+        el.innerHTML = '<span class="ps-ach-icon" aria-hidden="true">\u{1F3C6}</span><span class="ps-ach-body"><small>' + esc(t("Achievement unlocked")) + "</small><b>" +
           esc(a.name) + "</b><span>" + esc(a.desc || "") + "</span></span>";
         layer.appendChild(el);
         setTimeout(function () { el.classList.add("ps-ach-out"); setTimeout(function () { el.remove(); }, 450); }, 5200);
@@ -230,11 +242,12 @@ export class App {
   }
 
   showPrompt(p, ui) {
-    this.modal = { prompt: p, result: null, fresh: true, ui: !!ui };
+    this.popN = (this.popN || 0) + 1;
+    this.modal = { prompt: p, result: null, fresh: true, ui: !!ui, n: this.popN };
     // The cards seen so far this turn, for the pop-up's "where am I" strip.
     const turn = this.game.state.turn;
     if (!this.trail || this.trail.turn !== turn) this.trail = { turn: turn, items: [] };
-    this.trail.items.push({ title: p.title || "Update", event: p.type === "event" });
+    this.trail.items.push({ title: p.title || t("Update"), event: p.type === "event" });
     if (p.type === "rebuttal") this.psel = { responses: {} };
     else this.psel = {};
     this.keepScroll = true;
@@ -249,7 +262,8 @@ export class App {
     this.persist();
     this.checkAchievements();
     if (res && (res.text || (res.visible && res.visible.length) || res.reviews || res.qa || (res.notes && res.notes.length))) {
-      this.modal = { prompt: p, result: res, fresh: true, ui: ui };
+      // The result replaces the card's content in place; the pop-up itself stays put.
+      this.modal = { prompt: p, result: res, fresh: true, ui: ui, n: this.modal.n };
       this.keepScroll = true;
       this.render();
       return;
@@ -294,6 +308,18 @@ export class App {
     window.scrollTo(0, Math.max(0, this.root.getBoundingClientRect().top + window.scrollY - 80));
   }
 
+  // The language comes from the saved choice when the page loads (main.js), so switching saves the
+  // run and the choice and reloads; the game picks up where it was, in the new language.
+  switchLanguage(id) {
+    if (!id || id === language()) return;
+    if (this.game && this.game.state.phase !== "ended") storage.saveRun(this.game.state);
+    storage.saveMeta(this.meta);
+    storage.saveLang(id);
+    const u = new URL(location.href);
+    if (u.searchParams.has("lang")) { u.searchParams.delete("lang"); history.replaceState(null, "", u.toString()); }
+    location.reload();
+  }
+
   // ---- Input ----------------------------------------------------------------
 
   onClick(e) {
@@ -311,6 +337,7 @@ export class App {
       case "resume": this.resume(); break;
       case "title": this.savedRun = this.game && this.game.state.phase !== "ended" ? this.game.state : storage.loadRun(); this.screen = "title"; this.render(); break;
       case "codex": this.prev = this.screen; this.screen = "codex"; this.render(); break;
+      case "lang": this.switchLanguage(id); break;
       case "back": this.screen = this.prev || "title"; this.render(); break;
       case "inspect": if (!this.modal) { this.inspect = id; this.keepScroll = true; this.render(); } break;
       case "close-inspect": this.inspect = null; this.keepScroll = true; this.render(); break;
@@ -320,7 +347,7 @@ export class App {
       case "do": this.doAction(id); break;
       case "side": this.sidePick = this.sidePick === id ? null : id; this.keepScroll = true; this.render(); break;
       case "shelve":
-        if (window.confirm("Shelve this project? You can't bring it back.")) { this.game.shelveProject(id); this.inspect = null; this.persist(); this.setPlan(this.game.planPrompt()); this.keepScroll = true; this.render(); }
+        if (window.confirm(t("Shelve this project? You can't bring it back."))) { this.game.shelveProject(id); this.inspect = null; this.persist(); this.setPlan(this.game.planPrompt()); this.keepScroll = true; this.render(); }
         break;
       case "new-project": {
         const before = this.game.state.stats.sanity;
@@ -328,7 +355,7 @@ export class App {
         if (p) {
           this.persist();
           const up = Math.round(before - this.game.state.stats.sanity);
-          this.flashToast("New project: " + p.short + (up > 0 ? ". Stress +" + up + "." : "."));
+          this.flashToast(up > 0 ? t("New project: {project}. Stress +{n}.", { project: p.short, n: up }) : t("New project: {project}.", { project: p.short }));
           this.setPlan(this.game.planPrompt());
           this.keepScroll = true; this.render();
         }
@@ -342,15 +369,15 @@ export class App {
       case "shared-daily": this.leaveShared(); this.newSetup(true); break;
       case "copy-link": {
         const url = shareTargets(this.ending, this.D).url;
-        const done = function () { self.flashToast("Link copied."); self.render(); };
-        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function () { window.prompt("Copy this link:", url); });
-        else window.prompt("Copy this link:", url);
+        const done = function () { self.flashToast(t("Link copied.")); self.render(); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function () { window.prompt(t("Copy this link:"), url); });
+        else window.prompt(t("Copy this link:"), url);
         break;
       }
       case "share-native": {
         // The device's share sheet, with the image attached where the browser allows files.
-        const t = shareTargets(this.ending, this.D);
-        const data = { title: "PhD Simulator", text: shareText(this.ending), url: t.url };
+        const tg = shareTargets(this.ending, this.D);
+        const data = { title: t("PhD Simulator"), text: shareText(this.ending), url: tg.url };
         const file = this.cardFile;
         navigator.share(file && navigator.canShare && navigator.canShare({ files: [file] }) ? Object.assign({ files: [file] }, data) : data).catch(function () {});
         break;

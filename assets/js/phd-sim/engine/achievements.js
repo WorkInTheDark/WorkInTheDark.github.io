@@ -1,5 +1,6 @@
 // Achievements persist across runs in meta; each run also remembers its own.
 import { check } from "./conditions.js";
+import { t } from "./i18n.js";
 
 export function unlock(G, id) {
   const s = G.state;
@@ -13,7 +14,7 @@ export function unlock(G, id) {
   const isNew = !meta.achievements[id];
   if (isNew) meta.achievements[id] = new Date().toISOString().slice(0, 10);
   s.newAchievements.push({ id: id, name: def.name, desc: def.desc, isNew: isNew });
-  s.log.push({ turn: s.turn, kind: "achievement", text: "Achievement: " + def.name + (isNew ? " (new!)" : "") });
+  s.log.push({ turn: s.turn, kind: "achievement", text: isNew ? t("Achievement: {name} (new!)", { name: def.name }) : t("Achievement: {name}", { name: def.name }) });
   return true;
 }
 

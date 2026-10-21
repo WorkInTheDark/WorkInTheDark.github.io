@@ -17,6 +17,7 @@ import { setCiteMean, rollBreakout } from "./citations.js";
 import { computeOffers, finalize } from "./endings.js";
 import { fireHook, arrowsFor } from "./events.js";
 import { check } from "./conditions.js";
+import { t, T_ } from "./i18n.js";
 
 function sys(id, title, text, choices, data) {
   return {
@@ -27,7 +28,7 @@ function sys(id, title, text, choices, data) {
 }
 
 function notice(title, text, data) {
-  return sys("notice", title, text, [{ label: "Continue" }], data);
+  return sys("notice", title, text, [{ label: t("Continue") }], data);
 }
 
 function proj(G, id) { return G.state.projects.find(function (p) { return p.id === id; }); }
@@ -38,13 +39,13 @@ function log(G, text, kind) { G.state.log.push({ turn: G.state.turn, kind: kind 
 export function stressHit(G, amount) {
   const d = addStat(G, "sanity", -Math.abs(amount));
   const n = Math.round(-d);
-  return n > 0 ? " Stress +" + n + "." : "";
+  return n > 0 ? " " + t("Stress +{n}.", { n: n }) : "";
 }
 
 const COMP_WORDS = {
-  N: { name: "novelty", question: "Why does anyone need this? Right now the case for novelty is the weakest part of the paper." },
-  S: { name: "soundness", question: "Does the evidence actually support the claim? Right now it doesn't quite." },
-  C: { name: "clarity", question: "A reader will get lost by section 3. What is the one sentence they must remember?" }
+  N: { name: "novelty", question: T_("Why does anyone need this? Right now the case for novelty is the weakest part of the paper.") },
+  S: { name: "soundness", question: T_("Does the evidence actually support the claim? Right now it doesn't quite.") },
+  C: { name: "clarity", question: T_("A reader will get lost by section 3. What is the one sentence they must remember?") }
 };
 
 // ---- Matching ---------------------------------------------------------------
@@ -92,7 +93,7 @@ export function autoProject(G) {
   const switcher = s.player.traits.indexOf("career_switcher") >= 0;
   const type = G.rng.weighted(Object.keys(TYPE_WEIGHTS), function (k) { return TYPE_WEIGHTS[k] * (k === "study" && switcher ? 1.5 : 1); });
   const busy = activeProjects(G).map(function (p) { return p.topic; });
-  const free = s.world.topics.filter(function (t) { return busy.indexOf(t.id) < 0; });
+  const free = s.world.topics.filter(function (tp) { return busy.indexOf(tp.id) < 0; });
   const topic = G.rng.pick(free.length ? free : s.world.topics);
   const p = createProject(G, type, topic.id, {});
   autoTarget(G, p);
@@ -103,11 +104,12 @@ function firstProjectPrompt(G) {
   const s = G.state;
   const senior = s.labmates.slice().sort(function (a, b) { return b.year - a.year; })[0];
   const adv = s.advisor;
-  return sys("first_project", "Welcome to the lab",
-    "Your advisor is Prof. " + adv.surname + " (" + adv.label + "): \u201c" + adv.tagline + "\u201d " +
-    (senior ? senior.name : "A senior student") + " is graduating and leaves a half-finished project. Take it over, or start your own?",
-    [{ label: "Take over the half-finished project" },
-      { label: "Start your own project" }],
+  return sys("first_project", t("Welcome to the lab"),
+    t("Your advisor is {advisor} ({label}): \u201c{tagline}\u201d", { advisor: t("Prof. {name}", { name: adv.surname }), label: adv.label, tagline: adv.tagline }) + " " +
+    (senior ? t("{name} is graduating and leaves a half-finished project.", { name: senior.name }) : t("A senior student is graduating and leaves a half-finished project.")) + " " +
+    t("Take it over, or start your own?"),
+    [{ label: t("Take over the half-finished project") },
+      { label: t("Start your own project") }],
     { senior: senior ? senior.name : null });
 }
 
@@ -119,23 +121,25 @@ function submitPrompt(G, p) {
   const name = deadlineLabel(G, p);
   const info = stageInfo(G, p);
   let state;
-  if (info.ready) state = "“" + p.title + "” is ready.";
-  else if (isReady(G, p)) state = "“" + p.title + "” is a rough draft. It can go in as it is; a more finished draft reads better.";
-  else state = "“" + p.title + "” is barely drafted. Unless the next two weeks go very well, it won't be ready in time.";
-  return sys("submit", name + " deadline: this turn", state,
-    [{ label: "Submit and post a preprint", arrows: [{ stat: "citations", dir: "up", strength: 1 }] },
-      { label: "Submit without a preprint" },
-      { label: "Skip this deadline" }],
+  if (info.ready) state = t("“{title}” is ready.", { title: p.title });
+  else if (isReady(G, p)) state = t("“{title}” is a rough draft. It can go in as it is; a more finished draft reads better.", { title: p.title });
+  else state = t("“{title}” is barely drafted. Unless the next two weeks go very well, it won't be ready in time.", { title: p.title });
+  return sys("submit", t("{deadline} deadline: this turn", { deadline: name }), state,
+    [{ label: t("Submit and post a preprint"), arrows: [{ stat: "citations", dir: "up", strength: 1 }] },
+      { label: t("Submit without a preprint") },
+      { label: t("Skip this deadline") }],
     { projectId: p.id, venue: v ? v.id : null });
 }
 
 function questionPrompt(G, p) {
   const comps = components(G, p);
   const weak = weakestComp(comps);
-  return sys("the_question", "The Question",
-    "Two weeks before the deadline, " + (G.state.advisor ? "Prof. " + G.state.advisor.surname : "your advisor") + " reads “" + p.short + "” and asks one question: “" + COMP_WORDS[weak].question + "”",
-    [{ label: "Fix it this turn" },
-      { label: "Note it and keep going" }],
+  return sys("the_question", t("The Question"),
+    t("Two weeks before the deadline, {advisor} reads “{title}” and asks one question: “{question}”", {
+      advisor: G.state.advisor ? t("Prof. {name}", { name: G.state.advisor.surname }) : t("your advisor"), title: p.short, question: t(COMP_WORDS[weak].question)
+    }),
+    [{ label: t("Fix it this turn") },
+      { label: t("Note it and keep going") }],
     { projectId: p.id, comp: weak });
 }
 
@@ -153,39 +157,40 @@ function sanityFromScores(G, reviews) {
 
 function decisionPrompt(G, pp, outcome) {
   if (!pp.firstAuthor) {
-    const who = pp.coauthor || "Your labmate";
+    const who = pp.coauthor || t("Your labmate");
     const good = outcome === "accept" || outcome === "findings";
-    return sys("decision", (good ? "Co-authored paper accepted: " : "Co-authored paper rejected: ") + pp.short,
-      good ? who + "'s paper, with you as a co-author, is in" + (outcome === "findings" ? " Findings at " : " at ") + pp.venueName + "."
-        : who + "'s paper, with you as a co-author, didn't make it. " + who + " shrugs and starts revising.",
-      [{ label: good ? "Congratulate " + who : "Send " + who + " a sympathetic emoji" }], { paperId: pp.id, outcome: outcome, coauthor: true });
+    return sys("decision", good ? t("Co-authored paper accepted: {title}", { title: pp.short }) : t("Co-authored paper rejected: {title}", { title: pp.short }),
+      good ? (outcome === "findings" ? t("{name}'s paper, with you as a co-author, is in Findings at {venue}.", { name: who, venue: pp.venueName })
+        : t("{name}'s paper, with you as a co-author, is in at {venue}.", { name: who, venue: pp.venueName }))
+        : t("{name}'s paper, with you as a co-author, didn't make it. {name} shrugs and starts revising.", { name: who }),
+      [{ label: good ? t("Congratulate {name}", { name: who }) : t("Send {name} a sympathetic emoji", { name: who }) }], { paperId: pp.id, outcome: outcome, coauthor: true });
   }
   const line = metaLine(G, outcome === "findings" ? "findings" : outcome === "accept" ? "accept" : outcome === "reject" ? "reject" : "revise", pp);
   const scores = pp.reviews ? pp.reviews.map(function (r) { return r.score; }).join(" · ") : "";
-  const head = (scores ? "Scores " + scores + "." : "") + (line ? " “" + line + "”" : "");
+  const head = (scores ? t("Scores {scores}.", { scores: scores }) : "") + (line ? " “" + line + "”" : "");
   if (outcome === "accept") {
-    return sys("decision", "Accepted at " + pp.venueName + "!", "“" + pp.title + "” is in. " + head,
-      [{ label: "Celebrate", arrows: [{ stat: "sanity", dir: "up", strength: 2 }] }], { paperId: pp.id, outcome: outcome });
+    return sys("decision", t("Accepted at {venue}!", { venue: pp.venueName }), t("“{title}” is in.", { title: pp.title }) + " " + head,
+      [{ label: t("Celebrate"), arrows: [{ stat: "sanity", dir: "up", strength: 2 }] }], { paperId: pp.id, outcome: outcome });
   }
   if (outcome === "findings") {
-    return sys("decision", "Accepted to Findings", "“" + pp.title + "” didn't make the main conference, but Findings will take it. " + head,
-      [{ label: "Take Findings" }, { label: "Withdraw and aim higher" }],
+    return sys("decision", t("Accepted to Findings"), t("“{title}” didn't make the main conference, but Findings will take it.", { title: pp.title }) + " " + head,
+      [{ label: t("Take Findings") }, { label: t("Withdraw and aim higher") }],
       { paperId: pp.id, outcome: outcome });
   }
   if (outcome === "revise" || outcome === "major_revision") {
-    return sys("decision", pp.journal ? "Major revision" : "Revise and resubmit", "The reviewers want changes to “" + pp.title + "”. " + head,
-      [{ label: "Start the revision" },
-        { label: "Withdraw it" }],
+    return sys("decision", pp.journal ? t("Major revision") : t("Revise and resubmit"), t("The reviewers want changes to “{title}”.", { title: pp.title }) + " " + head,
+      [{ label: t("Start the revision") },
+        { label: t("Withdraw it") }],
       { paperId: pp.id, outcome: outcome });
   }
   const pr = proj(G, pp.projectId);
   const next = pr && pr.target && pr.target.turn !== null && pr.target.turn !== undefined ?
-    "Next: " + deadlineLabel(G, pr) + " in " + Math.max(1, pr.target.turn - G.state.turn) * WEEKS_PER_TURN + " weeks" : "Address the reviews and try again";
-  return sys("decision", (pp.deskReject ? "Desk rejected: " : "Rejected: ") + pp.short,
-    pp.deskReject ? "It never reached reviewers." : head,
-    [{ label: "Revise and resubmit", desc: next + "." },
-      { label: "Send it to a workshop" },
-      { label: "Shelve it" }],
+    t("Next: {deadline} in {weeks} weeks.", { deadline: deadlineLabel(G, pr), weeks: Math.max(1, pr.target.turn - G.state.turn) * WEEKS_PER_TURN }) : t("Address the reviews and try again.");
+  return sys("decision", pp.deskReject ? t("Desk rejected: {title}", { title: pp.short }) : t("Rejected: {title}", { title: pp.short }),
+    pp.deskReject ? t("It never reached reviewers.") : head,
+    [{ label: t("Revise and resubmit"), desc: next },
+      { label: t("Send it to a workshop") },
+      { label: t("Shelve it") }],
     { paperId: pp.id, outcome: "reject" });
 }
 
@@ -204,10 +209,10 @@ function acceptPaper(G, pp, findings) {
   if (p) p.status = "done";
   if (pp.promises) {
     s.dayAdjNext -= Math.min(4, pp.promises);
-    log(G, "Camera-ready: the " + pp.promises + " fixes you promised in the rebuttal will take " + Math.min(4, pp.promises) + " days next turn.");
+    log(G, t("Camera-ready: the {n} fixes you promised in the rebuttal will take {days} days next turn.", { n: pp.promises, days: Math.min(4, pp.promises) }));
   }
   if (pp.conferenceTurn && pp.conferenceTurn > s.turn) s.flags.trip_planned = true;
-  if (broke) log(G, "Something about “" + pp.short + "” catches on. People keep citing it.");
+  if (broke) log(G, t("Something about “{title}” catches on. People keep citing it.", { title: pp.short }));
   removeStatus(G, "post_rejection_blues");
   s.pendingHooks.push({ hook: "after_accept", ctx: { paperId: pp.id } });
 }
@@ -219,7 +224,7 @@ function rejectPaper(G, pp) {
   if (pp.deskReject) s.telemetry.desk_rejects++;
   if (s.telemetry.rejections >= 5 && s.player.traits.indexOf("rejection_hardened") < 0) {
     s.player.traits.push("rejection_hardened");
-    log(G, "After five rejections, the next one stings a little less. New trait: Rejection-Hardened.");
+    log(G, t("After five rejections, the next one stings a little less. New trait: Rejection-Hardened."));
   }
   addStatus(G, "post_rejection_blues", 2);
   s.pendingHooks.push({ hook: "after_reject", ctx: { paperId: pp.id } });
@@ -227,28 +232,28 @@ function rejectPaper(G, pp) {
 
 function conferencePrompt(G, pp) {
   const s = G.state;
-  const city = G.rng.pick(G.D.names.cities || ["Vienna"]);
+  const city = G.rng.pick(G.D.names.cities || [t("Vienna")]);
   const fund = s.advisor ? s.advisor.params.fund : 3;
   const choices = [];
   const data = { paperId: pp.id, city: city, options: [] };
   if (s.flags.visa_failed) {
     data.options = ["remote"];
-    return sys("conference", pp.venueName + " in " + city, "Your visa didn't come through in time. You'll present “" + pp.short + "” remotely, at 3 am your time.",
-      [{ label: "Present remotely" }], data);
+    return sys("conference", t("{venue} in {city}", { venue: pp.venueName, city: city }), t("Your visa didn't come through in time. You'll present “{title}” remotely, at 3 am your time.", { title: pp.short }),
+      [{ label: t("Present remotely") }], data);
   }
   if (fund >= 3) {
-    choices.push({ label: "Go in person", desc: "4 days next turn", arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
+    choices.push({ label: t("Go in person"), desc: t("4 days next turn"), arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
     data.options.push("go");
   } else {
-    choices.push({ label: "Apply for a student travel grant", desc: "A coin flip" });
+    choices.push({ label: t("Apply for a student travel grant"), desc: t("A coin flip") });
     data.options.push("grant");
-    choices.push({ label: "Volunteer for free registration", desc: "2 extra days" });
+    choices.push({ label: t("Volunteer for free registration"), desc: t("2 extra days") });
     data.options.push("volunteer");
   }
-  choices.push({ label: "Present remotely" });
+  choices.push({ label: t("Present remotely") });
   data.options.push("remote");
-  return sys("conference", pp.venueName + " in " + city,
-    "“" + pp.short + "” gets presented this turn. " + (fund >= 3 ? "Your advisor will pay for the trip." : "Your lab has no travel money."), choices, data);
+  return sys("conference", t("{venue} in {city}", { venue: pp.venueName, city: city }),
+    t("“{title}” gets presented this turn.", { title: pp.short }) + " " + (fund >= 3 ? t("Your advisor will pay for the trip.") : t("Your lab has no travel money.")), choices, data);
 }
 
 function attend(G, pp, city, extraDays) {
@@ -266,48 +271,48 @@ function attend(G, pp, city, extraDays) {
   if (G.rng.chance(0.5)) addStatus(G, "jet_lagged", 1);
   s.world.cities[city] = true;
   fireHook(G, "conference", { city: city, paperId: pp.id, venue: pp.venueName }).forEach(function (it) { s.endItems.push(it); });
-  log(G, "You fly to " + city + " for " + pp.venueName + " and present \u201c" + pp.short + "\u201d. Four days of talks, posters and too much coffee.", "news");
+  log(G, t("You fly to {city} for {venue} and present \u201c{title}\u201d. Four days of talks, posters and too much coffee.", { city: city, venue: pp.venueName, title: pp.short }), "news");
 }
 
 // Conferences happen on their own: you go if there's money for it, otherwise you present remotely.
 function autoConference(G, pp) {
   const s = G.state;
-  const city = G.rng.pick(G.D.names.cities || ["Vienna"]);
+  const city = G.rng.pick(G.D.names.cities || [t("Vienna")]);
   const fund = s.advisor ? s.advisor.params.fund : 3;
   s.flags.trip_planned = s.papers.some(function (x) { return x !== pp && x.status === "accepted" && x.conferenceTurn && x.conferenceTurn > s.turn; });
   if (s.flags.visa_failed) {
     delete s.flags.visa_failed;
     unlock(G, "remote_presenter");
     addStat(G, "network", 2);
-    log(G, "Your visa didn't come through, so you present \u201c" + pp.short + "\u201d at " + pp.venueName + " remotely, at 3 am your time.", "news");
+    log(G, t("Your visa didn't come through, so you present \u201c{title}\u201d at {venue} remotely, at 3 am your time.", { title: pp.short, venue: pp.venueName }), "news");
     return;
   }
   if (fund >= 3 || G.rng.chance(0.5 + s.stats.network / 400)) {
-    if (fund < 3) log(G, "A student travel grant comes through.", "news");
+    if (fund < 3) log(G, t("A student travel grant comes through."), "news");
     attend(G, pp, city, 0);
     return;
   }
   addStat(G, "network", 2);
-  log(G, "There's no travel money, so you present \u201c" + pp.short + "\u201d at " + pp.venueName + " remotely. Two people ask great questions.", "news");
+  log(G, t("There's no travel money, so you present \u201c{title}\u201d at {venue} remotely. Two people ask great questions.", { title: pp.short, venue: pp.venueName }), "news");
 }
 
 // ---- Quals, proposal, defense (Committee Q&A) -------------------------------
 
 export const STRATEGIES = [
-  { id: "direct", label: "Answer directly", desc: "Best when they're testing what you know." },
-  { id: "acknowledge", label: "Acknowledge the limitation", desc: "Best when they've found a real weakness." },
-  { id: "reframe", label: "Reframe the question", desc: "Best when they're asking why it matters." },
-  { id: "stall", label: "“Great question…”", desc: "Buys time. Rarely enough." }
+  { id: "direct", label: T_("Answer directly"), desc: T_("Best when they're testing what you know.") },
+  { id: "acknowledge", label: T_("Acknowledge the limitation"), desc: T_("Best when they've found a real weakness.") },
+  { id: "reframe", label: T_("Reframe the question"), desc: T_("Best when they're asking why it matters.") },
+  { id: "stall", label: T_("“Great question…”"), desc: T_("Buys time. Rarely enough.") }
 ];
 const BEST = { knowledge: ["direct"], weakness: ["acknowledge"], big_picture: ["reframe"], gotcha: ["acknowledge", "reframe"] };
 const QA_COUNT = { quals: 4, proposal: 4, defense: 5, job_talk: 3 };
 const HINT = {
-  knowledge: "They wanted a straight answer.",
-  weakness: "They had found a real weakness; owning it would have landed better.",
-  big_picture: "They were asking why it matters; reframing would have helped.",
-  gotcha: "It was a trap; acknowledging or reframing beats a direct answer."
+  knowledge: T_("They wanted a straight answer."),
+  weakness: T_("They had found a real weakness; owning it would have landed better."),
+  big_picture: T_("They were asking why it matters; reframing would have helped."),
+  gotcha: T_("It was a trap; acknowledging or reframing beats a direct answer.")
 };
-const QA_TITLE = { quals: "Qualifying exam", proposal: "Thesis proposal", defense: "Thesis defense", job_talk: "Job talk" };
+const QA_TITLE = { quals: T_("Qualifying exam"), proposal: T_("Thesis proposal"), defense: T_("Thesis defense"), job_talk: T_("Job talk") };
 
 export function qaPrompt(G, stage) {
   const s = G.state;
@@ -321,17 +326,17 @@ export function qaPrompt(G, stage) {
     const member = committee[i % committee.length];
     const q = G.rng.weighted(avail, function (x) { return member.prefers.indexOf(x.kind) >= 0 ? 3 : 1; });
     avail.splice(avail.indexOf(q), 1);
-    picks.push({ key: "q" + i, id: q.id, member: member.name + " (" + member.label + ")", text: fill(q.text, G, {}) });
+    picks.push({ key: "q" + i, id: q.id, who: member.name, member: t("{name} ({role})", { name: member.name, role: member.label }), text: fill(q.text, G, {}) });
   }
   s.qaPending = { stage: stage, picks: picks.map(function (p) { return p.id; }) };
   return {
     type: "qa",
     stage: stage,
-    title: QA_TITLE[stage],
-    text: stage === "defense" ? "Five people, two hours, one room. Read each question and choose how to answer." :
-      "The committee takes turns. Read each question and choose how to answer.",
+    title: t(QA_TITLE[stage]),
+    text: stage === "defense" ? t("Five people, two hours, one room. Read each question and choose how to answer.") :
+      t("The committee takes turns. Read each question and choose how to answer."),
     questions: picks,
-    strategies: STRATEGIES
+    strategies: STRATEGIES.map(function (x) { return Object.assign({}, x, { label: t(x.label), desc: t(x.desc) }); })
   };
 }
 
@@ -384,9 +389,9 @@ export function answerQa(G, resp) {
     if (strat === "stall") p = Math.max(p, 0.25);
     const ok = G.rng.chance(p);
     if (ok) wins++;
-    let line = ok ? G.rng.pick(["They nod and write something down.", "That lands.", "A satisfied “good”.", "They move on, convinced."])
-      : G.rng.pick(["A long pause. They follow up.", "They don't look convinced.", "You can see them making a note.", "That one will come up again."]);
-    if (!ok && fit < 15 && HINT[q.kind]) line += " " + HINT[q.kind];
+    let line = ok ? G.rng.pick([t("They nod and write something down."), t("That lands."), t("A satisfied “good”."), t("They move on, convinced.")])
+      : G.rng.pick([t("A long pause. They follow up."), t("They don't look convinced."), t("You can see them making a note."), t("That one will come up again.")]);
+    if (!ok && fit < 15 && HINT[q.kind]) line += " " + t(HINT[q.kind]);
     lines.push({ q: q.text, ok: ok, line: line });
     addStat(G, "presenting", ok ? 1 : 0.5);
   });
@@ -399,14 +404,14 @@ export function answerQa(G, resp) {
     removeStatus(G, "quals_prep");
     if (frac >= 0.5) {
       m.quals = "passed";
-      res.text = "You pass your quals.";
+      res.text = t("You pass your quals.");
       res.visible.push({ stat: "sanity", amount: addStat(G, "sanity", 8) });
     } else if (m.quals === "failed_once") {
-      res.text = "You don't pass on the second try. The program offers you a Master's degree on the way out.";
+      res.text = t("You don't pass on the second try. The program offers you a Master's degree on the way out.");
       s.pendingEnding = "masters_out";
     } else {
       m.quals = "failed_once";
-      res.text = "Not this time. You can retake quals next year.";
+      res.text = t("Not this time. You can retake quals next year.");
       res.visible.push({ stat: "sanity", amount: addStat(G, "sanity", -10) });
     }
   } else if (stage === "proposal") {
@@ -414,11 +419,11 @@ export function answerQa(G, resp) {
     if (frac >= 0.5) {
       m.proposal = "passed";
       m.proposalPassedTurn = s.turn;
-      res.text = "Your proposal passes. You are officially a PhD candidate. The defense can come a year from now.";
+      res.text = t("Your proposal passes. You are officially a PhD candidate. The defense can come a year from now.");
       res.visible.push({ stat: "sanity", amount: addStat(G, "sanity", 8) });
       addStat(G, "advisor_rel", 4);
     } else {
-      res.text = "The committee asks you to revise the plan and present again in a few weeks.";
+      res.text = t("The committee asks you to revise the plan and present again in a few weeks.");
       m.proposalAt = s.turn + span(4);
       addStatus(G, "proposal_prep", span(4));
       res.visible.push({ stat: "sanity", amount: addStat(G, "sanity", -6) });
@@ -426,15 +431,15 @@ export function answerQa(G, resp) {
   } else if (stage === "defense") {
     removeStatus(G, "defense_prep");
     if (frac >= 0.6) {
-      res.text = "They ask you to step outside. Ten long minutes later: “Congratulations, Doctor.”";
+      res.text = t("They ask you to step outside. Ten long minutes later: “Congratulations, Doctor.”");
       m.defense = "passed";
       graduate(G);
     } else if (frac >= 0.4) {
-      res.text = "You pass, with minor revisions. Two more weeks of fixes and you're done.";
+      res.text = t("You pass, with minor revisions. Two more weeks of fixes and you're done.");
       m.defense = "minor";
       m.graduateAt = s.turn + span(1);
     } else {
-      res.text = "You pass, with major revisions. Six weeks of work, then a short follow-up meeting.";
+      res.text = t("You pass, with major revisions. Six weeks of work, then a short follow-up meeting.");
       m.defense = "major";
       m.graduateAt = s.turn + span(3);
     }
@@ -442,7 +447,7 @@ export function answerQa(G, resp) {
   } else if (stage === "job_talk") {
     s.job = s.job || {};
     s.job.talkScore = frac;
-    res.text = frac >= 0.6 ? "Your job talk goes well. People keep asking follow-ups at dinner." : "The talk is fine. Not your best, not your worst.";
+    res.text = frac >= 0.6 ? t("Your job talk goes well. People keep asking follow-ups at dinner.") : t("The talk is fine. Not your best, not your worst.");
   }
   return res;
 }
@@ -494,7 +499,7 @@ export function applySide(G, pick) {
     if (focus || any) ctx.projectId = (focus || any).id;
   }
   const res = applyOutcome(G, def, ctx);
-  log(G, (res && res.text) || pick.label + ".", "news");
+  log(G, (res && res.text) || t("{label}.", { label: pick.label }), "news");
 }
 
 export function buildSys(G, item) {
@@ -502,8 +507,8 @@ export function buildSys(G, item) {
   const d = item.data || {};
   switch (item.sys) {
     case "welcome":
-      return notice("Welcome to your PhD, " + s.player.name,
-        "It's September. You have five years, give or take, to become an expert in something nobody fully understands yet. Each turn is two weeks: choose what to focus on, keep an eye on Energy, Stress and Health, and remember: everyone else is also figuring it out.");
+      return notice(t("Welcome to your PhD, {name}", { name: s.player.name }),
+        t("It's September. You have five years, give or take, to become an expert in something nobody fully understands yet. Each turn is two weeks: choose what to focus on, keep an eye on Energy, Stress and Health, and remember: everyone else is also figuring it out."));
     case "first_project":
       if (activeProjects(G).length) return null;
       return firstProjectPrompt(G);
@@ -543,38 +548,38 @@ export function buildSys(G, item) {
         answers[x.key] = def && BEST[def.kind] ? BEST[def.kind][0] : "direct";
       });
       const res = answerQa(G, { answers: answers, auto: true });
-      return sys("qa_result", QA_TITLE[d.stage], res.text, [{ label: "Continue" }],
-        { lines: res.qa.map(function (l, i) { return { who: q.questions[i] ? q.questions[i].member.split(" (")[0] : "", q: l.q, ok: l.ok }; }), visible: res.visible });
+      return sys("qa_result", t(QA_TITLE[d.stage]), res.text, [{ label: t("Continue") }],
+        { lines: res.qa.map(function (l, i) { return { who: q.questions[i] ? q.questions[i].who : "", q: l.q, ok: l.ok }; }), visible: res.visible });
     }
     case "proposal_offer":
-      return sys("proposal_offer", "Ready to propose?",
-        "Your committee is formed and you have " + firstAuthorPubs(G) + " first-author papers. The thesis proposal turns you from a student into a candidate. You'd present in " + span(G.D.config.proposal_prep_turns || 4) * WEEKS_PER_TURN + " weeks.",
-        [{ label: "Schedule the proposal" }, { label: "Not yet" }]);
+      return sys("proposal_offer", t("Ready to propose?"),
+        t("Your committee is formed and you have {n} first-author papers. The thesis proposal turns you from a student into a candidate. You'd present in {weeks} weeks.", { n: firstAuthorPubs(G), weeks: span(G.D.config.proposal_prep_turns || 4) * WEEKS_PER_TURN }),
+        [{ label: t("Schedule the proposal") }, { label: t("Not yet") }]);
     case "defense_offer": {
       const acc = firstAuthorPubs(G);
       const early = acc < (G.D.config.graduation_pubs || 3);
-      return sys("defense_offer", "Ready to defend?",
-        early ? "You have " + acc + " first-author papers accepted and one under review. You could start defense preparation now and hope the third one lands. Prep takes about three months."
-          : "You have " + acc + " first-author papers accepted. Defense preparation takes about three months of thesis writing and slides.",
-        [{ label: "Start defense prep" }, { label: "Not yet" }]);
+      return sys("defense_offer", t("Ready to defend?"),
+        early ? t("You have {n} first-author papers accepted and one under review. You could start defense preparation now and hope the third one lands. Prep takes about three months.", { n: acc })
+          : t("You have {n} first-author papers accepted. Defense preparation takes about three months of thesis writing and slides.", { n: acc }),
+        [{ label: t("Start defense prep") }, { label: t("Not yet") }]);
     }
     case "internship_apply":
-      return sys("internship_apply", "Summer internships",
-        "Recruiting season is open. An internship means 12 weeks of industry research, real compute, and a lot of new people.",
-        [{ label: "Apply broadly" }, { label: "Apply to a couple of places" }, { label: "Skip this year" }]);
+      return sys("internship_apply", t("Summer internships"),
+        t("Recruiting season is open. An internship means 12 weeks of industry research, real compute, and a lot of new people."),
+        [{ label: t("Apply broadly") }, { label: t("Apply to a couple of places") }, { label: t("Skip this year") }]);
     case "internship_offer":
-      return sys("internship_offer", "Internship offer from " + d.company,
-        d.company + " offers you a summer internship: 12 weeks, starting late May.",
-        [{ label: "Accept" }, { label: "Decline and stay in the lab" }], d);
+      return sys("internship_offer", t("Internship offer from {company}", { company: d.company }),
+        t("{company} offers you a summer internship: 12 weeks, starting late May.", { company: d.company }),
+        [{ label: t("Accept") }, { label: t("Decline and stay in the lab") }], d);
     case "fellowship_apply":
-      return sys("fellowship_apply", "Fellowship applications",
-        "A fellowship would pay your way for a year, with no TA duty. The research statement takes a couple of days.",
-        [{ label: "Apply", desc: "2 days next turn", arrows: [] }, { label: "Skip it" }]);
+      return sys("fellowship_apply", t("Fellowship applications"),
+        t("A fellowship would pay your way for a year, with no TA duty. The research statement takes a couple of days."),
+        [{ label: t("Apply"), desc: t("2 days next turn"), arrows: [] }, { label: t("Skip it") }]);
     case "job_market_start":
-      return sys("job_market_start", "The job market",
-        "You're close enough to the finish line that people ask what's next. Going on the market takes time, but offers don't arrive on their own.",
-        [{ label: "Apply everywhere" }, { label: "Industry only" }, { label: "Academia only" },
-          { label: "Something different", desc: "Startups, policy, writing, clinics" }, { label: "Not this year" }]);
+      return sys("job_market_start", t("The job market"),
+        t("You're close enough to the finish line that people ask what's next. Going on the market takes time, but offers don't arrive on their own."),
+        [{ label: t("Apply everywhere") }, { label: t("Industry only") }, { label: t("Academia only") },
+          { label: t("Something different"), desc: t("Startups, policy, writing, clinics") }, { label: t("Not this year") }]);
     case "offers":
     case "final_offers": {
       if (item.sys === "final_offers" && s.acceptedOffer) {
@@ -584,23 +589,23 @@ export function buildSys(G, item) {
       const tracks = item.sys === "final_offers" ? ["academia", "industry", "startup", "other"] : (s.job && s.job.tracks) || ["industry"];
       const offers = computeOffers(G, tracks);
       s.offers = offers;
-      const choices = offers.map(function (o) { return { label: "Accept: " + o.name, desc: o.desc }; });
-      if (item.sys === "offers") choices.push({ label: "Decline them all for now" });
-      return sys(item.sys, item.sys === "final_offers" ? "What's next, Doctor?" : "Offers",
-        item.sys === "final_offers" ? "The degree is done. A few doors are open." : "After months of applications and interviews, here's what came back.",
+      const choices = offers.map(function (o) { return { label: t("Accept: {name}", { name: o.name }), desc: o.desc }; });
+      if (item.sys === "offers") choices.push({ label: t("Decline them all for now") });
+      return sys(item.sys, item.sys === "final_offers" ? t("What's next, Doctor?") : t("Offers"),
+        item.sys === "final_offers" ? t("The degree is done. A few doors are open.") : t("After months of applications and interviews, here's what came back."),
         choices, {});
     }
     case "focus_result": {
-      const fr = s.focusReport || { title: "Your two weeks", lines: [], deltas: [] };
-      return sys("focus_result", fr.title, fr.lines.join(" ") || "Two quiet weeks.", [{ label: "Continue" }], { visible: fr.deltas });
+      const fr = s.focusReport || { title: t("Your two weeks"), lines: [], deltas: [] };
+      return sys("focus_result", fr.title, fr.lines.join(" ") || t("Two quiet weeks."), [{ label: t("Continue") }], { visible: fr.deltas });
     }
     case "leave":
       return leavePrompt(G);
     case "idle_nudge":
       if (activeProjects(G).some(function (p) { return p.firstAuthor !== false; })) return null;
-      return sys("idle_nudge", "What's next?",
-        "In your one-on-one, your advisor asks what you're working on next. Right now, the honest answer is \u201cnothing in particular\u201d.",
-        [{ label: "Start a new project" }, { label: "Keep reading for now" }]);
+      return sys("idle_nudge", t("What's next?"),
+        t("In your one-on-one, your advisor asks what you're working on next. Right now, the honest answer is \u201cnothing in particular\u201d."),
+        [{ label: t("Start a new project") }, { label: t("Keep reading for now") }]);
     case "notice":
       return notice(d.title, d.text);
     case "quals_notice": {
@@ -610,15 +615,16 @@ export function buildSys(G, item) {
       const one = chanceWord(qualsPassChance(G, gain));
       const two = chanceWord(qualsPassChance(G, 2 * gain));
       if (d.stage === "last") {
-        return sys("quals_notice", "Quals in two weeks",
-          "You haven't prepared yet. Pass odds: " + now + " now, " + one + " if you choose \u201cPrepare for quals\u201d this turn.",
-          [{ label: "Got it" }], {});
+        return sys("quals_notice", t("Quals in two weeks"),
+          t("You haven't prepared yet. Pass odds: {now} now, {next} if you choose \u201cPrepare for quals\u201d this turn.", { now: now, next: one }),
+          [{ label: t("Got it") }], {});
       }
-      return sys("quals_notice", "Quals in " + d.weeks + " weeks",
-        "Your qualifying exam is set for " + turnDates(d.exam) + ". The committee asks four questions, and two good answers pass. " +
-        "Choose \u201cPrepare for quals\u201d on the turns before it to raise your odds. Pass odds: " + now + " now, " + one +
-        " after one turn of preparing" + (two !== one ? ", " + two + " after two." : "."),
-        [{ label: "Got it" }], { visible: d.stress ? [{ stat: "sanity", amount: d.stress }] : [] });
+      return sys("quals_notice", t("Quals in {weeks} weeks", { weeks: d.weeks }),
+        t("Your qualifying exam is set for {date}. The committee asks four questions, and two good answers pass.", { date: turnDates(d.exam) }) + " " +
+        t("Choose \u201cPrepare for quals\u201d on the turns before it to raise your odds.") + " " +
+        (two !== one ? t("Pass odds: {now} now, {one} after one turn of preparing, {two} after two.", { now: now, one: one, two: two })
+          : t("Pass odds: {now} now, {one} after one turn of preparing.", { now: now, one: one })),
+        [{ label: t("Got it") }], { visible: d.stress ? [{ stat: "sanity", amount: d.stress }] : [] });
     }
     default:
       return null;
@@ -629,13 +635,13 @@ export function leavePrompt(G) {
   const s = G.state;
   const choices = [];
   const ids = [];
-  if (yearOf(s.turn) >= 2) { choices.push({ label: "Leave with a Master's" }); ids.push("masters_out"); }
-  if (s.flags.bubble_tea_dream) { choices.push({ label: "Open the bubble tea shop" }); ids.push("bubble_tea"); }
-  if (s.flags.med_school_curious) { choices.push({ label: "Apply to med school" }); ids.push("switched_fields"); }
-  if (s.flags.family_business) { choices.push({ label: "Join the family business" }); ids.push("family_business"); }
-  choices.push({ label: "Never mind, keep going" });
+  if (yearOf(s.turn) >= 2) { choices.push({ label: t("Leave with a Master's") }); ids.push("masters_out"); }
+  if (s.flags.bubble_tea_dream) { choices.push({ label: t("Open the bubble tea shop") }); ids.push("bubble_tea"); }
+  if (s.flags.med_school_curious) { choices.push({ label: t("Apply to med school") }); ids.push("switched_fields"); }
+  if (s.flags.family_business) { choices.push({ label: t("Join the family business") }); ids.push("family_business"); }
+  choices.push({ label: t("Never mind, keep going") });
   ids.push(null);
-  return sys("leave", "Leave the PhD?", "Leaving isn't losing. Plenty of good lives start here. Where would you go?", choices, { ids: ids });
+  return sys("leave", t("Leave the PhD?"), t("Leaving isn't losing. Plenty of good lives start here. Where would you go?"), choices, { ids: ids });
 }
 
 // ---- Handling answers -------------------------------------------------------
@@ -652,15 +658,15 @@ export function handleSys(G, prompt, choice) {
     case "focus_result": return null;
     case "first_project":
       if (choice === 0) {
-        const t = G.rng.pick(s.world.topics);
+        const topic = G.rng.pick(s.world.topics);
         const type = G.rng.pick(["empirical", "empirical", "study", "dataset"]);
-        const p = createProject(G, type, t.id, { stageIdx: 2, seedQuality: 45, bonusN: -3, source: "inherited" });
+        const p = createProject(G, type, topic.id, { stageIdx: 2, seedQuality: 45, bonusN: -3, source: "inherited" });
         p.firstAuthor = true;
         s.flags.inherited_project = true;
         autoTarget(G, p);
-        return empty("You inherit “" + p.title + "”, its code, and its mysteries.");
+        return empty(t("You inherit “{title}”, its code, and its mysteries.", { title: p.title }));
       }
-      { const hit = newProjectStress(G); const p = autoProject(G); return empty("Your first project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")." + stressHit(G, hit)); }
+      { const hit = newProjectStress(G); const p = autoProject(G); return empty(t("Your first project: “{title}” ({type}).", { title: p.title, type: t(PROJECT_TYPES[p.type].label) }) + stressHit(G, hit)); }
     case "submit": {
       const p = proj(G, d.projectId);
       if (!p) return null;
@@ -668,18 +674,18 @@ export function handleSys(G, prompt, choice) {
         autoTarget(G, p, { minLead: 1 });
         p.target = p.target && p.target.turn <= s.turn ? null : p.target;
         if (!p.target) autoTarget(G, p, { minLead: 2 });
-        return empty("You let this one go. Next target: " + (deadlineLabel(G, p) || "to be decided") + ".");
+        return empty(t("You let this one go. Next target: {deadline}.", { deadline: deadlineLabel(G, p) || t("to be decided") }));
       }
       p.submitting = { preprint: choice === 0 };
       addStatus(G, "deadline_mode", 1);
       const items = fireHook(G, "deadline", { projectId: p.id, venue: deadlineLabel(G, p) });
       for (let i = items.length - 1; i >= 0; i--) s.turnItems.unshift(items[i]);
-      return empty("Deadline mode. Everything else can wait two weeks.");
+      return empty(t("Deadline mode. Everything else can wait two weeks."));
     }
     case "the_question": {
       const p = proj(G, d.projectId);
-      if (p && choice === 0) { p.fixFocus = d.comp; return empty("You know what to fix. Now you need the days."); }
-      return empty("You write the question on a sticky note and move on.");
+      if (p && choice === 0) { p.fixFocus = d.comp; return empty(t("You know what to fix. Now you need the days.")); }
+      return empty(t("You write the question on a sticky note and move on."));
     }
     case "decision": {
       const pp = paper(G, d.paperId);
@@ -689,20 +695,20 @@ export function handleSys(G, prompt, choice) {
         if (o === "findings") acceptPaper(G, pp, true);
         const dd = addStat(G, "sanity", o === "reject" ? -1 : 3);
         addStat(G, "labmates_rel", 2);
-        return { text: o === "reject" ? "Not every paper is yours to carry." : "A line on your CV you helped earn.", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [] };
+        return { text: o === "reject" ? t("Not every paper is yours to carry.") : t("A line on your CV you helped earn."), visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [] };
       }
       if (o === "accept") {
         let san = G.rng.triangular(10, 3);
         if (hasTrait(G, "imposter_syndrome")) san -= 3;
         const dd = addStat(G, "sanity", san);
         addStat(G, "advisor_rel", 3);
-        return { text: "You tell your family. They ask what it means. You explain for twenty minutes.", visible: [{ stat: "sanity", amount: dd }], hidden: ["Your advisor seems pleased."], notes: [] };
+        return { text: t("You tell your family. They ask what it means. You explain for twenty minutes."), visible: [{ stat: "sanity", amount: dd }], hidden: [t("Your advisor seems pleased.")], notes: [] };
       }
       if (o === "findings") {
-        if (choice === 0) { acceptPaper(G, pp, true); return empty("Findings it is. A publication is a publication."); }
+        if (choice === 0) { acceptPaper(G, pp, true); return empty(t("Findings it is. A publication is a publication.")); }
         rejectPaper(G, pp);
         if (p) { p.status = "active"; p.revise = true; p.ready = false; nextResubmitTarget(G, p, false); }
-        return empty("You withdraw and start revising.");
+        return empty(t("You withdraw and start revising."));
       }
       if (o === "revise" || o === "major_revision") {
         if (choice === 0 && p) {
@@ -714,11 +720,11 @@ export function handleSys(G, prompt, choice) {
             p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: pp.submittedTurn + span(c.revision_due_in || 7), rrPaper: pp.id };
           }
          
-          return empty("Revision mode. Every reviewer comment is now a to-do item.");
+          return empty(t("Revision mode. Every reviewer comment is now a to-do item."));
         }
         rejectPaper(G, pp);
         if (p) { p.status = "active"; p.revise = true; p.ready = false; nextResubmitTarget(G, p, false); }
-        return empty("You withdraw it and look for another venue.");
+        return empty(t("You withdraw it and look for another venue."));
       }
       // Rejected (or desk rejected): sanity hit then a plan.
       let hit = G.rng.triangular(-8, 3);
@@ -726,11 +732,11 @@ export function handleSys(G, prompt, choice) {
       if (hasTrait(G, "perfectionist")) hit = Math.round(hit * 1.3);
       const dd = addStat(G, "sanity", hit);
       if (p) {
-        if (choice === 2) { p.status = "shelved"; return { text: "You shelve it. It still taught you something.", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [] }; }
+        if (choice === 2) { p.status = "shelved"; return { text: t("You shelve it. It still taught you something."), visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [] }; }
         p.status = "active"; p.revise = true; p.ready = false;
         nextResubmitTarget(G, p, choice === 1);
        
-        return { text: "You go back to the draft and aim for " + (deadlineLabel(G, p) || "the next deadline") + ".", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [], tip: s.telemetry.rejections === 1 ? "Critique-Centric Feedback" : null };
+        return { text: t("You go back to the draft and aim for {deadline}.", { deadline: deadlineLabel(G, p) || t("the next deadline") }), visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [], tip: s.telemetry.rejections === 1 ? "Critique-Centric Feedback" : null };
       }
       return { text: "", visible: [{ stat: "sanity", amount: dd }], hidden: [], notes: [] };
     }
@@ -743,12 +749,12 @@ export function handleSys(G, prompt, choice) {
         delete s.flags.visa_failed;
         if (wasVisa) unlock(G, "remote_presenter");
         addStat(G, "network", 2);
-        return empty("You present to a camera and a small grid of faces. Two of them ask great questions.");
+        return empty(t("You present to a camera and a small grid of faces. Two of them ask great questions."));
       }
       if (opt === "grant") {
         if (G.rng.chance(0.5 + s.stats.network / 400)) { attend(G, pp, d.city, 0); return null; }
         addStat(G, "network", 2);
-        return empty("The travel grant doesn't come through, so you present remotely.");
+        return empty(t("The travel grant doesn't come through, so you present remotely."));
       }
       attend(G, pp, d.city, opt === "volunteer" ? 2 : 0);
       return null;
@@ -759,10 +765,10 @@ export function handleSys(G, prompt, choice) {
         addStatus(G, "proposal_prep", span(G.D.config.proposal_prep_turns || 4));
         s.committee = genCommittee(G, 4);
         s.readiness = 0;
-        return empty("Your committee: " + s.committee.map(function (c) { return c.name; }).join(", ") + ". The date is set.");
+        return empty(t("Your committee: {names}. The date is set.", { names: s.committee.map(function (c) { return c.name; }).join(", ") }));
       }
       s.milestones.proposalNextOffer = s.turn + 6;
-      return empty("Not yet. Your advisor will ask again.");
+      return empty(t("Not yet. Your advisor will ask again."));
     case "defense_offer":
       if (choice === 0) {
         const turns = span(G.D.config.defense_prep_turns || 6);
@@ -772,36 +778,36 @@ export function handleSys(G, prompt, choice) {
         addStatus(G, "defense_prep", turns);
         s.readiness = 0;
         const items = [];
-        return empty("Defense prep begins. Thesis chapters, slides, and a date with your committee in about three months.");
+        return empty(t("Defense prep begins. Thesis chapters, slides, and a date with your committee in about three months."));
       }
       s.milestones.defenseNextOffer = s.turn + 6;
-      return empty("Not yet.");
+      return empty(t("Not yet."));
     case "internship_apply":
-      if (choice === 2) return empty("Maybe next year.");
+      if (choice === 2) return empty(t("Maybe next year."));
       s.internship = { applied: choice === 0 ? "broad" : "few", year: yearOf(s.turn) };
       s.flags.internship_applied = true;
-      return empty(choice === 0 ? "Thirty applications, one cover letter, many small edits." : "Two careful applications.");
+      return empty(choice === 0 ? t("Thirty applications, one cover letter, many small edits.") : t("Two careful applications."));
     case "internship_offer":
       if (choice === 0) {
         s.internship.accepted = { company: d.company, year: yearOf(s.turn) };
-        return empty("You sign. Summer will look different this year.");
+        return empty(t("You sign. Summer will look different this year."));
       }
-      return empty("You stay in the lab for the summer.");
+      return empty(t("You stay in the lab for the summer."));
     case "fellowship_apply":
       if (choice === 0) {
         spendDays(G, 2);
         s.fellowship = { year: yearOf(s.turn), applied: true };
         s.flags.fellowship_applied = true;
-        return { text: "Research statement submitted. Results come in the spring.", visible: [{ stat: "days_next", amount: -2 }], hidden: [], notes: [] };
+        return { text: t("Research statement submitted. Results come in the spring."), visible: [{ stat: "days_next", amount: -2 }], hidden: [], notes: [] };
       }
-      return empty("Not this year.");
+      return empty(t("Not this year."));
     case "job_market_start": {
       const map = [["academia", "industry"], ["industry"], ["academia"], ["startup", "other", "industry"]];
-      if (choice === 4) { s.job = { skipYear: yearOf(s.turn) }; return empty("You skip the market this year to focus on the thesis."); }
+      if (choice === 4) { s.job = { skipYear: yearOf(s.turn) }; return empty(t("You skip the market this year to focus on the thesis.")); }
       s.job = { tracks: map[choice], year: yearOf(s.turn) };
       s.flags.on_market = true;
       addStatus(G, "job_market", span(16));
-      return empty("You polish your CV, your website and your research statement, in that order, several times.");
+      return empty(t("You polish your CV, your website and your research statement, in that order, several times."));
     }
     case "offers":
     case "final_offers": {
@@ -810,18 +816,18 @@ export function handleSys(G, prompt, choice) {
         s.acceptedOffer = offers[choice].id;
         removeStatus(G, "job_market");
         if (prompt.sys === "final_offers" || s.milestones.graduated) { s.pendingEnding = s.acceptedOffer; return null; }
-        return empty("You accept: " + offers[choice].name + ". They'll wait until you defend.");
+        return empty(t("You accept: {name}. They'll wait until you defend.", { name: offers[choice].name }));
       }
       s.job = { skipYear: yearOf(s.turn) };
       removeStatus(G, "job_market");
-      return empty("You decline and plan to try again next year.");
+      return empty(t("You decline and plan to try again next year."));
     }
     case "idle_nudge":
-      if (choice === 0) { const hit = newProjectStress(G); const p = autoProject(G); return empty("New project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")." + stressHit(G, hit)); }
+      if (choice === 0) { const hit = newProjectStress(G); const p = autoProject(G); return empty(t("New project: “{title}” ({type}).", { title: p.title, type: t(PROJECT_TYPES[p.type].label) }) + stressHit(G, hit)); }
       return null;
     case "leave": {
       const id = d.ids[choice];
-      if (!id) return empty("You stay.");
+      if (!id) return empty(t("You stay."));
       s.pendingEnding = id;
       return null;
     }
@@ -834,7 +840,7 @@ export function handleSys(G, prompt, choice) {
 export function queueMilestones(G) {
   const s = G.state;
   const cfg = G.D.config;
-  const t = tOf(s.turn);
+  const tt = tOf(s.turn);
   const y = yearOf(s.turn);
   const m = s.milestones;
   const items = [];
@@ -846,17 +852,17 @@ export function queueMilestones(G) {
     const prepTurns = cfg.quals_prep_turns || 4;
     // When the prep window opens, a card before the plan says so (and again two weeks out if you
     // haven't prepared at all), so "Prepare for quals" never goes unnoticed.
-    if (t === cfg.quals_turn - prepTurns) {
+    if (tt === cfg.quals_turn - prepTurns) {
       addStatus(G, "quals_prep", span(prepTurns));
       s.readiness = 0;
       const before = s.stats.sanity;
       stressHit(G, 6);
       items.push({ kind: "sys", sys: "quals_notice", data: { stage: "open", weeks: prepTurns * WEEKS_PER_TURN, exam: absTurn(y, cfg.quals_turn), stress: s.stats.sanity - before } });
     }
-    if (t === cfg.quals_turn - 1 && hasStatus(G, "quals_prep") && (s.readiness || 0) < 1) {
+    if (tt === cfg.quals_turn - 1 && hasStatus(G, "quals_prep") && (s.readiness || 0) < 1) {
       items.push({ kind: "sys", sys: "quals_notice", data: { stage: "last", exam: absTurn(y, cfg.quals_turn) } });
     }
-    if (t === cfg.quals_turn) items.push({ kind: "sys", sys: "qa", data: { stage: "quals" } });
+    if (tt === cfg.quals_turn) items.push({ kind: "sys", sys: "qa", data: { stage: "quals" } });
   }
 
   // Proposal day (scheduling it is a plan action).
@@ -872,7 +878,7 @@ export function queueMilestones(G) {
       m.defenseAt = null;
     } else if (s.turn === m.defenseAt) {
       removeStatus(G, "defense_prep");
-      log(G, "Your thesis is ready, but you have only " + firstAuthorPubs(G) + " first-author papers accepted. The defense happens as soon as the third one lands.", "news");
+      log(G, t("Your thesis is ready, but you have only {n} first-author papers accepted. The defense happens as soon as the third one lands.", { n: firstAuthorPubs(G) }), "news");
     }
   }
   if (m.graduateAt && s.turn >= m.graduateAt && !m.graduated) {
@@ -881,31 +887,31 @@ export function queueMilestones(G) {
   }
 
   // Fellowship results at T12.
-  if (t === 12 && s.fellowship && s.fellowship.applied && s.fellowship.year === y && !s.fellowship.decided) {
+  if (tt === 12 && s.fellowship && s.fellowship.applied && s.fellowship.year === y && !s.fellowship.decided) {
     s.fellowship.decided = true;
     const p = clamp(0.08 + s.stats.taste / 400 + firstAuthorPubs(G) * 0.08 + (s.advisor ? (s.advisor.params.fame - 3) * 0.03 : 0), 0.03, 0.6);
     if (G.rng.chance(p)) {
       s.flags.fellowship_won = true;
       s.fellowshipYear = y + 1;
       unlock(G, "fellow");
-      items.push({ kind: "sys", sys: "notice", data: { title: "You won the fellowship!", text: "Next academic year is yours: no TA duty, and a line on your CV that people notice." } });
+      items.push({ kind: "sys", sys: "notice", data: { title: t("You won the fellowship!"), text: t("Next academic year is yours: no TA duty, and a line on your CV that people notice.") } });
     } else {
-      log(G, "Fellowship results: not this time. The feedback is polite and mostly about \u201cbroader impacts\u201d.", "news");
+      log(G, t("Fellowship results: not this time. The feedback is polite and mostly about \u201cbroader impacts\u201d."), "news");
     }
   }
 
   // Internship offers at T14, the internship itself T20–T25.
-  if (t === 14 && s.internship && s.internship.applied && s.internship.year === y && !s.internship.decided) {
+  if (tt === 14 && s.internship && s.internship.applied && s.internship.year === y && !s.internship.decided) {
     s.internship.decided = true;
     const hire = s.world.hiring === "boom" ? 1.3 : s.world.hiring === "freeze" ? 0.5 : 1;
     const p = clamp((0.3 + s.stats.network * 0.004 + s.stats.coding * 0.003 + s.careerPrep * 0.03) * hire, 0.05, 0.9);
-    if (G.rng.chance(p)) items.push({ kind: "sys", sys: "internship_offer", data: { company: G.rng.pick(G.D.names.companies || ["a tech company"]) } });
-    else log(G, "Internship season: no offers this year. A few nice rejection emails, and one that called you by someone else's name.", "news");
+    if (G.rng.chance(p)) items.push({ kind: "sys", sys: "internship_offer", data: { company: G.rng.pick(G.D.names.companies || [t("a tech company")]) } });
+    else log(G, t("Internship season: no offers this year. A few nice rejection emails, and one that called you by someone else's name."), "news");
     s.careerPrep = 0;
   }
   if (s.internship && s.internship.accepted && s.internship.accepted.year === y) {
-    if (t === 20 && !s.internship.accepted.started) { s.internship.accepted.started = true; s.internship.accepted.effortAtStart = s.internshipEffort || 0; addStatus(G, "on_internship", span(6)); log(G, "Your internship at " + s.internship.accepted.company + " starts. Weekends are still yours." + stressHit(G, 3), "news"); }
-    if (t === 26 && !s.internship.accepted.done) {
+    if (tt === 20 && !s.internship.accepted.started) { s.internship.accepted.started = true; s.internship.accepted.effortAtStart = s.internshipEffort || 0; addStatus(G, "on_internship", span(6)); log(G, t("Your internship at {company} starts. Weekends are still yours.", { company: s.internship.accepted.company }) + stressHit(G, 3), "news"); }
+    if (tt === 26 && !s.internship.accepted.done) {
       s.internship.accepted.done = true;
       s.telemetry.internships++;
       s.flags.interned = true;
@@ -913,22 +919,22 @@ export function queueMilestones(G) {
       // A return offer goes to interns who gave it their all (config offers.return_base / return_per_all_in).
       const oc = G.D.config.offers || {};
       const allIn = (s.internshipEffort || 0) - (s.internship.accepted.effortAtStart || 0);
-      if (G.rng.chance((oc.return_base === undefined ? 0.3 : oc.return_base) + (oc.return_per_all_in || 0) * allIn)) { s.flags.return_offer = true; lines.push("They offer you a full-time return offer, whenever you're ready."); }
+      if (G.rng.chance((oc.return_base === undefined ? 0.3 : oc.return_base) + (oc.return_per_all_in || 0) * allIn)) { s.flags.return_offer = true; lines.push(t("They offer you a full-time return offer, whenever you're ready.")); }
       if (G.rng.chance(0.4)) {
-        lines.push("Your internship project turns into a paper you can submit.");
+        lines.push(t("Your internship project turns into a paper you can submit."));
         internshipPaper(G, s.internship.accepted.company);
       }
-      log(G, "Your internship at " + s.internship.accepted.company + " ends. " + (lines.join(" ") || "You leave with new friends and better code."), "news");
+      log(G, t("Your internship at {company} ends.", { company: s.internship.accepted.company }) + " " + (lines.join(" ") || t("You leave with new friends and better code.")), "news");
     }
   }
 
   // Job market (going on it is a plan action).
   if (hasStatus(G, "job_market")) {
-    if (t === 8) {
+    if (tt === 8) {
       const job = s.job || {};
       if (job.tracks && job.tracks.indexOf("academia") >= 0) items.push({ kind: "sys", sys: "qa", data: { stage: "job_talk" } });
     }
-    if (t === 16) items.push({ kind: "sys", sys: "offers" });
+    if (tt === 16) items.push({ kind: "sys", sys: "offers" });
   }
   return items;
 }
@@ -949,19 +955,19 @@ function defenseOpen(G) {
 export function planExtras(G) {
   const s = G.state;
   const cfg = G.D.config;
-  const t = tOf(s.turn);
+  const tt = tOf(s.turn);
   const y = yearOf(s.turn);
   const m = s.milestones;
   const out = [];
   if (!s.advisor || m.graduated) return out;
-  if (y >= 2 && y <= 5 && t >= 2 && t <= 7 && !(s.internship && s.internship.year === y) && !s.flags.on_market && !hasStatus(G, "defense_prep")) {
-    out.push({ id: "apply_internship", kind: "apply", slot: true, label: "Apply for summer internships",
-      desc: "Summer in industry \u00b7 offers in March",
+  if (y >= 2 && y <= 5 && tt >= 2 && tt <= 7 && !(s.internship && s.internship.year === y) && !s.flags.on_market && !hasStatus(G, "defense_prep")) {
+    out.push({ id: "apply_internship", kind: "apply", slot: true, label: t("Apply for summer internships"),
+      desc: t("Summer in industry \u00b7 offers in March"),
       arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "presenting", dir: "up", strength: 1 }] });
   }
-  if (y <= 3 && t >= 3 && t <= 6 && !s.flags.fellowship_won && !(s.fellowship && s.fellowship.year === y)) {
-    out.push({ id: "apply_fellowship", kind: "apply", slot: true, label: "Apply for a fellowship",
-      desc: "A year without TA duty \u00b7 results in February",
+  if (y <= 3 && tt >= 3 && tt <= 6 && !s.flags.fellowship_won && !(s.fellowship && s.fellowship.year === y)) {
+    out.push({ id: "apply_fellowship", kind: "apply", slot: true, label: t("Apply for a fellowship"),
+      desc: t("A year without TA duty \u00b7 results in February"),
       arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
   }
   if (hasStatus(G, "quals_prep") && m.quals !== "passed") {
@@ -969,29 +975,30 @@ export function planExtras(G) {
     const now = qualsPassChance(G, 0);
     const after = qualsPassChance(G, qualsPrepGain(G));
     const full = (s.readiness || 0) >= QUALS_PREP_CAP;
-    out.push({ id: "quals_prep", kind: "milestone", label: "Prepare for quals",
-      desc: full ? "Fully prepared \u00b7 pass odds " + chanceWord(now) :
-        "Pass odds " + chanceWord(now) + (chanceWord(after) !== chanceWord(now) ? " \u2192 " + chanceWord(after) : " \u2192 a bit better"),
+    out.push({ id: "quals_prep", kind: "milestone", label: t("Prepare for quals"),
+      desc: full ? t("Fully prepared \u00b7 pass odds {odds}", { odds: chanceWord(now) }) :
+        chanceWord(after) !== chanceWord(now) ? t("Pass odds {now} \u2192 {next}", { now: chanceWord(now), next: chanceWord(after) })
+          : t("Pass odds {now} \u2192 a bit better", { now: chanceWord(now) }),
       arrows: full ? [{ stat: "energy", dir: "down", strength: 1 }] : [{ stat: "energy", dir: "down", strength: 1 }, { stat: "quals", dir: "up", strength: 2 }] });
   }
-  if (m.proposal === "pending" && m.quals === "passed" && !m.proposalAt && t !== 9 &&
+  if (m.proposal === "pending" && m.quals === "passed" && !m.proposalAt && tt !== 9 &&
     y >= (cfg.proposal_min_year || 3) && firstAuthorPubs(G) >= (cfg.proposal_min_pubs || 2)) {
-    out.push({ id: "proposal", kind: "milestone", label: "Schedule your thesis proposal",
-      desc: "Present in " + span(cfg.proposal_prep_turns || 4) * WEEKS_PER_TURN + " weeks" });
+    out.push({ id: "proposal", kind: "milestone", label: t("Schedule your thesis proposal"),
+      desc: t("Present in {weeks} weeks", { weeks: span(cfg.proposal_prep_turns || 4) * WEEKS_PER_TURN }) });
   }
-  if (m.proposal === "passed" && !m.defensePrepStart && t !== 9 && defenseOpen(G)) {
+  if (m.proposal === "passed" && !m.defensePrepStart && tt !== 9 && defenseOpen(G)) {
     const acc = firstAuthorPubs(G);
     const need = cfg.graduation_pubs || 3;
     const strictNoEarly = s.advisor.archetype === "methods_purist";
     const early = acc < need;
     if (acc >= need || (!strictNoEarly && acc === need - 1 && pendingFirstAuthor(G) >= 1)) {
-      out.push({ id: "defense", kind: "milestone", label: "Start defense preparation",
-        desc: "About three months" + (early ? " \u00b7 third paper still under review" : "") });
+      out.push({ id: "defense", kind: "milestone", label: t("Start defense preparation"),
+        desc: early ? t("About three months \u00b7 third paper still under review") : t("About three months") });
     }
   }
-  if (m.proposal === "passed" && y >= 4 && t >= 1 && t <= 4 && !hasStatus(G, "job_market") && !s.acceptedOffer && !(s.job && s.job.year === y)) {
-    out.push({ id: "job_market", kind: "milestone", label: "Go on the job market",
-      desc: "Apply now \u00b7 offers in spring" });
+  if (m.proposal === "passed" && y >= 4 && tt >= 1 && tt <= 4 && !hasStatus(G, "job_market") && !s.acceptedOffer && !(s.job && s.job.year === y)) {
+    out.push({ id: "job_market", kind: "milestone", label: t("Go on the job market"),
+      desc: t("Apply now \u00b7 offers in spring") });
   }
   return out;
 }
@@ -1004,19 +1011,19 @@ export function applyPlanExtra(G, id, opts) {
     case "apply_internship":
       s.internship = { applied: "broad", year: y };
       s.flags.internship_applied = true;
-      log(G, "You send out internship applications: one CV, many small edits." + stressHit(G, 2), "news");
+      log(G, t("You send out internship applications: one CV, many small edits.") + stressHit(G, 2), "news");
       break;
     case "apply_fellowship":
       s.fellowship = { year: y, applied: true };
       s.flags.fellowship_applied = true;
-      log(G, "Fellowship application submitted. Results come in February." + stressHit(G, 2), "news");
+      log(G, t("Fellowship application submitted. Results come in February.") + stressHit(G, 2), "news");
       break;
     case "proposal":
       s.milestones.proposalAt = s.turn + span(cfg.proposal_prep_turns || 4);
       addStatus(G, "proposal_prep", span(cfg.proposal_prep_turns || 4));
       s.committee = genCommittee(G, 4);
       s.readiness = 0;
-      log(G, "Proposal scheduled. Your committee: " + s.committee.map(function (c) { return c.name; }).join(", ") + "." + stressHit(G, 5), "news");
+      log(G, t("Proposal scheduled. Your committee: {names}.", { names: s.committee.map(function (c) { return c.name; }).join(", ") }) + stressHit(G, 5), "news");
       break;
     case "defense": {
       const turns = span(cfg.defense_prep_turns || 6);
@@ -1025,14 +1032,14 @@ export function applyPlanExtra(G, id, opts) {
       while (tOf(s.milestones.defenseAt) === 9) s.milestones.defenseAt += 1;
       addStatus(G, "defense_prep", turns);
       s.readiness = 0;
-      log(G, "Defense preparation begins: thesis chapters, slides, and a date with your committee in about three months." + stressHit(G, 6), "news");
+      log(G, t("Defense preparation begins: thesis chapters, slides, and a date with your committee in about three months.") + stressHit(G, 6), "news");
       break;
     }
     case "job_market":
       s.job = { tracks: ["academia", "industry", "startup", "other"], year: y };
       s.flags.on_market = true;
       addStatus(G, "job_market", span(16));
-      log(G, "You go on the job market. You polish your CV, your website and your research statement, in that order, several times." + stressHit(G, 5), "news");
+      log(G, t("You go on the job market. You polish your CV, your website and your research statement, in that order, several times.") + stressHit(G, 5), "news");
       break;
   }
 }
@@ -1063,22 +1070,22 @@ export function queuePapers(G) {
       generateReviews(G, pp);
       const hit = sanityFromScores(G, pp.reviews);
       const d = addStat(G, "sanity", hit);
-      log(G, "Reviews are in for \u201c" + pp.short + "\u201d: " + pp.reviews.map(function (r) { return r.score; }).join(", ") + " out of 5." +
-        (d < -0.5 ? " Stress +" + Math.round(-d) + "." : ""), "news");
+      log(G, t("Reviews are in for \u201c{title}\u201d: {scores} out of 5.", { title: pp.short, scores: pp.reviews.map(function (r) { return r.score; }).join(", ") }) +
+        (d < -0.5 ? " " + t("Stress +{n}.", { n: Math.round(-d) }) : ""), "news");
       fireHook(G, "reviews_in", { paperId: pp.id }).forEach(function (it) { items.push(it); });
       items.push({ kind: "sys", sys: "rebuttal", data: { paperId: pp.id } });
     }
     if (pp.status === "under_review" && pp.decisionTurn === s.turn) {
       const outcome = decide(G, pp);
       if (!pp.firstAuthor) {
-        const who = pp.coauthor || "Your labmate";
+        const who = pp.coauthor || t("Your labmate");
         if (outcome === "accept" || outcome === "findings") {
           acceptPaper(G, pp, outcome === "findings");
           addStat(G, "labmates_rel", 2);
-          log(G, who + "'s paper, with you as a co-author, is accepted at " + pp.venueName + ".", "good");
+          log(G, t("{name}'s paper, with you as a co-author, is accepted at {venue}.", { name: who, venue: pp.venueName }), "good");
         } else {
           pp.status = "rejected";
-          log(G, who + "'s paper, with you as a co-author, is rejected. " + who + " shrugs and starts revising.", "news");
+          log(G, t("{name}'s paper, with you as a co-author, is rejected. {name} shrugs and starts revising.", { name: who }), "news");
         }
       } else if (outcome === "accept") {
         // An acceptance gets its own card before the plan; celebrating it (Stress down, a pleased
@@ -1118,7 +1125,8 @@ function queueRejection(G, pp, items) {
     }
     p.status = "active"; p.revise = true; p.ready = false; nextResubmitTarget(G, p, false);
   }
-  log(G, (pp.deskReject ? "Desk rejected at " : "Rejected at ") + pp.venueName + ": \u201c" + pp.short + "\u201d.", "news");
+  log(G, pp.deskReject ? t("Desk rejected at {venue}: \u201c{title}\u201d.", { venue: pp.venueName, title: pp.short })
+    : t("Rejected at {venue}: \u201c{title}\u201d.", { venue: pp.venueName, title: pp.short }), "news");
   items.push({ kind: "sys", sys: "decision", data: { paperId: pp.id, outcome: "reject" } });
 }
 
@@ -1133,8 +1141,9 @@ function autoRevise(G, pp) {
     const c = G.D.venueById[pp.venueId].cycles[pp.cycle];
     p.target = { venueId: pp.venueId, cycle: pp.cycle, turn: pp.submittedTurn + span(c.revision_due_in || 7), rrPaper: pp.id };
   }
-  log(G, (pp.journal ? "Major revision" : "Revise and resubmit") + " for \u201c" + pp.short + "\u201d at " + pp.venueName +
-    ". Work on it to address the reviews; it goes back " + (pp.journal ? "when the revision is done." : "when the revision is due.") + stressHit(G, G.rng.triangular(5, 2)), "news");
+  log(G, (pp.journal ? t("Major revision for \u201c{title}\u201d at {venue}. Work on it to address the reviews; it goes back when the revision is done.", { title: pp.short, venue: pp.venueName })
+    : t("Revise and resubmit for \u201c{title}\u201d at {venue}. Work on it to address the reviews; it goes back when the revision is due.", { title: pp.short, venue: pp.venueName })) +
+    stressHit(G, G.rng.triangular(5, 2)), "news");
 }
 
 function isReadyish(G, p) {
@@ -1147,7 +1156,7 @@ export function finishSubmissions(G) {
   const s = G.state;
   activeProjects(G).forEach(function (p) {
     if (p.fixFocus) {
-      if ((p.days || 0) >= 2) { p.fixedComp = p.fixFocus; p.bonus[p.fixFocus] += 6; s.flags.kf_flaw_fixed = true; log(G, "You fixed the weakest part of “" + p.short + "” before submitting."); }
+      if ((p.days || 0) >= 2) { p.fixedComp = p.fixFocus; p.bonus[p.fixFocus] += 6; s.flags.kf_flaw_fixed = true; log(G, t("You fixed the weakest part of “{title}” before submitting.", { title: p.short })); }
       p.fixFocus = null;
     }
     // CHI revise-and-resubmit and journal revisions.
@@ -1164,19 +1173,20 @@ export function finishSubmissions(G) {
       pp.decisionTurn = p.target.rrPaper ? pp.submittedTurn + span(c.final_in || c.decision_in + 5) : s.turn + span(4);
       if (pp.decisionTurn <= s.turn) pp.decisionTurn = s.turn + 1;
       p.status = "submitted"; p.revise = false; p.target = null;
-      log(G, "You send the revision of “" + pp.short + "” back to " + pp.venueName + ".");
+      log(G, t("You send the revision of “{title}” back to {venue}.", { title: pp.short, venue: pp.venueName }));
       return;
     }
     if (p.submitting) {
       const opts = p.submitting;
       if (isReady(G, p)) {
         const pp = makePaper(G, p, opts);
-        log(G, "Submitted “" + pp.short + "” to " + pp.venueName + (pp.preprint ? ", with a preprint." : "."));
+        log(G, pp.preprint ? t("Submitted “{title}” to {venue}, with a preprint.", { title: pp.short, venue: pp.venueName })
+          : t("Submitted “{title}” to {venue}.", { title: pp.short, venue: pp.venueName }));
         s.pendingHooks.push({ hook: "after_submit", ctx: { paperId: pp.id } });
       } else {
         p.submitting = false;
         addStat(G, "sanity", -3);
-        log(G, "“" + p.short + "” wasn't ready in time. On to the next deadline.");
+        log(G, t("“{title}” wasn't ready in time. On to the next deadline.", { title: p.short }));
         p.target = null;
         autoTarget(G, p, { minLead: 2 });
       }

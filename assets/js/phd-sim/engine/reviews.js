@@ -7,15 +7,16 @@ import { span } from "./state.js";
 import { unlock } from "./achievements.js";
 import { spendDays } from "./effects.js";
 import { Rng } from "./rng.js";
+import { t, T_ } from "./i18n.js";
 
 // One response per reviewer, covering all of their concerns. Clarify is the default.
 export const RESPONSES = [
-  { id: "clarify", label: "Clarify", desc: "Point to what the paper already says. Works when they misread." },
-  { id: "concede", label: "Concede and promise fixes", desc: "Safe for minor points. You must deliver them in the camera-ready." },
-  { id: "experiment", label: "Run new experiments", days: 2, desc: "Strong for soundness concerns. Costs 2 days and Energy; results can disappoint." },
-  { id: "pushback", label: "Push back politely", desc: "Good when they're wrong and open-minded. Risky otherwise." },
-  { id: "passive", label: "Passive-aggressive reply", desc: "Satisfying to write. Almost never a good idea." },
-  { id: "flag", label: "Flag it as LLM-written", llmOnly: true, desc: "Ask the area chair to discount this review. Only offered when a review reads that way." }
+  { id: "clarify", label: T_("Clarify"), desc: T_("Point to what the paper already says. Works when they misread.") },
+  { id: "concede", label: T_("Concede and promise fixes"), desc: T_("Safe for minor points. You must deliver them in the camera-ready.") },
+  { id: "experiment", label: T_("Run new experiments"), days: 2, desc: T_("Strong for soundness concerns. Costs 2 days and Energy; results can disappoint.") },
+  { id: "pushback", label: T_("Push back politely"), desc: T_("Good when they're wrong and open-minded. Risky otherwise.") },
+  { id: "passive", label: T_("Passive-aggressive reply"), desc: T_("Satisfying to write. Almost never a good idea.") },
+  { id: "flag", label: T_("Flag it as LLM-written"), llmOnly: true, desc: T_("Ask the area chair to discount this review. Only offered when a review reads that way.") }
 ];
 
 export function makePaper(G, p, opts) {
@@ -102,7 +103,7 @@ export function generateReviews(G, paper) {
   const D = G.D;
   const reviews = [];
   for (let i = 0; i < 3; i++) {
-    const persona = pickPersona(G) || { id: "plain", bias: 0, openness: 0.8, openers: ["The paper studies an interesting problem."] };
+    const persona = pickPersona(G) || { id: "plain", bias: 0, openness: 0.8, openers: [t("The paper studies an interesting problem.")] };
     const raw = paper.Q + (persona.bias || 0) + G.rng.normal(0, cfg.reviewer_sigma) + (paper.scoreBonus || 0);
     const nConcerns = clamp(2 + (raw < 60 ? 1 : 0) + (G.rng.chance(0.3) ? 1 : 0), 1, 4);
     const pool = D.reviews.concerns.slice();
@@ -145,7 +146,7 @@ export function generateReviews(G, paper) {
   }
   // The harshest persona always gets to be Reviewer 2.
   const r2 = reviews.findIndex(function (r) { return r.persona === "reviewer_2"; });
-  if (r2 >= 0 && r2 !== 1) { const t = reviews[1]; reviews[1] = reviews[r2]; reviews[r2] = t; }
+  if (r2 >= 0 && r2 !== 1) { const tmp = reviews[1]; reviews[1] = reviews[r2]; reviews[r2] = tmp; }
   paper.reviews = reviews;
   paper.scoreAtReviews = paper.scoreBonus || 0;
   return reviews;
@@ -156,7 +157,7 @@ export function rebuttalPrompt(G, paper) {
   return {
     type: "rebuttal",
     paperId: paper.id,
-    title: "Author response: " + paper.short,
+    title: t("Author response: {paper}", { paper: paper.short }),
     venue: paper.venueName,
     reviews: paper.reviews.map(function (r, i) {
       return {
@@ -169,38 +170,38 @@ export function rebuttalPrompt(G, paper) {
       };
     }),
     outlook: replyOutlook(G, paper),
-    options: RESPONSES
+    options: RESPONSES.map(function (o) { return Object.assign({}, o, { label: t(o.label), desc: t(o.desc) }); })
   };
 }
 
 // One reply to one concern: how far it moves the reviewer (before their openness) and what they say.
 // `valid` is whether the concern is fair. The real rebuttal and the preview dots both use this.
 function replyEffect(rng, st, c, resp, valid) {
-  if (c.pre) return { d: 8, line: "You'd already fixed this before submitting. The reply writes itself.", pre: true };
+  if (c.pre) return { d: 8, line: t("You'd already fixed this before submitting. The reply writes itself."), pre: true };
   switch (resp) {
     case "clarify":
       if (!valid) {
         return rng.chance(0.55 + st.writing / 200)
-          ? { d: rng.triangular(6, 2), line: "Your clarification lands." }
-          : { d: 1, line: "They skim your clarification." };
+          ? { d: rng.triangular(6, 2), line: t("Your clarification lands.") }
+          : { d: 1, line: t("They skim your clarification.") };
       }
-      return { d: c.severity === "minor" ? 1 : 0, line: "Clarifying doesn't fix a real problem." };
+      return { d: c.severity === "minor" ? 1 : 0, line: t("Clarifying doesn't fix a real problem.") };
     case "concede":
-      return { d: c.severity === "minor" ? rng.triangular(4, 1) : 2, line: "They appreciate the honesty.", promise: true };
+      return { d: c.severity === "minor" ? rng.triangular(4, 1) : 2, line: t("They appreciate the honesty."), promise: true };
     case "experiment":
       if (rng.chance(clamp(0.5 + (st.coding - 50) / 40, 0.1, 0.9))) {
-        if (c.comp === "S" || c.comp === "fit") return { d: valid ? rng.triangular(8, 3) : 4, line: "The new results convince them." };
-        return { d: 3, line: "Nice results, though not quite what they asked." };
+        if (c.comp === "S" || c.comp === "fit") return { d: valid ? rng.triangular(8, 3) : 4, line: t("The new results convince them.") };
+        return { d: 3, line: t("Nice results, though not quite what they asked.") };
       }
       return rng.chance(0.25)
-        ? { d: -2, line: "The new baseline beats you. You report it honestly." }
-        : { d: 1, line: "The experiment doesn't finish in time." };
+        ? { d: -2, line: t("The new baseline beats you. You report it honestly.") }
+        : { d: 1, line: t("The experiment doesn't finish in time.") };
     case "pushback":
-      if (!valid) return { d: rng.triangular(5, 2), line: "Your pushback is fair, and they see it." };
-      return { d: -4, line: "They don't enjoy being contradicted on a real issue." };
+      if (!valid) return { d: rng.triangular(5, 2), line: t("Your pushback is fair, and they see it.") };
+      return { d: -4, line: t("They don't enjoy being contradicted on a real issue.") };
     case "passive":
-      if (rng.chance(0.02)) return { d: 15, line: "Somehow, it works. Legendary.", legendary: true };
-      return { d: -8, line: "They noticed the tone." };
+      if (rng.chance(0.02)) return { d: 15, line: t("Somehow, it works. Legendary."), legendary: true };
+      return { d: -8, line: t("They noticed the tone.") };
     default:
       return { d: c.severity === "major" && valid ? -1 : 0, line: "" };
   }
@@ -257,7 +258,7 @@ export function resolveRebuttal(G, paper, answer) {
     if (!RESPONSES.some(function (x) { return x.id === resp; }) || (resp === "flag" && !r.llm)) resp = "clarify";
     if (resp === "flag") {
       r.flagged = G.rng.chance(0.6);
-      lines.push(r.flagged ? "The area chair agrees this review reads as LLM-written and discounts it." : "The area chair notes your concern.");
+      lines.push(r.flagged ? t("The area chair agrees this review reads as LLM-written and discounts it.") : t("The area chair notes your concern."));
     } else {
       if (resp === "experiment") { days += 2; s.stats.energy = clamp(s.stats.energy - 6, 0, 100); }
       r.concerns.forEach(function (c) {
@@ -266,8 +267,8 @@ export function resolveRebuttal(G, paper, answer) {
         if (o.line && !r.silent && lines.indexOf(o.line) < 0) lines.push(o.line);
       });
     }
-    if (r.silent) lines.push("No sign this reviewer read the response.");
-    if (!r.silent && G.rng.chance(0.1)) { delta -= 4; lines.push("After reading the other reviews, they lower their score."); }
+    if (r.silent) lines.push(t("No sign this reviewer read the response."));
+    if (!r.silent && G.rng.chance(0.1)) { delta -= 4; lines.push(t("After reading the other reviews, they lower their score.")); }
     r.raw += delta;
     r.score = scoreOf(G, r.raw);
     out.push({ n: i + 1, before: before, after: r.score, lines: lines });
@@ -306,7 +307,8 @@ export function decide(G, paper) {
 
 // The meta-review's one line. Lines about the rebuttal or author response only go to papers that
 // had one (not CHI, CSCW, workshops or a revised second round), and {venue} / {topic} are this paper's.
-const MENTIONS_RESPONSE = /rebuttal|author response/i;
+// The lines are already translated, so this also matches the Chinese term (作者回复, see zh-guide.md).
+const MENTIONS_RESPONSE = /rebuttal|author response|作者回复|反驳/i;
 export function metaLine(G, kind, paper) {
   const meta = G.D.reviews.meta || {};
   let pool = asList(meta[kind === "major_revision" ? "revise" : kind]);

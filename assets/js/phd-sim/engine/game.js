@@ -3,6 +3,7 @@
 // sometimes a side activity), the two weeks play out, and a report.
 // step() advances to the next thing that needs the player; everything lives in serializable state.
 import { Rng } from "./rng.js";
+import { t, T_ } from "./i18n.js";
 import { clamp, parseValue } from "./util.js";
 import { TURNS, yearOf, tOf, span, WEEKS_PER_TURN, semesterOf, semesterKey, ACTIVITY_BY_ID, ACTIVITIES, DEFAULT_ACTIONS, STAT_LABELS } from "./state.js";
 import { hasStatus, hasTrait, totalCitations, firstAuthorPubs } from "./derived.js";
@@ -40,9 +41,9 @@ function oppArrows(def) {
   return out;
 }
 
-const COURSES = ["Machine Learning", "Natural Language Processing", "HCI Research Methods", "Statistics for Experiments",
-  "Deep Learning", "Qualitative Methods", "Algorithms", "Information Retrieval", "Ethics of AI"];
-const TA_COURSES = ["Intro to Programming", "Data Structures", "Intro to AI", "Machine Learning", "HCI Foundations", "NLP"];
+const COURSES = [T_("Machine Learning"), T_("Natural Language Processing"), T_("HCI Research Methods"), T_("Statistics for Experiments"),
+  T_("Deep Learning"), T_("Qualitative Methods"), T_("Algorithms"), T_("Information Retrieval"), T_("Ethics of AI")];
+const TA_COURSES = [T_("Intro to Programming"), T_("Data Structures"), T_("Intro to AI"), T_("Machine Learning"), T_("HCI Foundations"), T_("NLP")];
 
 export class Game {
   constructor(D, meta, state) {
@@ -61,10 +62,10 @@ export class Game {
     this.meta.runs = (this.meta.runs || 0) + 1;
     s.runIndex = this.meta.runs;
     if (s.player.traits.indexOf("head_start") >= 0) {
-      const t = this.rng.pick(s.world.topics);
-      const p = createProject(this, this.rng.chance(0.5) ? "empirical" : "study", t.id, { stageIdx: 1, seedQuality: 48, source: "masters" });
+      const topic = this.rng.pick(s.world.topics);
+      const p = createProject(this, this.rng.chance(0.5) ? "empirical" : "study", topic.id, { stageIdx: 1, seedQuality: 48, source: "masters" });
       autoTarget(this, p);
-      this.log("You bring a half-finished project from your Master's: “" + p.title + "”.");
+      this.log(t("You bring a half-finished project from your Master's: “{title}”.", { title: p.title }));
     }
     this.save();
   }
@@ -184,7 +185,7 @@ export class Game {
     if (activeProjects(this).length >= (this.D.config.progress.max_active_projects || 4)) return null;
     const hit = newProjectStress(this);
     const p = autoProject(this);
-    this.log("New project: “" + p.title + "” (" + PROJECT_TYPES[p.type].label + ")." + stressHit(this, hit), "news");
+    this.log(t("New project: “{title}” ({type}).", { title: p.title, type: t(PROJECT_TYPES[p.type].label) }) + stressHit(this, hit), "news");
     this.save();
     return p;
   }
@@ -205,7 +206,7 @@ export class Game {
 
   shelveProject(projectId) {
     const p = this.state.projects.find(function (x) { return x.id === projectId; });
-    if (p && p.status === "active") { withdrawRevision(this, p); p.status = "shelved"; this.log("You shelve \u201c" + p.short + "\u201d."); }
+    if (p && p.status === "active") { withdrawRevision(this, p); p.status = "shelved"; this.log(t("You shelve \u201c{title}\u201d.", { title: p.short })); }
     this.save();
   }
 
@@ -214,12 +215,12 @@ export class Game {
   fixedDays() {
     const s = this.state;
     const cfg = this.D.config.fixed_days;
-    const t = tOf(s.turn);
+    const tn = tOf(s.turn);
     const f = { courses: 0, ta: 0, meetings: 0, defense: 0, family: 0, internship: 0 };
     if (hasStatus(this, "on_internship")) f.internship = 10;
     else if (!hasStatus(this, "on_leave")) {
       if (hasStatus(this, "coursework")) f.courses = yearOf(s.turn) === 1 ? cfg.courses_y1 : cfg.courses_y2;
-      if (hasStatus(this, "ta")) f.ta = (t === 8 || t === 18) ? cfg.ta_peak : cfg.ta;
+      if (hasStatus(this, "ta")) f.ta = (tn === 8 || tn === 18) ? cfg.ta_peak : cfg.ta;
       if (s.advisor) f.meetings = s.advisor.archetype === "micromanager" ? 2 : cfg.meetings;
       if (hasStatus(this, "defense_prep")) f.defense = cfg.defense_prep;
       if (hasTrait(this, "parent")) f.family = 2;
@@ -243,17 +244,17 @@ export class Game {
     const onLeave = hasStatus(this, "on_leave");
     const fx = this.fixedDays();
     if (hasStatus(this, "on_internship")) {
-      const co = s.internship && s.internship.accepted ? s.internship.accepted.company : "the internship";
-      out.push({ id: "intern_all", kind: "core", label: "Give " + co + " your all", desc: "Better return-offer odds",
+      const co = s.internship && s.internship.accepted ? s.internship.accepted.company : t("the internship");
+      out.push({ id: "intern_all", kind: "core", label: t("Give {company} your all", { company: co }), desc: t("Better return-offer odds"),
         arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }] });
-      out.push({ id: "intern_pace", kind: "core", label: "Keep a healthy pace", desc: "",
+      out.push({ id: "intern_pace", kind: "core", label: t("Keep a healthy pace"), desc: "",
         arrows: [{ stat: "sanity", dir: "up", strength: 1 }] });
       activeProjects(this).slice(0, 2).forEach(function (p) {
         if (currentStage(self, p).kind === "wait" || p.ready) return;
-        out.push({ id: "intern_weekend:" + p.id, kind: "core", label: "Weekends on “" + p.short + "”", desc: "",
+        out.push({ id: "intern_weekend:" + p.id, kind: "core", label: t("Weekends on “{title}”", { title: p.short }), desc: "",
           arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "progress", dir: "up", strength: 1 }] });
       });
-      out.push({ id: "recharge", kind: "core", label: "Take a few days off", desc: "",
+      out.push({ id: "recharge", kind: "core", label: t("Take a few days off"), desc: "",
         arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
     } else if (!onLeave) {
       activeProjects(this).forEach(function (p) {
@@ -262,21 +263,23 @@ export class Game {
         const ttd = p.target && p.target.turn !== null && p.target.turn !== undefined ? p.target.turn - s.turn : null;
         // A project that's waiting (IRB, recruiting, annotation) or on hold has nothing to work on this turn.
         if (st.kind === "wait" || p.pause > 0) return;
-        const dl = ttd === 0 ? " \u00b7 " + deadlineLabel(self, p) + " now" :
-          ttd !== null && ttd > 0 && ttd <= 3 ? " \u00b7 " + deadlineLabel(self, p) + " " + ttd * WEEKS_PER_TURN + "w" : "";
+        // "ICLR now" / "ICLR 4w": tools/phd-sim/simulate.mjs reads these off the English tiles.
+        const due = function (n) { return n ? t("{deadline} {weeks}w", { deadline: deadlineLabel(self, p), weeks: n * WEEKS_PER_TURN }) : t("{deadline} now", { deadline: deadlineLabel(self, p) }); };
+        const dl = ttd === 0 ? " \u00b7 " + due(0) :
+          ttd !== null && ttd > 0 && ttd <= 3 ? " \u00b7 " + due(ttd) : "";
         // A finished paper waits for its deadline card, but you can keep refining it.
         if (info.ready) {
-          out.push({ id: "refine:" + p.id, kind: "project", label: "Refine \u201c" + p.short + "\u201d",
-            desc: "Ready" + (p.target && ttd !== null && ttd >= 0 ? " \u00b7 " + deadlineLabel(self, p) + " " + (ttd ? ttd * WEEKS_PER_TURN + "w" : "now") : ""),
+          out.push({ id: "refine:" + p.id, kind: "project", label: t("Refine \u201c{title}\u201d", { title: p.short }),
+            desc: t("Ready") + (p.target && ttd !== null && ttd >= 0 ? " \u00b7 " + due(ttd) : ""),
             arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "quality", dir: "up", strength: 1 }] });
           return;
         }
-        out.push({ id: "p:" + p.id, kind: "project", label: "Work on “" + p.short + "”",
-          desc: info.label + dl + (st.id === "lit" ? " \u00b7 reading is faster" : ""),
+        out.push({ id: "p:" + p.id, kind: "project", label: t("Work on “{title}”", { title: p.short }),
+          desc: info.label + dl + (st.id === "lit" ? " \u00b7 " + t("reading is faster") : ""),
           arrows: [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: st.id === "lit" ? 1 : 2 }] });
         if (ttd === 1 && !fx.burnout) {
-          out.push({ id: "crunch:" + p.id, kind: "deadline", label: "Crunch on “" + p.short + "”, weekends included",
-            desc: deadlineLabel(self, p) + " 2w \u00b7 weekends too",
+          out.push({ id: "crunch:" + p.id, kind: "deadline", label: t("Crunch on “{title}”, weekends included", { title: p.short }),
+            desc: t("{deadline} 2w \u00b7 weekends too", { deadline: deadlineLabel(self, p) }),
             arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "sanity", dir: "down", strength: 1 }, { stat: "health", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }] });
         }
       });
@@ -287,13 +290,13 @@ export class Game {
       DEFAULT_ACTIONS.forEach(function (a) {
         let desc = a.desc, arrows = a.arrows;
         if (a.id === "read" && lit.length) {
-          desc = "Speeds up Related work";
+          desc = t("Speeds up Related work");
           arrows = [{ stat: "energy", dir: "down", strength: 1 }, { stat: "progress", dir: "up", strength: 2 }];
         }
-        out.push({ id: a.id, kind: "core", label: a.label, desc: a.id === "read" && lit.length ? desc : "", arrows: arrows });
+        out.push({ id: a.id, kind: "core", label: t(a.label), desc: a.id === "read" && lit.length ? desc : "", arrows: arrows });
       });
     } else {
-      out.push({ id: "recharge", kind: "core", label: "Recharge", desc: "You're on leave, so resting is the job.", arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
+      out.push({ id: "recharge", kind: "core", label: t("Recharge"), desc: t("You're on leave, so resting is the job."), arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
     }
     // Only this turn: opportunities that came up, and anything an event unlocked.
     (s.turnOpps || []).forEach(function (o) {
@@ -349,7 +352,9 @@ export class Game {
     s.projects.forEach(function (p) {
       const st = currentStage(self, p);
       const info = stageInfo(self, p);
-      projects[p.id] = { status: p.status, stage: info.label, n: info.n, ready: info.ready, hint: info.hint };
+      // The stage's English name, so a turn saved in one language compares right in the other;
+      // it's translated where it's shown.
+      projects[p.id] = { status: p.status, stage: STAGE_LABELS[info.id], n: info.n, ready: info.ready, hint: info.hint };
     });
     return {
       stats: { energy: s.stats.energy, sanity: s.stats.sanity, health: s.stats.health },
@@ -382,7 +387,7 @@ export class Game {
     expired.forEach(function (st) {
       if (st.id === "burnout" && s.player.traits.indexOf("burnout_survivor") < 0) {
         s.player.traits.push("burnout_survivor");
-        self.log("You come back from burnout knowing your limits a little better. New trait: Burnout Survivor.", "news");
+        self.log(t("You come back from burnout knowing your limits a little better. New trait: Burnout Survivor."), "news");
       }
     });
     this.updateCalendarStatuses();
@@ -417,7 +422,7 @@ export class Game {
       // A deadline two weeks out with the paper far from done weighs on you.
       if (p.target.turn === s.turn + 1 && p.loomWarned !== p.target.turn && !isReady(self, p)) {
         p.loomWarned = p.target.turn;
-        self.log("“" + p.short + "” is due in two weeks and it's still in " + stageInfo(self, p).label + "." + stressHit(self, 3), "bad");
+        self.log(t("“{title}” is due in two weeks and it's still in {stage}.", { title: p.short, stage: stageInfo(self, p).label }) + stressHit(self, 3), "bad");
       }
     });
     // Usually one event a turn, sometimes two or none. Updates (reviews, decisions, milestones)
@@ -553,7 +558,7 @@ export class Game {
     }
     if (opp && opp.def) {
       const res = applyOutcome(this, opp.def, opp.ctx);
-      const line = res.text || fill(opp.def.label, this, opp.ctx) + ".";
+      const line = res.text || t("{label}.", { label: fill(opp.def.label, this, opp.ctx) });
       this.log(line, "news");
     }
     addStat(this, "energy", cfg.energy.baseline);
@@ -594,32 +599,32 @@ export class Game {
     if (s.stats.sanity < 30) addStat(this, "health", cfg.health.stressed_turn);
 
     // Health and burnout.
-    const t = tOf(s.turn);
+    const tn = tOf(s.turn);
     let sickP = cfg.health.sick_base + cfg.health.sick_per_point * (100 - s.stats.health);
-    if (t >= cfg.health.flu_season[0] && t <= cfg.health.flu_season[1]) sickP *= 2;
+    if (tn >= cfg.health.flu_season[0] && tn <= cfg.health.flu_season[1]) sickP *= 2;
     if (!hasStatus(this, "sick") && this.rng.chance(sickP)) {
       addStatus(this, "sick", 1);
       addStat(this, "energy", -15);
       addStat(this, "health", -4);
-      this.log("You catch something nasty. The next two weeks will be slow.", "bad");
+      this.log(t("You catch something nasty. The next two weeks will be slow."), "bad");
     }
     if (s.stats.sanity <= 0 && !hasStatus(this, "burnout")) {
       addStatus(this, "burnout", span(cfg.sanity.burnout_turns) + 1);
       tl.burnouts++;
       s.stats.sanity = 15;
-      this.log("You burn out. For the next several weeks you'll get half as much done and can't crunch, so rest. It happens to more people than will ever say so.", "bad");
+      this.log(t("You burn out. For the next several weeks you'll get half as much done and can't crunch, so rest. It happens to more people than will ever say so."), "bad");
     }
     if (s.stats.health < 35 && !s.warnedHealth) {
       s.warnedHealth = true;
-      this.log("Your health is slipping: you'll get sick more often and work a little slower. Recharging helps, and so does saying yes to the gym or a hike when it comes up.", "bad");
+      this.log(t("Your health is slipping: you'll get sick more often and work a little slower. Recharging helps, and so does saying yes to the gym or a hike when it comes up."), "bad");
     } else if (s.stats.health > 55) s.warnedHealth = false;
     if (s.stats.energy < 20 && !s.warnedEnergy) {
       s.warnedEnergy = true;
-      this.log("You're running on fumes: with Energy this low, everything gets less done. Two weeks of recharging help.", "bad");
+      this.log(t("You're running on fumes: with Energy this low, everything gets less done. Two weeks of recharging help."), "bad");
     } else if (s.stats.energy > 50) s.warnedEnergy = false;
     if (s.stats.sanity < 25 && !s.warnedSanity && !hasStatus(this, "burnout")) {
       s.warnedSanity = true;
-      this.log("Your stress is high. Recharging and the good things that come up (friends, trips, hobbies) bring it down; at 100 you burn out.", "bad");
+      this.log(t("Your stress is high. Recharging and the good things that come up (friends, trips, hobbies) bring it down; at 100 you burn out."), "bad");
     } else if (s.stats.sanity > 45) s.warnedSanity = false;
   }
 
@@ -628,7 +633,6 @@ export class Game {
     const s = this.state;
     const cfg = this.D.config;
     const self = this;
-    const t = tOf(s.turn);
     finishSubmissions(this);
     rollMissedDeadlines(this);
     s.projects.forEach(function (p) { p.days = 0; });
@@ -662,12 +666,15 @@ export class Game {
     const m = /^(?:p|crunch|refine|intern_weekend):(.+)$/.exec(action);
     const p = m && s.projects.find(function (x) { return x.id === m[1]; });
     if (p) {
-      // The card's title already names the project.
-      const prefix = p.short + ": ";
-      for (let i = 0; i < lines.length; i++) if (lines[i].indexOf(prefix) === 0) lines[i] = lines[i].slice(prefix.length).replace(/^./, function (c) { return c.toUpperCase(); });
+      // The card's title already names the project: drop a leading "<project>: " (or "<project>：").
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].indexOf(p.short) !== 0) continue;
+        const m2 = /^(?:: |\uff1a\s*)/.exec(lines[i].slice(p.short.length));
+        if (m2) lines[i] = lines[i].slice(p.short.length + m2[0].length).replace(/^./, function (c) { return c.toUpperCase(); });
+      }
       if (p.status === "active" && before.projects[p.id] && after.projects[p.id] &&
           before.projects[p.id].stage === after.projects[p.id].stage && !after.projects[p.id].ready) {
-        lines.unshift(stageInfo(this, p).label + " isn't done yet.");
+        lines.unshift(t("{stage} isn't done yet.", { stage: stageInfo(this, p).label }));
       }
     }
     const deltas = [];
@@ -675,7 +682,7 @@ export class Game {
       const d = Math.round(after.stats[k] - before.stats[k]);
       if (d) deltas.push({ stat: k, amount: d });
     });
-    return { title: (s.plan && s.plan.label) || "Your two weeks", lines: lines.slice(0, 4), deltas: deltas };
+    return { title: (s.plan && s.plan.label) || t("Your two weeks"), lines: lines.slice(0, 4), deltas: deltas };
   }
 
   buildReport() {
@@ -686,18 +693,18 @@ export class Game {
     const deltas = [];
     ["energy", "sanity", "health"].forEach(function (k) {
       const a = Math.round(before.stats[k]), b = Math.round(after.stats[k]);
-      if (a !== b) deltas.push({ stat: k, label: STAT_LABELS[k], from: a, to: b });
+      if (a !== b) deltas.push({ stat: k, label: t(STAT_LABELS[k]), from: a, to: b });
     });
-    if (after.citations !== before.citations) deltas.push({ stat: "citations", label: "Citations", from: before.citations, to: after.citations });
+    if (after.citations !== before.citations) deltas.push({ stat: "citations", label: t("Citations"), from: before.citations, to: after.citations });
     const projects = [];
     s.projects.forEach(function (p) {
       const a = before.projects[p.id], b = after.projects[p.id];
       if (!b) return;
-      const label = function (x) { return x ? (x.ready ? "Ready to submit" : x.stage) : "new"; };
+      const label = function (x) { return x ? (x.ready ? t("Ready to submit") : t(x.stage)) : t("new"); };
       if (!a || a.stage !== b.stage || a.ready !== b.ready || a.status !== b.status) {
-        projects.push({ id: p.id, short: p.short, from: label(a), to: b.status === "submitted" ? "Submitted" : b.status === "done" ? "Published" : label(b) });
+        projects.push({ id: p.id, short: p.short, from: label(a), to: b.status === "submitted" ? t("Submitted") : b.status === "done" ? t("Published") : label(b) });
       } else if (p.lastWorked === s.turn && p.status === "active" && !b.ready) {
-        projects.push({ id: p.id, short: p.short, from: null, to: "still in " + b.stage + " (" + b.hint + ")" });
+        projects.push({ id: p.id, short: p.short, from: null, to: t("still in {stage} ({hint})", { stage: t(b.stage), hint: b.hint }) });
       }
     });
     return {
@@ -778,7 +785,7 @@ export class Game {
         st.taste = clamp(st.taste + 0.5 * g * (1 - st.taste / 100), 0, 100);
         s.telemetry.reading_days++;
         if (hasStatus(this, "quals_prep")) s.readiness += 0.3;
-        if (this.rng.chance(0.04 + st.taste / 1500)) { s.telemetry.ideas++; this.log("While reading, you have an idea worth keeping."); }
+        if (this.rng.chance(0.04 + st.taste / 1500)) { s.telemetry.ideas++; this.log(t("While reading, you have an idea worth keeping.")); }
         break;
       }
       case "network": {
@@ -859,42 +866,43 @@ export class Game {
     if ((s.coauthorYears[y] || 0) >= 2 || !s.advisor || !this.rng.chance(p * 2)) return;
     s.coauthorYears[y] = (s.coauthorYears[y] || 0) + 1;
     const lm = s.labmates.filter(function (l) { return l.present !== false; });
-    const who = lm.length ? this.rng.pick(lm).name : "A labmate";
+    const who = lm.length ? this.rng.pick(lm).name : t("A labmate");
     const venues = this.D.venues.filter(function (v) { return !v.journal; });
     const v = this.rng.pick(venues);
     const topic = this.rng.pick(s.world.topics);
     const tt = (this.D.topicById[topic.id] || {}).titles || {};
     const titles = (tt.nlp || []).concat(tt.hci || []);
-    const title = titles.length ? this.rng.pick(titles) : "A Paper You Helped With";
+    const title = titles.length ? this.rng.pick(titles) : t("A Paper You Helped With");
     s.papers.push({
-      id: "x" + s.nextId++, projectId: null, title: title, short: title.split(":")[0], type: "empirical", topic: topic.id,
+      id: "x" + s.nextId++, projectId: null, title: title, short: title.split(/[:\uff1a]/)[0], type: "empirical", topic: topic.id,
       venueId: v.id, venueName: v.cycles[0].name, tier: v.tier, journal: false, cycle: 0,
       submittedTurn: s.turn, reviewsTurn: s.turn + 10, decisionTurn: s.turn + this.rng.int(10, 18), conferenceTurn: null,
       rebuttal: false, rr: false, round: 1, comps: { N: 60, S: 60, C: 60 },
       Q: 58 + this.rng.normal(0, 8), status: "under_review", reviews: null, preprint: false, firstAuthor: false,
       submissions: 1, citations: 0, citeMean: 0, pubTurn: null, breakout: 1, bonusCites: 0, scoreBonus: 0, promises: 0, coauthor: who
     });
-    this.log(who + " adds you as a co-author on their submission. You helped more than you realized.");
+    this.log(t("{name} adds you as a co-author on their submission. You helped more than you realized.", { name: who }));
   }
 
   // ---- Turn phases -----------------------------------------------------------
 
   updateCalendarStatuses() {
     const s = this.state;
-    const t = tOf(s.turn);
+    const tn = tOf(s.turn);
     const y = yearOf(s.turn);
-    const sem = semesterOf(t);
+    const sem = semesterOf(tn);
     const inSemester = sem === "fall" || sem === "spring";
     const course = inSemester && (y === 1 || (y === 2 && sem === "fall"));
     if (course) addStatus(this, "coursework", 1); else removeStatus(this, "coursework");
-    if (course && (t === 1 || t === 10)) {
-      this.log("This semester: " + this.rng.shuffle(COURSES).slice(0, y === 1 ? 2 : 1).join(" and ") + ".");
+    if (course && (tn === 1 || tn === 10)) {
+      const cs = this.rng.shuffle(COURSES).slice(0, y === 1 ? 2 : 1).map(function (c) { return t(c); });
+      this.log(cs.length > 1 ? t("This semester: {a} and {b}.", { a: cs[0], b: cs[1] }) : t("This semester: {course}.", { course: cs[0] }));
     }
     if (s.fellowshipYear === y) addStatus(this, "fellowship", 1); else removeStatus(this, "fellowship");
     const key = semesterKey(s.turn);
-    if ((t === 1 || t === 10) && s.ta[key] === undefined) {
+    if ((tn === 1 || tn === 10) && s.ta[key] === undefined) {
       let ta = false;
-      if (s.advisor && !(y === 1 && t === 1) && s.fellowshipYear !== y && !s.milestones.graduated) {
+      if (s.advisor && !(y === 1 && tn === 1) && s.fellowshipYear !== y && !s.milestones.graduated) {
         const fund = s.advisor.params.fund;
         ta = this.rng.chance(this.D.config.ta_chance_by_funding[fund - 1]);
       }
@@ -902,7 +910,7 @@ export class Game {
       if (ta) {
         s.telemetry.ta_semesters++;
         s.taCourse = this.rng.pick(TA_COURSES);
-        this.log("You're a TA for " + s.taCourse + " this semester. Two days a turn go to teaching." + stressHit(this, 4));
+        this.log(t("You're a TA for {course} this semester. Two days a turn go to teaching.", { course: t(s.taCourse) }) + stressHit(this, 4));
       }
     }
     if (inSemester && s.ta[key]) addStatus(this, "ta", 1); else removeStatus(this, "ta");
@@ -919,14 +927,15 @@ export class Game {
     s.lastTipTurn = s.turn;
     const ep = this.D.phd101[tip.topic];
     const senior = s.labmates.filter(function (l) { return l.present !== false; }).sort(function (a, b) { return b.year - a.year; })[0];
-    this.log((senior ? senior.name : "A senior student") + ": “" + tip.text + "”", "tip", { title: ep.title, url: ep.url, topic: tip.topic });
-    this.shelveTip(ep, (senior ? senior.name : "A senior student") + ": “" + tip.text + "”");
+    const said = t("{name}: “{tip}”", { name: senior ? senior.name : t("A senior student"), tip: tip.text });
+    this.log(said, "tip", { title: ep.title, url: ep.url, topic: tip.topic });
+    this.shelveTip(ep, said);
   }
 
   // Recent PhD 101 pointers (from senior labmates and from events), shown above the project trays.
   shelveTip(ep, note) {
     const s = this.state;
     s.tipShelf = [{ title: ep.title, url: ep.url, note: note || "", turn: s.turn }]
-      .concat((s.tipShelf || []).filter(function (t) { return t.url !== ep.url; })).slice(0, 3);
+      .concat((s.tipShelf || []).filter(function (x) { return x.url !== ep.url; })).slice(0, 3);
   }
 }
