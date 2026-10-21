@@ -102,15 +102,23 @@ function recapHtml(G, report) {
   }).join("") + "</div>";
 }
 
+// Nothing on your desk to work on: every project is out for review, waiting, or there are none.
+function nothingInProgress(plan) {
+  return !plan.actions.some(function (a) { return a.id.indexOf("p:") === 0; });
+}
+
+function idleHintHtml(G, ui) {
+  if (!ui.plan.canStartProject || !nothingInProgress(ui.plan)) return "";
+  const inReview = G.state.projects.some(function (p) { return p.status === "submitted"; });
+  return '<p class="ps-idle-hint"><span aria-hidden="true">\u2191</span> ' +
+    esc(inReview ? t("Your paper is out for review and nothing else is in progress. Start something new while you wait?") : t("Nothing is in progress right now. Start a new project?")) + "</p>";
+}
+
 function planHtml(G, ui) {
   const opts = orderedActions(ui.plan);
-  // Starting a project is an action, so it sits with the turn's choices (it doesn't use the turn).
-  const canNew = ui.plan.canStartProject && !ui.modal;
-  return '<div class="ps-plan ps-enter">' + recapHtml(G, ui.report) +
+  return '<div class="ps-plan ps-enter">' + recapHtml(G, ui.report) + idleHintHtml(G, ui) +
     '<div class="ps-scene-head"><h2 class="ps-scene-title">' + esc(ui.plan.internship ? t("Internship weeks") : ui.plan.onLeave ? t("On leave") : t("Your next two weeks")) + "</h2>" +
-    (G.state.turn <= 1 ? '<span class="ps-scene-hint">' + esc(t("Pick one. Keep Energy up, Stress down, Health up.")) + "</span>" : "") +
-    (canNew ? '<button class="ps-btn ps-btn-sm ps-newproj" data-action="new-project" title="' + esc(t("Doesn’t use the turn. Adds Stress.")) + '">' + esc(t("+ New project")) + " " +
-      arrowsHtml([{ stat: "sanity", dir: "down", strength: ui.plan.newProjectStress >= 10 ? 2 : 1 }]) + "</button>" : "") + "</div>" +
+    (G.state.turn <= 1 ? '<span class="ps-scene-hint">' + esc(t("Pick one. Keep Energy up, Stress down, Health up.")) + "</span>" : "") + "</div>" +
     '<div class="ps-tiles">' + opts.map(function (a, i) { return tileHtml(G, a, i + 1); }).join("") + "</div>" + sideHtml(ui) + "</div>";
 }
 
@@ -285,10 +293,22 @@ function bandHtml(G, ui) {
   if (ui.report && ui.plan) ui.report.projects.forEach(function (x) { if (x.from && x.id) moved[x.id] = true; });
   const chips = statusChips(G);
   const trackers = active.map(function (p) { return trackerHtml(G, p, !!ui.modal, moved[p.id]); }).join("") +
-    inReview.map(function (p) { return reviewTrackerHtml(G, p, moved[p.id]); }).join("");
+    inReview.map(function (p) { return reviewTrackerHtml(G, p, moved[p.id]); }).join("") + newSlotHtml(G, ui);
   return '<section class="ps-band" aria-label="' + esc(t("Your progress")) + '">' +
     (trackers ? '<div class="ps-trackers">' + trackers + "</div>" : '<span class="ps-tray-empty">' + esc(t("No projects yet.")) + "</span>") +
     (chips ? '<div class="ps-chips">' + chips + "</div>" : "") + "</section>";
+}
+
+// Starting a project lives with the projects: an open slot after the trackers, while you plan the
+// turn (it doesn't use the turn). It lights up when nothing is in progress.
+function newSlotHtml(G, ui) {
+  if (!ui.plan || !ui.plan.canStartProject) return "";
+  const hot = nothingInProgress(ui.plan);
+  return '<button class="ps-newslot' + (hot ? " ps-newslot-hot" : "") + '" data-action="new-project"' + (ui.modal ? " disabled" : "") +
+    ' title="' + esc(t("Doesn’t use the turn. Adds Stress.")) + '">' +
+    '<span class="ps-newslot-name">' + esc(t("+ New project")) + "</span>" +
+    '<span class="ps-newslot-foot">' + esc(t("Doesn’t use the turn")) + " " +
+    arrowsHtml([{ stat: "sanity", dir: "down", strength: ui.plan.newProjectStress >= 10 ? 2 : 1 }]) + "</span></button>";
 }
 
 // ---- The whole screen -------------------------------------------------------------------------
