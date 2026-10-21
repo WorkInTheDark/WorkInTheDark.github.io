@@ -1,8 +1,9 @@
 // Entry point: picks the language, loads the game data (and its translation table), and mounts the
 // app into #phd-sim.
 import { App } from "./ui/app.js";
-import { setLanguage, buildTable, translateData, LANGUAGES } from "./engine/i18n.js";
-import { loadLang } from "./engine/save.js";
+import { setLanguage, buildTable, translateData, language, LANGUAGES } from "./engine/i18n.js";
+import { loadLang, loadRun, saveRun, loadMeta, saveMeta } from "./engine/save.js";
+import { savedLanguage, convertSave } from "./engine/relang.js";
 
 // ?lang=zh in the address wins, then the player's saved choice, then the browser's language.
 function pickLanguage() {
@@ -24,20 +25,33 @@ if (root) {
   const src = root.getAttribute("data-src");
   const lang = pickLanguage();
   root.setAttribute("lang", lang === "zh" ? "zh-Hans" : "en");
+  // A run or Codex saved in another language needs that language's table too, to convert its text.
+  const run = loadRun();
+  const meta = loadMeta();
+  const runLang = savedLanguage(run), metaLang = savedLanguage(meta);
+  const tableLang = lang !== "en" ? lang : [runLang, metaLang].filter(function (l) { return l && l !== "en"; })[0] || null;
   // A missing or broken table just means English.
-  const table = lang === "en" ? Promise.resolve(null) :
-    getJson(src.replace(/data\.json(\?.*)?$/, "i18n-" + lang + ".json")).catch(function () { return null; });
+  const table = !tableLang ? Promise.resolve(null) :
+    getJson(src.replace(/data\.json(\?.*)?$/, "i18n-" + tableLang + ".json")).catch(function () { return null; });
   Promise.all([getJson(src), table])
     .then(function (res) {
       const data = res[0];
-      if (res[1]) {
-        const t = buildTable(res[1], lang);
+      const t = res[1] ? buildTable(res[1], tableLang) : null;
+      if (lang !== "en" && t) {
         setLanguage(lang, t);
         translateData(data, t);
       } else {
         setLanguage("en");
         root.setAttribute("lang", "en");
       }
+      // Text the game already wrote (the log, the open pop-up, tips, the Codex) is in the language
+      // it was written in. After a switch, convert it once so the run carries on in one language.
+      const now = language();
+      [[run, runLang, saveRun], [meta, metaLang, saveMeta]].forEach(function (x) {
+        const obj = x[0], was = x[1];
+        if (!t || !obj || !was || was === now || [was, now].indexOf(tableLang) < 0 || [was, now].indexOf("en") < 0) return;
+        try { if (convertSave(obj, t, was, now)) x[2](obj); } catch (e) { /* keep the save as it was */ }
+      });
       new App(root, data);
     })
     .catch(function (err) {

@@ -848,6 +848,8 @@ Arthur asked for a Chinese version of everything: Simplified only, auto-detected
   - `translateData()` swaps content at load, and `t()` / `T_()` handle text written by the code (`docs/phd-simulator/i18n-code.md`).
 - **Loading.** `main.js` picks the language from `?lang=`, then the saved choice (`phdsim:lang`), then the browser. It fetches `/assets/phd-sim/i18n-zh.json` (Jekyll renders `site.data.phd_sim_i18n.zh`) and falls back to English if the fetch fails.
 - **Switching.** The title screen has an EN / 中文 switch. Switching saves the run and reloads.
+  - Saves record the language their text was written in (`lang` on the run and on meta). If it differs from the language on load, `main.js` converts that text once, before the game starts (`engine/relang.js`): exact lines are swapped, template lines have their tokens read back and refilled, and joined lines are split by sentence. Values the code compares, paper titles and PhD 101 essay titles are left alone.
+  - `tools/phd-sim/tests/relang.test.mjs` plays the same seeds in both languages and converts each save to the other. English to Chinese comes out exact; Chinese to English is about 99%, with the misses being Chinese lines shared by two English ones ("Ready to submit" / "ready to submit").
 - **In Chinese:**
   - Dates read 9月1日–14日, ordinals read 第 N, and "Prof. {name}" becomes {name}教授.
   - A Chinese font stack is used, and emphasis is upright.
