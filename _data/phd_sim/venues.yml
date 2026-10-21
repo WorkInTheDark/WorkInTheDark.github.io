@@ -2,6 +2,9 @@
 # for rejected papers (config reviews.lesson_bonus): fewer long rejection streaks at the same pace.
 # Top and mid thresholds came down by 4 on 2026-10-20 (Arthur: publishing felt too hard), with help on the
 # first paper (config reviews.first_paper_bonus) and a stricter tenure-track bar.
+# Mid thresholds came down by 3 more on 2026-10-21 (Arthur: papers averaging 3 were rejected too often), with less
+# area-chair noise and a wider Findings band (config reviews.ac_sigma, findings_band). A shown average of 3 at a mid venue
+# is now usually an accept.
 # Venues and their (approximate, game-only) yearly cycles. Offsets count turns after the deadline.
 # tier: top | mid | workshop | journal. Findings is an outcome of ARR, not a venue.
 # field: nlp | hci | ml. A paper only goes to venues of its own field (Arthur, 2026-10-16): empirical
@@ -73,7 +76,7 @@
   tier: mid
   types: [study, system]
   weights: { N: 0.35, S: 0.35, C: 0.3 }
-  threshold: 71
+  threshold: 68
   cycles:
     - { deadline: 3, name: IUI, reviews_in: 5, rebuttal: true, decision_in: 8, conference_in: 13 }
 - id: coling
@@ -82,7 +85,7 @@
   tier: mid
   types: [empirical, dataset, position]
   weights: { N: 0.3, S: 0.45, C: 0.25 }
-  threshold: 71
+  threshold: 68
   cycles:
     - { deadline: 7, name: COLING, reviews_in: 6, rebuttal: true, decision_in: 9, conference_in: 17 }
 - id: ws_nlp

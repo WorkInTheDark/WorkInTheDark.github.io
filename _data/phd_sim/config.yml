@@ -102,8 +102,9 @@ events:
 
 reviews:
   reviewer_sigma: 15
-  ac_sigma: 8
-  findings_band: 7
+  ac_sigma: 3            # the area chair's own noise on the reviewers' average. Was 8, about half a shown point, so a 4-4-4 could
+                         # still be rejected; at 3 the shown scores predict the decision (Arthur 2026-10-21)
+  findings_band: 10      # ARR: this far below the bar is Findings. Was 7; at 10 an average around 3 mostly lands in Findings, not a rejection
   rr_band: 10
   lesson_bonus: 7        # each rejection improves the paper: +3.5 to every part, +7 to its weakest (2026-10-18)
   first_paper_bonus: 10  # until your first first-author acceptance, your advisor's extra work adds this to every submission (Arthur 2026-10-20: 2-3 rejections before the first paper, was ~5)
