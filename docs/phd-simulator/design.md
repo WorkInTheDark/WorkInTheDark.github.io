@@ -944,7 +944,8 @@ Arthur: the full-height layout was too tall, had too much text, and felt like a 
 - **Bottom, the tray:** chips for the advisor (Prof. Surname), statuses, and upcoming quals / proposal / defense (within 16 weeks); then one **tracker** per project (name, a dot per stage: done, now with a pulse, waiting dashed; the stage and deadline) and a **+ New project** tracker with its Stress arrow. Clicking a tracker opens the project close-up in the scene (all stages, the target venue, Shelve). **A submitted paper stays in the tray** as a dashed "letter": a venue stamp, a striped bar that fills until the decision, "Under review" (or the review scores once they're in) and the weeks to the decision.
 - **The tray moved to the top (playtest feedback via Arthur, 2026-10-20).** Players read the bottom tray as more of the turn's choices. It's now three parts:
   - **Progress band** under the top strip, in the strip's dark colors: compact flat trackers (name, stage dots, where it stands, deadline) in a grid, then the chips. Tap a tracker for the close-up as before. On phones the trackers sit two per row.
-  - **"+ New project"** is a small button beside "Your next two weeks", because it's an action.
+  - **"+ New project"** was a small button beside "Your next two weeks", because it's an action. Arthur found players missed it (2026-10-21), so it's now an **open slot at the end of the trackers** while you plan the turn: "+ New project", "Doesn't use the turn" and its Stress arrow. It's gone at the four-project limit.
+  - **When nothing is in progress** (every project is out for review or waiting, so there's no "Work on" tile), the slot lights up in the accent color with a short glow, and a line above "Your next two weeks" suggests starting something while you wait.
   - **PhD 101 pointers** are a quiet one-line footer at the bottom of the window.
   - Pop-ups cover everything below the top strip.
 - **Round of 2026-10-18 (Arthur's notes):**

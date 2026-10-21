@@ -336,7 +336,20 @@ html[data-theme='dark'] .ps-rarity-system { border-top-color: var(--ps-hud-muted
 .ps-band .ps-chip-adv { border-color: var(--ps-hud-muted); }
 .ps-band .ps-chip-soon { border-color: var(--ps-accent-solid); color: #f4a988; }
 .ps-band .ps-tray-empty { color: var(--ps-hud-muted); padding: 0.1rem 0; }
-.ps-newproj { border-style: dashed; color: var(--ps-muted); gap: 0.35rem; display: inline-flex; align-items: center; }
+/* the open slot for a new project, after the trackers; it lights up when nothing is in progress */
+.ps-newslot { font: inherit; cursor: pointer; text-align: left; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.15rem 0.5rem;
+  padding: 0.22rem 0.6rem 0.26rem; border-radius: 9px; border: 1.5px dashed var(--ps-hud-muted); background: transparent; color: var(--ps-hud-ink); min-height: 2.4rem; }
+.ps-newslot:hover:not([disabled]) { border-color: var(--ps-accent-solid); background: rgba(255, 255, 255, 0.07); }
+.ps-newslot[disabled] { cursor: default; }
+.ps-newslot-name { font-family: var(--ps-display); font-weight: 600; font-size: 0.82rem; white-space: nowrap; }
+.ps-newslot-foot { font-size: 0.68rem; color: var(--ps-hud-muted); display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap; }
+.ps-newslot-hot { border-color: var(--ps-accent-solid); background: color-mix(in srgb, var(--ps-accent-solid) 16%, transparent); animation: ps-slot-glow 1.6s ease 3; }
+.ps-newslot-hot .ps-newslot-name { color: #f4a988; }
+.ps-newslot-hot .ps-newslot-foot { color: var(--ps-hud-ink); }
+.ps-band .ps-arrow { font-size: 0.66rem; }
+.ps-band .ps-arrow-down { color: #ff9e8f; }
+.ps-band .ps-arrow-up { color: #8fdcaa; }
+.ps-idle-hint { margin: 0 0 0.5rem; font-size: 0.82rem; font-weight: 600; color: var(--ps-accent); }
 .ps-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.45rem; }
 .ps-chip { font-size: 0.74rem; font-weight: 600; border: 1.5px solid var(--ps-line); border-radius: 99px; padding: 0.02rem 0.5rem; color: var(--ps-text); background: var(--ps-card); cursor: default; white-space: nowrap; }
 .ps-chip-adv { border-color: var(--ps-hud); }
@@ -460,6 +473,7 @@ html[data-theme='dark'] .ps-art img { filter: brightness(0.88); }
 @keyframes ps-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ps-accent-solid) 50%, transparent); } 50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ps-accent-solid) 0%, transparent); } }
 @keyframes ps-bob { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-5px) rotate(4deg); } }
 @keyframes ps-stripes { to { background-position: 14px 0; } }
+@keyframes ps-slot-glow { 0%, 100% { box-shadow: none; } 45% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ps-accent-solid) 40%, transparent); } }
 @keyframes ps-glow { 0%, 100% { box-shadow: 0 2px 0 var(--ps-line); } 40% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ps-accent-solid) 45%, transparent); border-color: var(--ps-accent); } }
 @keyframes ps-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes ps-popin { 0% { opacity: 0; transform: scale(0.7) rotate(-3deg); } 70% { opacity: 1; transform: scale(1.03) rotate(0.5deg); } 100% { transform: none; } }
