@@ -9,6 +9,10 @@ import { readSharedFromLocation, sharedHtml, shareTargets, shareText, cardBlob }
 import { t, language } from "../engine/i18n.js";
 import { dailyDay } from "../engine/util.js";
 import { boardScreenHtml, loadBoards, submitRun, openRun } from "./board.js";
+import { hoverDot } from "./chart.js";
+
+// Focus that came from the keyboard; some browsers also focus a button when it's clicked or tapped.
+function keyboardFocus(el) { try { return el.matches(":focus-visible"); } catch (e) { return true; } }
 
 export class App {
   constructor(root, rawData) {
@@ -33,6 +37,15 @@ export class App {
     root.addEventListener("change", function (e) { self.onChange(e); });
     root.addEventListener("input", function (e) { if (e.target.id === "ps-name" && self.setup) self.setup.name = e.target.value; });
     document.addEventListener("keydown", function (e) { self.onKey(e); });
+    // The chart's hover box follows the mouse and keyboard focus. A tap picks a dot instead.
+    const hover = function (e) {
+      if (self.screen !== "board" || !self.chart) return;
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      const dot = e.target.closest ? e.target.closest(".ps-dot") : null;
+      if (e.type === "focusin" && dot && !keyboardFocus(dot)) return;
+      hoverDot(self, dot && (e.type === "pointerover" || e.type === "focusin") ? dot.getAttribute("data-id") : null);
+    };
+    ["pointerover", "pointerout", "focusin", "focusout"].forEach(function (k) { root.addEventListener(k, hover); });
     // A shared result link (#r=…) opens a read-only card instead of the title screen.
     this.shared = readSharedFromLocation(this.D);
     if (this.shared) this.screen = "shared";

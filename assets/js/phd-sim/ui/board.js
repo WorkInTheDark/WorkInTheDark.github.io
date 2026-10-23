@@ -2,7 +2,7 @@
 // daily PhD and all time). The server is a Cloudflare Worker (tools/phd-sim/leaderboard). It takes the
 // result with the run's share code and its recorded choices, which it keeps so a replay check could be
 // added later. Without a server address on the page (data-board), none of this shows.
-import { esc } from "./common.js";
+import { esc, papersText, citationsText } from "./common.js";
 import { encodeResult } from "./share.js";
 import { t, T_ } from "../engine/i18n.js";
 import { runRecord, resultOf } from "../engine/replay.js";
@@ -100,6 +100,7 @@ export async function loadBoards(app) {
   const day = dailyDay();
   app.boardData = { loading: true, day: day };
   app.chart = app.chart || { hidden: {}, ending: null, sel: null };
+  app.chart.hover = null;
   app.render();
   const [daily, all, runs, myPub] = await Promise.all([
     api(app.board, "/api/board?kind=daily&day=" + day + "&limit=50" + me),
@@ -122,7 +123,7 @@ function rowHtml(app, e, mine) {
   const name = e.nick ? esc(e.nick) : '<span class="ps-muted">' + esc(t("Anonymous")) + "</span>";
   return '<button class="ps-board-row' + (mine ? " ps-board-me" : "") + '" data-action="board-open" data-id="' + esc(e.code || "") + '" data-nick="' + esc(e.nick || "") + '" title="' + esc(t("Open this PhD")) + '">' +
     '<span class="ps-board-rank">' + e.rank + "</span>" +
-    '<span class="ps-board-who"><b>' + name + "</b><small>" + esc(end ? end.name : e.ending) + " · " + esc(t("{n} papers", { n: e.pubs })) + " · " + esc(t("{n} citations", { n: e.cites })) + "</small></span>" +
+    '<span class="ps-board-who"><b>' + name + "</b><small>" + esc(end ? end.name : e.ending) + " · " + esc(papersText(e.pubs)) + " · " + esc(citationsText(e.cites)) + "</small></span>" +
     '<span class="ps-board-score"><b>' + esc(e.score) + "</b>" + (e.beats ? "<small>" + esc(t("top {n}%", { n: Math.max(1, 100 - e.beats) })) + "</small>" : "") + "</span></button>";
 }
 

@@ -4,6 +4,11 @@ import { t, T_ } from "../engine/i18n.js";
 
 export const esc = escapeHtml;
 
+// "1 paper" but "3 papers" (Chinese reads the same either way).
+export function papersText(n) { return n === 1 ? t("1 paper") : t("{n} papers", { n: n }); }
+export function citationsText(n) { return n === 1 ? t("1 citation") : t("{n} citations", { n: n }); }
+export function yearsText(n) { return n === 1 ? t("1 year") : t("{n} years", { n: n }); }
+
 // The engine's "sanity" is shown as Stress = 100 − sanity: arrows and numbers flip, colors don't
 // (green is always good for you).
 const SHORT = { energy: T_("Energy"), sanity: T_("Stress"), health: T_("Health"), citations: T_("Citations"), progress: T_("Progress"), quality: T_("Quality"), quals: T_("Quals odds") };
