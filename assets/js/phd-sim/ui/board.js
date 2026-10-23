@@ -144,7 +144,7 @@ export function boardScreenHtml(app) {
   const runCount = d.runs && d.runs.ok ? " · " + (d.runs.total === 1 ? t("1 run") : t("{n} runs", { n: d.runs.total })) : "";
   return head + '<div class="ps-board">' +
     '<section class="ps-section"><h3 class="ps-section-title">' + esc(t("Today’s daily PhD")) + " · " + esc(d.day) + esc(count(d.daily)) + "</h3>" +
-    '<p class="ps-muted ps-small">' + esc(t("Everyone gets the same game today; only the choices differ.")) + "</p>" +
+    '<p class="ps-muted ps-small">' + esc(t("Everyone gets the same game today; only the choices differ. A new one starts at midnight US Eastern Time (noon or 1 pm in Beijing, depending on daylight saving).")) + "</p>" +
     listHtml(app, d.daily, t("No one is on today’s board yet.")) +
     '<div class="ps-share-row"><button class="ps-btn ps-btn-sm" data-action="setup-daily">' + esc(t("Play today’s daily PhD")) + "</button></div></section>" +
     // All time: every run in the chart, how they ended, then the top ten players by their best run.
@@ -153,5 +153,5 @@ export function boardScreenHtml(app) {
     (d.runs && d.runs.ok && d.runs.rows.length ? '<h4 class="ps-board-sub">' + esc(t("How PhDs ended")) + "</h4>" + endingsHtml(app) : "") +
     '<h4 class="ps-board-sub">' + esc(t("Top 10 (each player’s best run)")) + "</h4>" +
     listHtml(app, d.all, t("No one is on the board yet.")) + "</section>" +
-    '<p class="ps-muted ps-small">' + esc(t("Ranked by research record: papers, top venues, h-index, citations and letters. Each board shows a player’s best run. The daily PhD changes at midnight US Eastern Time (noon or 1 pm in Beijing, depending on daylight saving).")) + "</p></div>";
+    '<p class="ps-muted ps-small">' + esc(t("Ranked by research record: papers, top venues, h-index, citations and letters. The lists keep each player’s best run; the chart shows every run.")) + "</p></div>";
 }
