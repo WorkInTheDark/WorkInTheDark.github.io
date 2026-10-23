@@ -495,6 +495,13 @@ html[data-theme='dark'] .ps-art img { filter: brightness(0.88); }
 .ps-end-head h2 { font-size: 1.7rem; margin-bottom: 0.2rem; }
 .ps-end-title { color: var(--ps-accent); font-weight: 700; }
 .ps-share { text-align: center; }
+/* the share and leaderboard box right under the result */
+.ps-end-actions > .ps-section { margin-bottom: 0; }
+.ps-end-actions > .ps-section + .ps-section { margin-top: 0.8rem; padding-top: 0.8rem; border-top: 2px dashed var(--ps-line); }
+.ps-end-actions .ps-board-submit { text-align: center; }
+.ps-end-actions .ps-board-form { justify-content: center; flex-wrap: nowrap; max-width: 28rem; margin: 0.4rem auto; }
+.ps-end-actions .ps-board-form .ps-input { flex: 1 1 auto; min-width: 0; }
+.ps-end-actions p:last-child { margin-bottom: 0; }
 .ps-share-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; margin-bottom: 0.45rem; }
 .ps-app a.ps-btn { display: inline-flex; align-items: center; text-decoration: none; color: var(--ps-text); }
 .ps-app a.ps-btn:hover { color: var(--ps-text); text-decoration: none; }

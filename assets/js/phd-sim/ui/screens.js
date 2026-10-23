@@ -137,6 +137,10 @@ export function endHtml(app) {
     "<h2>" + esc(e.name) + '</h2><div class="ps-end-title">' + esc(e.title.name) + "</div>" +
     (e.title.desc ? '<div class="ps-muted ps-small">' + esc(e.title.desc) + "</div>" : "") + "</div>" +
     (beatsLine(n.beats) ? '<p class="ps-share-beats" title="' + esc(t("Your research record (papers, top venues, h-index, citations, letters) against thousands of simulated runs of the game.")) + '">' + esc(beatsLine(n.beats, true)) + "</p>" : "") +
+    // Sharing and the leaderboard come right under the result, so no one has to scroll past the details
+    // to find them (Arthur, 2026-10-23).
+    '<div class="ps-card ps-section ps-end-actions">' + shareRowHtml(e, app.D, typeof navigator !== "undefined" && typeof navigator.share === "function") +
+    boardSectionHtml(app) + "</div>" +
     '<div class="ps-card ps-section"><p class="ps-text">' + esc(e.text) + "</p>" + e.epilogue.map(function (l) { return '<p class="ps-small">' + esc(l) + "</p>"; }).join("") + "</div>" +
     '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("Your PhD in numbers")) + '</h3><div class="ps-numbers">' +
     [[t("Years"), n.years], [t("First-author papers"), n.pubs], [t("All papers"), n.allPubs], [t("Citations"), n.citations], [t("h-index"), n.h], [t("Submissions"), n.submissions],
@@ -155,8 +159,6 @@ export function endHtml(app) {
     (e.recommendations.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("From PhD 101, for how you played")) + '</h3><div class="ps-recs">' + e.recommendations.map(function (r) {
       return '<a href="' + esc(r.url) + '" target="_blank" rel="noopener"><b>' + esc(r.title) + "</b><small>" + esc(r.topic) + "</small><small>" + esc(r.why) + "</small></a>";
     }).join("") + "</div></div>" : "") +
-    boardSectionHtml(app) +
-    shareRowHtml(e, app.D, typeof navigator !== "undefined" && typeof navigator.share === "function") +
     '<div class="ps-foot" style="justify-content:center"><button class="ps-btn" data-action="codex">' + esc(t("Codex")) + "</button>" +
     '<button class="ps-btn ps-btn-primary" data-action="setup">' + esc(t("Play again")) + "</button></div></div>";
 }
