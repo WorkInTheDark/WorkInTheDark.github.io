@@ -19,14 +19,13 @@ function groups(D) {
   return { names: names, byEnding: byEnding };
 }
 
-function niceMax(scores) {
-  if (!scores.length) return 100;
-  const sorted = scores.slice().sort(function (a, b) { return a - b; });
-  // With many runs, a few far-out scores shouldn't squash everyone else: they sit on the top edge.
-  const top = sorted.length >= 50 ? sorted[Math.floor(sorted.length * 0.98)] : sorted[sorted.length - 1];
-  const raw = Math.max(100, top * 1.08);
-  const step = raw <= 125 ? 25 : raw <= 300 ? 50 : 100;
-  return Math.ceil(raw / step) * step;
+// The score axis follows the runs (Arthur, 2026-10-23): it ends at the first round number above the
+// best run, so every dot sits where its score is, with a step that gives at most seven grid lines.
+const STEPS = [5, 10, 20, 25, 50, 100, 200, 250, 500, 1000];
+function scoreAxis(scores) {
+  const top = Math.max(10, Math.max.apply(null, scores) * 1.02);
+  const step = STEPS.find(function (s) { return top / s <= 7; }) || 2000;
+  return { max: Math.ceil(top / step) * step, step: step };
 }
 
 // rows: [id, years, score, ending, graduated, papers, citations, player, day]
@@ -35,8 +34,8 @@ export function chartHtml(app) {
   if (!runs || !runs.ok) return "";
   if (!runs.rows.length) return '<p class="ps-muted ps-small">' + esc(t("No runs yet.")) + "</p>";
   const D = app.D, g = groups(D), st = app.chart;
-  const yMax = niceMax(runs.rows.map(function (r) { return r[2]; }));
-  const step = yMax <= 125 ? 25 : yMax <= 300 ? 50 : 100;
+  const axis = scoreAxis(runs.rows.map(function (r) { return r[2]; }));
+  const yMax = axis.max, step = axis.step;
   const counts = g.names.map(function () { return 0; });
   runs.rows.forEach(function (r) { const gi = g.byEnding[r[3]]; counts[gi === undefined ? g.names.length - 1 : gi]++; });
 
