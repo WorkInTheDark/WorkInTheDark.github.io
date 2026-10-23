@@ -1,5 +1,5 @@
 // Title, setup, codex, achievements and the end card.
-import { esc, bar } from "./common.js";
+import { esc, bar, citationsText } from "./common.js";
 import { shareRowHtml, beatsLine } from "./share.js";
 import { boardSectionHtml } from "./board.js";
 import { t, T_, LANGUAGES, language } from "../engine/i18n.js";
@@ -150,7 +150,7 @@ export function endHtml(app) {
     hidden.map(function (k) { return '<div><div class="ps-meter-label"><span>' + esc(t(L[k])) + "</span><b>" + n.stats[k] + "</b></div>" + bar(n.stats[k]) + "</div>"; }).join("") + "</div></div>" +
     (e.advisor ? '<p class="ps-small ps-muted">' + esc(t("Advisor: {name} ({type}).", { name: e.advisor.name, type: e.advisor.label })) + "</p>" : "") +
     (e.papers.length ? '<details class="ps-section"><summary class="ps-section-title">' + esc(t("Papers ({n})", { n: e.papers.length })) + '</summary><div class="ps-card">' + e.papers.map(function (p) {
-      return '<div class="ps-paper"><span class="ps-tag">' + esc(p.venue) + "</span>" + esc(p.title) + '<div class="ps-meta">' + esc(PAPER_STATUS[p.status] ? t(PAPER_STATUS[p.status]) : p.status.replace("_", " ")) + (p.first ? "" : " · " + esc(t("co-author"))) + " · " + esc(t("{n} citations", { n: p.cites })) + "</div></div>";
+      return '<div class="ps-paper"><span class="ps-tag">' + esc(p.venue) + "</span>" + esc(p.title) + '<div class="ps-meta">' + esc(PAPER_STATUS[p.status] ? t(PAPER_STATUS[p.status]) : p.status.replace("_", " ")) + (p.first ? "" : " · " + esc(t("co-author"))) + " · " + esc(citationsText(p.cites)) + "</div></div>";
     }).join("") + "</div></details>" : "") +
     (e.achievements.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("Achievements this run")) + '</h3><div class="ps-chips">' + e.achievements.map(function (id) {
       const a = app.D.achievementById[id];

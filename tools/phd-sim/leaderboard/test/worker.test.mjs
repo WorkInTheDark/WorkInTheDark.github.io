@@ -88,7 +88,7 @@ test("the Worker takes runs, keeps each player's best, and ranks the boards", as
   const runs = await call("GET", "/api/runs?limit=100");
   assert.equal(runs.json.total, 3);
   assert.equal(runs.json.rows.length, 3);
-  assert.equal(runs.json.rows[0].length, 9);
+  assert.equal(runs.json.rows[0].length, 11);
   assert.equal(runs.json.players[all.json.me.pub], "Ada L.");
   const one = await call("GET", "/api/run?id=" + runs.json.rows[0][0]);
   assert.equal(one.json.run.code.length > 20, true);

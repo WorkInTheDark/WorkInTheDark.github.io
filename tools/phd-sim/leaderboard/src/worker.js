@@ -188,13 +188,13 @@ async function readBoard(env, kind, day, limit, pid) {
 async function readRuns(env, limit) {
   const n = Math.max(1, Math.min(LIMITS.runsSize, limit || 2000));
   const [rows, total] = await env.DB.batch([
-    env.DB.prepare("SELECT e.id, e.years, e.score, e.ending, e.grad, e.pubs, e.cites, e.day, p.pub, p.nick FROM entries e JOIN players p ON p.pid = e.pid WHERE p.banned = 0 ORDER BY e.at DESC LIMIT ?").bind(n),
+    env.DB.prepare("SELECT e.id, e.years, e.score, e.ending, e.grad, e.pubs, e.cites, e.day, e.title, e.h, p.pub, p.nick FROM entries e JOIN players p ON p.pid = e.pid WHERE p.banned = 0 ORDER BY e.at DESC LIMIT ?").bind(n),
     env.DB.prepare("SELECT COUNT(*) AS n FROM entries e JOIN players p ON p.pid = e.pid WHERE p.banned = 0")
   ]);
   const players = {};
   const out = rows.results.map(function (r) {
     players[r.pub] = r.nick || "";
-    return [r.id, r.years, r.score, r.ending, r.grad, r.pubs, r.cites, r.pub, r.day || ""];
+    return [r.id, r.years, r.score, r.ending, r.grad, r.pubs, r.cites, r.pub, r.day || "", r.title || "", r.h];
   });
   return { ok: true, total: total.results[0].n, players: players, rows: out };
 }

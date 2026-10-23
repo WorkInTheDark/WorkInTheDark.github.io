@@ -1,7 +1,8 @@
 // The all-time leaderboard as a picture (Arthur, 2026-10-23): every submitted run as a dot, years in the
-// PhD across and research score up, colored by how the PhD ended. Tap a dot for that run, tap a group to
-// hide or show it, tap an ending in the breakdown to pick those runs out. Plain HTML and CSS, no library.
-import { esc } from "./common.js";
+// PhD across and research score up, colored by how the PhD ended. Hover a dot (or reach it with the
+// keyboard) for a box with that run's details, tap a dot to pick it, tap a group to hide or show it, tap
+// an ending in the breakdown to pick those runs out. Plain HTML and CSS, no library.
+import { esc, papersText, citationsText, yearsText } from "./common.js";
 import { t } from "../engine/i18n.js";
 
 const COLORS = ["#3f74d6", "#e0773a", "#8a5ad6", "#2a9d8f", "#8f8a82"];
@@ -28,7 +29,15 @@ function scoreAxis(scores) {
   return { max: Math.ceil(top / step) * step, step: step };
 }
 
-// rows: [id, years, score, ending, graduated, papers, citations, player, day]
+function groupOf(g, ending) { return g.byEnding[ending] === undefined ? g.names.length - 1 : g.byEnding[ending]; }
+
+// Where a run's dot sits, in percent of the plot.
+function place(r, yMax) {
+  return { x: Math.min(MAX_YEARS, Math.max(0, r[1])) / MAX_YEARS * 100, y: Math.min(yMax, Math.max(0, r[2])) / yMax * 100 };
+}
+
+// rows: [id, years, score, ending, graduated, papers, citations, player, day, title, h-index]
+// (title and h-index came later, so a row may stop at day).
 export function chartHtml(app) {
   const d = app.boardData, runs = d.runs;
   if (!runs || !runs.ok) return "";
@@ -37,7 +46,7 @@ export function chartHtml(app) {
   const axis = scoreAxis(runs.rows.map(function (r) { return r[2]; }));
   const yMax = axis.max, step = axis.step;
   const counts = g.names.map(function () { return 0; });
-  runs.rows.forEach(function (r) { const gi = g.byEnding[r[3]]; counts[gi === undefined ? g.names.length - 1 : gi]++; });
+  runs.rows.forEach(function (r) { counts[groupOf(g, r[3])]++; });
 
   let grid = "";
   for (let v = 0; v <= yMax; v += step) grid += '<i class="ps-chart-grid" style="bottom:' + (100 * v / yMax) + '%"><span>' + v + "</span></i>";
@@ -51,15 +60,14 @@ export function chartHtml(app) {
     return ka - kb;
   });
   const dots = order.map(function (r) {
-    const gi = g.byEnding[r[3]] === undefined ? g.names.length - 1 : g.byEnding[r[3]];
+    const gi = groupOf(g, r[3]);
     if (st.hidden[gi]) return "";
     const end = D.endingById[r[3]];
     const nick = runs.players[r[7]] || t("Anonymous");
-    const x = Math.min(MAX_YEARS, Math.max(0, r[1])) / MAX_YEARS * 100;
-    const y = Math.min(yMax, Math.max(0, r[2])) / yMax * 100;
+    const at = place(r, yMax);
     const cls = "ps-dot ps-g" + gi + (r[7] === mine ? " ps-dot-mine" : "") + (r[0] === st.sel ? " ps-dot-sel" : "") + (st.ending && st.ending !== r[3] ? " ps-dot-dim" : "");
     const label = nick + " · " + (end ? end.name : r[3]) + " · " + r[2];
-    return '<button class="' + cls + '" style="left:' + x.toFixed(2) + "%;bottom:" + y.toFixed(2) + '%" data-action="chart-dot" data-id="' + esc(r[0]) + '" title="' + esc(label) + '" aria-label="' + esc(label) + '"></button>';
+    return '<button class="' + cls + '" style="left:' + at.x.toFixed(2) + "%;bottom:" + at.y.toFixed(2) + '%" data-action="chart-dot" data-id="' + esc(r[0]) + '" aria-label="' + esc(label) + '"></button>';
   }).join("");
 
   const legend = g.names.map(function (name, i) {
@@ -69,10 +77,46 @@ export function chartHtml(app) {
 
   return '<div class="ps-chart" role="group" aria-label="' + esc(t("Each dot is one run. Tap one for details; tap a group below to hide or show it.")) + '">' +
     '<div class="ps-chart-ylabel">' + esc(t("Research score")) + "</div>" +
-    '<div class="ps-chart-plot">' + grid + dots + "</div>" +
+    '<div class="ps-chart-plot">' + grid + dots + (st.hover ? tipHtml(app, st.hover) : "") + "</div>" +
     '<div class="ps-chart-x">' + xt + "</div>" +
     '<div class="ps-chart-xlabel">' + esc(t("Years")) + "</div></div>" +
     '<div class="ps-legend">' + legend + "</div>" + pickedHtml(app);
+}
+
+// The hover box: who played the run under the mouse, how it ended, its title and numbers. It sits above
+// the dot, or below it when the dot is high up, and leans inward near the sides so it stays in the chart.
+function tipHtml(app, id) {
+  const runs = app.boardData.runs, D = app.D, g = groups(D);
+  const r = runs.rows.find(function (x) { return x[0] === id; });
+  if (!r || app.chart.hidden[groupOf(g, r[3])]) return "";
+  const at = place(r, scoreAxis(runs.rows.map(function (x) { return x[2]; })).max);
+  const end = D.endingById[r[3]];
+  const title = r[9] && (D.titles || []).find(function (ti) { return ti.id === r[9]; });
+  const nick = runs.players[r[7]];
+  const below = at.y > 45;
+  const cls = "ps-hoverbox " + (at.x < 33 ? "ps-hb-l" : at.x > 67 ? "ps-hb-r" : "ps-hb-c");
+  const style = "left:" + at.x.toFixed(2) + "%;" + (below ? "top:calc(" + (100 - at.y).toFixed(2) + "% + 12px)" : "bottom:calc(" + at.y.toFixed(2) + "% + 12px)");
+  const facts = [yearsText(r[1]), papersText(r[5]), citationsText(r[6])].concat(typeof r[10] === "number" ? [t("h-index") + " " + r[10]] : []);
+  return '<div class="' + cls + '" style="' + style + '" aria-hidden="true">' +
+    "<div><b>" + esc(nick || t("Anonymous")) + "</b>" + (r[7] === app.boardData.myPub ? ' <span class="ps-tag">' + esc(t("You")) + "</span>" : "") + "</div>" +
+    '<div class="ps-hb-end"><i class="ps-g' + groupOf(g, r[3]) + '"></i>' + esc(end ? end.name : r[3]) + "</div>" +
+    (title ? '<div class="ps-hb-title">' + esc(title.name) + "</div>" : "") +
+    "<div>" + esc(t("Research score")) + " <b>" + esc(r[2]) + "</b></div>" +
+    '<small class="ps-hb-facts">' + facts.map(function (f) { return "<span>" + esc(f) + "</span>"; }).join(" · ") + "</small>" +
+    (r[8] ? "<small>" + esc(t("daily PhD {date}", { date: r[8] })) + "</small>" : "") +
+    '<small class="ps-hb-hint">' + esc(t("Click the dot for more")) + "</small></div>";
+}
+
+// Shows the hover box for a run (or hides it, with null) without drawing the whole board again.
+export function hoverDot(app, id) {
+  const st = app.chart;
+  if (!st || !app.boardData || !app.boardData.runs || st.hover === id) return;
+  st.hover = id;
+  const plot = app.root.querySelector(".ps-chart-plot");
+  if (!plot) return;
+  const old = plot.querySelector(".ps-hoverbox");
+  if (old) old.remove();
+  if (id) plot.insertAdjacentHTML("beforeend", tipHtml(app, id));
 }
 
 // The run you tapped: who, how it ended, the numbers, and a way into its result card.
@@ -85,7 +129,7 @@ function pickedHtml(app) {
   return '<div class="ps-picked"><div><b>' + (nick ? esc(nick) : '<span class="ps-muted">' + esc(t("Anonymous")) + "</span>") + "</b>" +
     (r[7] === app.boardData.myPub ? ' <span class="ps-tag">' + esc(t("You")) + "</span>" : "") +
     "<small>" + esc(end ? end.name : r[3]) + (r[8] ? " · " + esc(t("daily PhD {date}", { date: r[8] })) : "") + "</small>" +
-    "<small>" + esc(t("Research score")) + " " + esc(r[2]) + " · " + esc(t("{n} years", { n: r[1] })) + " · " + esc(t("{n} papers", { n: r[5] })) + " · " + esc(t("{n} citations", { n: r[6] })) + "</small></div>" +
+    "<small>" + esc(t("Research score")) + " " + esc(r[2]) + " · " + esc(yearsText(r[1])) + " · " + esc(papersText(r[5])) + " · " + esc(citationsText(r[6])) + "</small></div>" +
     '<button class="ps-btn ps-btn-sm" data-action="chart-open" data-id="' + esc(r[0]) + '">' + esc(t("Open this PhD")) + "</button></div>";
 }
 
@@ -109,7 +153,7 @@ export function endingsHtml(app) {
   };
   return '<div class="ps-endbars">' + shown.map(function (id) {
     const end = D.endingById[id];
-    return bar(id, n[id], end ? end.name : id, g.byEnding[id] === undefined ? g.names.length - 1 : g.byEnding[id], true);
+    return bar(id, n[id], end ? end.name : id, groupOf(g, id), true);
   }).join("") + (rest ? bar("", rest, t("Other endings"), g.names.length - 1, false) : "") + "</div>" +
     (st.ending ? '<div class="ps-share-row"><button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="chart-ending" data-id="">' + esc(t("Show all endings")) + "</button></div>" : "");
 }

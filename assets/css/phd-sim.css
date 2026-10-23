@@ -536,6 +536,18 @@ html[data-theme='dark'] .ps-art img { filter: brightness(0.88); }
 .ps-dot-mine { width: 14px; height: 14px; box-shadow: 0 0 0 2px var(--ps-text); opacity: 1; z-index: 1; }
 .ps-dot-sel { box-shadow: 0 0 0 3px var(--ps-accent); opacity: 1; z-index: 3; transform: translate(-50%, 50%) scale(1.35); }
 .ps-dot-dim { opacity: 0.12; }
+/* the hover box over a dot */
+.ps-hoverbox { position: absolute; z-index: 5; pointer-events: none; width: max-content; max-width: min(15rem, 66%); display: flex; flex-direction: column; gap: 0.1rem;
+  padding: 0.45rem 0.65rem; border-radius: 10px; border: 2px solid var(--ps-line); background: var(--ps-card); box-shadow: var(--ps-shadow); font-size: 0.8rem; line-height: 1.35; text-align: left; color: var(--ps-text); }
+.ps-hb-c { transform: translateX(-50%); }
+.ps-hb-l { transform: translateX(-14px); }
+.ps-hb-r { transform: translateX(calc(-100% + 14px)); }
+.ps-hb-end { display: flex; align-items: center; gap: 0.35rem; font-weight: 600; }
+.ps-hb-end i { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.ps-hb-title { color: var(--ps-accent); font-weight: 700; font-size: 0.76rem; }
+.ps-hoverbox small { font-size: 0.72rem; color: var(--ps-muted); }
+.ps-hb-facts span { white-space: nowrap; }
+.ps-hoverbox .ps-hb-hint { font-style: italic; }
 .ps-g0 { background: #3f74d6; }
 .ps-g1 { background: #e0773a; }
 .ps-g2 { background: #8a5ad6; }
