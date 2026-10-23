@@ -16,4 +16,4 @@ ALLOWED_ORIGINS = "https://www.bingshengyao.com,https://bingshengyao.com"
 [[d1_databases]]
 binding = "DB"
 database_name = "phd-sim-board"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "fb4e1f66-5b4b-4fa9-8f06-69e02632b519"
