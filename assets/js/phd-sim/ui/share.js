@@ -119,7 +119,9 @@ export function sharedHtml(app) {
   const today = new Date().toISOString().slice(0, 10);
   const blurb = r.ending.text && r.ending.text.indexOf("{") < 0 ? r.ending.text : r.ending.offer || "";
   const nums = [[t("Years"), r.y], [t("First-author papers"), r.p], [t("Citations"), r.c], [t("h-index"), r.h], [t("Rejections"), r.r], [t("Burnouts"), r.b]];
-  return '<div class="ps-end ps-shared"><div class="ps-end-head"><div class="ps-kicker">' + esc(t("Someone shared their PhD")) +
+  const from = app.fromBoard;
+  const kicker = from ? (from.nick ? t("{name}’s PhD, from the leaderboard", { name: from.nick }) : t("A PhD from the leaderboard")) : t("Someone shared their PhD");
+  return '<div class="ps-end ps-shared"><div class="ps-end-head"><div class="ps-kicker">' + esc(kicker) +
     (r.daily ? " · " + esc(t("daily PhD {date}", { date: r.daily })) : "") + "</div>" +
     "<h2>" + esc(r.ending.name) + "</h2>" +
     (r.title ? '<div class="ps-end-title">' + esc(r.title.name) + "</div>" + (r.title.desc ? '<div class="ps-muted ps-small">' + esc(r.title.desc) + "</div>" : "") : "") + "</div>" +
@@ -132,6 +134,7 @@ export function sharedHtml(app) {
       return '<span class="ps-chip ps-chip-accent" title="' + esc(a.desc || "") + '">' + esc(a.name) + "</span>";
     }).join("") + "</div></div>" : "") +
     '<div class="ps-foot" style="justify-content:center">' +
+    (app.fromBoard ? '<button class="ps-btn" data-action="board-back">' + esc(t("Back to the leaderboard")) + "</button>" : "") +
     (r.daily === today ? '<button class="ps-btn" data-action="shared-daily">' + esc(t("Play the same daily PhD")) + "</button>" : "") +
     '<button class="ps-btn ps-btn-primary" data-action="shared-play">' + esc(t("Play your own PhD")) + "</button></div></div>";
 }

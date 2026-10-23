@@ -29,7 +29,8 @@ function novelty(G, ev) {
   const s = G.state;
   const nv = G.D.config.events.novelty;
   if (s.seen[ev.id] !== undefined) return nv.this_run;
-  const seenRuns = (G.meta && G.meta.seenRuns) || {};
+  // Runs since 2026-10-23 carry their own copy (pastSeen; empty for daily runs).
+  const seenRuns = s.pastSeen || (G.meta && G.meta.seenRuns) || {};
   const last = seenRuns[ev.id];
   if (last === undefined) return nv.never;
   const d = (s.runIndex || 0) - last;

@@ -7,6 +7,7 @@ import { eventHtml, sysHtml, rebuttalHtml, resultHtml, promptClass } from "./pro
 import { titleHtml, setupHtml, codexHtml, endHtml } from "./screens.js";
 import { readSharedFromLocation, sharedHtml, shareTargets, shareText, cardBlob } from "./share.js";
 import { t, language } from "../engine/i18n.js";
+import { boardScreenHtml, loadBoards, submitRun } from "./board.js";
 
 export class App {
   constructor(root, rawData) {
@@ -15,6 +16,9 @@ export class App {
     this.storageOk = storage.storageAvailable();
     this.meta = storage.loadMeta();
     this.savedRun = storage.loadRun();
+    // The leaderboard server, if the page names one (data-board); otherwise there's no leaderboard.
+    this.board = (root.getAttribute("data-board") || "").trim().replace(/\/+$/, "") || null;
+    this.lang = language();
     this.game = null;
     this.screen = "title";
     this.prev = "title";
@@ -87,6 +91,7 @@ export class App {
     else if (this.screen === "codex") body = codexHtml(this);
     else if (this.screen === "end") body = endHtml(this);
     else if (this.screen === "shared" && this.shared) body = sharedHtml(this);
+    else if (this.screen === "board") body = boardScreenHtml(this);
     else if (this.screen === "game" && this.game) body = gameHtml(this.game, this, this.promptInner(), this.modal ? promptClass(this.modal.prompt) : "");
     const scrollY = window.scrollY;
     const oldScene = this.root.querySelector(".ps-overlay") || this.root.querySelector(".ps-scene");
@@ -293,6 +298,8 @@ export class App {
     const s = this.game.state;
     if (s.phase !== "ended") { this.render(); return; }
     this.ending = s.ending;
+    this.finished = s;
+    this.boardSubmit = null;
     this.modal = null;
     // The share sheet must open within the click, so the image is ready before anyone taps Share.
     const self = this;
@@ -337,6 +344,12 @@ export class App {
       case "resume": this.resume(); break;
       case "title": this.savedRun = this.game && this.game.state.phase !== "ended" ? this.game.state : storage.loadRun(); this.screen = "title"; this.render(); break;
       case "codex": this.prev = this.screen; this.screen = "codex"; this.render(); break;
+      case "board": if (this.board) { if (this.screen !== "board") this.boardFrom = this.screen === "shared" ? "title" : this.screen; this.screen = "board"; loadBoards(this); } break;
+      case "board-close": this.screen = this.boardFrom || "title"; this.savedRun = this.screen === "title" ? storage.loadRun() : this.savedRun; this.render(); break;
+      case "board-submit": submitRun(this); break;
+      // A row opens that player's result card (the shared-link view), with a way back here.
+      case "board-open": if (id) { this.fromBoard = { nick: el.getAttribute("data-nick") || "" }; location.hash = "r=" + id; } break;
+      case "board-back": this.leaveShared(); this.fromBoard = false; this.screen = "board"; this.render(); break;
       case "lang": this.switchLanguage(id); break;
       case "back": this.screen = this.prev || "title"; this.render(); break;
       case "inspect": if (!this.modal) { this.inspect = id; this.keepScroll = true; this.render(); } break;
@@ -409,6 +422,7 @@ export class App {
   }
 
   onKey(e) {
+    if (e.key === "Enter" && e.target && e.target.id === "ps-nick") { e.preventDefault(); submitRun(this); return; }
     if (e.altKey || e.ctrlKey || e.metaKey || this.screen !== "game") return;
     if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA")) return;
     if (this.panel) { if (e.key === "Escape") { this.panel = null; this.render(); } return; }

@@ -1,6 +1,7 @@
 // Title, setup, codex, achievements and the end card.
 import { esc, bar } from "./common.js";
 import { shareRowHtml, beatsLine } from "./share.js";
+import { boardSectionHtml } from "./board.js";
 import { t, T_, LANGUAGES, language } from "../engine/i18n.js";
 
 function stripTokens(s) {
@@ -18,8 +19,13 @@ export function titleHtml(app) {
     '<p class="ps-tagline">' + t("Two weeks a turn. Run studies, survive Reviewer 2, and see where it leads. Lessons from {phd101}.", { phd101: '<a href="/phd101/">' + esc(t("PhD 101")) + "</a>" }) + "</p>" +
     '<div class="ps-menu">' +
     (app.savedRun ? '<button class="ps-btn ps-btn-primary" data-action="resume">' + esc(t("Continue your PhD")) + "</button>" : "") +
-    '<button class="ps-btn' + (app.savedRun ? "" : " ps-btn-primary") + '" data-action="setup">' + esc(t("Start a new PhD")) + "</button>" +
-    '<button class="ps-btn" data-action="setup-daily">' + esc(t("Today’s daily PhD")) + "</button>" +
+    // The two ways to start, each with a line on how it differs (playtest feedback, 2026-10-23).
+    '<button class="ps-btn ps-btn-two' + (app.savedRun ? "" : " ps-btn-primary") + '" data-action="setup"><span>' + esc(t("Start a new PhD")) + "</span><small>" +
+      esc(t("A random start: every PhD is different.")) + "</small></button>" +
+    '<button class="ps-btn ps-btn-two" data-action="setup-daily"><span>' + esc(t("Today’s daily PhD")) + "</span><small>" +
+      esc(app.board ? t("Everyone plays the same game today, with the same start and the same luck, ranked on today’s leaderboard.")
+        : t("Everyone plays the same game today: the same start and the same luck. Only your choices differ.")) + "</small></button>" +
+    (app.board ? '<button class="ps-btn" data-action="board">' + esc(t("Leaderboard")) + "</button>" : "") +
     '<button class="ps-btn" data-action="codex">' + esc(t("Codex")) + "</button>" +
     "</div>" +
     // Each language is named in itself, so the switch reads the same in every language.
@@ -149,6 +155,7 @@ export function endHtml(app) {
     (e.recommendations.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("From PhD 101, for how you played")) + '</h3><div class="ps-recs">' + e.recommendations.map(function (r) {
       return '<a href="' + esc(r.url) + '" target="_blank" rel="noopener"><b>' + esc(r.title) + "</b><small>" + esc(r.topic) + "</small><small>" + esc(r.why) + "</small></a>";
     }).join("") + "</div></div>" : "") +
+    boardSectionHtml(app) +
     shareRowHtml(e, app.D, typeof navigator !== "undefined" && typeof navigator.share === "function") +
     '<div class="ps-foot" style="justify-content:center"><button class="ps-btn" data-action="codex">' + esc(t("Codex")) + "</button>" +
     '<button class="ps-btn ps-btn-primary" data-action="setup">' + esc(t("Play again")) + "</button></div></div>";
