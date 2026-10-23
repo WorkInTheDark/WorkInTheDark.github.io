@@ -1,0 +1,10 @@
+{
+  "name": "phd-sim-leaderboard",
+  "private": true,
+  "type": "module",
+  "description": "PhD Simulator leaderboard: replays submitted runs and keeps daily and all-time boards.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "node dev-server.mjs"
+  }
+}

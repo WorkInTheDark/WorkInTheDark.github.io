@@ -1,6 +1,7 @@
 // Title, setup, codex, achievements and the end card.
 import { esc, bar } from "./common.js";
 import { shareRowHtml, beatsLine } from "./share.js";
+import { boardSectionHtml } from "./board.js";
 import { t, T_, LANGUAGES, language } from "../engine/i18n.js";
 
 function stripTokens(s) {
@@ -20,6 +21,7 @@ export function titleHtml(app) {
     (app.savedRun ? '<button class="ps-btn ps-btn-primary" data-action="resume">' + esc(t("Continue your PhD")) + "</button>" : "") +
     '<button class="ps-btn' + (app.savedRun ? "" : " ps-btn-primary") + '" data-action="setup">' + esc(t("Start a new PhD")) + "</button>" +
     '<button class="ps-btn" data-action="setup-daily">' + esc(t("Today’s daily PhD")) + "</button>" +
+    (app.board ? '<button class="ps-btn" data-action="board">' + esc(t("Leaderboard")) + "</button>" : "") +
     '<button class="ps-btn" data-action="codex">' + esc(t("Codex")) + "</button>" +
     "</div>" +
     // Each language is named in itself, so the switch reads the same in every language.
@@ -149,6 +151,7 @@ export function endHtml(app) {
     (e.recommendations.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("From PhD 101, for how you played")) + '</h3><div class="ps-recs">' + e.recommendations.map(function (r) {
       return '<a href="' + esc(r.url) + '" target="_blank" rel="noopener"><b>' + esc(r.title) + "</b><small>" + esc(r.topic) + "</small><small>" + esc(r.why) + "</small></a>";
     }).join("") + "</div></div>" : "") +
+    boardSectionHtml(app) +
     shareRowHtml(e, app.D, typeof navigator !== "undefined" && typeof navigator.share === "function") +
     '<div class="ps-foot" style="justify-content:center"><button class="ps-btn" data-action="codex">' + esc(t("Codex")) + "</button>" +
     '<button class="ps-btn ps-btn-primary" data-action="setup">' + esc(t("Play again")) + "</button></div></div>";

@@ -1,0 +1,4 @@
+{
+  "functions": { "api/*.js": { "maxDuration": 20 } },
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- ."
+}

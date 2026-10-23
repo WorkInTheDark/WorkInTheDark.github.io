@@ -45,6 +45,11 @@ const COURSES = [T_("Machine Learning"), T_("Natural Language Processing"), T_("
   T_("Deep Learning"), T_("Qualitative Methods"), T_("Algorithms"), T_("Information Retrieval"), T_("Ethics of AI")];
 const TA_COURSES = [T_("Intro to Programming"), T_("Data Structures"), T_("Intro to AI"), T_("Machine Learning"), T_("HCI Foundations"), T_("NLP")];
 
+// Names a pop-up, so a replay can tell it reached the same one.
+export function promptKey(p) {
+  return p.type + ":" + (p.id || p.sys || p.paperId || "");
+}
+
 export class Game {
   constructor(D, meta, state) {
     this.D = D;
@@ -61,6 +66,9 @@ export class Game {
     s.initialized = true;
     this.meta.runs = (this.meta.runs || 0) + 1;
     s.runIndex = this.meta.runs;
+    // Which events earlier runs showed (events lean toward ones you haven't seen), copied in so the
+    // run depends only on its own state. A daily run ignores your history: everyone gets the same game.
+    s.pastSeen = s.daily ? {} : Object.assign({}, this.meta.seenRuns || {});
     if (s.player.traits.indexOf("head_start") >= 0) {
       const topic = this.rng.pick(s.world.topics);
       const p = createProject(this, this.rng.chance(0.5) ? "empirical" : "study", topic.id, { stageIdx: 1, seedQuality: 48, source: "masters" });
@@ -71,6 +79,16 @@ export class Game {
   }
 
   save() { this.state.rng = this.rng.state(); }
+
+  // Notes a choice for the leaderboard's replay: what it was, and where in the turn it was made.
+  record(k, v) {
+    const s = this.state;
+    if (!s.inputs) return;
+    const e = { k: k, t: s.turn, g: s.stage };
+    if (v !== undefined) e.v = v;
+    if (k === "a" && s.prompt) e.id = promptKey(s.prompt);
+    s.inputs.push(e);
+  }
 
   log(text, kind, extra) {
     const e = { turn: this.state.turn, kind: kind || "line", text: text, phase: this.state.stage };
@@ -139,8 +157,9 @@ export class Game {
     const s = this.state;
     const p = s.prompt;
     if (!p) return null;
-    s.prompt = null;
     resp = resp || {};
+    this.record("a", JSON.parse(JSON.stringify(resp)));
+    s.prompt = null;
     let res = null;
     if (p.type === "event") {
       const ctx = s.current ? s.current.ctx : {};
@@ -183,6 +202,7 @@ export class Game {
     const s = this.state;
     if (s.prompt || s.phase === "ended" || s.stage !== "plan" || !s.advisor) return null;
     if (activeProjects(this).length >= (this.D.config.progress.max_active_projects || 4)) return null;
+    this.record("n");
     const hit = newProjectStress(this);
     const p = autoProject(this);
     this.log(t("New project: “{title}” ({type}).", { title: p.title, type: t(PROJECT_TYPES[p.type].label) }) + stressHit(this, hit), "news");
@@ -193,6 +213,7 @@ export class Game {
   requestLeave() {
     const s = this.state;
     if (s.prompt || s.phase === "ended") return null;
+    this.record("l");
     s.prompt = leavePrompt(this);
     s.prompt.ui = true;
     return s.prompt;
@@ -200,13 +221,13 @@ export class Game {
 
   setTarget(projectId, venueId) {
     const p = this.state.projects.find(function (x) { return x.id === projectId; });
-    if (p && p.status === "active" && !(p.target && (p.target.rrPaper || p.target.journalPaper))) setTarget(this, p, venueId);
+    if (p && p.status === "active" && !(p.target && (p.target.rrPaper || p.target.journalPaper))) { this.record("t", [projectId, venueId]); setTarget(this, p, venueId); }
     this.save();
   }
 
   shelveProject(projectId) {
     const p = this.state.projects.find(function (x) { return x.id === projectId; });
-    if (p && p.status === "active") { withdrawRevision(this, p); p.status = "shelved"; this.log(t("You shelve \u201c{title}\u201d.", { title: p.short })); }
+    if (p && p.status === "active") { this.record("s", projectId); withdrawRevision(this, p); p.status = "shelved"; this.log(t("You shelve \u201c{title}\u201d.", { title: p.short })); }
     this.save();
   }
 
@@ -329,6 +350,7 @@ export class Game {
   submitPlan(plan) {
     const s = this.state;
     if (s.stage !== "plan" || s.prompt) return false;
+    this.record("p", { action: plan && plan.action, side: plan && plan.side || null });
     const list = this.actionList();
     const ids = list.map(function (a) { return a.id; });
     const action = plan && ids.indexOf(plan.action) >= 0 ? plan.action : (ids.indexOf("recharge") >= 0 ? "recharge" : ids[0]);

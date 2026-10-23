@@ -4,6 +4,12 @@
     {
       "name": "phd-sim-dev",
       "url": "http://127.0.0.1:8766"
+    },
+    {
+      "name": "phd-sim-board",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["tools/phd-sim/leaderboard/dev-server.mjs", "8790"],
+      "port": 8790
     }
   ]
 }

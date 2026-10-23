@@ -12,7 +12,7 @@ og_image: https://www.bingshengyao.com/assets/phd-sim/og.jpg
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap">
 <link rel="stylesheet" href="{{ '/assets/css/phd-sim.css' | relative_url }}">
 
-<div id="phd-sim" data-src="{{ '/assets/phd-sim/data.json' | relative_url }}">
+<div id="phd-sim" data-src="{{ '/assets/phd-sim/data.json' | relative_url }}" data-board="{{ site.phd_sim_board }}">
   <noscript>The PhD Simulator needs JavaScript to run.</noscript>
   <p>Loading the PhD Simulator…</p>
 </div>

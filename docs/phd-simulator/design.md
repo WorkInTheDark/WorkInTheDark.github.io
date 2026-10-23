@@ -863,6 +863,16 @@ Arthur asked for a Chinese version of everything: Simplified only, auto-detected
   - The voice and glossary are in `docs/phd-simulator/zh-guide.md`.
 - **Shared lookup.** One English string has one translation across all tables, so the same label in two files reads the same everywhere. Conflicts were unified on 2026-10-20.
 
+### 12.2c Leaderboard (Arthur, 2026-10-23)
+
+Playtesters wanted a public record of runs, to compare and to see other people's PhDs. Arthur chose a public leaderboard with both a daily and an all-time board.
+
+- **Two boards, one best run per player.** Today's daily PhD (UTC day) and all time. A player is a random id their browser makes up; they can give a nickname (20 characters, no links or markup, a short slur list) or stay anonymous. Each entry opens that run's result card (the share-link view), with a way back.
+- **Runs are replayed, not trusted.** The engine records every choice (`state.inputs`: what it was, and the turn and stage it was made in). A run also carries a copy of which events earlier runs showed (`state.pastSeen`), since that steers event picks. `engine/replay.js` plays a record through the engine again; the server only accepts a run that comes out with the score, ending, papers and citations the player saw, and stores the replay's numbers. `tests/replay.test.mjs` checks that full runs, with every kind of choice and reloads, replay to the identical state.
+- **The daily PhD is now the same game for everyone.** Before, event picks leaned on each player's history, so the same daily seed played out differently. Daily runs now ignore history.
+- **The server** (`tools/phd-sim/leaderboard`, Vercel plus Upstash Redis, both free) fetches the engine and data from the live site and replays with those. Game updates need no server update; a run started before an update may not verify, and the player is told so. Cloudflare Workers' free plan was ruled out: a replay takes about 25 ms of CPU and its limit is 10.
+- **Off until configured:** the page's `data-board` comes from `phd_sim_board` in `_config.yml`. Empty means no leaderboard anywhere in the game. Runs started before this change have no record and can't be submitted (the end screen says why).
+
 ### 12.3 Achievements
 - Target 100 (50 in Phase 2), each with `id`, `name`, `description`, `secret`, and a `condition` in the same vocabulary as events, evaluated against run stats.
 - Secret ones stay hidden in the Codex until earned.
