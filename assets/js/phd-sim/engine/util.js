@@ -48,6 +48,19 @@ export function asList(x) {
   return Array.isArray(x) ? x : [x];
 }
 
+// The daily PhD's day: today's date in US Eastern Time, so a new one starts at midnight in New York
+// (Arthur, 2026-10-23; it was UTC). Daylight saving is handled by the time zone.
+export function dailyDay(ms) {
+  const d = new Date(ms === undefined ? Date.now() : ms);
+  try {
+    const p = {};
+    new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" })
+      .formatToParts(d).forEach(function (x) { p[x.type] = x.value; });
+    if (p.year && p.month && p.day) return p.year + "-" + p.month + "-" + p.day;
+  } catch (e) { /* a browser without time zones: fall back to UTC-5 */ }
+  return new Date(d.getTime() - 5 * 3600e3).toISOString().slice(0, 10);
+}
+
 // "3rd" in English; "第3" in Chinese (translators write "你{counter.x|ordinal}次").
 export function ordinal(n) {
   if (language() === "zh") return "第" + n;

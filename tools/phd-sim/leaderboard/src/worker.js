@@ -36,7 +36,14 @@ export async function sha(s) {
   return Array.from(new Uint8Array(d), function (b) { return b.toString(16).padStart(2, "0"); }).join("");
 }
 
-export function utcDay(ms) { return new Date(ms === undefined ? Date.now() : ms).toISOString().slice(0, 10); }
+// The daily PhD's day is the date in US Eastern Time (the game's engine/util.js dailyDay).
+export function easternDay(ms) {
+  const d = new Date(ms === undefined ? Date.now() : ms);
+  const p = {};
+  new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" })
+    .formatToParts(d).forEach(function (x) { p[x.type] = x.value; });
+  return p.year + "-" + p.month + "-" + p.day;
+}
 
 // Nicknames on a public board: up to 20 characters, no links, no markup, no obvious slurs. Anything
 // that slips through can be renamed or removed with admin.mjs.
@@ -85,7 +92,8 @@ export function checkResult(result, code, now) {
   if (r.beats !== null && r.beats !== undefined && !isInt(r.beats, 99)) return { reason: "bad_numbers" };
   if (daily !== null) {
     if (typeof daily !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(daily)) return { reason: "bad_day" };
-    if (daily > utcDay(now) || daily < utcDay(now - LIMITS.dailyLateDays * 864e5)) return { reason: "daily_out_of_range" };
+    // Up to a day ahead still counts: a daily started under the old UTC rule, or a fast clock.
+    if (daily > easternDay(now + 864e5) || daily < easternDay(now - LIMITS.dailyLateDays * 864e5)) return { reason: "daily_out_of_range" };
   }
   const same = c.e === r.ending && (c.t || null) === (r.title || null) && c.g === (r.graduated ? 1 : 0) && c.y === r.years &&
     c.p === r.pubs && c.c === r.citations && c.h === r.h && (c.k === undefined ? null : c.k) === (r.beats === undefined ? null : r.beats) &&
@@ -257,7 +265,7 @@ export default {
       await ensureSchema(env);
       if (url.pathname === "/api/board" && req.method === "GET") {
         const kind = url.searchParams.get("kind") === "daily" ? "daily" : "all";
-        const day = /^\d{4}-\d{2}-\d{2}$/.test(url.searchParams.get("day") || "") ? url.searchParams.get("day") : utcDay();
+        const day = /^\d{4}-\d{2}-\d{2}$/.test(url.searchParams.get("day") || "") ? url.searchParams.get("day") : easternDay();
         const me = PLAYER.test(url.searchParams.get("me") || "") ? url.searchParams.get("me") : null;
         // The shared view of a board is cached for 20 seconds; a player's own place isn't.
         const cache = !me && typeof caches !== "undefined" ? caches.default : null;

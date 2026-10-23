@@ -7,8 +7,7 @@ import { encodeResult } from "./share.js";
 import { t, T_ } from "../engine/i18n.js";
 import { runRecord, resultOf } from "../engine/replay.js";
 import { playerId, loadNick, saveNick } from "../engine/save.js";
-
-export function utcToday() { return new Date().toISOString().slice(0, 10); }
+import { dailyDay } from "../engine/util.js";
 
 async function api(base, path, body) {
   const ctl = typeof AbortController === "function" ? new AbortController() : null;
@@ -89,7 +88,7 @@ export function boardSectionHtml(app) {
 export async function loadBoards(app) {
   const pid = playerId();
   const me = pid ? "&me=" + pid : "";
-  const day = utcToday();
+  const day = dailyDay();
   app.boardData = { loading: true, day: day };
   app.render();
   const [daily, all] = await Promise.all([
@@ -131,5 +130,5 @@ export function boardScreenHtml(app) {
     '<div class="ps-share-row"><button class="ps-btn ps-btn-sm" data-action="setup-daily">' + esc(t("Play today’s daily PhD")) + "</button></div></section>" +
     '<section class="ps-section"><h3 class="ps-section-title">' + esc(t("All time")) + esc(count(d.all)) + "</h3>" +
     listHtml(app, d.all, t("No one is on the board yet.")) + "</section>" +
-    '<p class="ps-muted ps-small">' + esc(t("Ranked by research record: papers, top venues, h-index, citations and letters. Each board shows a player’s best run. The daily PhD changes at midnight UTC (8 am in Beijing).")) + "</p></div>";
+    '<p class="ps-muted ps-small">' + esc(t("Ranked by research record: papers, top venues, h-index, citations and letters. Each board shows a player’s best run. The daily PhD changes at midnight US Eastern Time (noon or 1 pm in Beijing, depending on daylight saving).")) + "</p></div>";
 }

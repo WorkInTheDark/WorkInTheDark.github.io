@@ -7,6 +7,7 @@ import { eventHtml, sysHtml, rebuttalHtml, resultHtml, promptClass } from "./pro
 import { titleHtml, setupHtml, codexHtml, endHtml } from "./screens.js";
 import { readSharedFromLocation, sharedHtml, shareTargets, shareText, cardBlob } from "./share.js";
 import { t, language } from "../engine/i18n.js";
+import { dailyDay } from "../engine/util.js";
 import { boardScreenHtml, loadBoards, submitRun } from "./board.js";
 
 export class App {
@@ -143,7 +144,7 @@ export class App {
   // ---- Flow -----------------------------------------------------------------
 
   newSetup(daily) {
-    const seed = daily ? "daily-" + new Date().toISOString().slice(0, 10) : newSeed();
+    const seed = daily ? "daily-" + dailyDay() : newSeed();
     const rng = new Rng(seed + ":name");
     this.setup = { seed: seed, daily: !!daily, name: rng.pick(this.D.names.first || ["Alex"]), traits: rollTraits(this.D, seed) };
     this.screen = "setup";

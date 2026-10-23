@@ -14,6 +14,7 @@ const eng = await import(join(repo, "assets/js/phd-sim/engine/index.js"));
 const { Rng } = await import(join(repo, "assets/js/phd-sim/engine/rng.js"));
 const { runRecord, resultOf } = await import(join(repo, "assets/js/phd-sim/engine/replay.js"));
 const { encodeResult } = await import(join(repo, "assets/js/phd-sim/ui/share.js"));
+const { dailyDay } = await import(join(repo, "assets/js/phd-sim/engine/util.js"));
 const D = eng.prepareData(JSON.parse(readFileSync(join(repo, "tools/phd-sim/out/data.json"), "utf8")));
 
 function play(seed, daily, effort) {
@@ -49,7 +50,7 @@ const call = async (method, path, data, ip) => {
   return { status: r.status, cors: r.headers.get("access-control-allow-origin"), json: await r.json() };
 };
 
-const today = new Date().toISOString().slice(0, 10);
+const today = dailyDay();
 const A = "testplayer0000000001", B = "testplayer0000000002";
 
 test("the Worker takes runs, keeps each player's best, and ranks the boards", async () => {

@@ -9,7 +9,8 @@ import { dirname, join } from "node:path";
 import { prepareData, newRun, Game } from "../../../assets/js/phd-sim/engine/index.js";
 import { resultOf } from "../../../assets/js/phd-sim/engine/replay.js";
 import { encodeResult } from "../../../assets/js/phd-sim/ui/share.js";
-import { checkResult, cleanNick, decodeCode } from "../leaderboard/src/worker.js";
+import { dailyDay } from "../../../assets/js/phd-sim/engine/util.js";
+import { checkResult, cleanNick, decodeCode, easternDay } from "../leaderboard/src/worker.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const D = prepareData(JSON.parse(readFileSync(join(here, "..", "out", "data.json"), "utf8")));
@@ -27,7 +28,7 @@ function finished(seed, daily) {
 }
 
 test("a finished run's result passes the leaderboard's checks; edited ones don't", () => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = dailyDay();
   for (const [seed, daily] of [["board-1", false], ["daily-" + today, true]]) {
     const e = finished(seed, daily);
     const code = encodeResult(e, D);
@@ -39,11 +40,12 @@ test("a finished run's result passes the leaderboard's checks; edited ones don't
       assert.ok(!checkResult(Object.assign(resultOf(e), edit), code, Date.now()).value, "edited " + JSON.stringify(edit));
     }
   }
-  // A daily run counts for a week after its day, never for a day that hasn't come.
+  // A daily run counts for a week after its day and up to a day early, never earlier than that.
   const e = finished("daily-2026-10-01", true);
   assert.equal(checkResult(resultOf(e), encodeResult(e, D), Date.UTC(2026, 9, 5)).value.day, "2026-10-01");
   assert.equal(checkResult(resultOf(e), encodeResult(e, D), Date.UTC(2026, 9, 20)).reason, "daily_out_of_range");
-  assert.equal(checkResult(resultOf(e), encodeResult(e, D), Date.UTC(2026, 8, 30)).reason, "daily_out_of_range");
+  assert.equal(checkResult(resultOf(e), encodeResult(e, D), Date.UTC(2026, 8, 30, 12)).value.day, "2026-10-01");
+  assert.equal(checkResult(resultOf(e), encodeResult(e, D), Date.UTC(2026, 8, 28)).reason, "daily_out_of_range");
 });
 
 test("nicknames: trimmed to 20 characters, no links, markup or slurs", () => {
@@ -55,4 +57,14 @@ test("nicknames: trimmed to 20 characters, no links, markup or slurs", () => {
   assert.equal(cleanNick("<b>hi</b>"), null);
   assert.equal(cleanNick("傻 逼"), null);
   assert.equal(cleanNick("尼玛次仁"), "尼玛次仁", "a common Tibetan name is fine");
+});
+
+test("the daily PhD's day is the date in US Eastern Time, in the game and on the server", () => {
+  // Midnight in New York is 04:00 UTC in summer time and 05:00 UTC in winter.
+  const cases = [["2026-10-23T03:30:00Z", "2026-10-22"], ["2026-10-23T04:30:00Z", "2026-10-23"],
+    ["2027-01-10T04:30:00Z", "2027-01-09"], ["2027-01-10T05:30:00Z", "2027-01-10"]];
+  for (const [iso, want] of cases) {
+    assert.equal(dailyDay(Date.parse(iso)), want, iso);
+    assert.equal(easternDay(Date.parse(iso)), want, iso);
+  }
 });
