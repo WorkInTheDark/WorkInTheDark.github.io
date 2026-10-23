@@ -175,7 +175,7 @@ collections:
     output: true
     permalink: /phd101/:path/
 
-# PhD Simulator leaderboard server (tools/phd-sim/leaderboard), e.g. https://phd-sim-board.vercel.app.
+# PhD Simulator leaderboard (a Cloudflare Worker, tools/phd-sim/leaderboard), e.g. https://api.bingshengyao.com.
 # Empty: the game has no leaderboard.
 phd_sim_board: ""
 

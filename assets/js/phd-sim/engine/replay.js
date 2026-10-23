@@ -1,6 +1,6 @@
-// Playing a finished run again from its record, for the leaderboard. A run is decided by its seed,
-// the setup, which events earlier runs showed (pastSeen) and the player's choices in order (inputs),
-// so the server can replay the record and compute the result itself instead of trusting a number.
+// Playing a finished run again from its record. A run is decided by its seed, the setup, which events
+// earlier runs showed (pastSeen) and the player's choices in order (inputs). The leaderboard stores each
+// submitted run's record, so its results could be checked this way if fakes ever became a problem.
 import { newRun } from "./state.js";
 import { Game, promptKey } from "./game.js";
 

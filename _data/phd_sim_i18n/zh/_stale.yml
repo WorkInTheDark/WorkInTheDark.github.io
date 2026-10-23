@@ -1,2 +1,11 @@
 # Translations whose English no longer appears (kept to help re-translate edited lines).
-[]
+- en: "This run couldn’t be checked, most likely because the game was updated while you played."
+  zh: "这局没能核对通过，多半是你玩的时候游戏更新了。"
+- en: "This run started before the leaderboard existed, so it can’t be checked or ranked."
+  zh: "这局是排行榜上线前开始的，没法核对，也就上不了榜。"
+- en: "The server replays your choices to check the result, and shows only your nickname and numbers."
+  zh: "服务器会按你的每一步选择重放一遍来核对成绩，榜上只显示昵称和数据。"
+- en: "Checking your run…"
+  zh: "正在核对……"
+- en: "Ranked by research record: papers, top venues, h-index, citations and letters. Each board shows a player’s best run, and every run is replayed on the server before it counts. The daily PhD changes at midnight UTC (8 am in Beijing)."
+  zh: "按研究成绩排名：论文、顶会、h 指数、引用和推荐信。每个榜只保留一个人的最好成绩，每局都会先在服务器上重放核对。今日挑战在 UTC 零点（北京时间早上 8 点）换新。"

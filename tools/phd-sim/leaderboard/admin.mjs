@@ -1,6 +1,6 @@
 // Cleaning up the leaderboard. Players are named by the short id the board shows for them
 // (each entry's "pub", visible in /api/board).
-//   BOARD_URL=https://<your-project>.vercel.app ADMIN_TOKEN=... node tools/phd-sim/leaderboard/admin.mjs <command>
+//   BOARD_URL=https://api.bingshengyao.com ADMIN_TOKEN=... node tools/phd-sim/leaderboard/admin.mjs <command>
 //     list [all | daily [YYYY-MM-DD]]    show a board with each player's id
 //     remove <id>                         take a player off every board
 //     ban <id> / unban <id>               remove and block further submissions / allow them again

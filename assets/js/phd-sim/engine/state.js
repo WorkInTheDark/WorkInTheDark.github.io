@@ -159,7 +159,7 @@ export function newRun(D, opts) {
     version: 5,
     seed: opts.seed,
     daily: !!opts.daily,
-    // Every choice the player makes, in order, so the leaderboard can play the run again (replay.js).
+    // Every choice the player makes, in order, so the run can be played again (replay.js).
     inputs: [],
     rng: rng.state(),
     turn: 0,

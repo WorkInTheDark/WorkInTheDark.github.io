@@ -1,9 +1,11 @@
 // The public leaderboard: submitting a finished run from the end screen, and the board screen (today's
-// daily PhD and all time). The server (tools/phd-sim/leaderboard) replays every run from its record
-// before it counts. Without a server address on the page (data-board), none of this shows.
+// daily PhD and all time). The server is a Cloudflare Worker (tools/phd-sim/leaderboard). It takes the
+// result with the run's share code and its recorded choices, which it keeps so a replay check could be
+// added later. Without a server address on the page (data-board), none of this shows.
 import { esc } from "./common.js";
+import { encodeResult } from "./share.js";
 import { t, T_ } from "../engine/i18n.js";
-import { runRecord, resultOf, canSubmit } from "../engine/replay.js";
+import { runRecord, resultOf } from "../engine/replay.js";
 import { playerId, loadNick, saveNick } from "../engine/save.js";
 
 export function utcToday() { return new Date().toISOString().slice(0, 10); }
@@ -24,7 +26,7 @@ async function api(base, path, body) {
 }
 
 const REASONS = {
-  unverified: T_("This run couldn’t be checked, most likely because the game was updated while you played."),
+  invalid: T_("This run couldn’t be added to the leaderboard."),
   duplicate: T_("This run is already on the leaderboard."),
   bad_nick: T_("That nickname can’t be used. Try another one."),
   rate_limited: T_("Too many submissions for now. Try again in an hour."),
@@ -39,14 +41,15 @@ const REASONS = {
 export async function submitRun(app) {
   const s = app.finished;
   const pid = playerId();
-  if (!s || !canSubmit(s) || !pid || (app.boardSubmit && app.boardSubmit.state === "sending")) return;
+  if (!s || !s.ending || !pid || (app.boardSubmit && app.boardSubmit.state === "sending")) return;
   const input = app.root.querySelector("#ps-nick");
   const nick = input ? input.value.trim() : loadNick();
   saveNick(nick);
   app.boardSubmit = { state: "sending" };
   app.keepScroll = true;
   app.render();
-  const out = await api(app.board, "/api/submit", { pid: pid, nick: nick, lang: app.lang, record: runRecord(s), claim: resultOf(s.ending) });
+  const out = await api(app.board, "/api/submit", { pid: pid, nick: nick, lang: app.lang, result: resultOf(s.ending), code: encodeResult(s.ending, app.D),
+    record: s.inputs ? runRecord(s) : null });
   app.boardSubmit = out.ok ? { state: "done", out: out } : { state: "error", reason: out.reason };
   app.boardData = null; // the board changed
   app.keepScroll = true;
@@ -62,7 +65,6 @@ export function boardSectionHtml(app) {
   if (!app.board || !app.finished) return "";
   const s = app.finished;
   const head = '<div class="ps-section ps-board-submit"><h3 class="ps-section-title">' + esc(t("Leaderboard")) + "</h3>";
-  if (!canSubmit(s)) return head + '<p class="ps-muted ps-small">' + esc(t("This run started before the leaderboard existed, so it can’t be checked or ranked.")) + "</p></div>";
   if (!playerId()) return head + '<p class="ps-muted ps-small">' + esc(t("Your browser is blocking storage, so this run can’t go on the leaderboard.")) + "</p></div>";
   const st = app.boardSubmit || {};
   if (st.state === "done") {
@@ -76,9 +78,9 @@ export function boardSectionHtml(app) {
   }
   const sending = st.state === "sending";
   return head + '<p class="ps-small">' + esc(s.daily ? t("This was today’s daily PhD: it goes on today’s board and the all-time board.") : t("Put this run on the all-time board.")) + " " +
-    esc(t("The server replays your choices to check the result, and shows only your nickname and numbers.")) + "</p>" +
+    esc(t("Only your nickname and this run’s numbers are shown.")) + "</p>" +
     '<div class="ps-board-form"><input class="ps-input" id="ps-nick" maxlength="20" autocomplete="nickname" placeholder="' + esc(t("Nickname (optional)")) + '" value="' + esc(loadNick() || "") + '"' + (sending ? " disabled" : "") + ">" +
-    '<button class="ps-btn ps-btn-primary" data-action="board-submit"' + (sending ? " disabled" : "") + ">" + esc(sending ? t("Checking your run…") : t("Submit")) + "</button></div>" +
+    '<button class="ps-btn ps-btn-primary" data-action="board-submit"' + (sending ? " disabled" : "") + ">" + esc(sending ? t("Submitting…") : t("Submit")) + "</button></div>" +
     (st.state === "error" ? '<p class="ps-note ps-small">' + esc(t(REASONS[st.reason] || REASONS.server_error)) + "</p>" : "") + "</div>";
 }
 
@@ -129,5 +131,5 @@ export function boardScreenHtml(app) {
     '<div class="ps-share-row"><button class="ps-btn ps-btn-sm" data-action="setup-daily">' + esc(t("Play today’s daily PhD")) + "</button></div></section>" +
     '<section class="ps-section"><h3 class="ps-section-title">' + esc(t("All time")) + esc(count(d.all)) + "</h3>" +
     listHtml(app, d.all, t("No one is on the board yet.")) + "</section>" +
-    '<p class="ps-muted ps-small">' + esc(t("Ranked by research record: papers, top venues, h-index, citations and letters. Each board shows a player’s best run, and every run is replayed on the server before it counts. The daily PhD changes at midnight UTC (8 am in Beijing).")) + "</p></div>";
+    '<p class="ps-muted ps-small">' + esc(t("Ranked by research record: papers, top venues, h-index, citations and letters. Each board shows a player’s best run. The daily PhD changes at midnight UTC (8 am in Beijing).")) + "</p></div>";
 }

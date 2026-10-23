@@ -80,7 +80,7 @@ export class Game {
 
   save() { this.state.rng = this.rng.state(); }
 
-  // Notes a choice for the leaderboard's replay: what it was, and where in the turn it was made.
+  // Notes a choice so the run can be played again (replay.js): what it was, and where in the turn.
   record(k, v) {
     const s = this.state;
     if (!s.inputs) return;

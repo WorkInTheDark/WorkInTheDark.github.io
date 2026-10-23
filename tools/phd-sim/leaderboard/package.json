@@ -1,10 +1,14 @@
 {
-  "name": "phd-sim-leaderboard",
+  "name": "phd-sim-board",
   "private": true,
   "type": "module",
-  "description": "PhD Simulator leaderboard: replays submitted runs and keeps daily and all-time boards.",
-  "engines": { "node": ">=20" },
+  "description": "PhD Simulator leaderboard: a Cloudflare Worker with a D1 database (daily and all-time boards).",
   "scripts": {
-    "dev": "node dev-server.mjs"
+    "dev": "wrangler dev --port 8787",
+    "deploy": "wrangler deploy",
+    "test": "node --experimental-default-type=module --test test/"
+  },
+  "devDependencies": {
+    "wrangler": "4.85.0"
   }
 }
