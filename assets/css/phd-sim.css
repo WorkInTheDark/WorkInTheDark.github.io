@@ -127,6 +127,8 @@ html[data-theme='dark'] .ps-app {
 .ps-app .ps-hero-title { font-size: 2.4rem; margin: 0; }
 .ps-hero .ps-tagline { color: var(--ps-muted); max-width: 30rem; margin: 0.3rem auto 1.2rem; }
 .ps-menu { display: grid; gap: 0.6rem; width: 100%; max-width: 20rem; margin: 0 auto; }
+.ps-btn-two { display: flex; flex-direction: column; align-items: center; gap: 0.12rem; line-height: 1.25; }
+.ps-btn-two small { font-size: 0.72rem; font-weight: 500; opacity: 0.8; }
 .ps-langs { display: inline-flex; margin-top: 0.9rem; border: 2px solid var(--ps-line); border-radius: 99px; padding: 2px; background: var(--ps-card); }
 .ps-lang { font: inherit; font-size: 0.82rem; font-weight: 700; border: 0; border-radius: 99px; padding: 0.2rem 0.75rem; background: transparent; color: var(--ps-muted); cursor: pointer; }
 .ps-lang:hover { color: var(--ps-text); }
