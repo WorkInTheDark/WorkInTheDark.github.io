@@ -873,6 +873,11 @@ Playtesters wanted a public record of runs, to compare and to see other people's
   - A first version replayed every run on Vercel with Upstash Redis: Cloudflare's free plan allows 10 ms of CPU and a replay takes about 25 ms. Arthur preferred Cloudflare and wasn't worried about fake results, so it was replaced the same day.
   - The Worker checks a result's shape and that it matches the run's share code (what a viewer sees). It turns away duplicates and limits submissions per hour. He found a "within what simulations produce" check questionable, since a strong player can beat the bots, so there isn't one.
 - **Room for a replay check later.** The engine records every choice (`state.inputs`) and which events earlier runs showed (`state.pastSeen`), and `engine/replay.js` plays a record again (`tests/replay.test.mjs`: full runs replay to the identical state). The Worker stores each run's record, so fake entries could be checked later, for example by a scheduled GitHub job.
+- **The all-time board is a chart (Arthur, 2026-10-23).** As more people play, where you stand and how PhDs usually end matter more than one list.
+  - Every submitted run is a dot (`ui/chart.js`, plain HTML and CSS): years in the PhD across, research score up, colored by ending group (academia, industry, startup, other, leaving). A player's own runs are ringed.
+  - Tap a dot for the run (nickname, ending, numbers, "Open this PhD"); tap a group to hide it; tap an ending in the "How PhDs ended" bars to pick those runs out. A top 10 of each player's best run sits below.
+  - The Worker serves every run compactly (`/api/runs`, cached a minute) and a run's share code on request (`/api/run`).
+  - Simulated runs aren't shown for now (Arthur wants to see it with real runs first).
 - **Off until configured:** the page's `data-board` comes from `phd_sim_board` in `_config.yml`. When it's empty, the game has no leaderboard anywhere.
 
 ### 12.3 Achievements

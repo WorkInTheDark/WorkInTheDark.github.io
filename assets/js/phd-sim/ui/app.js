@@ -8,7 +8,7 @@ import { titleHtml, setupHtml, codexHtml, endHtml } from "./screens.js";
 import { readSharedFromLocation, sharedHtml, shareTargets, shareText, cardBlob } from "./share.js";
 import { t, language } from "../engine/i18n.js";
 import { dailyDay } from "../engine/util.js";
-import { boardScreenHtml, loadBoards, submitRun } from "./board.js";
+import { boardScreenHtml, loadBoards, submitRun, openRun } from "./board.js";
 
 export class App {
   constructor(root, rawData) {
@@ -97,6 +97,9 @@ export class App {
     const scrollY = window.scrollY;
     const oldScene = this.root.querySelector(".ps-overlay") || this.root.querySelector(".ps-scene");
     const keepScene = oldScene ? oldScene.scrollTop : 0;
+    // Screens that scroll inside the window (the leaderboard, the end card) keep their place too.
+    const oldScreen = this.root.querySelector(".ps-screen");
+    const keepScreen = oldScreen ? oldScreen.scrollTop : 0;
     // Redrawing the same view (picking a reply, a toast) mustn't replay entrance animations, or the
     // window blinks: only a new pop-up, panel or plan animates in.
     // Chinese runs sentences together: drop the space English-style joins leave after full-width
@@ -109,7 +112,11 @@ export class App {
     this.lastSceneKey = sceneKey;
     this.root.innerHTML = '<div class="ps-app ps-app-' + this.screen + still + '"><div class="ps-screen">' + body + "</div>" +
       (this.toast ? '<div class="ps-toast" role="status">' + esc(this.toast) + "</div>" : "") + "</div>";
-    if (this.keepScroll) window.scrollTo(0, scrollY);
+    if (this.keepScroll) {
+      window.scrollTo(0, scrollY);
+      const screen = this.root.querySelector(".ps-screen");
+      if (screen) screen.scrollTop = keepScreen;
+    }
     const scene = this.root.querySelector(".ps-overlay") || this.root.querySelector(".ps-scene");
     if (scene && this.keepDialogScroll) scene.scrollTop = keepScene;
     this.keepScroll = false;
@@ -351,6 +358,11 @@ export class App {
       // A row opens that player's result card (the shared-link view), with a way back here.
       case "board-open": if (id) { this.fromBoard = { nick: el.getAttribute("data-nick") || "" }; location.hash = "r=" + id; } break;
       case "board-back": this.leaveShared(); this.fromBoard = false; this.screen = "board"; this.render(); break;
+      // The all-time chart: pick a run, hide or show a group, pick out one ending, open a run.
+      case "chart-dot": this.chart.sel = this.chart.sel === id ? null : id; this.keepScroll = true; this.render(); break;
+      case "chart-group": this.chart.hidden[i] = !this.chart.hidden[i]; this.keepScroll = true; this.render(); break;
+      case "chart-ending": this.chart.ending = id && this.chart.ending !== id ? id : null; this.keepScroll = true; this.render(); break;
+      case "chart-open": if (id) openRun(this, id); break;
       case "lang": this.switchLanguage(id); break;
       case "back": this.screen = this.prev || "title"; this.render(); break;
       case "inspect": if (!this.modal) { this.inspect = id; this.keepScroll = true; this.render(); } break;

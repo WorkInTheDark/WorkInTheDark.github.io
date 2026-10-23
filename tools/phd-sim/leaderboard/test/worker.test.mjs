@@ -84,11 +84,22 @@ test("the Worker takes runs, keeps each player's best, and ranks the boards", as
   assert.equal(dailyBoard.json.total, 1);
   assert.equal(dailyBoard.json.entries[0].code, encodeResult(daily.ending, D));
 
+  // The chart gets every run (Ada has two), compactly, and one run's share code on request.
+  const runs = await call("GET", "/api/runs?limit=100");
+  assert.equal(runs.json.total, 3);
+  assert.equal(runs.json.rows.length, 3);
+  assert.equal(runs.json.rows[0].length, 9);
+  assert.equal(runs.json.players[all.json.me.pub], "Ada L.");
+  const one = await call("GET", "/api/run?id=" + runs.json.rows[0][0]);
+  assert.equal(one.json.run.code.length > 20, true);
+  assert.equal((await call("GET", "/api/run?id=nothex")).status, 400);
+
   // Admin: wrong token refused; remove takes a player off every board.
   const pub = all.json.entries.find((e) => e.nick === "Bo").pub;
   assert.equal((await call("POST", "/api/admin", { token: "nope", action: "remove", pub })).status, 403);
   assert.equal((await call("POST", "/api/admin", { token: "test-admin-token-123456", action: "ban", pub })).json.ok, true);
   assert.equal((await call("GET", "/api/board?kind=all")).json.total, 1);
+  assert.equal((await call("GET", "/api/runs")).json.total, 2, "a removed player's runs leave the chart");
   assert.equal((await call("POST", "/api/submit", body(play("random-3", false, 0.5), B, "Bo"))).json.reason, "banned");
 
   // Rate limit: the 31st submission from one address in an hour is refused.

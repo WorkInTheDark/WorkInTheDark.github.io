@@ -8,6 +8,7 @@ import { t, T_ } from "../engine/i18n.js";
 import { runRecord, resultOf } from "../engine/replay.js";
 import { playerId, loadNick, saveNick } from "../engine/save.js";
 import { dailyDay } from "../engine/util.js";
+import { chartHtml, endingsHtml } from "./chart.js";
 
 async function api(base, path, body) {
   const ctl = typeof AbortController === "function" ? new AbortController() : null;
@@ -85,18 +86,35 @@ export function boardSectionHtml(app) {
 
 // ---- The board screen --------------------------------------------------------------------------
 
+// The id other players see for you (the server's "pub"), so the chart can mark your runs.
+async function publicId(pid) {
+  try {
+    const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("pub:" + pid));
+    return Array.from(new Uint8Array(d), function (b) { return b.toString(16).padStart(2, "0"); }).join("").slice(0, 10);
+  } catch (e) { return null; }
+}
+
 export async function loadBoards(app) {
   const pid = playerId();
   const me = pid ? "&me=" + pid : "";
   const day = dailyDay();
   app.boardData = { loading: true, day: day };
+  app.chart = app.chart || { hidden: {}, ending: null, sel: null };
   app.render();
-  const [daily, all] = await Promise.all([
+  const [daily, all, runs, myPub] = await Promise.all([
     api(app.board, "/api/board?kind=daily&day=" + day + "&limit=50" + me),
-    api(app.board, "/api/board?kind=all&limit=50" + me)
+    api(app.board, "/api/board?kind=all&limit=10" + me),
+    api(app.board, "/api/runs?limit=2000"),
+    pid ? publicId(pid) : null
   ]);
-  app.boardData = { day: day, daily: daily, all: all, error: !daily.ok && !all.ok ? (daily.reason || "network") : null };
+  app.boardData = { day: day, daily: daily, all: all, runs: runs, myPub: myPub, error: !daily.ok && !all.ok ? (daily.reason || "network") : null };
   if (app.screen === "board") app.render();
+}
+
+// Opens a run from the chart: its share code comes from the server, then the result card shows it.
+export async function openRun(app, id) {
+  const out = await api(app.board, "/api/run?id=" + encodeURIComponent(id));
+  if (out.ok && out.run && out.run.code) { app.fromBoard = { nick: out.run.nick || "" }; location.hash = "r=" + out.run.code; }
 }
 
 function rowHtml(app, e, mine) {
@@ -123,12 +141,17 @@ export function boardScreenHtml(app) {
   if (d.loading) return head + '<p class="ps-muted">' + esc(t("Loading the leaderboard…")) + "</p>";
   if (d.error) return head + '<p class="ps-note">' + esc(t(REASONS[d.error] || REASONS.network)) + "</p>";
   const count = function (b) { return b && b.ok ? " · " + (b.total === 1 ? t("1 player") : t("{n} players", { n: b.total })) : ""; };
+  const runCount = d.runs && d.runs.ok ? " · " + (d.runs.total === 1 ? t("1 run") : t("{n} runs", { n: d.runs.total })) : "";
   return head + '<div class="ps-board">' +
     '<section class="ps-section"><h3 class="ps-section-title">' + esc(t("Today’s daily PhD")) + " · " + esc(d.day) + esc(count(d.daily)) + "</h3>" +
     '<p class="ps-muted ps-small">' + esc(t("Everyone gets the same game today; only the choices differ.")) + "</p>" +
     listHtml(app, d.daily, t("No one is on today’s board yet.")) +
     '<div class="ps-share-row"><button class="ps-btn ps-btn-sm" data-action="setup-daily">' + esc(t("Play today’s daily PhD")) + "</button></div></section>" +
-    '<section class="ps-section"><h3 class="ps-section-title">' + esc(t("All time")) + esc(count(d.all)) + "</h3>" +
+    // All time: every run in the chart, how they ended, then the top ten players by their best run.
+    '<section class="ps-section"><h3 class="ps-section-title">' + esc(t("All time")) + esc(count(d.all)) + esc(runCount) + "</h3>" +
+    chartHtml(app) +
+    (d.runs && d.runs.ok && d.runs.rows.length ? '<h4 class="ps-board-sub">' + esc(t("How PhDs ended")) + "</h4>" + endingsHtml(app) : "") +
+    '<h4 class="ps-board-sub">' + esc(t("Top 10 (each player’s best run)")) + "</h4>" +
     listHtml(app, d.all, t("No one is on the board yet.")) + "</section>" +
     '<p class="ps-muted ps-small">' + esc(t("Ranked by research record: papers, top venues, h-index, citations and letters. Each board shows a player’s best run. The daily PhD changes at midnight US Eastern Time (noon or 1 pm in Beijing, depending on daylight saving).")) + "</p></div>";
 }

@@ -1,5 +1,7 @@
 // PhD Simulator leaderboard: a Cloudflare Worker with a D1 database.
 //   GET  /api/board?kind=daily&day=YYYY-MM-DD   (or kind=all; add &me=<player id> for your own place)
+//   GET  /api/runs?limit=2000                    every submitted run, newest first, for the all-time chart
+//   GET  /api/run?id=<entry id>                  one run's share code, to open its result card
 //   POST /api/submit  { pid, nick, lang, result, code, record }
 //   POST /api/admin   { token, action: remove | ban | unban | rename, pub, nick }
 // Each board keeps one entry per player, their best. Results come from the player's game and aren't
@@ -11,6 +13,7 @@ const LIMITS = {
   perPlayerHour: 20,    // submissions per player per hour
   dailyLateDays: 7,     // a daily run can be submitted up to a week after its day
   boardSize: 100,       // the most entries one board request returns
+  runsSize: 5000,       // the most runs the chart gets
   recordBytes: 200000,  // larger run records aren't kept
   bodyBytes: 300000
 };
@@ -163,6 +166,28 @@ async function readBoard(env, kind, day, limit, pid) {
   return out;
 }
 
+// Every run (not just each player's best), compact, for the all-time chart: one row per run as
+// [id, years, score, ending, graduated, papers, citations, player, day], and the players' nicknames.
+async function readRuns(env, limit) {
+  const n = Math.max(1, Math.min(LIMITS.runsSize, limit || 2000));
+  const [rows, total] = await env.DB.batch([
+    env.DB.prepare("SELECT e.id, e.years, e.score, e.ending, e.grad, e.pubs, e.cites, e.day, p.pub, p.nick FROM entries e JOIN players p ON p.pid = e.pid WHERE p.banned = 0 ORDER BY e.at DESC LIMIT ?").bind(n),
+    env.DB.prepare("SELECT COUNT(*) AS n FROM entries e JOIN players p ON p.pid = e.pid WHERE p.banned = 0")
+  ]);
+  const players = {};
+  const out = rows.results.map(function (r) {
+    players[r.pub] = r.nick || "";
+    return [r.id, r.years, r.score, r.ending, r.grad, r.pubs, r.cites, r.pub, r.day || ""];
+  });
+  return { ok: true, total: total.results[0].n, players: players, rows: out };
+}
+
+async function readRun(env, id) {
+  const r = await env.DB.prepare("SELECT e.id, e.score, e.ending, e.years, e.pubs, e.cites, e.day, e.code, e.at, p.pub, p.nick FROM entries e JOIN players p ON p.pid = e.pid WHERE e.id = ? AND p.banned = 0").bind(id).first();
+  return r ? { ok: true, run: { id: r.id, score: r.score, ending: r.ending, years: r.years, pubs: r.pubs, cites: r.cites, day: r.day || "", code: r.code, at: r.at, pub: r.pub, nick: r.nick || "" } }
+    : { ok: false, reason: "not_found" };
+}
+
 // Counts a submission against the hourly limits; returns the counts.
 async function hit(env, keys, now) {
   const until = Math.floor(now / 3600e3 + 1) * 3600e3;
@@ -246,9 +271,10 @@ async function admin(req, env) {
     }
     case "remove":
     case "ban": {
-      const r = await env.DB.batch([env.DB.prepare("DELETE FROM best WHERE pid = ?").bind(p.pid)]
+      // Off every board and out of the chart.
+      const r = await env.DB.batch([env.DB.prepare("DELETE FROM best WHERE pid = ?").bind(p.pid), env.DB.prepare("DELETE FROM entries WHERE pid = ?").bind(p.pid)]
         .concat(body.action === "ban" ? [env.DB.prepare("UPDATE players SET banned = 1 WHERE pid = ?").bind(p.pid)] : []));
-      return json(200, { ok: true, removedFrom: r[0].meta.changes });
+      return json(200, { ok: true, removedFrom: r[0].meta.changes, runsRemoved: r[1].meta.changes });
     }
     case "unban":
       await env.DB.prepare("UPDATE players SET banned = 0 WHERE pid = ?").bind(p.pid).run();
@@ -276,6 +302,23 @@ export default {
           if (cache) ctx.waitUntil(cache.put(key, res.clone()));
         }
         return withCors(req, env, res);
+      }
+      if (url.pathname === "/api/runs" && req.method === "GET") {
+        const limit = Math.max(1, Math.min(LIMITS.runsSize, Number(url.searchParams.get("limit")) || 2000));
+        const cache = typeof caches !== "undefined" ? caches.default : null;
+        const key = cache ? new Request(url.origin + "/api/runs?limit=" + limit) : null;
+        let res = cache ? await cache.match(key) : null;
+        if (!res) {
+          res = json(200, await readRuns(env, limit), 60);
+          if (cache) ctx.waitUntil(cache.put(key, res.clone()));
+        }
+        return withCors(req, env, res);
+      }
+      if (url.pathname === "/api/run" && req.method === "GET") {
+        const id = url.searchParams.get("id") || "";
+        if (!/^[a-f0-9]{16}$/.test(id)) return withCors(req, env, json(400, { ok: false, reason: "bad_id" }));
+        const out = await readRun(env, id);
+        return withCors(req, env, json(out.ok ? 200 : 404, out, out.ok ? 300 : 0));
       }
       if (url.pathname === "/api/submit" && req.method === "POST") return withCors(req, env, await submit(req, env));
       if (url.pathname === "/api/admin" && req.method === "POST") return await admin(req, env);

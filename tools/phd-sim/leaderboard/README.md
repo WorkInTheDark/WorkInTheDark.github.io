@@ -10,8 +10,9 @@ same run from going on twice, and limits submissions per hour. Results aren't re
 2026-10-23). The run's recorded choices are stored with each entry, so a replay check could be added later
 if fake entries become a problem.
 
-- `src/worker.js`: the whole Worker: `GET /api/board`, `POST /api/submit`, `POST /api/admin`, the checks,
-  nicknames and rate limits. It creates its tables on first use, so a new database needs no setup step.
+- `src/worker.js`: the whole Worker: `GET /api/board`, `GET /api/runs` (every run, compact, for the
+  all-time chart), `GET /api/run` (one run's share code), `POST /api/submit`, `POST /api/admin`, the
+  checks, nicknames and rate limits. It creates its tables on first use, so a new database needs no setup step.
 - `wrangler.toml`: the Worker's name, the D1 binding, the `api.bingshengyao.com` domain and the allowed
   pages.
 - `admin.mjs`: list the boards, and rename, remove or ban a player.
@@ -70,6 +71,7 @@ BOARD_URL=https://api.bingshengyao.com node tools/phd-sim/leaderboard/admin.mjs 
 BOARD_URL=... node tools/phd-sim/leaderboard/admin.mjs list daily 2026-10-23
 BOARD_URL=... ADMIN_TOKEN=... node tools/phd-sim/leaderboard/admin.mjs rename <id> "New name"
 BOARD_URL=... ADMIN_TOKEN=... node tools/phd-sim/leaderboard/admin.mjs remove <id>     # or ban / unban
+# remove and ban also delete the player's runs, so they leave the chart too
 ```
 
 `<id>` is the short player id that `list` prints. Nicknames are limited to 20 characters, and links,
