@@ -215,8 +215,10 @@ html[data-theme='dark'] .ps-app {
 .ps-tile-milestone .ps-tile-icon { background: color-mix(in srgb, var(--ps-rare) 15%, transparent); }
 
 /* an optional weekend pick under the choices */
-.ps-side { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: 0.65rem; padding-top: 0.55rem; border-top: 2px dashed var(--ps-line); }
-.ps-side-label { font-size: 0.78rem; color: var(--ps-muted); font-weight: 600; }
+.ps-side { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0 0 0.6rem; padding: 0.45rem 0.6rem;
+  border: 2px dashed var(--ps-line); border-radius: 12px; background: color-mix(in srgb, var(--ps-warn) 8%, var(--ps-card)); }
+.ps-side-label { font-size: 0.8rem; color: var(--ps-text); font-weight: 700; }
+.ps-side-note { font-weight: 500; color: var(--ps-muted); }
 .ps-side-pick { font: inherit; font-size: 0.8rem; font-weight: 600; color: var(--ps-text); cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.6rem; border-radius: 99px; border: 2px solid var(--ps-line); background: var(--ps-card); }
 .ps-side-pick:hover { border-color: var(--ps-accent); }
 .ps-side-pick.ps-side-on { border-color: var(--ps-good); background: color-mix(in srgb, var(--ps-good) 12%, var(--ps-card)); }

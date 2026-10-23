@@ -119,14 +119,16 @@ function planHtml(G, ui) {
   return '<div class="ps-plan ps-enter">' + recapHtml(G, ui.report) + idleHintHtml(G, ui) +
     '<div class="ps-scene-head"><h2 class="ps-scene-title">' + esc(ui.plan.internship ? t("Internship weeks") : ui.plan.onLeave ? t("On leave") : t("Your next two weeks")) + "</h2>" +
     (G.state.turn <= 1 ? '<span class="ps-scene-hint">' + esc(t("Pick one. Keep Energy up, Stress down, Health up.")) + "</span>" : "") + "</div>" +
-    '<div class="ps-tiles">' + opts.map(function (a, i) { return tileHtml(G, a, i + 1); }).join("") + "</div>" + sideHtml(ui) + "</div>";
+    sideHtml(ui) + '<div class="ps-tiles">' + opts.map(function (a, i) { return tileHtml(G, a, i + 1); }).join("") + "</div></div>";
 }
 
-// An optional evening or weekend pick that goes with whichever focus you choose.
+// An optional evening or weekend pick that goes with whichever focus you choose. It sits above the
+// choices so players notice it (playtest feedback, 2026-10-22), and says it doesn't replace them.
 function sideHtml(ui) {
   const side = (ui.plan && ui.plan.side) || [];
   if (!side.length) return "";
-  return '<div class="ps-side"><span class="ps-side-label">' + esc(t("This weekend, if you like:")) + "</span>" + side.map(function (o) {
+  return '<div class="ps-side"><span class="ps-side-label">' + esc(t("This weekend, if you like:")) +
+    ' <span class="ps-side-note">' + esc(t("(optional, on top of your pick below)")) + "</span></span>" + side.map(function (o) {
     const on = ui.sidePick === o.id;
     return '<button class="ps-side-pick' + (on ? " ps-side-on" : "") + '" data-action="side" data-id="' + esc(o.id) + '" aria-pressed="' + on + '" title="' + esc(o.desc || "") + '">' +
       (on ? "\u2713 " : "") + esc(o.label) + " " + arrowsHtml(o.arrows) + "</button>";
