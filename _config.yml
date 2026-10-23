@@ -177,7 +177,7 @@ collections:
 
 # PhD Simulator leaderboard (a Cloudflare Worker, tools/phd-sim/leaderboard), e.g. https://api.bingshengyao.com.
 # Empty: the game has no leaderboard.
-phd_sim_board: ""
+phd_sim_board: "https://api.bingshengyao.com"
 
 # News items now live in `_data/news.yml` — one entry per item, easy add/delete.
 announcements:
