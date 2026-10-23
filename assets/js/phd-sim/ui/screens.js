@@ -23,8 +23,8 @@ export function titleHtml(app) {
     '<button class="ps-btn ps-btn-two' + (app.savedRun ? "" : " ps-btn-primary") + '" data-action="setup"><span>' + esc(t("Start a new PhD")) + "</span><small>" +
       esc(t("A random start: every PhD is different.")) + "</small></button>" +
     '<button class="ps-btn ps-btn-two" data-action="setup-daily"><span>' + esc(t("Today’s daily PhD")) + "</span><small>" +
-      esc(app.board ? t("Everyone plays the same game today, with the same start and the same luck, ranked on today’s leaderboard.")
-        : t("Everyone plays the same game today: the same start and the same luck. Only your choices differ.")) + "</small></button>" +
+      esc(app.board ? t("Everyone plays the same game today, with the same start and the same luck, ranked on today’s leaderboard. A new one starts at midnight US Eastern Time.")
+        : t("Everyone plays the same game today: the same start and the same luck. Only your choices differ. A new one starts at midnight US Eastern Time.")) + "</small></button>" +
     (app.board ? '<button class="ps-btn" data-action="board">' + esc(t("Leaderboard")) + "</button>" : "") +
     '<button class="ps-btn" data-action="codex">' + esc(t("Codex")) + "</button>" +
     "</div>" +
@@ -43,7 +43,7 @@ export function setupHtml(app) {
   const st = app.setup;
   const D = app.D;
   return '<div class="ps-spread"><h2>' + esc(st.daily ? t("Today\u2019s daily PhD") : t("A new PhD")) + '</h2><button class="ps-btn ps-btn-sm ps-btn-ghost" data-action="title">' + esc(t("Back")) + "</button></div>" +
-    (st.daily ? '<p class="ps-note">' + esc(t("Everyone who plays today gets the same traits and the same world: topics, model releases and luck, until your choices diverge.")) + "</p>" : "") +
+    (st.daily ? '<p class="ps-note">' + esc(t("Everyone who plays today gets the same traits and the same world: topics, model releases and luck, until your choices diverge. A new daily PhD starts at midnight US Eastern Time (noon or 1 pm in Beijing).")) + "</p>" : "") +
     '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("Your name")) + '</h3><input class="ps-input" id="ps-name" maxlength="24" value="' + esc(st.name) + '" aria-label="' + esc(t("Your name")) + '"></div>' +
     '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("Your traits")) + '</h3><p class="ps-small ps-muted">' + esc(t("Rolled at random. Everyone arrives with something.")) + '</p><div class="ps-grid">' +
     st.traits.map(function (id) {

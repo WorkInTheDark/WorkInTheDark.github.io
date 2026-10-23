@@ -3,6 +3,7 @@
 // card comes from the game's own data, so a hand-made link can't put new words on the page.
 import { esc } from "./common.js";
 import { t, language } from "../engine/i18n.js";
+import { dailyDay } from "../engine/util.js";
 
 const NUMS = ["y", "p", "c", "h", "r", "b"];
 
@@ -116,7 +117,7 @@ export function shareRowHtml(e, D, canNativeShare) {
 export function sharedHtml(app) {
   const r = app.shared;
   const D = app.D;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = dailyDay();
   const blurb = r.ending.text && r.ending.text.indexOf("{") < 0 ? r.ending.text : r.ending.offer || "";
   const nums = [[t("Years"), r.y], [t("First-author papers"), r.p], [t("Citations"), r.c], [t("h-index"), r.h], [t("Rejections"), r.r], [t("Burnouts"), r.b]];
   const from = app.fromBoard;
