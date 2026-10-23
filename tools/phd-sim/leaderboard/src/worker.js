@@ -132,6 +132,23 @@ function json(status, body, cacheSeconds) {
 }
 
 const boardKey = function (kind, day) { return kind === "daily" ? "d:" + day : "all"; };
+
+// Board views and the chart's runs are cached for a few seconds in each Cloudflare data center. A new run
+// or an admin change clears the views the game asks for, so whoever just submitted sees their run in the
+// chart at once, not a list with it and a chart without it. Other data centers catch up when their copy
+// runs out.
+const boardSize = function (limit) { return Math.max(1, Math.min(LIMITS.boardSize, Number(limit) || 50)); };
+const runsSize = function (limit) { return Math.max(1, Math.min(LIMITS.runsSize, Number(limit) || 2000)); };
+function boardCacheKey(origin, kind, day, n) { return new Request(origin + "/api/board?kind=" + kind + (kind === "daily" ? "&day=" + day : "") + "&limit=" + n); }
+function runsCacheKey(origin, n) { return new Request(origin + "/api/runs?limit=" + n); }
+async function clearViews(origin, day) {
+  if (typeof caches === "undefined") return;
+  const keys = [runsCacheKey(origin, 2000), runsCacheKey(origin, LIMITS.runsSize)];
+  [10, 50, LIMITS.boardSize].forEach(function (n) {
+    keys.push(boardCacheKey(origin, "all", null, n), boardCacheKey(origin, "daily", day || easternDay(), n));
+  });
+  await Promise.all(keys.map(function (k) { return caches.default.delete(k); }));
+}
 const PLAYER = /^[a-z0-9]{16,40}$/;
 
 // ---- Boards -------------------------------------------------------------------------------------------
@@ -199,7 +216,7 @@ async function hit(env, keys, now) {
   return rows.map(function (r) { return r.results[0].n; });
 }
 
-async function submit(req, env) {
+async function submit(req, env, origin) {
   const text = await req.text();
   if (text.length > LIMITS.bodyBytes) return json(413, { ok: false, reason: "too_large" });
   let body;
@@ -239,6 +256,7 @@ async function submit(req, env) {
     return env.DB.prepare("INSERT INTO best (board, pid, entry_id, score, at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(board, pid) DO UPDATE SET entry_id = excluded.entry_id, score = excluded.score, at = excluded.at WHERE excluded.score > best.score")
       .bind(b[1], pid, id, v.score, at);
   })));
+  await clearViews(origin, v.day);
   const out = { ok: true, entry: { id: id, pub: pub, nick: nick, score: v.score, ending: v.ending, day: v.day || "" }, best: {}, ranks: {} };
   for (const b of boards) {
     const place = await placeOf(env, b[1], pid);
@@ -295,18 +313,19 @@ export default {
         const me = PLAYER.test(url.searchParams.get("me") || "") ? url.searchParams.get("me") : null;
         // The shared view of a board is cached for 20 seconds; a player's own place isn't.
         const cache = !me && typeof caches !== "undefined" ? caches.default : null;
-        const key = cache ? new Request(url.origin + url.pathname + "?kind=" + kind + "&day=" + day + "&limit=" + (url.searchParams.get("limit") || "")) : null;
+        const n = boardSize(url.searchParams.get("limit"));
+        const key = cache ? boardCacheKey(url.origin, kind, day, n) : null;
         let res = cache ? await cache.match(key) : null;
         if (!res) {
-          res = json(200, await readBoard(env, kind, day, Number(url.searchParams.get("limit")) || 50, me), me ? 0 : 20);
+          res = json(200, await readBoard(env, kind, day, n, me), me ? 0 : 20);
           if (cache) ctx.waitUntil(cache.put(key, res.clone()));
         }
         return withCors(req, env, res);
       }
       if (url.pathname === "/api/runs" && req.method === "GET") {
-        const limit = Math.max(1, Math.min(LIMITS.runsSize, Number(url.searchParams.get("limit")) || 2000));
+        const limit = runsSize(url.searchParams.get("limit"));
         const cache = typeof caches !== "undefined" ? caches.default : null;
-        const key = cache ? new Request(url.origin + "/api/runs?limit=" + limit) : null;
+        const key = cache ? runsCacheKey(url.origin, limit) : null;
         let res = cache ? await cache.match(key) : null;
         if (!res) {
           res = json(200, await readRuns(env, limit), 60);
@@ -320,8 +339,12 @@ export default {
         const out = await readRun(env, id);
         return withCors(req, env, json(out.ok ? 200 : 404, out, out.ok ? 300 : 0));
       }
-      if (url.pathname === "/api/submit" && req.method === "POST") return withCors(req, env, await submit(req, env));
-      if (url.pathname === "/api/admin" && req.method === "POST") return await admin(req, env);
+      if (url.pathname === "/api/submit" && req.method === "POST") return withCors(req, env, await submit(req, env, url.origin));
+      if (url.pathname === "/api/admin" && req.method === "POST") {
+        const res = await admin(req, env);
+        if (res.status === 200) await clearViews(url.origin);
+        return res;
+      }
       if (url.pathname === "/" || url.pathname === "/api") return json(200, { ok: true, name: "PhD Simulator leaderboard" });
       return json(404, { ok: false, reason: "not_found" });
     } catch (e) {

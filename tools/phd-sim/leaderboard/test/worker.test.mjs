@@ -102,6 +102,18 @@ test("the Worker takes runs, keeps each player's best, and ranks the boards", as
   assert.equal((await call("GET", "/api/runs")).json.total, 2, "a removed player's runs leave the chart");
   assert.equal((await call("POST", "/api/submit", body(play("random-3", false, 0.5), B, "Bo"))).json.reason, "banned");
 
+  // The chart and the shared board views are cached, but a new run or an admin change clears them, so
+  // the list and the chart never disagree for the player who just submitted.
+  const before = (await call("GET", "/api/runs?limit=2000")).json.total;
+  const boardBefore = (await call("GET", "/api/board?kind=all&limit=10")).json.total;
+  const fresh = await call("POST", "/api/submit", body(play("random-4", false, 0.6), "testplayer0000000003", "Cy"));
+  assert.equal(fresh.status, 200, JSON.stringify(fresh.json));
+  assert.equal((await call("GET", "/api/runs?limit=2000")).json.total, before + 1, "the new run is in the chart right away");
+  assert.equal((await call("GET", "/api/board?kind=all&limit=10")).json.total, boardBefore + 1);
+  const cyPub = fresh.json.entry.pub;
+  assert.equal((await call("POST", "/api/admin", { token: "test-admin-token-123456", action: "rename", pub: cyPub, nick: "Cyrus" })).json.ok, true);
+  assert.equal((await call("GET", "/api/runs?limit=2000")).json.players[cyPub], "Cyrus", "a rename shows right away");
+
   // Rate limit: the 31st submission from one address in an hour is refused.
   let last = null;
   for (let i = 0; i < 31; i++) last = await call("POST", "/api/submit", { pid: "ratelimit000000000001", nick: "", result: {}, code: "x" }, "10.9.9.9");

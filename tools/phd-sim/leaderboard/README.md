@@ -89,6 +89,8 @@ markup and a short list of slurs are refused.
 
 - 30 submissions per IP address and 20 per player per hour.
 - A daily run can be submitted up to a week after its day.
-- Board views are cached for 20 seconds, except a player's own place.
+- Board views are cached for 20 seconds and the chart's runs for 60, except a player's own place. A new
+  run or an admin change clears them in that Cloudflare data center, so whoever submitted sees their run
+  at once; elsewhere it shows when the cached copy runs out.
 - Cloudflare's free plan allows 100,000 requests a day; D1's allows 5 million rows read and 100,000
   written a day, and 5 GB. That's far more than the game needs.
