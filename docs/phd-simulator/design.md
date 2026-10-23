@@ -829,6 +829,7 @@ An end card has three parts: **career outcome + life epilogue + title**.
 - Slow Is Smooth
 
 ### 12.2 End card
+- **Order, top to bottom** (Arthur, 2026-10-23): the ending name and title, Better than N%, then one box with **Share your PhD** and the **leaderboard** submit, so no one scrolls past the details to find them. After that come the epilogue, the numbers, the hidden stats, papers, achievements, PhD 101 picks, and Codex / Play again.
 - Ending name, title and epilogue.
 - **Your PhD in numbers:** every hidden stat revealed, the paper list, a citation sparkline, events discovered this run, and the rarest event you saw.
 - Recommended PhD 101 episodes (section 13.2).
