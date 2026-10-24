@@ -1002,6 +1002,7 @@ export class Game {
     const senior = s.labmates.filter(function (l) { return l.present !== false; }).sort(function (a, b) { return b.year - a.year; })[0];
     const said = t("{name}: “{tip}”", { name: senior ? senior.name : t("A senior student"), tip: tip.text });
     this.log(said, "tip", { title: ep.title, url: ep.url, topic: tip.topic });
+    s.quotes = (s.quotes || []).concat([{ tip: tip.id, by: senior ? senior.name : "", t: s.turn }]);
     this.shelveTip(ep, said);
   }
 

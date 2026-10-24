@@ -397,6 +397,37 @@ test("a shared link carries a played run's details, and forged details show noth
   assert.deepEqual([t2.papers[0].title, t2.papers[0].venue], ["", D.venues[0].cycles[0].name + " Findings"], "an unknown title is left out");
 });
 
+test("a shared link carries the run's moments and quotes, with labmates as plain words", () => {
+  const g = new Game(D, { runs: 0, achievements: {}, seenRuns: {}, codex: {} }, start("share-moments-1"));
+  const s = bot(g, "share-moments-1");
+  const e = s.ending;
+  assert.ok(e.moments.length >= 3 && e.moments.length <= 4, "three or four moments");
+  assert.ok(e.moments.every((m, i) => !i || e.moments[i - 1].t <= m.t), "in the order they happened");
+  assert.ok(e.quotes.length >= 1, "at least one thing someone said");
+  const r = decodeResult(encodeResult(e, D), D);
+  assert.ok(r.moments.length >= 1);
+  for (const m of r.moments) {
+    assert.ok(!/[{}]/.test(m.title + m.label + m.text), "no tokens left on the shared card");
+    const mine = e.moments.find((x) => x.id === m.id && x.t === m.t);
+    const ch = D.eventById[m.id].choices[mine.c];
+    const src = (ch.check ? (mine.f ? ch.failure : ch.success) : ch).text;
+    if (src.indexOf("{") < 0) assert.equal(m.text, mine.text, "a line without names comes back as it was");
+  }
+  // A line with a labmate in it reads with "a labmate" instead.
+  const ev = D.events.find((x) => (x.choices || []).some((c) => !c.check && /^\{labmate\} /.test(c.text || "")) && !/[{]/.test(x.title));
+  const ci = ev.choices.findIndex((c) => !c.check && /^\{labmate\} /.test(c.text || ""));
+  const forge = (obj) => Buffer.from(JSON.stringify(obj)).toString("base64url");
+  const one = decodeResult(forge({ v: 1, e: D.endings[0].id, mo: [[ev.id, ci, 0, 30]] }), D);
+  if (!/[{]/.test(ev.choices[ci].label) && !/\{(?!labmate\})/.test(ev.choices[ci].text)) assert.ok(one.moments[0].text.indexOf("A labmate ") === 0, one.moments[0] && one.moments[0].text);
+  // Forged moments and quotes show nothing.
+  const f = decodeResult(forge({ v: 1, e: D.endings[0].id, mo: [["__proto__", 0, 0, 1], [ev.id, 99, 0, 1], [ev.id, 0, 0, -5], "<b>"],
+    qu: [["t", "nope", 0, 1], ["r", "constructor", 2, 0, 1], ["r", "reviewer_2", 9, 0, 1], ["r", "reviewer_2", 2, 99, 1]] }), D);
+  assert.deepEqual([f.moments, f.quotes], [[], []]);
+  const q = decodeResult(forge({ v: 1, e: D.endings[0].id, qu: [["r", "reviewer_2", 2, 3, 40], ["t", D.tips[0].id, 0, 5]] }), D);
+  assert.equal(q.quotes[0].text, D.personaById.reviewer_2.openers[3]);
+  assert.deepEqual([q.quotes[1].text, q.quotes[1].by], [D.tips[0].text, D.names.first[0]]);
+});
+
 test("the same seed and the same answers give the same PhD", () => {
   const a = bot(new Game(D, {}, start("det-1")), "det-1");
   const b = bot(new Game(D, {}, start("det-1")), "det-1");

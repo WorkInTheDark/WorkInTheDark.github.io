@@ -1,5 +1,6 @@
 // Offers, endings, titles, epilogues, PhD 101 recommendations, and run finalization.
 import { check } from "./conditions.js";
+import { asList } from "./util.js";
 import { fill } from "./templating.js";
 import { totalCitations, hIndex, acceptedPapers, firstAuthorPubs, hasTrait, paperCitations } from "./derived.js";
 import { yearOf, tOf, STAT_LABELS, HIDDEN, TURNS } from "./state.js";
@@ -133,6 +134,64 @@ function paperRef(G, p) {
   return [p.venueId || "", p.cycle || 0, p.tier === "findings" ? 1 : 0, p.topic || "", field, idx];
 }
 
+// The end card's moments (playtest feedback, 2026-10-24: share what you lived through, not bars):
+// up to four answered events, the rarer and more personal the better (advisor signatures, the lab,
+// life outside it), one per kind of event and spread over the years, in the order they happened.
+// No dice, so the pick never changes a replay.
+const RARITY_SCORE = { legendary: 10, rare: 6, uncommon: 3, common: 1 };
+const CATEGORY_SCORE = { legion: 3, exit: 2, advisor: 1.5, lab: 1.5, life: 1.5, travel: 1.5, career: 1, milestone: 1, teaching: 0.5,
+  research: 0.5, writing: 0.5, reviews: 0.5, wellbeing: 0, world: 0, data: 0 };
+function pickMoments(G) {
+  const cands = (G.state.moments || []).map(function (m) {
+    const ev = G.D.eventById[m.id] || {};
+    let score = (RARITY_SCORE[ev.rarity] || 1) + (CATEGORY_SCORE[ev.category] || 0) + (ev.arc ? 1 : 0);
+    if (ev.hook === "sick" || ev.hook === "exhausted") score -= 1;
+    return { m: m, ev: ev, score: score };
+  }).filter(function (c) { return c.m.text; })
+    .sort(function (a, b) { return b.score - a.score || a.m.t - b.m.t; });
+  const picks = [];
+  const take = function (ok) {
+    cands.forEach(function (c) {
+      if (picks.length >= 4 || picks.indexOf(c) >= 0 || !ok(c)) return;
+      if (picks.some(function (p) { return p.m.id === c.m.id; })) return;
+      picks.push(c);
+    });
+  };
+  const year = function (c) { return yearOf(c.m.t); };
+  take(function (c) { return !picks.some(function (p) { return p.ev.category === c.ev.category || year(p) === year(c); }); });
+  take(function (c) { return !picks.some(function (p) { return p.ev.category === c.ev.category; }); });
+  take(function () { return true; });
+  return picks.sort(function (a, b) { return a.m.t - b.m.t; }).map(function (c) {
+    return { id: c.m.id, c: c.m.c, f: c.m.f, t: c.m.t, title: c.m.title, label: c.m.label, text: c.m.text };
+  });
+}
+
+// What people said to you: the last piece of advice from a senior labmate (tips.yml, which come when
+// they fit what you're going through), and the opening line of the harshest review you got.
+function pickQuotes(G) {
+  const s = G.state;
+  const out = [];
+  const tips = (s.quotes || []).filter(function (q) { return G.D.tips.some(function (tp) { return tp.id === q.tip; }); });
+  const tipQuote = function (q) {
+    const tp = G.D.tips.find(function (x) { return x.id === q.tip; });
+    return { kind: "tip", id: q.tip, by: q.by || "", text: tp.text, t: q.t };
+  };
+  if (tips.length) out.push(tipQuote(tips[tips.length - 1]));
+  let worst = null;
+  s.papers.forEach(function (p) {
+    (p.reviews || []).forEach(function (r, i) {
+      if (r.opener && !r.silent && (!worst || r.raw < worst.r.raw)) worst = { r: r, n: i + 1, t: p.decisionTurn || p.submittedTurn || s.turn };
+    });
+  });
+  if (worst) {
+    const persona = (G.D.reviews.personas || []).find(function (pp) { return pp.id === worst.r.persona; });
+    const oi = persona ? asList(persona.openers).indexOf(worst.r.opener) : -1;
+    out.push({ kind: "review", persona: worst.r.persona, n: worst.n, oi: oi, text: worst.r.opener, t: worst.t });
+  }
+  if (out.length < 2 && tips.length > 1) out.unshift(tipQuote(tips[0]));
+  return out;
+}
+
 function pickRecommendations(G) {
   const recs = G.D.recommendations.filter(function (r) { return !r.when || check(r.when, G, {}); })
     .sort(function (a, b) { return (b.priority || 0) - (a.priority || 0); });
@@ -216,6 +275,8 @@ export function finalize(G, endingId) {
     achievements: Object.keys(s.runAchievements || {}),
     advisor: s.advisor ? { label: s.advisor.label, name: t("Prof. {name}", { name: s.advisor.surname }),
       ref: [s.advisor.archetype, ((G.D.names || {}).last || []).indexOf(s.advisor.surname)] } : null,
+    moments: pickMoments(G),
+    quotes: pickQuotes(G),
     // Ids for the share link (ui/share.js): which epilogue lines this run got.
     ref: { epilogue: epilogue.ids }
   };

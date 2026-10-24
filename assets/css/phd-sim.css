@@ -492,6 +492,17 @@ html[data-theme='dark'] .ps-art img { filter: brightness(0.88); }
 .ps-end { max-width: 680px; margin: 0 auto; }
 .ps-end-lang { display: flex; justify-content: flex-end; }
 .ps-further { margin-top: 1.6rem; padding-top: 1rem; border-top: 2px dashed var(--ps-line); }
+/* moments and quotes on the end screen and shared results */
+.ps-moments { display: flex; flex-direction: column; gap: 0.75rem; }
+.ps-moment + .ps-moment { border-top: 1px dashed var(--ps-line); padding-top: 0.7rem; }
+.ps-moment-head { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.ps-moment-pick { font-size: 0.82rem; color: var(--ps-accent); margin: 0.15rem 0 0.1rem; }
+.ps-moment p { margin: 0.15rem 0 0; font-size: 0.92rem; }
+.ps-quotes { display: flex; flex-direction: column; gap: 0.6rem; }
+.ps-quote { margin: 0; padding: 0.6rem 0.9rem; border-left: 4px solid var(--ps-accent); background: var(--ps-card); border-radius: 0 10px 10px 0; }
+.ps-quote p { margin: 0; font-style: italic; }
+[lang^="zh"] .ps-quote p { font-style: normal; } /* Chinese has no real italics */
+.ps-quote cite { display: block; margin-top: 0.25rem; font-size: 0.8rem; font-style: normal; color: var(--ps-muted); }
 .ps-end-lang .ps-langs { margin-top: 0; }
 .ps-end-head { text-align: center; padding: 0.5rem 0 0.5rem; }
 .ps-end-head .ps-kicker { justify-content: center; }

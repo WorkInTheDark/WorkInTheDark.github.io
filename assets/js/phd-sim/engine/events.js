@@ -167,6 +167,12 @@ export function resolveEvent(G, choiceIndex) {
   res.choiceLabel = fill(c.label, G, cur.ctx);
   const cx = G.meta.codex.events[ev.id];
   if (cx) cx.o[String(choiceIndex) + (success === false ? "f" : "")] = res.text || true;
+  // Kept for the end card's moments (endings.js pickMoments), as shown, with ids for the share link.
+  if (res.text) {
+    s.moments = s.moments || [];
+    s.moments.push({ id: ev.id, c: choiceIndex, f: success === false ? 1 : 0, t: s.turn, title: fill(ev.title || "", G, cur.ctx), label: res.choiceLabel, text: res.text });
+    if (s.moments.length > 200) s.moments.shift();
+  }
   s.current = null;
   return res;
 }

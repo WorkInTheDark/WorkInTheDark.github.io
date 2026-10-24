@@ -16,6 +16,24 @@ const NUMBERS = [["years", T_("Years")], ["pubs", T_("First-author papers")], ["
 
 const has = function (v) { return v !== null && v !== undefined; };
 
+// Who said it: a senior labmate's advice (tips.yml) or the opening line of a review.
+export function quoteBy(q) {
+  if (q.kind === "review") return t("Reviewer {n}", { n: q.n });
+  return q.by ? t("{name}, a senior labmate", { name: q.by }) : t("A senior student");
+}
+
+// Moments you lived through and what people said to you (endings.js pickMoments, pickQuotes).
+function storyBitsHtml(e, own) {
+  const moments = e.moments || [], quotes = e.quotes || [];
+  return (moments.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("Moments from this PhD")) + '</h3><div class="ps-card ps-moments">' +
+      moments.map(function (m) {
+        return '<div class="ps-moment"><div class="ps-moment-head"><span class="ps-tag">' + esc(t("Year {n}", { n: Math.floor(m.t / 26) + 1 })) + "</span><b>" + esc(m.title) + "</b></div>" +
+          (m.label ? '<div class="ps-moment-pick">→ ' + esc(m.label) + "</div>" : "") + "<p>" + esc(m.text) + "</p></div>";
+      }).join("") + "</div></div>" : "") +
+    (quotes.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(own ? t("Things people told you") : t("Things people said")) + '</h3><div class="ps-quotes">' +
+      quotes.map(function (q) { return '<blockquote class="ps-quote"><p>“' + esc(q.text) + '”</p><cite>— ' + esc(quoteBy(q)) + "</cite></blockquote>"; }).join("") + "</div></div>" : "");
+}
+
 // own: the player's own end screen ("Your PhD in numbers") rather than someone else's result.
 export function detailsHtml(e, D, own) {
   const n = e.numbers || {};
@@ -27,6 +45,7 @@ export function detailsHtml(e, D, own) {
   const achievements = e.achievements || [];
   return (e.text || (e.epilogue && e.epilogue.length) ? '<div class="ps-card ps-section">' + (e.text ? '<p class="ps-text">' + esc(e.text) + "</p>" : "") +
       (e.epilogue || []).map(function (l) { return '<p class="ps-small">' + esc(l) + "</p>"; }).join("") + "</div>" : "") +
+    storyBitsHtml(e, own) +
     (nums.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(own ? t("Your PhD in numbers") : t("This PhD in numbers")) + '</h3><div class="ps-numbers">' +
       nums.map(function (x) { return "<div><b>" + esc(n[x[0]]) + "</b>" + esc(t(x[1])) + "</div>"; }).join("") + "</div></div>" : "") +
     (shownStats.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("The hidden numbers, revealed")) + '</h3><div class="ps-card ps-reveal">' +
