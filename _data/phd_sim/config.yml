@@ -84,6 +84,7 @@ progress:
   step_down_after: 2     # after this many rejections, a paper re-aims at the next mid-tier deadline (within half a year)
   resubmit_min_turns: 4  # a rejected paper's next deadline is at least 8 weeks out (time to revise)
   refine_pass: 1.5        # quality one turn of refining a ready paper adds, every time; most of it goes to the weakest part (Arthur 2026-10-18)
+  refine_weekend_share: 0.5 # an internship's four weekend days refine a ready paper this much of a turn (playtest, 2026-10-24)
 
 quality:
   base: 22               # day quality = base + per_skill * skill

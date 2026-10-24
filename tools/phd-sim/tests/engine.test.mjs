@@ -9,6 +9,7 @@ import { Rng } from "../../../assets/js/phd-sim/engine/rng.js";
 import { prepareData, newRun, rollTraits, Game } from "../../../assets/js/phd-sim/engine/index.js";
 import { activeProjects, rollStages, currentStage, stageChance, fieldOf, autoTarget, venuesFor, PROJECT_TYPES, workDay, components, qualityFor } from "../../../assets/js/phd-sim/engine/projects.js";
 import { resolveRebuttal, replyOutlook } from "../../../assets/js/phd-sim/engine/reviews.js";
+import { addStatus } from "../../../assets/js/phd-sim/engine/effects.js";
 import { encodeResult, decodeResult } from "../../../assets/js/phd-sim/ui/share.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -261,6 +262,30 @@ test("a ready paper can be refined, every pass adds about the same, and the work
   p.ready = false; p.revise = true;
   assert.equal(p.refineTurns, 3);
   assert.ok(Q() >= q[3] - 0.01, "the refined quality is kept");
+});
+
+test("during an internship a ready paper can be refined on weekends, for half a turn of refining", () => {
+  const g = gameWithProject("intern-refine-1");
+  const p = activeProjects(g)[0];
+  p.type = "empirical"; p.field = "nlp"; p.stageIdx = PROJECT_TYPES.empirical.stages.length - 1;
+  p.ready = true; p.revise = false; p.pause = 0; p.target = null;
+  addStatus(g, "on_internship", 3);
+  g.state.internship = { accepted: { company: "Acme" } };
+  const tile = g.actionList().find((a) => a.id === "intern_weekend:" + p.id);
+  assert.ok(tile, "a ready paper gets a weekend tile during the internship");
+  assert.ok(tile.arrows.some((a) => a.stat === "quality" && a.dir === "up"), "and it refines the paper");
+  const Q = () => qualityFor(g, components(g, p), "arr");
+  const before = Q();
+  const turn = g.state.turn;
+  assert.ok(g.submitPlan({ action: tile.id }));
+  const rng = new Rng("intern-refine-1:answers");
+  for (let i = 0; i < 200 && g.state.turn === turn; i++) {
+    const s = g.step();
+    if (s.type !== "turn_end" && s.type !== "plan") g.answer(answerFor(s, rng));
+  }
+  assert.equal(p.refineTurns, 1);
+  assert.ok(Math.abs(Q() - before - 0.75) < 0.2, "about half of a 1.5 refining pass");
+  assert.ok(!p.refineShare, "the weekend share is used up");
 });
 
 test("the rebuttal preview shows where each reply could take a score, without touching the game's dice", () => {

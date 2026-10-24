@@ -271,7 +271,13 @@ export class Game {
       out.push({ id: "intern_pace", kind: "core", label: t("Keep a healthy pace"), desc: "",
         arrows: [{ stat: "sanity", dir: "up", strength: 1 }] });
       activeProjects(this).slice(0, 2).forEach(function (p) {
-        if (currentStage(self, p).kind === "wait" || p.ready) return;
+        if (currentStage(self, p).kind === "wait") return;
+        // A paper that's ready can be refined on weekends too (playtest feedback, 2026-10-24).
+        if (p.ready) {
+          out.push({ id: "intern_weekend:" + p.id, kind: "core", label: t("Weekends refining “{title}”", { title: p.short }), desc: t("Ready"),
+            arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "quality", dir: "up", strength: 1 }] });
+          return;
+        }
         out.push({ id: "intern_weekend:" + p.id, kind: "core", label: t("Weekends on “{title}”", { title: p.short }), desc: "",
           arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "progress", dir: "up", strength: 1 }] });
       });
@@ -528,7 +534,12 @@ export class Game {
       addStat(this, "network", allIn ? 2.4 : 1.2);
       addStat(this, "presenting", 0.4);
       if (allIn) s.internshipEffort = (s.internshipEffort || 0) + 1;
-      if (action.indexOf("intern_weekend:") === 0) weekendWork = "p:" + action.slice(15);
+      if (action.indexOf("intern_weekend:") === 0) {
+        weekendWork = "p:" + action.slice(15);
+        // Four weekend days refine a ready paper part of what a turn of refining does.
+        const wp = s.projects.find(function (x) { return x.id === action.slice(15); });
+        if (wp && wp.ready) wp.refineShare = cfg.progress.refine_weekend_share || 0.5;
+      }
       tally.work += 10;
     } else if (interning) {
       // A few vacation days, and easy evenings.
