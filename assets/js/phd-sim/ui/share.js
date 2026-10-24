@@ -1,7 +1,7 @@
 // Sharing a finished PhD without a server: the result travels in the link itself (#r=…), and whoever
 // opens it sees a read-only card. Only ids and numbers go in the link; every name and sentence on the
 // card comes from the game's own data, so a hand-made link can't put new words on the page.
-import { esc } from "./common.js";
+import { esc, langSwitchHtml } from "./common.js";
 import { t, language } from "../engine/i18n.js";
 import { dailyDay } from "../engine/util.js";
 
@@ -122,7 +122,8 @@ export function sharedHtml(app) {
   const nums = [[t("Years"), r.y], [t("First-author papers"), r.p], [t("Citations"), r.c], [t("h-index"), r.h], [t("Rejections"), r.r], [t("Burnouts"), r.b]];
   const from = app.fromBoard;
   const kicker = from ? (from.nick ? t("{name}’s PhD, from the leaderboard", { name: from.nick }) : t("A PhD from the leaderboard")) : t("Someone shared their PhD");
-  return '<div class="ps-end ps-shared"><div class="ps-end-head"><div class="ps-kicker">' + esc(kicker) +
+  return '<div class="ps-end ps-shared">' + (app.storageOk ? '<div class="ps-end-lang">' + langSwitchHtml() + "</div>" : "") +
+    '<div class="ps-end-head"><div class="ps-kicker">' + esc(kicker) +
     (r.daily ? " · " + esc(t("daily PhD {date}", { date: r.daily })) : "") + "</div>" +
     "<h2>" + esc(r.ending.name) + "</h2>" +
     (r.title ? '<div class="ps-end-title">' + esc(r.title.name) + "</div>" + (r.title.desc ? '<div class="ps-muted ps-small">' + esc(r.title.desc) + "</div>" : "") : "") + "</div>" +

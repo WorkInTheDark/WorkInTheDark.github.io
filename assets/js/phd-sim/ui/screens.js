@@ -1,8 +1,8 @@
 // Title, setup, codex, achievements and the end card.
-import { esc, bar, citationsText } from "./common.js";
+import { esc, bar, citationsText, langSwitchHtml } from "./common.js";
 import { shareRowHtml, beatsLine } from "./share.js";
 import { boardSectionHtml } from "./board.js";
-import { t, T_, LANGUAGES, language } from "../engine/i18n.js";
+import { t, T_ } from "../engine/i18n.js";
 
 function stripTokens(s) {
   return String(s || "").replace(/\{[^}]+\}/g, "…");
@@ -28,11 +28,7 @@ export function titleHtml(app) {
     (app.board ? '<button class="ps-btn" data-action="board">' + esc(t("Leaderboard")) + "</button>" : "") +
     '<button class="ps-btn" data-action="codex">' + esc(t("Codex")) + "</button>" +
     "</div>" +
-    // Each language is named in itself, so the switch reads the same in every language.
-    '<div class="ps-langs" role="group" aria-label="Language / 语言">' + LANGUAGES.map(function (l) {
-      const on = l.id === language();
-      return '<button class="ps-lang' + (on ? " ps-lang-on" : "") + '" data-action="lang" data-id="' + l.id + '" aria-pressed="' + on + '" lang="' + (l.id === "zh" ? "zh-Hans" : "en") + '">' + esc(l.label) + "</button>";
-    }).join("") + "</div>" +
+    langSwitchHtml() +
     (meta.runsCompleted ? '<p class="ps-muted ps-small" style="margin-top:1rem">' + esc(runs) + " · " +
       esc(t("{n} of {total} endings found", { n: endings, total: careerEndings })) + " · " + esc(t("{n} of {total} achievements", { n: ach, total: total })) + "</p>" : "") +
     (app.storageOk ? "" : '<p class="ps-note" style="max-width:30rem;margin:1rem auto 0">' + esc(t("Your browser is blocking storage, so progress won’t be saved if you leave this page.")) + "</p>") +
@@ -133,7 +129,10 @@ export function endHtml(app) {
   const n = e.numbers;
   const L = e.statLabels;
   const hidden = ["taste", "coding", "writing", "presenting", "knowledge", "advisor_rel", "labmates_rel", "family_rel", "friends_rel", "network"];
-  return '<div class="ps-end"><div class="ps-end-head"><div class="ps-kicker">' + esc(e.graduated ? t("Graduated") : t("Left the PhD")) + " · " + esc(e.group) + "</div>" +
+  // The language can be switched here too, so a result can be shared in English and in Chinese
+  // (playtest feedback, 2026-10-23). The switch needs storage to carry the run across the reload.
+  return '<div class="ps-end">' + (app.storageOk ? '<div class="ps-end-lang">' + langSwitchHtml() + "</div>" : "") +
+    '<div class="ps-end-head"><div class="ps-kicker">' + esc(e.graduated ? t("Graduated") : t("Left the PhD")) + " · " + esc(e.group) + "</div>" +
     "<h2>" + esc(e.name) + '</h2><div class="ps-end-title">' + esc(e.title.name) + "</div>" +
     (e.title.desc ? '<div class="ps-muted ps-small">' + esc(e.title.desc) + "</div>" : "") + "</div>" +
     (beatsLine(n.beats) ? '<p class="ps-share-beats" title="' + esc(t("Your research record (papers, top venues, h-index, citations, letters) against thousands of simulated runs of the game.")) + '">' + esc(beatsLine(n.beats, true)) + "</p>" : "") +
