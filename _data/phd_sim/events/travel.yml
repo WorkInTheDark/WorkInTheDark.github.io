@@ -531,3 +531,25 @@
     - label: "Watch it yourself, once"
       text: "You count 47 \"um\"s. It's painful, but your next talk will have fewer."
       effects: { presenting: "+3±1", sanity: "-3±1" }
+
+# Arc "rival_lab" (2026-10-24), the middle: you meet the rival lab's student at a small workshop.
+- id: tra_rival_student
+  title: "Their Student"
+  category: travel
+  rarity: common
+  trigger: scheduled
+  arc: rival_lab
+  when: { flags_all: [rival_lab], flags_none: [rival_met] }
+  text:
+    - "At a small workshop in {city}, you find the rival lab's poster. Their student is standing next to it, reading your name tag."
+  choices:
+    - label: "Compare notes over coffee"
+      text: "Two hours later you've traded failed experiments, a dataset trick and phone numbers. You're not rivals, you're the only two people who care this much."
+      effects: { network: "+3±1", taste: "+1", sanity: "+2±1" }
+      flag_set: [rival_met, rival_friend]
+      schedule: { event: res_rival_joint, in: [6, 12], chance: 1.0 }
+    - label: "Be polite, give nothing away"
+      text: "You talk about the weather in {city} for six minutes. You both walk away pretending it went well."
+      effects: { sanity: "-1" }
+      flag_set: [rival_met, rival_cold]
+      schedule: { event: res_rival_spat, in: [6, 12], chance: 0.7 }

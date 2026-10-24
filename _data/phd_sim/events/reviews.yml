@@ -1211,3 +1211,92 @@
       failure:
         text: "The thread gets four likes. One is from them, which is somehow worse."
         effects: { sanity: "-3±1" }
+
+# Arc "rival_lab" (2026-10-24), the end: years later, their paper lands on your desk.
+- id: rev_rival_review
+  title: "Guess Whose Paper"
+  category: reviews
+  rarity: common
+  trigger: scheduled
+  arc: rival_lab
+  when: { flags_all: [rival_lab] }
+  text:
+    - "You're asked to review a paper. It's anonymous, of course, but you know that dataset trick. It's the rival lab's."
+  choices:
+    - label: "Review it carefully and fairly"
+      text: "You write the review you'd want to get: specific, kind and hard to argue with. It gets in, and you can never tell anyone."
+      effects: { taste: "+2±1", sanity: "+2±1" }
+      flag_set: [rival_fair]
+    - label: "Declare a conflict of interest"
+      text: "The chair thanks you and reassigns it. It's the cleanest thing you'll do all year."
+      effects: { sanity: "+1" }
+    - label: "Ask for one more experiment. Then another."
+      text: "Your review is technically correct and very long. You don't feel as good about it as you expected."
+      effects: { sanity: "-2±1", taste: "+1" }
+
+# Arc "r2_again" (2026-10-24): rev_r2_deja_vu (reviews come in) -> rev_r2_dinner (a visiting speaker)
+# -> rev_r2_your_turn, a year or two later.
+- id: rev_r2_deja_vu
+  title: "Haven't I Read This Before?"
+  category: reviews
+  rarity: uncommon
+  hook: reviews_in
+  weight: 4
+  arc: r2_again
+  when: { telemetry: { rejections: ">=1" }, flags_none: [r2_deja_vu] }
+  text:
+    - "Reviewer 2's comments on {paper} include the phrase \"the authors seem unaware of the broader literature.\" You've seen that exact sentence before, on a different paper, in a different year."
+  choices:
+    - label: "Find the old review and compare"
+      text: "Same phrase, same missing citation, same oddly specific complaint about font size. It's the same person. You'd know that font complaint anywhere."
+      effects: { sanity: "-1", taste: "+1" }
+      flag_set: [r2_deja_vu]
+      schedule: { event: rev_r2_dinner, in: [6, 14], chance: 1.0 }
+    - label: "Laugh and move on"
+      text: "Some reviewers have catchphrases. This one has yours memorized."
+      effects: { sanity: "+2±1" }
+      flag_set: [r2_deja_vu]
+      schedule: { event: rev_r2_dinner, in: [6, 14], chance: 1.0 }
+
+- id: rev_r2_your_turn
+  title: "Your Turn"
+  category: reviews
+  rarity: common
+  trigger: scheduled
+  arc: r2_again
+  text:
+    - "The reviewing system assigns you a paper. Three pages in, you recognize the author's style: it's the reviewer who rejected you twice. Their font is very nice."
+  choices:
+    - label: "Review it the way you wish they'd reviewed yours"
+      text: "Specific, generous and honest. It's a good paper, and you say so. You feel ten years older, and lighter."
+      effects: { taste: "+2±1", sanity: "+4±1" }
+      flag_set: [r2_fair]
+      achievement: break_the_cycle
+    - label: "Note, gently, that the font is a little small"
+      text: "One line, at the very end. You laugh about it for a week."
+      effects: { sanity: "+5±1" }
+      flag_set: [r2_petty]
+    - label: "Declare a conflict and pass"
+      text: "The chair reassigns it. The cycle continues somewhere else, without you."
+      effects: { sanity: "+1" }
+
+# Arc "r2_again" (2026-10-24), the middle: dinner with a visiting speaker.
+- id: rev_r2_dinner
+  title: "Dinner with the Speaker"
+  category: reviews
+  rarity: common
+  trigger: scheduled
+  arc: r2_again
+  when: { flags_all: [r2_deja_vu], flags_none: [r2_met] }
+  text:
+    - "At dinner with this week's visiting speaker, a senior researcher, you hear a story about a paper they \"had to reject twice\" because of the font size. It's yours."
+  choices:
+    - label: "Tell them it was yours"
+      check: { stat: presenting, vs: 55, spread: 20 }
+      success: { text: "They laugh so hard they spill their wine, then ask what you're working on now. It's the best networking you've ever done by accident.", effects: { network: "+4±1", sanity: "+3±1" }, flag_set: [r2_met], schedule: { event: rev_r2_your_turn, in: [13, 26], chance: 1.0 } }
+      failure: { text: "It comes out sharper than you meant, and the rest of dinner is very polite.", effects: { sanity: "-3±1" }, flag_set: [r2_met], schedule: { event: rev_r2_your_turn, in: [13, 26], chance: 1.0 } }
+    - label: "Say nothing and enjoy your dessert"
+      text: "You learn their name, their research area and the font they prefer. You feel like a spy."
+      effects: { sanity: "+2±1", knowledge: "+1" }
+      flag_set: [r2_met]
+      schedule: { event: rev_r2_your_turn, in: [13, 26], chance: 1.0 }

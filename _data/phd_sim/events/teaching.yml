@@ -269,3 +269,51 @@
     - label: "Ask the other TA to split it"
       text: "They say yes, and you owe them one."
       effects: { days: -1, sanity: "-1", labmates_rel: "-1" }
+
+# Arc "office_hours" (2026-10-24): tea_office_hours_regular -> tea_office_hours_ask, which can start the
+# mentee arc (adv_mentee_silent_bug) with the same student as {mentee}.
+- id: tea_office_hours_regular
+  title: "The Regular"
+  category: teaching
+  rarity: common
+  weight: 2
+  arc: office_hours
+  when: { status_any: [ta] }
+  text:
+    - "The same student comes to every office hour, sits at the back and asks one very good question at the end. Today, {mentee} asks it about your research instead of the homework."
+  choices:
+    - label: "Invite them to the lab's reading group"
+      text: "{mentee} shows up early, reads the paper twice and asks the question nobody else dared to."
+      effects: { presenting: "+1", sanity: "+2±1", labmates_rel: "+1" }
+      schedule: { event: tea_office_hours_ask, in: [4, 7], chance: 1.0 }
+    - label: "Answer it, then send them a paper to read"
+      text: "They email you a one-page summary the next morning, with a question about Figure 3 you can't answer yet."
+      effects: { knowledge: "+1", sanity: "+1" }
+      schedule: { event: tea_office_hours_ask, in: [6, 9], chance: 0.6 }
+    - label: "Keep office hours about the homework"
+      text: "That's fair. They nod and go back to the homework, which they've already finished."
+      effects: { energy: "+1" }
+
+- id: tea_office_hours_ask
+  title: "Can I Work with You?"
+  category: teaching
+  rarity: common
+  trigger: scheduled
+  arc: office_hours
+  when: { has_advisor: true, flags_none: [has_undergrad_mentee] }
+  text:
+    - "{mentee} catches you after class: they'd like to do research, and they'd like to do it with you."
+  choices:
+    - label: "Say yes and give them a small project"
+      text: "You write them a one-page plan. They read it three times and start the next morning."
+      effects: { presenting: "+2±1", labmates_rel: "+1", days_next: -1 }
+      flag_set: [has_undergrad_mentee]
+      schedule: { event: adv_mentee_silent_bug, in: [3, 5], chance: 1.0 }
+    - label: "Introduce them to {advisor} first"
+      text: "{advisor} says yes and asks you to supervise them. Same result, plus a meeting."
+      effects: { advisor_rel: "+2±1", days_next: -1 }
+      flag_set: [has_undergrad_mentee]
+      schedule: { event: adv_mentee_silent_bug, in: [3, 5], chance: 1.0 }
+    - label: "Say you don't have time this year"
+      text: "{mentee} is disappointed and very polite about it. They join another lab and do well there."
+      effects: { sanity: "-1" }

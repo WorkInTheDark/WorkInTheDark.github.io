@@ -61,3 +61,8 @@
 - { id: intern, name: "Summer Intern", desc: "Finished an internship.", when: { telemetry: { internships: ">=1" } } }
 - { id: return_ticket, name: "Return Ticket", desc: "Got an internship return offer.", when: { flags_all: [return_offer] } }
 - { id: every_door, name: "Every Door", desc: "Saw all 26 endings across runs.", secret: true }
+
+# --- Event chains (2026-10-24). Share links carry achievements by their place in this file: add new ones at the end.
+- { id: two_body, name: "Two Bodies, One Plan", desc: "Worked out the two-body problem with your partner." }
+- { id: grand_mentor, name: "Grand-Mentor", desc: "Your first mentee started a PhD of their own." }
+- { id: break_the_cycle, name: "Break the Cycle", desc: "Reviewed your old Reviewer 2's paper fairly." }

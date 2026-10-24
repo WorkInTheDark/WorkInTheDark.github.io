@@ -16,3 +16,20 @@
 - { text: "The clinicians you worked with still send you interesting problems.", when: { flags_all: [clinical_partner] }, priority: 3 }
 - { text: "You mentor a few students informally. You tell them to close the laptop sometimes.", when: { telemetry: { mentor_days: ">=15" } }, priority: 2 }
 - { text: "You learned to say no, which was the hardest skill the PhD taught you.", when: { telemetry: { burnouts: ">=1" } }, priority: 2 }
+
+# Endings of the event chains (2026-10-24). Share links carry epilogue lines by their place in this
+# file, so new lines go at the end.
+- { text: "Your first mentee has mentees of their own now. They still send you their drafts.", when: { flags_all: [mentee_admitted] }, priority: 6 }
+- { text: "The labmate who almost quit defended two years later. Your name is in their acknowledgments.", when: { flags_all: [quit_friend_stayed] }, priority: 6 }
+- { text: "The labmate who left the PhD runs a team now. They still try to hire you every spring.", when: { flags_all: [quit_friend_left] }, priority: 6 }
+- { text: "You and the student from the rival lab still run that workshop every year.", when: { flags_all: [rival_friend] }, priority: 6 }
+- { text: "You and the lab across the country still don't cite each other. Everyone else cites you both.", when: { flags_all: [rival_cold] }, priority: 5 }
+- { text: "Somewhere, someone is trying to beat your first paper's baseline. It's become a rite of passage.", when: { flags_all: [afterlife_baseline] }, priority: 6 }
+- { text: "Your first paper's code repository has more stars than the paper has citations.", when: { flags_all: [afterlife_clean], flags_none: [afterlife_baseline] }, priority: 4 }
+- { text: "The grant you helped write funded the next three students. One of them sits at your old desk.", when: { flags_all: [grant_funded] }, priority: 5 }
+- { text: "Your parents keep your thesis on the living room shelf. Nobody has read past the acknowledgments, which is the part about them.", when: { flags_all: [home_graduation] }, priority: 6 }
+- { text: "The weekend app still runs. A few thousand people use it and have no idea it was built on Saturdays.", when: { flags_all: [side_project_kept] }, priority: 5 }
+- { text: "You review papers the way you wish yours had been reviewed. It all started with a font size.", when: { flags_all: [r2_fair] }, priority: 6 }
+- { text: "You once told Reviewer 2 their font was too small. You stand by it.", when: { flags_all: [r2_petty] }, priority: 6 }
+- { text: "You and your partner picked a city together. The commute is ten minutes, and you still complain about it.", when: { flags_all: [two_body_together] }, priority: 6 }
+- { text: "Your phone still shows two time zones. Next spring it'll be down to one.", when: { flags_all: [two_body_distance] }, priority: 6 }

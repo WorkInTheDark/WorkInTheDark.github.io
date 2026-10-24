@@ -606,6 +606,7 @@
   title: "The Kitchen at the Party"
   category: life
   rarity: uncommon
+  weight: 2
   arc: party
   text:
     - "At a friend's party, you end up talking to someone in the kitchen for an hour. They ask good questions about your research and don't flinch at the word \"PhD\"."
@@ -645,9 +646,13 @@
       effects: { sanity: "+6±2", days: -1 }
       status: { add: in_love, turns: 4 }
       flag_clear: [party_crush]
+      flag_set: [dating]
+      schedule: { event: lif_partner_trip, in: [4, 8], chance: 1.0 }
     - label: "Suggest coffee on Sunday instead"
       text: "Coffee turns into lunch. You're taking it slow, and that suits you both."
       effects: { sanity: "+4±1", friends_rel: "+2±1" }
+      flag_set: [dating]
+      schedule: { event: lif_partner_trip, in: [6, 10], chance: 1.0 }
       status: { add: in_love, turns: 2 }
       flag_clear: [party_crush]
     - label: "Say you're swamped this month"
@@ -758,3 +763,153 @@
     - label: "Skip the party, finish a draft"
       text: "You hear the laughter through the wall. The draft gets a page longer and a little grumpier."
       effects: { writing: "+2±1", labmates_rel: "-2±1", sanity: "-2±1" }
+
+# Arc "partner" (2026-10-24): after lif_party_dinner -> lif_partner_trip -> lif_partner_meets_lab,
+# then lif_partner_time_zones at a conference and lif_partner_two_body at graduation.
+- id: lif_partner_trip
+  title: "The Weekend Away"
+  category: life
+  rarity: common
+  trigger: scheduled
+  arc: partner
+  when: { flags_all: [dating] }
+  text:
+    - "They found a cabin two hours north with no Wi-Fi, for the weekend before your paper's internal deadline."
+  choices:
+    - label: "Go, and leave the laptop at home"
+      text: "Two days of lake, card games and nobody asking about results. You come back to the draft with fresh eyes."
+      effects: { sanity: "+8±2", energy: "+4±1", days: -1 }
+      flag_set: [partner]
+      schedule: { event: lif_partner_meets_lab, in: [4, 7], chance: 1.0 }
+    - label: "Go, and bring the laptop just in case"
+      text: "You open it twice. They notice both times and say nothing, which is worse."
+      effects: { sanity: "+2±1", energy: "-1" }
+      schedule: { event: lif_partner_meets_lab, in: [4, 7], chance: 1.0 }
+    - label: "Ask to go after the deadline instead"
+      text: "\"Of course,\" they say. By then the cabin is booked, so you go to a diner instead, and it's lovely anyway."
+      effects: { sanity: "+3±1" }
+      schedule: { event: lif_partner_meets_lab, in: [6, 9], chance: 1.0 }
+
+- id: lif_partner_meets_lab
+  title: "They Meet the Lab"
+  category: life
+  rarity: common
+  trigger: scheduled
+  arc: partner
+  when: { flags_any: [dating, partner], has_advisor: true }
+  text:
+    - "At the lab's end-of-semester dinner, your partner sits between {labmate} and a postdoc. Twenty minutes in, they lean over: \"So what does a PhD actually do all day?\""
+  choices:
+    - label: "Explain your research in one sentence"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success: { text: "They get it, then explain it back to {labmate} better than you did. The table applauds.", effects: { presenting: "+2±1", sanity: "+3±1", labmates_rel: "+2±1" }, flag_set: [partner] }
+      failure: { text: "Four minutes and one napkin diagram later, they nod politely and ask for the bread.", effects: { presenting: "+1", sanity: "+1" }, flag_set: [partner] }
+    - label: "Let {labmate} tell the lab's stories instead"
+      text: "{labmate} tells the one about the GPU that caught fire. Your partner laughs all the way home."
+      effects: { labmates_rel: "+3±1", sanity: "+3±1" }
+      flag_set: [partner]
+
+- id: lif_partner_time_zones
+  title: "Nine Hours Apart"
+  category: life
+  rarity: uncommon
+  hook: conference
+  weight: 2
+  arc: partner
+  when: { flags_all: [partner] }
+  text:
+    - "Your talk at {venue} ends at 4 pm in {city}, which is 7 am at home. Your partner got up early to hear how it went."
+  choices:
+    - label: "Call before the conference dinner"
+      text: "You tell them about the hardest question and how you answered it. They're the only person who asks how you're sleeping."
+      effects: { sanity: "+4±1", network: "-1" }
+    - label: "Send a voice memo and go to the dinner"
+      text: "The dinner gets you two new collaborators. Your partner replies with a voice memo of their own, mostly about the cat."
+      effects: { network: "+2±1", sanity: "+1" }
+
+- id: lif_partner_two_body
+  title: "The Two-Body Problem"
+  category: life
+  rarity: common
+  hook: graduation
+  weight: 4
+  arc: partner
+  when: { flags_all: [partner], flags_none: [two_body_done] }
+  text:
+    - "You have offers, and none of them are in the city where your partner works."
+  choices:
+    - label: "Only apply where you can both work"
+      text: "Your list gets shorter. Your partner makes a spreadsheet of cities with both kinds of jobs. It's the most romantic spreadsheet you've ever seen."
+      effects: { sanity: "+4±1", career_prep: "-1" }
+      flag_set: [two_body_done, two_body_together]
+      achievement: two_body
+    - label: "Take the best offer and try long distance"
+      text: "You buy a lot of plane tickets and learn every time-zone trick there is. It's hard, and it holds."
+      effects: { sanity: "-3±1", career_prep: "+2" }
+      flag_set: [two_body_done, two_body_distance]
+    - label: "Ask what they want first"
+      text: "It turns out they wanted to move somewhere new anyway. You start reading about cities you'd never considered."
+      effects: { sanity: "+5±2" }
+      flag_set: [two_body_done, two_body_together]
+      achievement: two_body
+
+# Arc "home" (2026-10-24): lif_home_call -> lif_home_recovery -> lif_home_graduation at commencement.
+- id: lif_home_call
+  title: "A Call from Home"
+  category: life
+  rarity: uncommon
+  arc: home
+  when: { has_advisor: true, year: [2, 6] }
+  text:
+    - "Your sibling calls during group meeting, which they never do. Your parent is in the hospital: stable, they say, but you should know."
+  choices:
+    - label: "Fly home this week"
+      text: "You spend four days in a hospital cafeteria with your laptop closed. Your parent is mostly worried that you're missing work."
+      effects: { days: -3, family_rel: "+6±2", sanity: "-2±1", energy: "-4±1" }
+      schedule: { event: lif_home_recovery, in: [4, 7], chance: 1.0 }
+    - label: "Stay, and call every evening"
+      text: "You call every night at nine. The paper moves forward slowly, and so does the worry."
+      effects: { family_rel: "+2±1", sanity: "-5±2" }
+      schedule: { event: lif_home_recovery, in: [4, 7], chance: 1.0 }
+    - label: "Ask {advisor} for two weeks off"
+      text: "{advisor} says, \"Go, and don't check email.\" You go, and you mostly don't."
+      effects: { days: -5, family_rel: "+5±2", advisor_rel: "+1", sanity: "+1" }
+      schedule: { event: lif_home_recovery, in: [4, 7], chance: 1.0 }
+
+- id: lif_home_recovery
+  title: "Back on Their Feet"
+  category: life
+  rarity: common
+  trigger: scheduled
+  arc: home
+  text:
+    - "Your parent sends a video: walking around the block, slowly, waving at the camera. Underneath it says \"Don't worry, study hard.\""
+  choices:
+    - label: "Plan a visit home for the holidays"
+      text: "You book the flights that night, before you can talk yourself out of it."
+      effects: { family_rel: "+3±1", sanity: "+4±1" }
+      flag_set: [home_recovered]
+    - label: "Send back a video of your lab"
+      text: "You film your desk, the coffee machine and {labmate} waving. Your parent watches it four times."
+      effects: { family_rel: "+3±1", sanity: "+3±1", labmates_rel: "+1" }
+      flag_set: [home_recovered]
+
+- id: lif_home_graduation
+  title: "They Flew In"
+  category: life
+  rarity: common
+  hook: graduation
+  weight: 4
+  arc: home
+  when: { flags_all: [home_recovered] }
+  text:
+    - "Your parent, fully recovered, is in the third row at commencement, filming the whole thing on a phone held sideways."
+  choices:
+    - label: "Find them before the ceremony ends"
+      text: "You get hugged in your robe in front of everyone. You don't mind at all."
+      effects: { family_rel: "+5±1", sanity: "+5±1" }
+      flag_set: [home_graduation]
+    - label: "Take them to see your lab afterward"
+      text: "You show them your desk, the whiteboard and your name on a paper on the wall. They take a picture of all of it."
+      effects: { family_rel: "+5±1", sanity: "+4±1" }
+      flag_set: [home_graduation]

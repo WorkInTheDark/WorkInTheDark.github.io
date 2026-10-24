@@ -201,10 +201,12 @@
       text: "You write {mentee} a two-page plan. Explaining your project makes you understand it better."
       effects: { days_next: -2, presenting: "+2±1", labmates_rel: "+2±1", advisor_rel: "+2±1" }
       flag_set: [has_undergrad_mentee]
+      schedule: { event: adv_mentee_silent_bug, in: [3, 5], chance: 1.0 }
     - label: "Start them on reading"
       text: "You send {mentee} five papers. They read all five by Tuesday and come back with good questions."
       effects: { knowledge: "+1", sanity: "+1" }
       flag_set: [has_undergrad_mentee]
+      schedule: { event: adv_mentee_silent_bug, in: [4, 6], chance: 1.0 }
     - label: "Suggest {labmate} instead"
       check: { stat: labmates_rel, vs: 50, spread: 15 }
       success:
@@ -214,6 +216,7 @@
         text: "{labmate} is swamped, so {mentee} becomes yours anyway, a week late."
         effects: { days_next: -1, labmates_rel: "-3±1" }
         flag_set: [has_undergrad_mentee]
+        schedule: { event: adv_mentee_silent_bug, in: [4, 6], chance: 1.0 }
 
 - id: adv_inspiring_talk
   title: "One Inspiring Keynote"
@@ -572,3 +575,130 @@
     - label: "Enjoy the quiet"
       text: "Nobody drops by your desk unannounced anymore. You get a lot done, and you and {advisor} drift a little."
       effects: { sanity: "+3±1", advisor_rel: "-3±1" }
+
+# Arc "mentee" (2026-10-24): adv_mentor_undergrad (or tea_office_hours_ask) -> adv_mentee_silent_bug
+# -> adv_mentee_letter -> adv_mentee_admitted. {mentee} is the same person throughout (ctx.tok).
+- id: adv_mentee_silent_bug
+  title: "Twelve Points"
+  category: lab
+  rarity: common
+  trigger: scheduled
+  arc: mentee
+  when: { flags_all: [has_undergrad_mentee] }
+  text:
+    - "{mentee} runs into your office: their model beats the state of the art by twelve points. Twelve points is a lot of points."
+  choices:
+    - label: "Sit down and debug it together"
+      text: "It's a train/test leak on line 40. {mentee} is crushed for an hour, then fascinated, and you show them how you'd have caught it."
+      effects: { energy: "-3±1", taste: "+1", sanity: "+1" }
+      schedule: { event: adv_mentee_letter, in: [8, 12], chance: 1.0 }
+    - label: "Ask questions until they find it themselves"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success: { text: "Three questions in, {mentee} goes pale and says \"oh no, the test set.\" They'll never forget it.", effects: { presenting: "+2±1", sanity: "+2±1" }, schedule: { event: adv_mentee_letter, in: [8, 12], chance: 1.0 } }
+      failure: { text: "Your questions are too subtle. {mentee} finds the bug two weeks later, the night before group meeting.", effects: { sanity: "-1" }, schedule: { event: adv_mentee_letter, in: [8, 12], chance: 1.0 } }
+    - label: "Tell them to show {advisor}"
+      text: "{advisor} finds the leak in ninety seconds and says \"happens to everyone.\" From then on, {mentee} asks {advisor} first."
+      effects: { advisor_rel: "+1", labmates_rel: "-1" }
+      schedule: { event: adv_mentee_letter, in: [10, 14], chance: 0.8 }
+
+- id: adv_mentee_letter
+  title: "A Letter for Your Mentee"
+  category: lab
+  rarity: common
+  trigger: scheduled
+  arc: mentee
+  when: { flags_all: [has_undergrad_mentee] }
+  text:
+    - "{mentee} is applying to PhD programs and asks if you'd write a letter too. They've attached a very organized spreadsheet of deadlines."
+  choices:
+    - label: "Write a detailed letter"
+      text: "You write two pages with real examples: the leak they found, the figure they redrew five times. It takes a whole evening, and it's worth it."
+      effects: { energy: "-4±1", writing: "+1", sanity: "+2±1" }
+      schedule: { event: adv_mentee_admitted, in: [5, 8], chance: 1.0 }
+    - label: "Help them polish their statement instead"
+      text: "Their statement goes from \"I am passionate about AI\" to something only they could have written."
+      effects: { energy: "-2±1", writing: "+1" }
+      schedule: { event: adv_mentee_admitted, in: [5, 8], chance: 0.8 }
+    - label: "Say you're too junior, and point them to {advisor}"
+      text: "{mentee} understands. The spreadsheet gets one row shorter."
+      effects: { sanity: "-1" }
+
+- id: adv_mentee_admitted
+  title: "Good News"
+  category: lab
+  rarity: common
+  trigger: scheduled
+  arc: mentee
+  text:
+    - "An email with the subject line \"!!!!!\": {mentee} got into a PhD program. The second paragraph says they plan to mentor undergrads \"the way you did.\""
+  choices:
+    - label: "Reply with everything you wish you'd known"
+      text: "Your reply runs to four pages. {mentee} prints it out."
+      effects: { sanity: "+6±2", writing: "+1" }
+      flag_set: [mentee_admitted]
+      achievement: grand_mentor
+    - label: "Take them out for celebration noodles"
+      text: "They insist on paying. You let them, this once."
+      effects: { sanity: "+6±2", friends_rel: "+1" }
+      flag_set: [mentee_admitted]
+      achievement: grand_mentor
+
+# Arc "grant" (2026-10-24): adv_grant_renewal -> adv_grant_funded or adv_grant_cut a few months later.
+- id: adv_grant_renewal
+  title: "The Renewal"
+  category: advisor
+  rarity: uncommon
+  arc: grant
+  when: { has_advisor: true, year: [2, 6] }
+  text:
+    - "{advisor}'s main grant is up for renewal, and they'd like you to write the preliminary results section. It's due in three weeks, the same week as your own deadline."
+  choices:
+    - label: "Write it properly"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success: { text: "{advisor} changes four words and sends it. \"This is the strongest section,\" they say.", effects: { energy: "-6±2", advisor_rel: "+4±1", writing: "+2±1" }, schedule: { event: adv_grant_funded, in: [6, 9], chance: 1.0 } }
+      failure: { text: "You write it on two hours of sleep, and {advisor} rewrites half of it the night before.", effects: { energy: "-7±2", advisor_rel: "+1", sanity: "-3±1" }, schedule: { event: adv_grant_cut, in: [6, 9], chance: 1.0 } }
+    - label: "Offer figures and data, not prose"
+      check: { stat: advisor_rel, vs: 50, spread: 25 }
+      success: { text: "You make the three best figures of your life, and {advisor} writes around them.", effects: { energy: "-3±1", advisor_rel: "+2±1" }, schedule: { event: adv_grant_funded, in: [6, 9], chance: 1.0 } }
+      failure: { text: "Your figures are good. The writing around them is rushed, and everyone can tell.", effects: { energy: "-3±1" }, schedule: { event: adv_grant_cut, in: [6, 9], chance: 1.0 } }
+    - label: "Say your own deadline comes first"
+      text: "{advisor} says that's fair, in the voice that means it isn't quite."
+      effects: { advisor_rel: "-2±1", sanity: "+1" }
+
+- id: adv_grant_funded
+  title: "Funded"
+  category: advisor
+  rarity: common
+  trigger: scheduled
+  arc: grant
+  text:
+    - "{advisor} walks into the lab and announces it: the grant is renewed for four more years. There's cake by 3 pm."
+  choices:
+    - label: "Ask for a bigger compute budget"
+      text: "You get it, and the cluster is yours on weekends."
+      effects: { coding: "+1", sanity: "+3±1" }
+      flag_set: [grant_funded]
+      unlock: [opp_empty_cluster]
+    - label: "Ask for conference travel money"
+      text: "Next year's trip is covered, hotel and all. You start reading calls for papers differently."
+      effects: { network: "+2±1", sanity: "+3±1" }
+      flag_set: [grant_funded]
+
+- id: adv_grant_cut
+  title: "Not This Time"
+  category: advisor
+  rarity: common
+  trigger: scheduled
+  arc: grant
+  text:
+    - "The grant wasn't renewed. {advisor} tells the lab calmly, then closes their door for the afternoon. There's money for this year, and then there isn't."
+  choices:
+    - label: "Offer to TA next semester to save the lab money"
+      text: "You teach two sections of intro programming. It costs you time and gives you a great deal of patience."
+      effects: { presenting: "+2±1", days_next: -2, advisor_rel: "+3±1", sanity: "-2±1" }
+    - label: "Apply for your own fellowship"
+      text: "You write the application in two weeks. Whatever happens, {advisor} looks at you a little differently."
+      effects: { writing: "+2±1", energy: "-4±1", advisor_rel: "+2±1" }
+    - label: "Find an industry collaborator with a budget"
+      text: "A company wants your dataset and has GPUs to spare. It's a fair trade, with a long contract."
+      effects: { network: "+3±1", career_prep: "+1", sanity: "-1" }

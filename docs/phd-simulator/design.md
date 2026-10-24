@@ -748,6 +748,18 @@ context:  event-specific boosts (for example wellbeing events ×2 when Sanity < 
   - The labmate authorship feud
   - The grant that didn't renew
   - The viral paper
+- **Ten more chains (Arthur, 2026-10-24: "I like events that follow from earlier ones").** 32 events, each chain ending in an epilogue line (added at the end of epilogues.yml), three with an achievement (added at the end of achievements.yml). A scheduled follow-up keeps the same {labmate} or {mentee} (`ctx.tok`).
+  - `partner` (life.yml): after the party dinner (which now sets `dating`, so the old partner epilogue line can finally show): a weekend away, they meet the lab, nine hours apart at a conference, the two-body problem at graduation (achievement `two_body`).
+  - `mentee` (advisor.yml): the undergrad from adv_mentor_undergrad or office hours: twelve points (a leak), the letter, good news (achievement `grand_mentor`).
+  - `almost_quit` (lab.yml): a labmate thinks about quitting; a year later they either passed their proposal or left and refer you for an internship.
+  - `rival_lab` (research, travel, reviews): a close preprint, their student at a small workshop, a joint workshop or a public thread, then their paper on your review desk.
+  - `afterlife` (research.yml, after your first first-author acceptance): issue #1, a company using it, a paper calling it the standard baseline.
+  - `grant` (advisor.yml): you write the preliminary results; the grant is renewed (compute or travel money) or cut.
+  - `home` (life.yml): a parent in the hospital, the recovery, and the family at commencement.
+  - `side_project` (career.yml): a friend's weekend app, demo day with penguins, an investor's email (taking the call sets `startup_idea`, which opens the founder endings).
+  - `office_hours` (teaching.yml): the student who keeps coming to office hours, who can become your mentee.
+  - `r2_again` (reviews.yml): Reviewer 2's catchphrase again, dinner with the visiting speaker who rejected you twice, and their paper assigned to you (achievement `break_the_cycle`).
+  - Measured over 400 bot runs (random choices): each starts in 13–38% of runs, and about 3 more scheduled events show per run. Steps that waited for a conference became scheduled, since a conference draws only one of about 30 events.
   - The visa saga
   - The marathon
   - The benchmark that got saturated

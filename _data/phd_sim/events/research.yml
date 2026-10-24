@@ -2179,3 +2179,133 @@
       failure:
         text: "{senior} fixes it, then tells the story at every lab meeting for a month."
         effects: { sanity: "-3±1", coding: "+1" }
+
+# Arc "rival_lab" (2026-10-24): res_rival_preprint -> tra_rival_student (at a conference) ->
+# res_rival_joint or res_rival_spat -> rev_rival_review.
+- id: res_rival_preprint
+  title: "The Lab Across the Country"
+  category: research
+  rarity: uncommon
+  weight: 1.5
+  arc: rival_lab
+  when: { year: [2, 5], project: { stage_kind: work } }
+  text:
+    - "A preprint from a group at another university is close to {project}: same data, a different method, and a friendly mention of \"concurrent work.\" They clearly know about you too."
+  choices:
+    - label: "Email their first author to compare notes"
+      text: "Their student replies within the hour: \"We were hoping you'd write.\" You set up a call for Friday."
+      effects: { network: "+2±1", sanity: "+1" }
+      flag_set: [rival_lab]
+      schedule: { event: tra_rival_student, in: [6, 10], chance: 1.0 }
+    - label: "Sharpen what makes yours different"
+      text: "You add a comparison section and a much clearer story about why your method exists. The paper is better because of them."
+      effects: { project.quality.N: "+2", energy: "-3±1" }
+      flag_set: [rival_lab]
+      schedule: { event: tra_rival_student, in: [6, 10], chance: 1.0 }
+    - label: "Race them to the next deadline"
+      text: "You set an aggressive timeline. The lab notices the change in you."
+      effects: { project.progress: 5, sanity: "-3±1" }
+      flag_set: [rival_lab]
+      schedule: { event: tra_rival_student, in: [6, 10], chance: 1.0 }
+
+- id: res_rival_joint
+  title: "A Workshop, Together"
+  category: research
+  rarity: common
+  trigger: scheduled
+  arc: rival_lab
+  text:
+    - "The student from the rival lab has an idea: a workshop at next year's conference, run by both labs. Their advisor has already said yes."
+  choices:
+    - label: "Co-organize it"
+      text: "Forty submissions, one overloaded spreadsheet and a packed room. Both labs' names are on the program, side by side."
+      effects: { network: "+4±1", energy: "-4±1", citations: "+15±5" }
+      schedule: { event: rev_rival_review, in: [13, 26], chance: 0.6 }
+    - label: "Write a short paper together instead"
+      text: "A four-page workshop paper with two labs' worth of ideas. It gets cited more than some of your long papers."
+      effects: { citations: "+20±6", writing: "+1", energy: "-3±1" }
+      schedule: { event: rev_rival_review, in: [13, 26], chance: 0.6 }
+
+- id: res_rival_spat
+  title: "The Thread"
+  category: research
+  rarity: common
+  trigger: scheduled
+  arc: rival_lab
+  text:
+    - "The rival lab's advisor posts a thread about \"concurrent work that misses the point.\" It's about yours, and people are quote-posting."
+  choices:
+    - label: "Reply with one calm, polite paragraph"
+      check: { stat: writing, vs: 55, spread: 20 }
+      success: { text: "Your reply is so reasonable that the thread turns into a real discussion. Two people cite both papers the next week.", effects: { network: "+3±1", citations: "+10±4" }, schedule: { event: rev_rival_review, in: [13, 26], chance: 0.6 } }
+      failure: { text: "Your calm paragraph gets read as passive-aggressive. You log off for three days.", effects: { sanity: "-4±1" }, schedule: { event: rev_rival_review, in: [13, 26], chance: 0.6 } }
+    - label: "Stay out of it"
+      text: "You don't reply. {advisor} sends a one-word email: \"Good.\""
+      effects: { advisor_rel: "+1", sanity: "-1" }
+      schedule: { event: rev_rival_review, in: [13, 26], chance: 0.6 }
+
+# Arc "afterlife" (2026-10-24): your first accepted paper goes on without you. res_afterlife_issue
+# (after an acceptance) -> res_afterlife_company -> res_afterlife_talk. {paper} stays the same paper.
+- id: res_afterlife_issue
+  title: "Issue #1"
+  category: research
+  rarity: common
+  hook: after_accept
+  weight: 3
+  arc: afterlife
+  when: { paper: { first_author: true }, flags_none: [afterlife] }
+  text:
+    - "A month after {paper} comes out, its code repository gets its first issue, from a stranger: \"Can't reproduce Table 2. Am I doing something wrong?\""
+  choices:
+    - label: "Spend a weekend making the code clean"
+      text: "You write a README, pin the versions and add a one-command demo. The stranger replies: \"works now, thank you!!\""
+      effects: { energy: "-4±1", coding: "+2±1", paper.citations: "+5±2" }
+      flag_set: [afterlife, afterlife_clean]
+      schedule: { event: res_afterlife_company, in: [6, 10], chance: 1.0 }
+    - label: "Reply with a quick fix"
+      text: "\"Try the other config.\" It mostly works. Two more issues arrive that month."
+      effects: { energy: "-1", paper.citations: "+2±1" }
+      flag_set: [afterlife]
+      schedule: { event: res_afterlife_company, in: [8, 12], chance: 0.7 }
+    - label: "Let it sit; you're busy"
+      text: "The issue collects three thumbs-ups from other people who can't reproduce Table 2 either."
+      effects: { sanity: "-1" }
+      flag_set: [afterlife]
+
+- id: res_afterlife_company
+  title: "Someone Is Using It"
+  category: research
+  rarity: common
+  trigger: scheduled
+  arc: afterlife
+  when: { paper: { first_author: true } }
+  text:
+    - "An email from an engineer at a company you've heard of: they use the code from {paper} in production, and they have three questions and a thank-you."
+  choices:
+    - label: "Answer all three questions on a call"
+      text: "The call runs an hour. At the end they ask if you'd ever consider spending a summer with them."
+      effects: { network: "+3±1", career_prep: "+2", paper.citations: "+8±3" }
+      schedule: { event: res_afterlife_talk, in: [6, 10], chance: 1.0 }
+    - label: "Ask if they'd write a short blog post about it"
+      text: "Their post links to your paper. It's the most traffic your website has ever had."
+      effects: { paper.citations: "+15±5", network: "+1" }
+      schedule: { event: res_afterlife_talk, in: [6, 10], chance: 1.0 }
+
+- id: res_afterlife_talk
+  title: "Built on Yours"
+  category: research
+  rarity: common
+  trigger: scheduled
+  arc: afterlife
+  when: { paper: { first_author: true } }
+  text:
+    - "A new paper builds directly on {paper} and calls it \"the standard baseline.\" The next week, a professor you admire invites you to give a talk."
+  choices:
+    - label: "Accept the invitation"
+      text: "You give the talk. The best question comes from a first-year who has clearly read your code line by line."
+      effects: { presenting: "+2±1", network: "+2±1", paper.citations: "+10±3" }
+      flag_set: [afterlife_baseline]
+    - label: "Read the new paper twice"
+      text: "They found something you missed. You're a little jealous and mostly proud."
+      effects: { taste: "+2±1", paper.citations: "+10±3" }
+      flag_set: [afterlife_baseline]

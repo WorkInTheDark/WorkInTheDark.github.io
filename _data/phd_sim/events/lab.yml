@@ -629,3 +629,64 @@
     - label: "Note every question between clicks"
       text: "Your notes become {senior}'s revision list, and the start of your own defense prep."
       effects: { energy: "-1", knowledge: "+3±1", labmates_rel: "+2±1" }
+
+# Arc "almost_quit" (2026-10-24): lab_almost_quit -> lab_quit_stayed or lab_quit_left, a year or so
+# later. {labmate} is the same person throughout.
+- id: lab_almost_quit
+  title: "Thinking About Quitting"
+  category: lab
+  rarity: uncommon
+  weight: 2
+  arc: almost_quit
+  when: { has_advisor: true, year: [2, 4] }
+  text:
+    - "Late in the lab, {labmate} closes their laptop and says, very quietly, that they're thinking about quitting."
+  choices:
+    - label: "Get dinner and talk it through"
+      text: "It takes three hours and two bowls of noodles. By the end, {labmate} has a plan for the next month instead of the next five years."
+      effects: { energy: "-3±1", labmates_rel: "+3±1", sanity: "-1" }
+      schedule: { event: lab_quit_stayed, in: [10, 16], chance: 1.0 }
+    - label: "Help them look at industry jobs"
+      text: "You spend an evening on job listings together. {labmate} looks lighter than they have in months."
+      effects: { energy: "-2±1", labmates_rel: "+2±1", network: "+1" }
+      schedule: { event: lab_quit_left, in: [8, 12], chance: 1.0 }
+    - label: "Suggest they talk to {advisor}"
+      check: { stat: advisor_rel, vs: 55, spread: 20 }
+      success: { text: "{advisor} turns out to be good at this. {labmate} comes back with a lighter load and a new timeline.", effects: { advisor_rel: "+1", labmates_rel: "+1" }, schedule: { event: lab_quit_stayed, in: [12, 18], chance: 1.0 } }
+      failure: { text: "The meeting doesn't go well. A month later, {labmate} gives notice.", effects: { labmates_rel: "-1", sanity: "-2±1" }, schedule: { event: lab_quit_left, in: [8, 12], chance: 1.0 } }
+
+- id: lab_quit_stayed
+  title: "The One Who Stayed"
+  category: lab
+  rarity: common
+  trigger: scheduled
+  arc: almost_quit
+  text:
+    - "{labmate} just passed their proposal. They walk out of the room, find you in the hallway and say, \"Dinner's on me this time.\""
+  choices:
+    - label: "Order the expensive noodles"
+      text: "You both order the expensive noodles. {labmate} says that dinner a year ago is why they're still here."
+      effects: { sanity: "+5±2", labmates_rel: "+4±1" }
+      flag_set: [quit_friend_stayed]
+    - label: "Tell them it was all them"
+      text: "\"It was mostly me,\" they agree. \"But you paid for the first noodles.\""
+      effects: { sanity: "+4±1", labmates_rel: "+3±1" }
+      flag_set: [quit_friend_stayed]
+
+- id: lab_quit_left
+  title: "The One Who Left"
+  category: lab
+  rarity: common
+  trigger: scheduled
+  arc: almost_quit
+  text:
+    - "{labmate} left the PhD last spring for a data science job. Today they message you: their team has an internship opening, and they've already put your name forward."
+  choices:
+    - label: "Say yes and polish your résumé"
+      text: "The interview feels like talking to a friend, because half of it is. Whatever happens, your résumé is in the right pile."
+      effects: { network: "+3±1", career_prep: "+3", energy: "-2±1" }
+      flag_set: [quit_friend_left]
+    - label: "Thank them, and ask how they're doing"
+      text: "They're doing well: they sleep, they have weekends, and they still read papers on Sundays for fun. You keep in touch."
+      effects: { sanity: "+4±1", network: "+1" }
+      flag_set: [quit_friend_left]

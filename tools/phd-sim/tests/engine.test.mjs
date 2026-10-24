@@ -428,6 +428,26 @@ test("a shared link carries the run's moments and quotes, with labmates as plain
   assert.deepEqual([q.quotes[1].text, q.quotes[1].by], [D.tips[0].text, D.names.first[0]]);
 });
 
+test("an event chain keeps the same person from start to finish", () => {
+  const g = gameWithProject("chain-mentee-1");
+  g.state.flags.has_undergrad_mentee = true;
+  g.state.queue.push({ event: "adv_mentee_silent_bug", turn: g.state.turn, ctx: { tok: { mentee: "Priya" } } });
+  const rng = new Rng("chain-mentee-1:answers");
+  const seen = [];
+  for (let i = 0; i < 3000 && !g.state.flags.mentee_admitted; i++) {
+    // Bring each follow-up forward so the test doesn't wait a year.
+    g.state.queue.forEach((q) => { if (/^adv_mentee_/.test(q.event)) q.turn = Math.min(q.turn, g.state.turn + 1); });
+    const p = g.step();
+    if (p.type === "ended") break;
+    if (p.type === "event" && /^adv_mentee_/.test(p.id)) { seen.push(p.id); assert.ok(JSON.stringify(p).includes("Priya"), p.id + " names the same mentee"); g.answer({ choice: p.choices[0].i }); continue; }
+    if (p.type === "plan") { g.submitPlan(planFor(p, rng)); continue; }
+    if (p.type !== "turn_end") g.answer(answerFor(p, rng));
+  }
+  assert.deepEqual(seen, ["adv_mentee_silent_bug", "adv_mentee_letter", "adv_mentee_admitted"]);
+  assert.ok(g.state.flags.mentee_admitted && g.state.runAchievements.grand_mentor, "the end of the chain sets its flag and achievement");
+  assert.ok(D.epilogues.some((e) => e.when && JSON.stringify(e.when).includes("mentee_admitted")), "and has an epilogue line");
+});
+
 test("the same seed and the same answers give the same PhD", () => {
   const a = bot(new Game(D, {}, start("det-1")), "det-1");
   const b = bot(new Game(D, {}, start("det-1")), "det-1");

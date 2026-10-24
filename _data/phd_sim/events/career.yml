@@ -536,3 +536,62 @@
     - label: "Pull up your thesis framework slide"
       text: "Five years fit on one slide. They ask for a copy for their team, which is either flattering or worrying."
       effects: { career_prep: "+2", network: "+1" }
+
+# Arc "side_project" (2026-10-24): car_side_project -> car_side_hackathon -> car_side_investor.
+# Taking the investor's call sets startup_idea, which opens the founder endings.
+- id: car_side_project
+  title: "A Weekend Project"
+  category: career
+  rarity: uncommon
+  arc: side_project
+  when: { year: [2, 5] }
+  text:
+    - "A friend from college is building an app on weekends and needs someone who understands language models. The pay is pizza, plus equity in something that doesn't exist yet."
+  choices:
+    - label: "Join, on Saturdays only"
+      text: "Saturdays become the best part of your week: building something people can actually click on."
+      effects: { coding: "+2±1", sanity: "+3±1", energy: "-2±1" }
+      schedule: { event: car_side_hackathon, in: [4, 8], chance: 1.0 }
+    - label: "Give advice, not weekends"
+      text: "You send a long email about which model to use. They take all of your advice and send you a T-shirt."
+      effects: { network: "+1", sanity: "+1" }
+      schedule: { event: car_side_hackathon, in: [5, 9], chance: 0.5 }
+    - label: "Say no; the PhD is enough"
+      text: "They understand. A year later you see the app in the store and download it out of curiosity."
+      effects: { sanity: "+1" }
+
+- id: car_side_hackathon
+  title: "Demo Day"
+  category: career
+  rarity: common
+  trigger: scheduled
+  arc: side_project
+  text:
+    - "Your friend enters the app in a city hackathon. The demo is at 9 am on Sunday, and the model still says strange things about penguins."
+  choices:
+    - label: "Pull an all-nighter to fix it"
+      check: { stat: coding, vs: 55, spread: 20 }
+      success: { text: "The penguin bug is gone by 6 am. You win second place and a very large check made of cardboard.", effects: { coding: "+2±1", energy: "-8±2", network: "+2±1" }, schedule: { event: car_side_investor, in: [6, 10], chance: 1.0 } }
+      failure: { text: "The demo asks the judges about penguins. They laugh, and eventually so do you.", effects: { energy: "-8±2", sanity: "+1" } }
+    - label: "Demo it as is, penguins and all"
+      text: "The judges love the penguins. You win the audience prize."
+      effects: { sanity: "+4±1", network: "+1" }
+      schedule: { event: car_side_investor, in: [6, 10], chance: 0.8 }
+
+- id: car_side_investor
+  title: "An Email from an Investor"
+  category: career
+  rarity: common
+  trigger: scheduled
+  arc: side_project
+  text:
+    - "An investor saw the demo. They'd like a call with \"the founding team,\" which apparently includes you."
+  choices:
+    - label: "Take the call"
+      text: "It's thirty minutes long and full of words like \"traction.\" Afterward, you can't stop thinking about it."
+      effects: { network: "+2±1", career_prep: "+2", sanity: "-1" }
+      flag_set: [startup_idea, side_project_kept]
+    - label: "Let your friend take it without you"
+      text: "They do great. You stay on as a technical advisor, with a small equity stake and your Saturday mornings back."
+      effects: { sanity: "+3±1" }
+      flag_set: [side_project_kept]
