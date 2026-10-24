@@ -1,0 +1,74 @@
+# What you can do with a turn on leave, besides Recharge (playtest feedback, 2026-10-24: leave was six
+# turns of nothing but resting). Each is a choice on the plan screen while on leave.
+# Schema: id (leave_), label, desc, icon, when, text (one line is picked each turn), then outcome keys
+# (effects, flag_set, ...). after: { turns, text, trait_add, flag_set } happens once, when you've spent
+# that many leave turns on it (trait_add adds its own "New trait" line).
+
+- id: leave_music
+  label: "Play music again"
+  desc: "The guitar has been in its case since your first year."
+  icon: "🎸"
+  text:
+    - "You relearn three chords and one whole song. Your neighbors learn it too."
+    - "You play for an hour without checking your phone once."
+  effects: { energy: "+18±3", sanity: "+8±2", health: "+2" }
+  after: { turns: 3, text: "Music is part of your week again.", trait_add: musician }
+
+- id: leave_fitness
+  label: "Get your body back"
+  desc: "Running, climbing, anything that gets you outside."
+  icon: "🏃"
+  text:
+    - "You run three times a week. By the end, you take the stairs to your apartment for fun."
+    - "The regulars at the climbing gym start saying hi."
+  effects: { energy: "+14±3", sanity: "+5±2", health: "+7±2" }
+  after: { turns: 3, text: "Exercise isn't a chore anymore. It's the best hour of your day.", trait_add: gym_rat }
+
+- id: leave_home
+  label: "Go home for a while"
+  desc: "Your old room, home cooking, and nobody asking about your paper."
+  icon: "🏠"
+  text:
+    - "Your parents ask about the paper exactly once, then feed you for two weeks."
+    - "You sleep in your childhood bed and wake up at noon. Nobody minds."
+  effects: { energy: "+20±3", sanity: "+10±2", health: "+3", family_rel: "+6±2" }
+
+- id: leave_travel
+  label: "Travel somewhere you always meant to go"
+  desc: "The trip you kept moving to after the next deadline."
+  icon: "✈️"
+  text:
+    - "Two weeks somewhere with no Wi-Fi in the rooms and great noodles on every corner."
+    - "On a train you meet a stranger who has never heard of peer review. It's wonderful."
+  effects: { energy: "+12±3", sanity: "+12±3", health: "+2", friends_rel: "+2" }
+  flag_set: [leave_traveled]
+
+- id: leave_job
+  label: "Take a part-time job"
+  desc: "Some money, some structure, and a look at life outside academia."
+  icon: "💼"
+  text:
+    - "You help a small company clean up its data. They pay on time and say thank you."
+    - "Your manager leaves at 5:30 every day. You find this fascinating."
+  effects: { energy: "+8±2", sanity: "+5±2", network: "+2±1", coding: "+1", career_prep: "+2" }
+
+- id: leave_therapy
+  label: "See a therapist every week"
+  desc: "The counseling center has an opening on Tuesdays."
+  icon: "🛋️"
+  text:
+    - "You talk for fifty minutes and leave lighter than you came in."
+    - "Your therapist asks what you'd do if the PhD didn't exist. You don't have an answer yet, but you like the question."
+  effects: { energy: "+16±3", sanity: "+14±3", health: "+2" }
+  after: { turns: 3, text: "Now you can see the warning signs a few weeks before they arrive.", trait_add: burnout_survivor }
+
+- id: leave_cat
+  label: "Foster a cat from the shelter"
+  desc: "Just for a few weeks. That's what everyone says."
+  icon: "🐈"
+  when: { flags_none: [cat_adopted], traits_none: [cat_person] }
+  text:
+    - "The cat sleeps on your laptop, which is the most use the laptop gets these days."
+    - "The cat learns its name. You learn its schedule."
+  effects: { energy: "+18±3", sanity: "+10±2" }
+  after: { turns: 2, text: "The foster papers turn into adoption papers. It was never going to go any other way.", trait_add: cat_person, flag_set: [cat_adopted] }

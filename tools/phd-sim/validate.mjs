@@ -85,7 +85,8 @@ function checkOutcome(where, o, ev, schedules) {
   }
   [].concat(o.status || []).forEach((s) => { if (!s || !STATUSES.has(s.add)) err(where, "unknown status add " + JSON.stringify(s)); });
   [].concat(o.status_remove || []).forEach((s) => { if (!STATUSES.has(s)) err(where, "unknown status_remove '" + s + "'"); });
-  if (o.trait_add && !EARNED.has(o.trait_add)) err(where, "trait_add must be an earned trait, got '" + o.trait_add + "'");
+  // Leave activities may also give a start trait (Musician, Gym Rat) that clashes with none (state.js EXCLUSIVE).
+  if (o.trait_add && !EARNED.has(o.trait_add) && !(ev.file === "leave" && D.traitById[o.trait_add])) err(where, "trait_add must be an earned trait, got '" + o.trait_add + "'");
   [].concat(o.achievement || []).forEach((a) => { if (!ACHIEVEMENTS.has(a)) err(where, "unknown achievement '" + a + "'"); });
   if (o.tip && !TOPICS.has(o.tip)) err(where, "unknown PhD 101 topic '" + o.tip + "'");
   if (o.ending) { if (!ENDINGS.has(o.ending)) err(where, "unknown ending '" + o.ending + "'"); if (ev.file !== "exits") err(where, "ending used outside exits.yml"); }
@@ -167,6 +168,26 @@ for (const o of D.side) {
   const outcome = {};
   for (const k of Object.keys(o)) if (CHOICE_KEYS.includes(k) && k !== "label") outcome[k] = o[k];
   checkOutcome(where, outcome, { id: o.id, file: "side", when: o.when }, schedules);
+}
+const LEAVE_KEYS = ["id", "label", "desc", "icon", "when", "text", "after", "effects", "flag_set"];
+const leaveIds = new Set();
+for (const o of D.leave) {
+  const where = "leave/" + o.id;
+  if (!o.id || !o.id.startsWith("leave_")) err(where, "id should start with leave_");
+  if (leaveIds.has(o.id)) err(where, "duplicate id");
+  leaveIds.add(o.id);
+  for (const k of Object.keys(o)) if (!LEAVE_KEYS.includes(k)) err(where, "unknown key '" + k + "'");
+  if (!o.label) err(where, "missing label");
+  if (!o.effects) warn(where, "no effects");
+  if (!Array.isArray(o.text) || !o.text.length) warn(where, "no report lines (text)");
+  checkCond(where + ".when", o.when);
+  checkTokens(where, o.label); checkTokens(where, o.desc);
+  checkOutcome(where, { effects: o.effects, flag_set: o.flag_set }, { id: o.id, file: "leave", when: o.when }, schedules);
+  if (o.after) {
+    if (!(o.after.turns >= 1)) err(where, "after.turns should be 1 or more");
+    const rest = Object.assign({}, o.after); delete rest.turns;
+    checkOutcome(where + ".after", rest, { id: o.id, file: "leave", when: o.when }, schedules);
+  }
 }
 for (const tp of D.topics) {
   const tt = tp.titles || {};

@@ -307,6 +307,27 @@ test("with Health under 50, every turn offers the weekend card, led by something
   assert.equal(plans, 6);
 });
 
+test("on leave there's more to do than rest, and sticking with it leaves something behind", () => {
+  const g = gameWithProject("leave-1");
+  addStatus(g, "on_leave", 6);
+  g.state.player.traits = g.state.player.traits.filter((t) => t !== "musician");
+  const ids = g.actionList().map((a) => a.id);
+  assert.ok(ids.includes("recharge"), "Recharge is still there");
+  assert.ok(D.leave.every((a) => ids.includes("leave:" + a.id) || (a.when && a.when.flags_none)), "every leave activity is offered");
+  assert.ok(!ids.some((id) => id.indexOf("p:") === 0), "and no research");
+  const rng = new Rng("leave-1:answers");
+  let turns = 0;
+  for (let i = 0; i < 400 && turns < 3; i++) {
+    const p = g.step();
+    if (p.type === "plan") { assert.ok(g.submitPlan({ action: "leave:leave_music" })); turns++; continue; }
+    if (p.type !== "turn_end") g.answer(answerFor(p, rng));
+  }
+  for (let i = 0; i < 50; i++) { const p = g.step(); if (p.type === "plan") break; if (p.type !== "turn_end") g.answer(answerFor(p, rng)); }
+  assert.equal(g.state.counters.leave_leave_music, 3);
+  assert.ok(g.state.player.traits.includes("musician"), "three turns of music make you a Musician");
+  assert.ok(g.state.log.some((e) => e.text.indexOf("Music is part of your week again.") === 0), "and the report says so");
+});
+
 test("the rebuttal preview shows where each reply could take a score, without touching the game's dice", () => {
   const g = gameWithProject("outlook-1");
   const paper = { id: "x9", reviews: [

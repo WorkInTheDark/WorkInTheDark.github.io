@@ -324,6 +324,11 @@ export class Game {
       });
     } else {
       out.push({ id: "recharge", kind: "core", label: t("Recharge"), desc: t("You're on leave, so resting is the job."), arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
+      // Or something else to do with the time (leave.yml; playtest feedback, 2026-10-24).
+      (this.D.leave || []).forEach(function (a) {
+        if (!check(a.when, self, {})) return;
+        out.push({ id: "leave:" + a.id, kind: "core", label: fill(a.label, self, {}), desc: fill(a.desc || "", self, {}), arrows: arrowsFor(a) });
+      });
     }
     // Only this turn: opportunities that came up, and anything an event unlocked.
     (s.turnOpps || []).forEach(function (o) {
@@ -578,6 +583,7 @@ export class Game {
       else if (action === "quals_prep") dayKey = "quals_study";
       else if (ACTION_EXTRAS.indexOf(action) >= 0) dayKey = action === "apply_fellowship" || action === "proposal" || action === "defense" ? "writing_day" : "career";
       else if (action === "read") dayKey = "read";
+      else if (action.indexOf("leave:") === 0) dayKey = null;
       else if (opp && opp.def) {
         const kind = opp.def.days || "rest";
         if (kind === "project") {
@@ -586,7 +592,8 @@ export class Game {
           effD = eff * (opp.def.boost || 1);
         } else dayKey = kind === "none" ? null : kind;
       }
-      if (dayKey === "recharge") this.restTurn("recharge", fx.free, tally);
+      if (action.indexOf("leave:") === 0) this.leaveTurn(action.slice(6), tally);
+      else if (dayKey === "recharge") this.restTurn("recharge", fx.free, tally);
       else if (dayKey) this.applyDays(dayKey, effD, fx.free, tally);
       if (action.indexOf("crunch:") === 0) weekendWork = "p:" + action.slice(7);
       if (hasTrait(this, "caffeine_powered") && s.stats.energy < 40) addStat(this, "health", -1);
@@ -765,6 +772,27 @@ export class Game {
 
   // Recharge restores a whole turn's worth however busy the turn is: classes and TA still
   // happen, but evenings, sleep and the weekend are yours. It's good for your body too.
+  // A leave turn spent on something from leave.yml: its effects and a line for the report, and once
+  // you've spent enough turns on it, what it leaves you with (often a trait).
+  leaveTurn(id, tally) {
+    const s = this.state;
+    const a = this.D.leaveById[id];
+    if (!a) return;
+    const res = applyOutcome(this, { effects: a.effects, flag_set: a.flag_set }, {});
+    const lines = [].concat(a.text || []);
+    if (lines.length) this.log(fill(this.rng.pick(lines), this, {}), "news");
+    s.counters["leave_" + id] = (s.counters["leave_" + id] || 0) + 1;
+    if (a.after && !s.flags["leave_done_" + id] && s.counters["leave_" + id] >= (a.after.turns || 1)) {
+      s.flags["leave_done_" + id] = true;
+      const after = applyOutcome(this, a.after, {});
+      if (after.text) this.log(after.text, "news");
+      after.notes.forEach(function (n) { this.log(n, "news"); }, this);
+    }
+    res.notes.forEach(function (n) { this.log(n, "news"); }, this);
+    // Not a desk turn: it counts as time for yourself, with other people and on your feet.
+    tally.self += 3; tally.social++; tally.exercise++;
+  }
+
   restTurn(kind, free, tally) {
     const s = this.state;
     const cfg = this.D.config;

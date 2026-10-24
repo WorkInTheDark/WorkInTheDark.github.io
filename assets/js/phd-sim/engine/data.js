@@ -86,5 +86,7 @@ export function prepareData(raw) {
   D.opportunityById = indexBy(D.opportunities);
   D.side = asList(src.side);
   D.sideById = indexBy(D.side);
+  D.leave = asList(src.leave);
+  D.leaveById = indexBy(D.leave);
   return D;
 }
