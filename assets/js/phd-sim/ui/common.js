@@ -1,8 +1,16 @@
 // Small rendering helpers shared by the views.
 import { escapeHtml } from "../engine/util.js";
-import { t, T_ } from "../engine/i18n.js";
+import { t, T_, LANGUAGES, language } from "../engine/i18n.js";
 
 export const esc = escapeHtml;
+
+// The EN / 中文 switch. Each language is named in itself, so it reads the same in every language.
+export function langSwitchHtml() {
+  return '<div class="ps-langs" role="group" aria-label="Language / 语言">' + LANGUAGES.map(function (l) {
+    const on = l.id === language();
+    return '<button class="ps-lang' + (on ? " ps-lang-on" : "") + '" data-action="lang" data-id="' + l.id + '" aria-pressed="' + on + '" lang="' + (l.id === "zh" ? "zh-Hans" : "en") + '">' + esc(l.label) + "</button>";
+  }).join("") + "</div>";
+}
 
 // "1 paper" but "3 papers" (Chinese reads the same either way).
 export function papersText(n) { return n === 1 ? t("1 paper") : t("{n} papers", { n: n }); }

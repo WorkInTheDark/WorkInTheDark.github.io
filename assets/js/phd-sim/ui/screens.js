@@ -1,8 +1,9 @@
 // Title, setup, codex, achievements and the end card.
-import { esc, bar, citationsText } from "./common.js";
+import { esc, langSwitchHtml } from "./common.js";
 import { shareRowHtml, beatsLine } from "./share.js";
 import { boardSectionHtml } from "./board.js";
-import { t, T_, LANGUAGES, language } from "../engine/i18n.js";
+import { detailsHtml } from "./result.js";
+import { t, T_ } from "../engine/i18n.js";
 
 function stripTokens(s) {
   return String(s || "").replace(/\{[^}]+\}/g, "…");
@@ -28,11 +29,7 @@ export function titleHtml(app) {
     (app.board ? '<button class="ps-btn" data-action="board">' + esc(t("Leaderboard")) + "</button>" : "") +
     '<button class="ps-btn" data-action="codex">' + esc(t("Codex")) + "</button>" +
     "</div>" +
-    // Each language is named in itself, so the switch reads the same in every language.
-    '<div class="ps-langs" role="group" aria-label="Language / 语言">' + LANGUAGES.map(function (l) {
-      const on = l.id === language();
-      return '<button class="ps-lang' + (on ? " ps-lang-on" : "") + '" data-action="lang" data-id="' + l.id + '" aria-pressed="' + on + '" lang="' + (l.id === "zh" ? "zh-Hans" : "en") + '">' + esc(l.label) + "</button>";
-    }).join("") + "</div>" +
+    langSwitchHtml() +
     (meta.runsCompleted ? '<p class="ps-muted ps-small" style="margin-top:1rem">' + esc(runs) + " · " +
       esc(t("{n} of {total} endings found", { n: endings, total: careerEndings })) + " · " + esc(t("{n} of {total} achievements", { n: ach, total: total })) + "</p>" : "") +
     (app.storageOk ? "" : '<p class="ps-note" style="max-width:30rem;margin:1rem auto 0">' + esc(t("Your browser is blocking storage, so progress won’t be saved if you leave this page.")) + "</p>") +
@@ -78,7 +75,6 @@ const CODEX_CATEGORY = {
 };
 
 // A paper's status on the end screen.
-const PAPER_STATUS = { accepted: T_("accepted"), rejected: T_("rejected"), under_review: T_("under review"), revise_resubmit: T_("revise resubmit") };
 
 export function codexHtml(app) {
   const D = app.D;
@@ -131,9 +127,10 @@ export function codexHtml(app) {
 export function endHtml(app) {
   const e = app.ending;
   const n = e.numbers;
-  const L = e.statLabels;
-  const hidden = ["taste", "coding", "writing", "presenting", "knowledge", "advisor_rel", "labmates_rel", "family_rel", "friends_rel", "network"];
-  return '<div class="ps-end"><div class="ps-end-head"><div class="ps-kicker">' + esc(e.graduated ? t("Graduated") : t("Left the PhD")) + " · " + esc(e.group) + "</div>" +
+  // The language can be switched here too, so a result can be shared in English and in Chinese
+  // (playtest feedback, 2026-10-23). The switch needs storage to carry the run across the reload.
+  return '<div class="ps-end">' + (app.storageOk ? '<div class="ps-end-lang">' + langSwitchHtml() + "</div>" : "") +
+    '<div class="ps-end-head"><div class="ps-kicker">' + esc(e.graduated ? t("Graduated") : t("Left the PhD")) + " · " + esc(e.group) + "</div>" +
     "<h2>" + esc(e.name) + '</h2><div class="ps-end-title">' + esc(e.title.name) + "</div>" +
     (e.title.desc ? '<div class="ps-muted ps-small">' + esc(e.title.desc) + "</div>" : "") + "</div>" +
     (beatsLine(n.beats) ? '<p class="ps-share-beats" title="' + esc(t("Your research record (papers, top venues, h-index, citations, letters) against thousands of simulated runs of the game.")) + '">' + esc(beatsLine(n.beats, true)) + "</p>" : "") +
@@ -141,25 +138,14 @@ export function endHtml(app) {
     // to find them (Arthur, 2026-10-23).
     '<div class="ps-card ps-section ps-end-actions">' + shareRowHtml(e, app.D, typeof navigator !== "undefined" && typeof navigator.share === "function") +
     boardSectionHtml(app) + "</div>" +
-    '<div class="ps-card ps-section"><p class="ps-text">' + esc(e.text) + "</p>" + e.epilogue.map(function (l) { return '<p class="ps-small">' + esc(l) + "</p>"; }).join("") + "</div>" +
-    '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("Your PhD in numbers")) + '</h3><div class="ps-numbers">' +
-    [[t("Years"), n.years], [t("First-author papers"), n.pubs], [t("All papers"), n.allPubs], [t("Citations"), n.citations], [t("h-index"), n.h], [t("Submissions"), n.submissions],
-      [t("Rejections"), n.rejections], [t("Conferences"), n.conferences], [t("Overtime days"), n.overtime], [t("Burnouts"), n.burnouts], [t("Events"), n.events]]
-      .map(function (x) { return "<div><b>" + esc(x[1]) + "</b>" + esc(x[0]) + "</div>"; }).join("") + "</div></div>" +
-    '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("The hidden numbers, revealed")) + '</h3><div class="ps-card ps-reveal">' +
-    hidden.map(function (k) { return '<div><div class="ps-meter-label"><span>' + esc(t(L[k])) + "</span><b>" + n.stats[k] + "</b></div>" + bar(n.stats[k]) + "</div>"; }).join("") + "</div></div>" +
-    (e.advisor ? '<p class="ps-small ps-muted">' + esc(t("Advisor: {name} ({type}).", { name: e.advisor.name, type: e.advisor.label })) + "</p>" : "") +
-    (e.papers.length ? '<details class="ps-section"><summary class="ps-section-title">' + esc(t("Papers ({n})", { n: e.papers.length })) + '</summary><div class="ps-card">' + e.papers.map(function (p) {
-      return '<div class="ps-paper"><span class="ps-tag">' + esc(p.venue) + "</span>" + esc(p.title) + '<div class="ps-meta">' + esc(PAPER_STATUS[p.status] ? t(PAPER_STATUS[p.status]) : p.status.replace("_", " ")) + (p.first ? "" : " · " + esc(t("co-author"))) + " · " + esc(citationsText(p.cites)) + "</div></div>";
-    }).join("") + "</div></details>" : "") +
-    (e.achievements.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("Achievements this run")) + '</h3><div class="ps-chips">' + e.achievements.map(function (id) {
-      const a = app.D.achievementById[id];
-      return a ? '<span class="ps-chip ps-chip-accent" title="' + esc(a.desc) + '">' + esc(a.name) + "</span>" : "";
-    }).join("") + "</div></div>" : "") +
-    (e.recommendations.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("From PhD 101, for how you played")) + '</h3><div class="ps-recs">' + e.recommendations.map(function (r) {
-      return '<a href="' + esc(r.url) + '" target="_blank" rel="noopener"><b>' + esc(r.title) + "</b><small>" + esc(r.topic) + "</small><small>" + esc(r.why) + "</small></a>";
-    }).join("") + "</div></div>" : "") +
+    detailsHtml(e, app.D, true) +
     '<div class="ps-foot" style="justify-content:center"><button class="ps-btn" data-action="codex">' + esc(t("Codex")) + "</button>" +
-    '<button class="ps-btn ps-btn-primary" data-action="setup">' + esc(t("Play again")) + "</button></div></div>";
+    '<button class="ps-btn ps-btn-primary" data-action="setup">' + esc(t("Play again")) + "</button></div>" +
+    // PhD 101 comes after the game, apart from the result (Arthur, 2026-10-23): the episodes are English
+    // articles, so in Chinese they shouldn't sit in the middle of the run's own text.
+    (e.recommendations.length ? '<div class="ps-section ps-further"><h3 class="ps-section-title">' + esc(t("Further reading")) + "</h3>" +
+      '<p class="ps-muted ps-small">' + esc(t("PhD 101 episodes picked for how you played.")) + '</p><div class="ps-recs">' + e.recommendations.map(function (r) {
+      return '<a href="' + esc(r.url) + '" target="_blank" rel="noopener"><b>' + esc(r.title) + "</b><small>" + esc(r.topic) + "</small><small>" + esc(r.why) + "</small></a>";
+    }).join("") + "</div></div>" : "") + "</div>";
 }
 

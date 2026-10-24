@@ -11,6 +11,8 @@ import { dailyDay } from "../engine/util.js";
 import { boardScreenHtml, loadBoards, submitRun, openRun } from "./board.js";
 import { hoverDot } from "./chart.js";
 
+const REOPEN_KEY = "phdsim:reopen";
+
 // Focus that came from the keyboard; some browsers also focus a button when it's clicked or tapped.
 function keyboardFocus(el) { try { return el.matches(":focus-visible"); } catch (e) { return true; } }
 
@@ -49,6 +51,9 @@ export class App {
     // A shared result link (#r=…) opens a read-only card instead of the title screen.
     this.shared = readSharedFromLocation(this.D);
     if (this.shared) this.screen = "shared";
+    // Back from switching the language on the end screen: straight to that end screen again.
+    let reopen = null;
+    try { reopen = JSON.parse(sessionStorage.getItem(REOPEN_KEY) || "null"); sessionStorage.removeItem(REOPEN_KEY); } catch (e) { reopen = null; }
     window.addEventListener("hashchange", function () {
       const r = readSharedFromLocation(self.D);
       if (!r) return;
@@ -57,7 +62,11 @@ export class App {
       self.modal = null; self.inspect = null; self.panel = null;
       self.shared = r; self.screen = "shared"; self.render();
     });
-    this.render();
+    if (reopen && this.shared && reopen.fromBoard) this.fromBoard = reopen.fromBoard;
+    if (reopen && !this.shared && this.savedRun && this.savedRun.phase === "ended") {
+      this.resume();
+      if (reopen.board) { this.boardSubmit = reopen.board; this.render(); }
+    } else this.render();
   }
 
   // Leaves the shared card: drop the #r=… part of the address so a reload doesn't bring it back.
@@ -326,7 +335,7 @@ export class App {
     const self = this;
     this.cardFile = null;
     if (typeof navigator.share === "function" && typeof File === "function") {
-      cardBlob(s.ending, function (blob) { if (blob && self.ending === s.ending) self.cardFile = new File([blob], "phd-simulator.png", { type: "image/png" }); });
+      cardBlob(s.ending, this.D, function (blob) { if (blob && self.ending === s.ending) self.cardFile = new File([blob], "phd-simulator.png", { type: "image/png" }); });
     }
     storage.clearRun();
     this.savedRun = null;
@@ -341,6 +350,15 @@ export class App {
   switchLanguage(id) {
     if (!id || id === language()) return;
     if (this.game && this.game.state.phase !== "ended") storage.saveRun(this.game.state);
+    // From the end screen, the finished run is saved again so the page can reopen it in the new
+    // language, with its place on the leaderboard if it was submitted. A result opened from the
+    // leaderboard keeps whose it is.
+    let reopen = null;
+    if (this.screen === "end" && this.finished) {
+      storage.saveRun(this.finished);
+      reopen = { board: this.boardSubmit && this.boardSubmit.state === "done" ? this.boardSubmit : null };
+    } else if (this.screen === "shared" && this.fromBoard) reopen = { fromBoard: this.fromBoard };
+    if (reopen) { try { sessionStorage.setItem(REOPEN_KEY, JSON.stringify(reopen)); } catch (e) { /* reopens without it */ } }
     storage.saveMeta(this.meta);
     storage.saveLang(id);
     const u = new URL(location.href);
@@ -370,7 +388,7 @@ export class App {
       case "board-submit": submitRun(this); break;
       // A row opens that player's result card (the shared-link view), with a way back here.
       case "board-open": if (id) { this.fromBoard = { nick: el.getAttribute("data-nick") || "" }; location.hash = "r=" + id; } break;
-      case "board-back": this.leaveShared(); this.fromBoard = false; this.screen = "board"; this.render(); break;
+      case "board-back": this.leaveShared(); this.fromBoard = false; this.screen = "board"; if (this.boardData) this.render(); else loadBoards(this); break;
       // The all-time chart: pick a run, hide or show a group, pick out one ending, open a run.
       case "chart-dot": this.chart.sel = this.chart.sel === id ? null : id; this.keepScroll = true; this.render(); break;
       case "chart-group": this.chart.hidden[i] = !this.chart.hidden[i]; this.keepScroll = true; this.render(); break;
@@ -422,7 +440,7 @@ export class App {
         break;
       }
       case "save-image": {
-        cardBlob(this.ending, function (blob) {
+        cardBlob(this.ending, this.D, function (blob) {
           if (!blob) return;
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");

@@ -105,12 +105,13 @@ function pickTitle(G) {
   return { id: "steady_hand", name: t("The Steady Hand") };
 }
 
+// The epilogue's lines, and which epilogues.yml entries they came from (for the share link).
 function pickEpilogue(G) {
   const s = G.state;
-  const lines = [];
+  const lines = [], ids = [];
   const matches = G.D.epilogues.filter(function (e) { return check(e.when, G, {}); });
   const shuffled = G.rng.shuffle(matches).sort(function (a, b) { return (b.priority || 0) - (a.priority || 0); });
-  shuffled.slice(0, 3).forEach(function (e) { lines.push(fill(e.text, G, {})); });
+  shuffled.slice(0, 3).forEach(function (e) { lines.push(fill(e.text, G, {})); ids.push(G.D.epilogues.indexOf(e)); });
   const gone = s.labmates.filter(function (l) { return l.fate; });
   if (gone.length) {
     const l = G.rng.pick(gone);
@@ -120,7 +121,16 @@ function pickEpilogue(G) {
   if (best && paperCitations(best) > 0) {
     lines.push(t("“{paper}” keeps getting cited: {n} times and counting.", { paper: best.short, n: paperCitations(best) }));
   }
-  return lines;
+  return { lines: lines, ids: ids };
+}
+
+// Where a paper's venue and title sit in the game's data, so a shared link can name the paper with
+// ids alone: [venue id, cycle, Findings 1/0, topic id, title list, index in it (-1 if not there)].
+function paperRef(G, p) {
+  const tt = (G.D.topicById[p.topic] || {}).titles || {};
+  let field = "", idx = -1;
+  Object.keys(tt).some(function (f) { const i = (tt[f] || []).indexOf(p.title); if (i >= 0) { field = f; idx = i; } return i >= 0; });
+  return [p.venueId || "", p.cycle || 0, p.tier === "findings" ? 1 : 0, p.topic || "", field, idx];
 }
 
 function pickRecommendations(G) {
@@ -170,6 +180,7 @@ export function finalize(G, endingId) {
   if (Object.keys(meta0.codex.endings).filter(function (k) { return k !== "founder"; }).length >= 26) unlock(G, "every_door");
   checkAchievements(G);
   const title = pickTitle(G);
+  const epilogue = pickEpilogue(G);
   const numbers = {
     years: Math.round((s.turn / TURNS) * 10) / 10,
     pubs: firstAuthorPubs(G),
@@ -195,15 +206,18 @@ export function finalize(G, endingId) {
     graduated: !!s.milestones.graduated,
     daily: s.daily && /^daily-\d{4}-\d{2}-\d{2}$/.test(s.seed || "") ? s.seed.slice(6) : null,
     title: { id: title.id, name: title.name, desc: title.desc || "" },
-    epilogue: pickEpilogue(G),
+    epilogue: epilogue.lines,
     numbers: numbers,
     statLabels: STAT_LABELS,
     recommendations: pickRecommendations(G),
     papers: s.papers.filter(function (p) { return !p.superseded; }).map(function (p) {
-      return { title: p.title, venue: p.venueName, tier: p.tier, status: p.status, cites: paperCitations(p), first: p.firstAuthor };
+      return { title: p.title, venue: p.venueName, tier: p.tier, status: p.status, cites: paperCitations(p), first: p.firstAuthor, ref: paperRef(G, p) };
     }),
     achievements: Object.keys(s.runAchievements || {}),
-    advisor: s.advisor ? { label: s.advisor.label, name: t("Prof. {name}", { name: s.advisor.surname }) } : null
+    advisor: s.advisor ? { label: s.advisor.label, name: t("Prof. {name}", { name: s.advisor.surname }),
+      ref: [s.advisor.archetype, ((G.D.names || {}).last || []).indexOf(s.advisor.surname)] } : null,
+    // Ids for the share link (ui/share.js): which epilogue lines this run got.
+    ref: { epilogue: epilogue.ids }
   };
   const meta = G.meta;
   meta.codex = meta.codex || {};
