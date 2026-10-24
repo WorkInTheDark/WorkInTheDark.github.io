@@ -275,7 +275,8 @@ Stat ids used in data files: `energy`, `sanity`, `health`, `citations`, `taste`,
 **Health**
 - `-2` a turn with no exercise (a health side activity or Recharge counts); `-2` more when the turn ends with Energy under 25, and `-2` when it ends with Stress over 70; overtime day `-1.5`; many event outcomes.
 - A Recharge turn `+4±1`; health side activities `+3` to `+6`.
-- Below 35, work is 10% slower. Chance of getting sick each turn: `0.01 + 0.003 × (100 − health)`, doubled in flu season (sick: 5 fewer free days, −15 Energy, −4 Health).
+- Below 35, work is 10% slower. Chance of getting sick each turn: `0.01 + 0.003 × (100 − health)`, doubled in flu season (sick: 5 fewer free days next turn).
+- **Getting sick and running out of Energy are events** (playtest feedback, 2026-10-24: it was one line, the same cold every time). Getting sick opens the next turn with one of ten `hook: sick` events in `events/health.yml`, picked by what got you there: flu season, travel (jet lag), overwork, a desk-bound body (Health < 50), stress or coffee, or the plain cold (weight 0.5, the one that's always possible). Each offers resting (a day or two, a little Health back) or pushing through (more Energy and Health). They replace the old fixed −15 Energy and −4 Health. A turn that starts with Energy at 5 or less, not sick, brings one of eight `hook: exhausted` events half the time. Neither counts toward the turn's random-event budget. Over 1,800 simulated runs the research score is unchanged (P50 83) and Health ends a little higher.
 
 **Skills (hidden)**
 - Each day of relevant work: `Δ = 0.25 × (1 − skill/100)`, so growth slows as skills rise. They speed up progress and raise paper quality.
@@ -306,7 +307,7 @@ Temporary effects with a duration, shown as chips under the stats.
 
 | Status | Duration | Effect |
 |---|---|---|
-| Sick | 1–2 turns | −5 free days, Energy −20 |
+| Sick | 1 turn | −5 free days; the sick event's choice sets the rest |
 | Jet-lagged | 1 turn | Efficiency ×0.8 |
 | Burnout | 3 turns | Free days halved, no overtime |
 | Post-rejection blues | 2 turns | Sanity −2 per turn, efficiency ×0.9 |

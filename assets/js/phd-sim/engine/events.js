@@ -8,7 +8,8 @@ import { statValue, hasTrait } from "./derived.js";
 
 export const HOOK_CHANCE = {
   turn: 1, deadline: 0.3, after_submit: 0.2, reviews_in: 0.3, after_accept: 0.35, after_reject: 0.3,
-  conference: 1, internship: 0.3, defense_prep: 0.4, defense: 1, job_market: 0.15, model_release: 0.25, graduation: 1
+  conference: 1, internship: 0.3, defense_prep: 0.4, defense: 1, job_market: 0.15, model_release: 0.25, graduation: 1,
+  sick: 1, exhausted: 0.5
 };
 const HOOK_MAX = { conference: 1, graduation: 2 };
 

@@ -440,6 +440,8 @@ export class Game {
       fireHook(this, "internship", { company: s.internship.accepted.company }).forEach(function (it) { items.push(it); });
     }
     if (hasStatus(this, "defense_prep")) fireHook(this, "defense_prep", {}).forEach(function (it) { items.push(it); });
+    // Starting a turn out of Energy (and not already sick): sometimes an "exhausted" event (events/health.yml).
+    if (s.stats.energy <= (this.D.config.energy.empty || 5) && !hasStatus(this, "sick")) fireHook(this, "exhausted", {}).forEach(function (it) { items.push(it); });
     if (hasStatus(this, "job_market")) fireHook(this, "job_market", {}).forEach(function (it) { items.push(it); });
     activeProjects(this).forEach(function (p) {
       if (!p.target || p.target.rrPaper || p.target.journalPaper) return;
@@ -459,7 +461,13 @@ export class Game {
     const odds = ev.per_turn || [0.15, 0.6, 0.25];
     let want = 0;
     for (let r = this.rng.next(), acc = 0; want < odds.length; want++) { acc += odds[want]; if (r < acc) break; }
-    const updates = items.filter(function (it) { return it.kind === "event" || PROMPT_SYS.indexOf(it.sys) >= 0; }).length;
+    // Getting sick or running out of Energy (events/health.yml) comes on top, so it doesn't push out the
+    // turn's other events.
+    const updates = items.filter(function (it) {
+      const def = it.kind === "event" ? self.D.eventById[it.id] : null;
+      if (def && (def.hook === "sick" || def.hook === "exhausted")) return false;
+      return it.kind === "event" || PROMPT_SYS.indexOf(it.sys) >= 0;
+    }).length;
     if (want - updates > 0) drawHook(this, "turn", {}, want - updates).forEach(function (it) { items.push(it); });
     // Now and then, something to do with an evening or a weekend: an optional pick on the plan screen.
     const low = s.stats.health < 45 || s.stats.sanity < 40;
@@ -636,10 +644,10 @@ export class Game {
     let sickP = cfg.health.sick_base + cfg.health.sick_per_point * (100 - s.stats.health);
     if (tn >= cfg.health.flu_season[0] && tn <= cfg.health.flu_season[1]) sickP *= 2;
     if (!hasStatus(this, "sick") && this.rng.chance(sickP)) {
+      // Getting sick: the next turn loses free days and opens with how (events/health.yml, hook sick),
+      // where the choice sets the cost (playtest feedback, 2026-10-24: one line, the same cold every time).
       addStatus(this, "sick", 1);
-      addStat(this, "energy", -15);
-      addStat(this, "health", -4);
-      this.log(t("You catch something nasty. The next two weeks will be slow."), "bad");
+      s.pendingHooks.push({ hook: "sick", ctx: {} });
     }
     if (s.stats.sanity <= 0 && !hasStatus(this, "burnout")) {
       addStatus(this, "burnout", span(cfg.sanity.burnout_turns) + 1);

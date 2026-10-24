@@ -32,6 +32,7 @@ energy:
   read_relief: 1         # a reading day costs 1 less than other work
   efficiency_floor: 0.35 # efficiency = clamp(floor + slope * energy, floor, 1): full speed at 60+
   efficiency_slope: 0.011
+  empty: 5               # a turn starting at or below this can bring an "exhausted" event (events/health.yml)
 
 # Shown to the player as Stress = 100 − sanity.
 sanity:

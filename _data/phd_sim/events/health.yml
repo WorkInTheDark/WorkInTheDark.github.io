@@ -1,0 +1,322 @@
+# Getting sick and running out of Energy (playtest feedback, 2026-10-24: it was one line, the same cold
+# every time). Getting sick costs the next turn 5 free days (status sick) and opens that turn with one of
+# the "sick" events below, picked by what got you there: flu season, travel, overwork, a desk-bound body,
+# stress or coffee. What it costs depends on the choice. A turn that starts with Energy at 5 or less
+# (and not sick) sometimes brings an "exhausted" event.
+# ill_the_cold has no conditions and no cooldown, so a sick turn always has an event.
+
+- id: ill_the_cold
+  title: "The Cold"
+  category: wellbeing
+  rarity: common
+  weight: 0.5
+  hook: sick
+  repeatable: true
+  text:
+    - "You catch something nasty. Your nose runs, your head is full of wool, and the next two weeks will be slow."
+  choices:
+    - label: "Stay in bed with soup"
+      text: "You sleep fourteen hours and wake up a person again."
+      effects: { energy: "-6±2", health: "+1", days: -1 }
+    - label: "Work from the couch under a blanket"
+      text: "You get a little done. Your typing has a lot of sniffles in it."
+      effects: { energy: "-12±2", health: "-4±1" }
+
+- id: ill_flu_season
+  title: "Flu Season"
+  category: wellbeing
+  rarity: common
+  hook: sick
+  repeatable: true
+  cooldown: 20
+  when: { turn: [8, 14] }
+  text:
+    - "Half the department is coughing. By Tuesday, so are you."
+  choices:
+    - label: "Sleep it off, and get the flu shot next year"
+      text: "You make a note for next fall. For now there's tea, and a lot of sleep."
+      effects: { energy: "-8±2", health: "+1", days: -1 }
+    - label: "Put on a mask and keep going"
+      text: "You get through it slowly. So do the other six people in the lab."
+      effects: { energy: "-12±2", health: "-3±1", labmates_rel: "+1" }
+
+- id: ill_conference_souvenir
+  title: "The Conference Souvenir"
+  category: wellbeing
+  rarity: uncommon
+  hook: sick
+  repeatable: true
+  cooldown: 20
+  when: { status_any: [jet_lagged] }
+  text:
+    - "Three thousand people, one coffee line and a long flight home. You brought back a lanyard, twelve business cards and a fever."
+  choices:
+    - label: "Sleep off the jet lag and the fever together"
+      text: "Two birds, one very long nap."
+      effects: { energy: "-6±2", health: "+1", days: -1 }
+    - label: "Write up your conference notes from bed"
+      text: "Half the notes are good ideas. The other half say \"ask about the thing\"."
+      effects: { energy: "-10±2", health: "-3±1", knowledge: "+1", network: "+1" }
+
+- id: ill_migraine
+  title: "Migraine"
+  category: wellbeing
+  rarity: uncommon
+  hook: sick
+  repeatable: true
+  cooldown: 26
+  when: { any: [{ telemetry: { overtime_streak: ">=2" } }, { stat: { energy: "<25" } }] }
+  text:
+    - "A migraine arrives at 2 pm and turns your screen into the sun."
+  choices:
+    - label: "Close the curtains, turn off the lights, lie down"
+      text: "The world comes back slowly, and quieter than before."
+      effects: { energy: "-8±2", sanity: "+1", days: -1 }
+    - label: "Dark mode, sunglasses, keep typing"
+      text: "You finish the paragraph. Tomorrow you can't read it."
+      effects: { energy: "-12±2", health: "-4±1" }
+
+- id: ill_your_back
+  title: "Your Back"
+  category: wellbeing
+  rarity: uncommon
+  hook: sick
+  repeatable: true
+  cooldown: 26
+  when: { stat: { health: "<50" } }
+  text:
+    - "You bend down to pick up a pen and your back says no. It keeps saying no for two weeks."
+  choices:
+    - label: "See a physical therapist"
+      text: "She gives you five exercises and a look. You do the exercises, mostly."
+      effects: { energy: "-6±2", health: "+3±1", days: -1 }
+    - label: "Work standing up, leaning on the bookshelf"
+      text: "The bookshelf is now a standing desk. Your back isn't convinced."
+      effects: { energy: "-10±2", health: "-2±1" }
+
+- id: ill_the_stomach
+  title: "The Stomach"
+  category: wellbeing
+  rarity: uncommon
+  hook: sick
+  repeatable: true
+  cooldown: 26
+  when: { any: [{ traits_any: [caffeine_powered] }, { stat: { sanity: "<35" } }] }
+  text:
+    - "Four coffees a day and dinner at 11 pm finally send the bill: your stomach hurts every time you eat."
+  choices:
+    - label: "Rice porridge, and no coffee for two weeks"
+      text: "The first three days are hard. Then food stops hurting."
+      effects: { energy: "-10±2", health: "+2±1" }
+    - label: "Antacids, and one coffee a day. Just one."
+      text: "It's never just one."
+      effects: { energy: "-6±2", health: "-4±1" }
+
+- id: ill_free_pizza
+  title: "The Free Pizza"
+  category: wellbeing
+  rarity: uncommon
+  hook: sick
+  repeatable: true
+  cooldown: 39
+  text:
+    - "The pizza at Friday's talk sat out a little too long. You find out on Saturday."
+  choices:
+    - label: "Go to urgent care"
+      text: "Two hours in the waiting room, then a nurse says \"fluids\". You drink fluids."
+      effects: { energy: "-8±2", health: "+1", days: -1 }
+    - label: "Wait it out with crackers"
+      text: "It works, eventually. You can't look at pepperoni for a month."
+      effects: { energy: "-12±2", health: "-3±1" }
+
+- id: ill_no_voice
+  title: "No Voice"
+  category: wellbeing
+  rarity: uncommon
+  hook: sick
+  repeatable: true
+  cooldown: 39
+  when: { has_advisor: true }
+  text:
+    - "You wake up with no voice, in the week you're supposed to present at group meeting."
+  choices:
+    - label: "Email {advisor} and move your slot"
+      text: "The reply is short: \"Feel better. Next week, then.\""
+      effects: { energy: "-8±2", health: "+1", days: -1 }
+    - label: "Present by typing everything onto the slides"
+      text: "Your slides have never been so complete. People say it's your clearest talk yet."
+      effects: { energy: "-12±2", health: "-2±1", presenting: "+1", writing: "+1" }
+
+- id: ill_your_eyes
+  title: "Your Eyes"
+  category: wellbeing
+  rarity: uncommon
+  hook: sick
+  repeatable: true
+  cooldown: 39
+  when: { any: [{ telemetry: { overtime_streak: ">=1" } }, { stat: { energy: "<30" } }] }
+  text:
+    - "Your eyes are red, dry and twitching. The optometrist asks how many hours a day you look at a screen, and you lie."
+  choices:
+    - label: "Every 20 minutes, look 20 feet away for 20 seconds"
+      text: "It's mostly the wall. Your eyes like the wall."
+      effects: { energy: "-6±2", health: "+2±1", days: -1 }
+    - label: "Buy eye drops and turn the brightness down"
+      text: "Your screen is dim, your eyes are still red, and the draft is a little longer."
+      effects: { energy: "-10±2", health: "-3±1" }
+
+- id: ill_two_lines
+  title: "Two Lines"
+  category: wellbeing
+  rarity: rare
+  hook: sick
+  repeatable: true
+  cooldown: 52
+  text:
+    - "The test shows two lines. That means five days at home, and a group chat full of people asking whether they sat next to you."
+  choices:
+    - label: "Isolate properly and rest"
+      text: "You watch a whole TV series and feel guilty about none of it."
+      effects: { energy: "-4±2", health: "+1", sanity: "+2", days: -2 }
+    - label: "Isolate, and join every meeting with the camera off"
+      text: "You attend everything and remember nothing."
+      effects: { energy: "-12±2", health: "-3±1" }
+
+# Out of Energy: a turn that starts with Energy at 5 or less.
+
+- id: exh_keyboard
+  title: "Asleep on the Keyboard"
+  category: wellbeing
+  rarity: common
+  hook: exhausted
+  repeatable: true
+  cooldown: 13
+  text:
+    - "You wake up at your desk at 3 am. The draft now ends with four pages of the letter k."
+  choices:
+    - label: "Delete the k's and go home to bed"
+      text: "You sleep in your own bed for the first time in a week. It's a great bed."
+      effects: { energy: "+6±2", health: "+1" }
+    - label: "Delete the k's and keep writing"
+      text: "The next paragraph is worse than the k's."
+      effects: { energy: "-2", health: "-3±1", sanity: "-2" }
+
+- id: exh_slept_through
+  title: "Slept Through It"
+  category: wellbeing
+  rarity: common
+  hook: exhausted
+  repeatable: true
+  cooldown: 13
+  when: { has_advisor: true }
+  text:
+    - "You sleep through three alarms and your 9 am meeting with {advisor}."
+  choices:
+    - label: "Tell the truth: you were running on empty"
+      text: "\"Take this week slower,\" comes the reply. For once, you do."
+      effects: { energy: "+8±2", advisor_rel: "-1", days: -1 }
+    - label: "Say your calendar didn't sync, and push on"
+      text: "The meeting moves to Thursday. You're awake for it, barely."
+      effects: { energy: "-2", advisor_rel: "-2", sanity: "-2" }
+
+- id: exh_brain_fog
+  title: "Brain Fog"
+  category: wellbeing
+  rarity: common
+  hook: exhausted
+  repeatable: true
+  cooldown: 13
+  text:
+    - "You read the same paragraph six times. On the seventh, you notice it's from your own paper."
+  choices:
+    - label: "Close the laptop and go for a walk"
+      text: "Twenty minutes outside, and words start meaning things again."
+      effects: { energy: "+5±2", sanity: "+2" }
+    - label: "Make another coffee"
+      text: "You read it an eighth time, faster."
+      effects: { energy: "+2", health: "-2±1" }
+
+- id: exh_reply_all
+  title: "Reply All"
+  category: wellbeing
+  rarity: uncommon
+  hook: exhausted
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Too tired to look, you send a half-written email to the whole lab list. It ends with \"ok but honestly\"."
+  choices:
+    - label: "Send a follow-up: please ignore"
+      text: "Three people reply \"ignored!\" One asks what you were honestly about to say."
+      effects: { sanity: "-1", labmates_rel: "+1" }
+    - label: "Pretend it never happened and log off"
+      text: "You log off for the rest of the day, which is what you needed anyway."
+      effects: { energy: "+6±2", sanity: "+1" }
+
+- id: exh_cereal
+  title: "Cereal for Dinner"
+  category: wellbeing
+  rarity: uncommon
+  hook: exhausted
+  repeatable: true
+  cooldown: 26
+  text:
+    - "You stand in the grocery store for ten minutes and can't remember what you came for. You buy cereal. It's dinner for four days."
+  choices:
+    - label: "Cook a real meal on Sunday"
+      text: "It takes two hours and feeds you for three days. You feel like an adult."
+      effects: { energy: "+3±1", health: "+2±1" }
+    - label: "Order takeout, again"
+      text: "The delivery driver knows your name and your door code."
+      effects: { health: "-1", sanity: "+1" }
+
+- id: exh_last_stop
+  title: "The Last Stop"
+  category: wellbeing
+  rarity: uncommon
+  hook: exhausted
+  repeatable: true
+  cooldown: 26
+  text:
+    - "You fall asleep on the bus and wake up at the end of the line, in a part of town you've never seen."
+  choices:
+    - label: "Walk back and look around"
+      text: "There's a bakery out here better than anything near campus. You start coming back on weekends."
+      effects: { energy: "-2", sanity: "+3±1", health: "+1" }
+    - label: "Take the next bus back, and nap on it"
+      text: "You wake up at the other end of the line. You give up and take a taxi."
+      effects: { energy: "+2", sanity: "-1" }
+
+- id: exh_the_birthday
+  title: "The Birthday"
+  category: wellbeing
+  rarity: uncommon
+  hook: exhausted
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Your phone shows a photo of everyone at a friend's birthday dinner. It was tonight. You were in the lab, and you forgot."
+  choices:
+    - label: "Call to apologize, and take them to dinner"
+      text: "They forgive you over noodles. Every birthday goes into your calendar, with two alarms."
+      effects: { friends_rel: "+2", energy: "-2", sanity: "+2" }
+    - label: "Send a long text and go to bed"
+      text: "\"no worries!!\" comes back. You're not sure it's no worries."
+      effects: { energy: "+4±2", friends_rel: "-2" }
+
+- id: exh_third_coffee
+  title: "The Third Coffee"
+  category: wellbeing
+  rarity: uncommon
+  hook: exhausted
+  repeatable: true
+  cooldown: 26
+  text:
+    - "By the third coffee your hands shake when you type, and the cursor jumps around as if it had coffee too."
+  choices:
+    - label: "Switch to water and go to bed early"
+      text: "The shaking stops. The tiredness doesn't, but now it's the honest kind."
+      effects: { energy: "+5±2", health: "+1" }
+    - label: "Fourth coffee"
+      text: "Your heart plays a short drum solo. You finish the figure."
+      effects: { energy: "+2", health: "-3±1" }

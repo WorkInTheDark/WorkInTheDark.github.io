@@ -18,7 +18,7 @@ const err = (where, msg) => errors.push(where + ": " + msg);
 const warn = (where, msg) => warnings.push(where + ": " + msg);
 
 const CATEGORIES = ["research", "data", "writing", "reviews", "advisor", "legion", "lab", "milestone", "teaching", "career", "travel", "world", "life", "wellbeing", "exit"];
-const HOOKS = ["turn", "deadline", "after_submit", "reviews_in", "after_accept", "after_reject", "conference", "internship", "defense_prep", "defense", "job_market", "model_release", "graduation"];
+const HOOKS = ["turn", "deadline", "after_submit", "reviews_in", "after_accept", "after_reject", "conference", "internship", "defense_prep", "defense", "job_market", "model_release", "graduation", "sick", "exhausted"];
 const RARITY = ["common", "uncommon", "rare", "legendary"];
 const PREFIX = { research: "res_", data: "dat_", writing: "wri_", reviews: "rev_", advisor: "adv_", legion: "leg_", lab: "lab_", milestones: "mil_", teaching: "tea_", career: "car_", travel: "tra_", world: "wor_", life: "lif_", wellbeing: "wel_", exits: "exi_", tasks: "tsk_" };
 const EVENT_KEYS = ["id", "title", "category", "rarity", "hook", "trigger", "repeatable", "cooldown", "weight", "arc", "when", "text", "choices", "file"];
