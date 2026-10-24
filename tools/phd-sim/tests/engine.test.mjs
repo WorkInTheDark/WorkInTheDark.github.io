@@ -288,6 +288,25 @@ test("during an internship a ready paper can be refined on weekends, for half a 
   assert.ok(!p.refineShare, "the weekend share is used up");
 });
 
+test("with Health under 50, every turn offers the weekend card, led by something for Health", () => {
+  const g = gameWithProject("health-card-1");
+  const rng = new Rng("health-card-1:answers");
+  let plans = 0;
+  for (let i = 0; i < 400 && plans < 6; i++) {
+    g.state.stats.health = 30;
+    const p = g.step();
+    if (p.type === "plan") {
+      plans++;
+      assert.ok(p.side && p.side.length, "a weekend card on plan " + plans);
+      assert.equal(D.sideById[p.side[0].id].helps, "health", "its first pick is for Health");
+      g.submitPlan({ action: p.actions.find((a) => a.id === "read") ? "read" : p.actions[0].id, side: p.side[0].id });
+      continue;
+    }
+    if (p.type !== "turn_end") g.answer(answerFor(p, rng));
+  }
+  assert.equal(plans, 6);
+});
+
 test("the rebuttal preview shows where each reply could take a score, without touching the game's dice", () => {
   const g = gameWithProject("outlook-1");
   const paper = { id: "x9", reviews: [

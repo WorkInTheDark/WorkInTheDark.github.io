@@ -471,7 +471,10 @@ export class Game {
     if (want - updates > 0) drawHook(this, "turn", {}, want - updates).forEach(function (it) { items.push(it); });
     // Now and then, something to do with an evening or a weekend: an optional pick on the plan screen.
     const low = s.stats.health < 45 || s.stats.sanity < 40;
-    s.turnSide = s.advisor && !hasStatus(this, "on_leave") && this.rng.chance((this.D.config.side && this.D.config.side.chance || 0.3) + (low ? 0.15 : 0)) ? rollSide(this) : [];
+    const sideCfg = this.D.config.side || {};
+    // Health under 50: a weekend card every turn, led by something for Health (rollSide).
+    const sideP = s.stats.health < (sideCfg.health_every_turn || 50) ? 1 : (sideCfg.chance || 0.3) + (low ? 0.15 : 0);
+    s.turnSide = s.advisor && !hasStatus(this, "on_leave") && this.rng.chance(sideP) ? rollSide(this) : [];
     s.turnItems = items.filter(function (it) { return PRE_SYS.indexOf(it.sys) >= 0; });
     s.laterItems = items.filter(function (it) { return PRE_SYS.indexOf(it.sys) < 0; });
     this.rollOpportunities();
@@ -594,6 +597,7 @@ export class Game {
     for (let i = 0; i < 4 - ot; i++) {
       addStat(this, "energy", this.roll(cfg.energy.weekend_off));
       addStat(this, "sanity", cfg.sanity.weekend_off);
+      addStat(this, "health", cfg.health.weekend_off || 0);
       addStat(this, "friends_rel", 0.5);
       tally.self++; tally.social++;
     }
@@ -657,7 +661,7 @@ export class Game {
     }
     if (s.stats.health < 35 && !s.warnedHealth) {
       s.warnedHealth = true;
-      this.log(t("Your health is slipping: you'll get sick more often and work a little slower. Recharging helps, and so does saying yes to the gym or a hike when it comes up."), "bad");
+      this.log(t("Your health is slipping: you'll get sick more often and work a little slower. Recharging helps, and while Health is low there are weekend options every turn: pick one for your health."), "bad");
     } else if (s.stats.health > 55) s.warnedHealth = false;
     if (s.stats.energy < 20 && !s.warnedEnergy) {
       s.warnedEnergy = true;

@@ -58,7 +58,8 @@ health:
   overtime_day: -1.5
   exercise_day: 3
   rest_day: 0.5
-  recharge_turn: "+7±2"  # Recharge is the reliable way back (was +4: health only went down)
+  recharge_turn: "+9±2"  # Recharge is the reliable way back (was +4, then +7: Health still sank for hard workers, 2026-10-24)
+  weekend_off: 0         # each weekend day off (tried 0.25 on 2026-10-24: too generous)
   desk_turn: -1.5        # a turn with no exercise
   exhausted_turn: -2     # a turn ending with Energy under 25
   stressed_turn: -2      # a turn ending with Stress over 70
@@ -129,6 +130,7 @@ opportunities:
 
 side:
   chance: 0.3              # a side-activity card in a turn (higher when Health or Stress is bad)
+  health_every_turn: 50    # Health under this: a card every turn, its first pick for Health (2026-10-24)
 
 fixed_days:                # days per turn (two weeks)
   courses_y1: 3

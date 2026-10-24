@@ -41,6 +41,50 @@
   weight: 2
   text: "You make five containers of lentil soup. By Thursday you never want to see a lentil again."
   effects: { health: "+3±1", energy: "+2±1" }
+# More ways to look after Health (playtest feedback, 2026-10-24: there were too few).
+- id: side_walk
+  label: "Walk to campus instead of taking the shuttle"
+  desc: "Forty minutes each way, and a podcast."
+  helps: health
+  weight: 2
+  text: "You know every crack in the sidewalk now. So do your legs."
+  effects: { health: "+3±1", energy: "-1", sanity: "+1" }
+- id: side_pool
+  label: "Swim laps at the campus pool"
+  desc: "The building is from the seventies. The water is fine."
+  helps: health
+  weight: 2
+  text: "Twenty laps, then the hot tub with three retired professors who want to hear about your thesis."
+  effects: { health: "+4±1", energy: "-1", sanity: "+1" }
+- id: side_badminton
+  label: "Badminton with {labmate} after dinner"
+  desc: "Loser buys the bubble tea."
+  helps: health
+  weight: 2
+  when: { has_advisor: true }
+  text: "You lose. The bubble tea is worth it."
+  effects: { health: "+3±1", labmates_rel: "+2±1", energy: "-1" }
+- id: side_dance
+  label: "Try a beginner dance class"
+  desc: "Nobody there knows you write papers."
+  helps: health
+  weight: 2
+  text: "You're the worst dancer in the room and the happiest one."
+  effects: { health: "+3±1", sanity: "+2±1", energy: "-1" }
+- id: side_stretch
+  label: "Stretch every hour, on a timer"
+  desc: "Your neck has been at that angle since 2 pm."
+  helps: health
+  weight: 2
+  text: "The timer goes off in a meeting. You stretch anyway, and two people join in."
+  effects: { health: "+2±1", sanity: "+1" }
+- id: side_one_coffee
+  label: "Cut down to one coffee a day"
+  desc: "Just to see what happens."
+  helps: health
+  weight: 1
+  text: "Day three is a headache. By day ten you sleep like a child."
+  effects: { health: "+3±1", energy: "-2±1" }
 - id: side_bedtime
   label: "Go to bed before midnight, every night"
   desc: "A radical experiment."
