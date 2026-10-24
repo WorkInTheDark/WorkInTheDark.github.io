@@ -4,12 +4,14 @@
   export: ruby tools/phd-sim/export-data.rb
           node --experimental-default-type=module tools/phd-sim/i18n-review.mjs <rows.json> --json
           python3 tools/phd-sim/i18n-xlsx.py export <rows.json> <out.xlsx> [--literal <git ref>]
-                  [--prev <git ref>] [--reviewed <reviewed.json>] [--notes <notes.json>]
+                  [--prev <git ref>] [--reviewed <reviewed.json>] [--notes <notes.json>] [--pending <git ref>]
   import: python3 tools/phd-sim/i18n-xlsx.py import <edited.xlsx>
 
 For a later round, --prev marks what changed since that version (with the old text beside it),
 --reviewed marks rows Arthur already reviewed ({"reviewed": [[table, English], ...]}), and --notes
-explains changes to them ({"<table>\t<English>": "why"}).
+explains changes to them ({"<table>\t<English>": "why"}). --pending <ref> keeps only the lines that are new
+or changed since that version (the last round Arthur approved), each marked new or changed, with the
+earlier Chinese beside a changed line.
 
 Rows are matched by table + English, so sorting or filtering the sheet is fine. An edited 中文 cell
 replaces that line's translation in _data/phd_sim_i18n/zh/<table>.yml, and in any other table with
@@ -25,7 +27,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 ZH_DIR = os.path.join(ROOT, "_data", "phd_sim_i18n", "zh")
 SHEETS = [("事件 Events", lambda s: s.startswith("events/")), ("游戏文本 Game text", lambda s: not s.startswith("events/") and s != "code"),
           ("界面 Interface", lambda s: s == "code")]
-WIDTH = {"表 Table": 16, "位置 Where": 30, "English": 60, "中文（在此修改）": 60, "本次改写 Localized": 10, "本轮改动 Changed": 10,
+WIDTH = {"新增/改动 Status": 12, "表 Table": 16, "位置 Where": 30, "English": 60, "中文（在此修改）": 60, "本次改写 Localized": 10, "本轮改动 Changed": 10,
          "Claude 的说明": 36, "上一版 Previous": 46, "已审 Reviewed": 9, "直译版 Literal first pass": 40, "备注 Notes for Claude": 30}
 GREY = ("表 Table", "位置 Where", "上一版 Previous", "直译版 Literal first pass")
 WRAP = ("English", "中文（在此修改）", "Claude 的说明", "上一版 Previous", "直译版 Literal first pass", "备注 Notes for Claude")
@@ -48,8 +50,10 @@ def literal_tables(ref):
     return out
 
 
-def export(rows_json, out_path, ref, prev_ref=None, reviewed_json=None, notes_json=None):
+def export(rows_json, out_path, ref, prev_ref=None, reviewed_json=None, notes_json=None, pending_ref=None):
     data = json.load(open(rows_json, encoding="utf-8"))
+    if pending_ref:
+        return export_pending(data, out_path, pending_ref)
     lit = literal_tables(ref)
     prev = literal_tables(prev_ref) if prev_ref else None
     reviewed = {tuple(r) for r in json.load(open(reviewed_json, encoding="utf-8"))["reviewed"]} if reviewed_json else None
@@ -134,6 +138,79 @@ def export(rows_json, out_path, ref, prev_ref=None, reviewed_json=None, notes_js
     print("wrote", out_path, counts)
 
 
+def export_pending(data, out_path, ref):
+    """Only what Arthur hasn't reviewed: lines added or changed since ref. The game shares one Chinese
+    line per English line, so a line counts as new only if its English wasn't in any table at ref."""
+    then = {}
+    for tbl in literal_tables(ref).values():
+        then.update(tbl)
+    head = ["新增/改动 Status", "表 Table", "位置 Where", "English", "中文（在此修改）", "上一版 Previous", "备注 Notes for Claude"]
+    edit_col = head.index("中文（在此修改）") + 1
+    wb = Workbook()
+    readme = wb.active
+    readme.title = "说明 README"
+    edit_fill = PatternFill("solid", fgColor="FFF6CC")
+    head_fill = PatternFill("solid", fgColor="283454")
+    thin = Side(style="thin", color="DDDDDD")
+    counts, total, new_n, changed_n = {}, 0, 0, 0
+    sheets = []
+    for title, pick in SHEETS:
+        ws = wb.create_sheet(title)
+        for j, h in enumerate(head, 1):
+            c = ws.cell(row=1, column=j, value=h)
+            c.font = Font(name=FONT, bold=True, color="FFFFFF")
+            c.fill = head_fill
+            c.alignment = Alignment(vertical="center", wrap_text=True)
+        r = 2
+        for f in data["files"]:
+            if not pick(f["src"]):
+                continue
+            for g in f["groups"]:
+                for en, zh in g["rows"]:
+                    if en in then and then[en] == zh:
+                        continue
+                    is_new = en not in then
+                    new_n += is_new
+                    changed_n += not is_new
+                    v = {"新增/改动 Status": "新增 New" if is_new else "改动 Changed", "表 Table": f["src"], "位置 Where": g["label"],
+                         "English": en, "中文（在此修改）": zh, "上一版 Previous": "" if is_new else then[en]}
+                    for j, h in enumerate(head, 1):
+                        c = ws.cell(row=r, column=j, value=v.get(h, ""))
+                        c.font = Font(name=FONT, size=11 if h in ("English", "中文（在此修改）") else 10,
+                                      color="777777" if h in GREY else ("B4532A" if h == "新增/改动 Status" and not is_new else "000000"))
+                        c.alignment = Alignment(wrap_text=h in WRAP, vertical="top")
+                        c.border = Border(bottom=thin)
+                    ws.cell(row=r, column=edit_col).fill = edit_fill
+                    r += 1
+        counts[title] = r - 2
+        total += r - 2
+        for j, h in enumerate(head, 1):
+            ws.column_dimensions[get_column_letter(j)].width = WIDTH[h]
+        ws.freeze_panes = "E2"
+        ws.auto_filter.ref = "A1:" + get_column_letter(len(head)) + str(max(2, r - 1))
+        sheets.append(ws)
+    for ws in [x for x in sheets if x.max_row < 2]:
+        wb.remove(ws)
+    lines = [
+        ("读博模拟器 · 待审中文（第 3 轮）", True),
+        ("这里只有你上次确认（第 2 轮）之后新增或改动的中文，共 " + str(total) + " 行：新增 " + str(new_n) + " 行，改动 " + str(changed_n) + " 行。", False),
+        ("每个分页按游戏里的位置排好：事件、游戏文本（周末活动、休学、结局、成就等）、界面文字。", False),
+        ("只改黄色的「中文（在此修改）」一列；「上一版」是改动前的中文，只供对照。其他列请不要改（导入时按「表 + English」对行，排序、筛选都没关系）。", False),
+        ("{advisor}、{labmate}、{mentee}、{n} 这类花括号是游戏自动填的内容（人名、数字等），请原样保留，可以挪位置。", False),
+        ("想让 Claude 处理的问题写在「备注 Notes for Claude」里。改完把文件发回给 Claude，Claude 会导入、检查并在游戏里测试。", False),
+        ("", False),
+        ("Only the Chinese added or changed since round 2, which you approved: " + str(total) + " lines (" + str(new_n) + " new, " + str(changed_n) + " changed).", False),
+        ("Edit only the yellow 中文 column; keep {tokens} as they are. Rows are matched by table + English, so sorting and filtering are safe.", False),
+    ]
+    for i, (t, bold) in enumerate(lines, 1):
+        c = readme.cell(row=i, column=1, value=t)
+        c.font = Font(name=FONT, bold=bold, size=14 if i == 1 else 11)
+        c.alignment = Alignment(wrap_text=True, vertical="top")
+    readme.column_dimensions["A"].width = 110
+    wb.save(out_path)
+    print("wrote", out_path, counts, "| new", new_n, "changed", changed_n)
+
+
 def read_table(src):
     path = os.path.join(ZH_DIR, src + ".yml")
     return path, open(path, encoding="utf-8").read()
@@ -201,7 +278,7 @@ def do_import(xlsx):
 if __name__ == "__main__":
     if len(sys.argv) >= 4 and sys.argv[1] == "export":
         opt = lambda k, d=None: sys.argv[sys.argv.index(k) + 1] if k in sys.argv else d
-        export(sys.argv[2], sys.argv[3], opt("--literal", "zh-literal-pass"), opt("--prev"), opt("--reviewed"), opt("--notes"))
+        export(sys.argv[2], sys.argv[3], opt("--literal", "zh-literal-pass"), opt("--prev"), opt("--reviewed"), opt("--notes"), opt("--pending"))
     elif len(sys.argv) == 3 and sys.argv[1] == "import":
         do_import(sys.argv[2])
     else:
