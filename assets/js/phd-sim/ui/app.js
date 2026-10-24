@@ -335,7 +335,7 @@ export class App {
     const self = this;
     this.cardFile = null;
     if (typeof navigator.share === "function" && typeof File === "function") {
-      cardBlob(s.ending, function (blob) { if (blob && self.ending === s.ending) self.cardFile = new File([blob], "phd-simulator.png", { type: "image/png" }); });
+      cardBlob(s.ending, this.D, function (blob) { if (blob && self.ending === s.ending) self.cardFile = new File([blob], "phd-simulator.png", { type: "image/png" }); });
     }
     storage.clearRun();
     this.savedRun = null;
@@ -440,7 +440,7 @@ export class App {
         break;
       }
       case "save-image": {
-        cardBlob(this.ending, function (blob) {
+        cardBlob(this.ending, this.D, function (blob) {
           if (!blob) return;
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");

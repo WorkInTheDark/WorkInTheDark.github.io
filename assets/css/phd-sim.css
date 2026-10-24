@@ -491,6 +491,7 @@ html[data-theme='dark'] .ps-art img { filter: brightness(0.88); }
 /* End card and codex */
 .ps-end { max-width: 680px; margin: 0 auto; }
 .ps-end-lang { display: flex; justify-content: flex-end; }
+.ps-further { margin-top: 1.6rem; padding-top: 1rem; border-top: 2px dashed var(--ps-line); }
 .ps-end-lang .ps-langs { margin-top: 0; }
 .ps-end-head { text-align: center; padding: 0.5rem 0 0.5rem; }
 .ps-end-head .ps-kicker { justify-content: center; }

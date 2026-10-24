@@ -191,7 +191,7 @@ export function makeConverter(table, from, to) {
 // screen's stat labels): those are kept too.
 const KEEP = { id: 1, kind: 1, type: 1, sys: 1, stage: 1, phase: 1, cat: 1, category: 1, rarity: 1, seed: 1, rng: 1,
   lang: 1, url: 1, status: 1, trigger: 1, tip: 1, topic: 1, field: 1, source: 1, archetype: 1, venue: 1, tier: 1,
-  taCourse: 1, statLabels: 1, inputs: 1, pastSeen: 1 };
+  taCourse: 1, statLabels: 1, inputs: 1, pastSeen: 1, ref: 1 };
 
 let cached = null;
 

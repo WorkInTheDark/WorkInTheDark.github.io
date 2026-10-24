@@ -829,7 +829,7 @@ An end card has three parts: **career outcome + life epilogue + title**.
 - Slow Is Smooth
 
 ### 12.2 End card
-- **Order, top to bottom** (Arthur, 2026-10-23): the ending name and title, Better than N%, then one box with **Share your PhD** and the **leaderboard** submit, so no one scrolls past the details to find them. After that come the epilogue, the numbers, the hidden stats, papers, achievements, PhD 101 picks, and Codex / Play again.
+- **Order, top to bottom** (Arthur, 2026-10-23): the EN / 中文 switch, the ending name and title, Better than N%, then one box with **Share your PhD** and the **leaderboard** submit, so no one scrolls past the details to find them. After that come the epilogue, the numbers, the hidden stats, papers, achievements, and Codex / Play again. **Further reading** (the PhD 101 picks) comes last, apart from the result, in both languages: the episodes are English articles and their titles stay English.
 - Ending name, title and epilogue.
 - **Your PhD in numbers:** every hidden stat revealed, the paper list, a citation sparkline, events discovered this run, and the rarest event you saw.
 - Recommended PhD 101 episodes (section 13.2).
@@ -838,9 +838,11 @@ An end card has three parts: **career outcome + life epilogue + title**.
   - Measured: the median score beats 49%, and 101 beats 86%.
 - **Share your PhD** (Arthur, 2026-10-19). There is no server or database: the site is static on GitHub Pages, so the result travels in the link.
   - **Link:** `/phd-simulator/#r=…` carries base64 JSON with the ending id, title id, numbers, percentile, daily date, and an achievement bitmask in achievements.yml order. Achievements are append-only for that reason.
-  - **Shared view:** opening the link shows a read-only card, built from `ui/share.js`, with "Play your own PhD" (and "Play the same daily PhD" on the same day).
-  - **Safety:** the card shows only names and text from the game's data. Unknown ids, free text and bad numbers in a hand-made link are dropped, and a test covers this.
-  - **Buttons:** the device share sheet (with the image attached, where the browser allows files), X, Bluesky, LinkedIn, Copy link, and Save image (a 1200 × 630 card in the game's colors).
+  - **Since 2026-10-23** (playtest feedback: a shared result said too little) it also carries the other numbers, the hidden numbers, the epilogue lines by their place in epilogues.yml, the advisor (type and surname from names.yml) and up to 12 papers (venue, cycle, Findings, topic, title list and index, status, citations, first author). The ending records these ids when the run ends (`ref` on the ending and on each paper). A link is about 500–900 characters. Editing or reordering epilogues.yml or a topic's titles changes what old links show, so add new lines at the end.
+  - **Shared view:** opening the link shows a read-only card, built from `ui/share.js`, with the same details as the end screen (`ui/result.js`): the story and epilogue, numbers, hidden numbers, advisor, papers and achievements, as far as the link carries them. Older links show their six numbers. It has "Play your own PhD" (and "Play the same daily PhD" on the same day).
+  - **Safety:** the card shows only names and text from the game's data. Unknown ids, free text and bad numbers in a hand-made link are dropped, and tests cover this.
+  - **Buttons:** the device share sheet (with the image attached, where the browser allows files), X, Bluesky, LinkedIn, Copy link, and Save image.
+  - **The image** (since 2026-10-23) is a tall poster, 1080 wide, for WeChat Moments and Instagram: the ending, title, percentile, story and epilogue, all the numbers, the hidden numbers as bars, the advisor, the three most cited papers, achievements, and where to play. Its height follows what's on it (about 2,800 px). Chinese wraps between characters.
   - **Link previews:** LinkedIn and X don't run JavaScript, so a pasted link previews as the game page: `og_image` = `assets/phd-sim/og.jpg`. The page uses the large Twitter card when it has its own image. Re-render the image with `python3 tools/phd-sim/og/render-og.py` (headless Chrome).
 - **Play again** and **Codex**.
 

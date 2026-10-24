@@ -299,6 +299,39 @@ test("a shared result link round-trips, and a hand-made one can only show real g
   assert.deepEqual(decodeResult(forge({ v: 1, e: D.endings[0].id, m: "<img>" }), D).achievements, [], "a malformed mask shows none");
 });
 
+test("a shared link carries a played run's details, and forged details show nothing", () => {
+  // A finished run with papers: its epilogue, hidden numbers, advisor and papers come back from ids.
+  let s = null;
+  for (let i = 0; i < 20 && !(s && s.ending.papers.some((p) => p.status === "accepted" && p.ref[5] >= 0)); i++) {
+    const g = new Game(D, { runs: 0, achievements: {}, seenRuns: {}, codex: {} }, start("share-details-" + i));
+    s = bot(g, "share-details-" + i);
+  }
+  const e = s.ending;
+  const r = decodeResult(encodeResult(e, D), D);
+  const dataLines = e.ref.epilogue.map((i) => D.epilogues[i].text);
+  assert.deepEqual(r.epilogue, dataLines.filter((l) => l.indexOf("{") < 0));
+  assert.deepEqual(r.epilogue, e.epilogue.slice(0, r.epilogue.length), "the same lines as on the end screen");
+  assert.equal(r.stats.writing, e.numbers.stats.writing);
+  assert.equal(r.more.submissions, e.numbers.submissions);
+  assert.deepEqual([r.advisor.label, r.advisor.name], [e.advisor.label, e.advisor.name]);
+  const shown = e.papers.filter((p) => ["accepted", "rejected", "under_review", "revise_resubmit"].includes(p.status));
+  assert.equal(r.papers.length, Math.min(12, shown.length));
+  const first = shown.find((p) => p.ref[5] >= 0);
+  const back = r.papers.find((p) => p.title === first.title);
+  assert.ok(back, "a paper's title comes back from its topic's list");
+  assert.deepEqual([back.venue, back.status, back.cites, back.first], [first.venue, first.status, first.cites, first.first]);
+
+  const forge = (obj) => Buffer.from(JSON.stringify(obj)).toString("base64url");
+  const f = decodeResult(forge({ v: 1, e: D.endings[0].id, x: [99999, -1, "1", 1.5], a: ["constructor", 0], s: ["<b>", 400, -3],
+    pp: [["__proto__", 0, 0, "x", "y", 0, 0, 1, 1], [D.venues[0].id, 99, 0, "constructor", "toString", 0, 0, 5, 1], [D.venues[0].id, 0, 0, D.topics[0].id, "nlp", 9999, 7, 5, 1]] }), D);
+  assert.deepEqual(f.epilogue, [], "epilogue lines only by their place in the data");
+  assert.equal(f.advisor, null, "advisors only from the game's types");
+  assert.deepEqual([f.stats.taste, f.stats.coding, f.stats.writing], [undefined, 100, 0], "hidden numbers are kept to 0-100");
+  assert.deepEqual(f.papers, [], "papers only with a real venue, cycle and status");
+  const t2 = decodeResult(forge({ v: 1, e: D.endings[0].id, pp: [[D.venues[0].id, 0, 1, D.topics[0].id, "nlp", 9999, 0, 3, 0]] }), D);
+  assert.deepEqual([t2.papers[0].title, t2.papers[0].venue], ["", D.venues[0].cycles[0].name + " Findings"], "an unknown title is left out");
+});
+
 test("the same seed and the same answers give the same PhD", () => {
   const a = bot(new Game(D, {}, start("det-1")), "det-1");
   const b = bot(new Game(D, {}, start("det-1")), "det-1");
