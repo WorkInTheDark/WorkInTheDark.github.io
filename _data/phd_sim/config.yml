@@ -1,6 +1,9 @@
 # PhD Simulator tuning numbers. Every number the engine balances on lives here.
 # Ranges use the same "+7±3" notation as events (a triangular roll in [4, 10]).
 version: 1
+# The daily PhD: everyone plays the same game each day, with its own leaderboard. Hidden on 2026-10-24
+# because almost no one played it (Arthur). true brings back its button, its board and its lines.
+daily_challenge: false
 turns_per_year: 26
 max_year: 8
 start:

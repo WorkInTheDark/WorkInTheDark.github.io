@@ -69,15 +69,15 @@ export function boardSectionHtml(app) {
   const st = app.boardSubmit || {};
   if (st.state === "done") {
     const o = st.out;
-    const lines = [placeLine(o.ranks.daily, true), placeLine(o.ranks.all, false)].filter(Boolean);
-    const kept = !o.best.all && !(o.ranks.daily && o.best.daily);
+    const lines = [app.daily ? placeLine(o.ranks.daily, true) : "", placeLine(o.ranks.all, false)].filter(Boolean);
+    const kept = !o.best.all && !(app.daily && o.ranks.daily && o.best.daily);
     return head + '<p class="ps-board-done">✔️ ' + esc(t("On the leaderboard.")) + "</p>" +
       (lines.length ? '<p class="ps-small">' + lines.map(esc).join(" · ") + "</p>" : "") +
       (kept ? '<p class="ps-muted ps-small">' + esc(t("Your earlier best still stands; each board shows your best run.")) + "</p>" : "") +
       '<div class="ps-share-row"><button class="ps-btn ps-btn-sm ps-btn-primary" data-action="board">' + esc(t("See the leaderboard")) + "</button></div></div>";
   }
   const sending = st.state === "sending";
-  return head + '<p class="ps-small">' + esc(s.daily ? t("This was today’s daily PhD: it goes on today’s board and the all-time board.") : t("Put this run on the all-time board.")) + " " +
+  return head + '<p class="ps-small">' + esc(s.daily && app.daily ? t("This was today’s daily PhD: it goes on today’s board and the all-time board.") : t("Put this run on the all-time board.")) + " " +
     esc(t("Only your nickname and this run’s numbers are shown.")) + "</p>" +
     '<div class="ps-board-form"><input class="ps-input" id="ps-nick" maxlength="20" autocomplete="nickname" placeholder="' + esc(t("Nickname (optional)")) + '" value="' + esc(loadNick() || "") + '"' + (sending ? " disabled" : "") + ">" +
     '<button class="ps-btn ps-btn-primary" data-action="board-submit"' + (sending ? " disabled" : "") + ">" + esc(sending ? t("Submitting…") : t("Submit")) + "</button></div>" +
@@ -103,12 +103,12 @@ export async function loadBoards(app) {
   app.chart.hover = null;
   app.render();
   const [daily, all, runs, myPub] = await Promise.all([
-    api(app.board, "/api/board?kind=daily&day=" + day + "&limit=50" + me),
+    app.daily ? api(app.board, "/api/board?kind=daily&day=" + day + "&limit=50" + me) : null,
     api(app.board, "/api/board?kind=all&limit=10" + me),
     api(app.board, "/api/runs?limit=2000"),
     pid ? publicId(pid) : null
   ]);
-  app.boardData = { day: day, daily: daily, all: all, runs: runs, myPub: myPub, error: !daily.ok && !all.ok ? (daily.reason || "network") : null };
+  app.boardData = { day: day, daily: daily, all: all, runs: runs, myPub: myPub, error: !all.ok && !(daily && daily.ok) ? (all.reason || "network") : null };
   if (app.screen === "board") app.render();
 }
 
@@ -144,10 +144,10 @@ export function boardScreenHtml(app) {
   const count = function (b) { return b && b.ok ? " · " + (b.total === 1 ? t("1 player") : t("{n} players", { n: b.total })) : ""; };
   const runCount = d.runs && d.runs.ok ? " · " + (d.runs.total === 1 ? t("1 run") : t("{n} runs", { n: d.runs.total })) : "";
   return head + '<div class="ps-board">' +
-    '<section class="ps-section"><h3 class="ps-section-title">' + esc(t("Today’s daily PhD")) + " · " + esc(d.day) + esc(count(d.daily)) + "</h3>" +
+    (app.daily ? '<section class="ps-section"><h3 class="ps-section-title">' + esc(t("Today’s daily PhD")) + " · " + esc(d.day) + esc(count(d.daily)) + "</h3>" +
     '<p class="ps-muted ps-small">' + esc(t("Everyone gets the same game today; only the choices differ. A new one starts at midnight US Eastern Time (noon or 1 pm in Beijing, depending on daylight saving).")) + "</p>" +
     listHtml(app, d.daily, t("No one is on today’s board yet.")) +
-    '<div class="ps-share-row"><button class="ps-btn ps-btn-sm" data-action="setup-daily">' + esc(t("Play today’s daily PhD")) + "</button></div></section>" +
+    '<div class="ps-share-row"><button class="ps-btn ps-btn-sm" data-action="setup-daily">' + esc(t("Play today’s daily PhD")) + "</button></div></section>" : "") +
     // All time: every run in the chart, how they ended, then the top ten players by their best run.
     '<section class="ps-section"><h3 class="ps-section-title">' + esc(t("All time")) + esc(count(d.all)) + esc(runCount) + "</h3>" +
     chartHtml(app) +

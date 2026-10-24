@@ -180,7 +180,7 @@ export function sharedHtml(app) {
     detailsHtml(sharedEnding(r), D, false) +
     '<div class="ps-foot" style="justify-content:center">' +
     (app.fromBoard ? '<button class="ps-btn" data-action="board-back">' + esc(t("Back to the leaderboard")) + "</button>" : "") +
-    (r.daily === today ? '<button class="ps-btn" data-action="shared-daily">' + esc(t("Play the same daily PhD")) + "</button>" : "") +
+    (app.daily && r.daily === today ? '<button class="ps-btn" data-action="shared-daily">' + esc(t("Play the same daily PhD")) + "</button>" : "") +
     '<button class="ps-btn ps-btn-primary" data-action="shared-play">' + esc(t("Play your own PhD")) + "</button></div></div>";
 }
 
