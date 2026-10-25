@@ -88,7 +88,7 @@ function boundObjectsExist(G, ctx) {
 export function arrowsFor(choice) {
   const outs = choice.check ? [choice.success || {}, choice.failure || {}] : [choice];
   const out = [];
-  ["energy", "sanity", "health", "citations"].forEach(function (stat) {
+  ["energy", "sanity", "health", "citations", "contacts"].forEach(function (stat) {
     const signs = [];
     let mag = 0;
     outs.forEach(function (o) {
@@ -100,7 +100,7 @@ export function arrowsFor(choice) {
     });
     if (!signs.length) return;
     const up = signs.indexOf(1) >= 0, down = signs.indexOf(-1) >= 0;
-    out.push({ stat: stat, dir: up && down ? "mixed" : up ? "up" : "down", strength: mag >= 10 ? 2 : 1 });
+    out.push({ stat: stat, dir: up && down ? "mixed" : up ? "up" : "down", strength: mag >= (stat === "contacts" ? 3 : 10) ? 2 : 1 });
   });
   return out;
 }
@@ -201,7 +201,7 @@ function speakerName(G, kind, ctx) {
   const tok = (ctx && ctx.tok) || {};
   if (kind === "senior") return fill("{senior}", G, ctx);
   if (kind === "mentee") return G.state.mentee ? G.state.mentee.name : tok.mentee || "";
-  return kind === "labmate" || kind === "labmate2" ? tok[kind] || "" : "";
+  return kind === "labmate" || kind === "labmate2" || kind === "stranger" || kind === "prof" ? tok[kind] || "" : "";
 }
 
 export function flavorLine(G) {

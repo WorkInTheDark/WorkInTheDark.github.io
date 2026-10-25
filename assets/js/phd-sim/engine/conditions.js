@@ -77,6 +77,22 @@ function boundHype(G, ctx) {
   return t ? t.hype : 50;
 }
 
+// At a conference for the week (trip.js), where the week is: { kind: talk|poster, talk: before|after|tomorrow,
+// days: [1 Sunday … 5 Thursday] }, and what you chose to do that brought the event (did / did_not:
+// conference.yml activity ids).
+// Events are drawn at the step they happen in, before the week moves on.
+function onTrip(trip, v) {
+  if (!trip) return false;
+  if (v.days && asList(v.days).indexOf(Math.floor((trip.step + 1) / 2) + 1) < 0) return false; // trip.js STEPS: Sunday evening, then two a day
+  if (v.did && asList(v.did).indexOf(trip.did) < 0) return false;
+  if (v.did_not && asList(v.did_not).indexOf(trip.did) >= 0) return false;
+  if (v.kind && asList(v.kind).indexOf(trip.kind) < 0) return false;
+  if (v.talk === "before" && trip.step >= trip.talkAt) return false;
+  if (v.talk === "after" && trip.step <= trip.talkAt) return false;
+  if (v.talk === "tomorrow" && trip.step !== trip.talkAt - 1) return false; // the evening before
+  return true;
+}
+
 const ORDER = { project: 0, paper: 1 };
 
 export function check(cond, G, ctx) {
@@ -130,6 +146,7 @@ export function check(cond, G, ctx) {
       case "telemetry":
         ok = Object.keys(v).every(function (k) { return compare(tele(G, k), v[k]); });
         break;
+      case "trip": ok = onTrip(s.trip, v); break;
       case "chance": ok = G.rng.chance(v); break;
       case "any": ok = asList(v).some(function (c) { return check(c, G, ctx); }); break;
       case "not": ok = !check(v, G, JSON.parse(JSON.stringify(ctx))); break;

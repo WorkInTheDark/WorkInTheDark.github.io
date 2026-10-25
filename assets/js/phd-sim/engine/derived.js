@@ -45,6 +45,8 @@ export function tele(G, key) {
 export function statValue(G, key) {
   if (key === "citations") return totalCitations(G);
   if (key === "h_index") return hIndex(G);
+  // How ready your conference talk is (trip.js), for checks: 30 unpracticed, 100 after nine rehearsals.
+  if (key === "prep") return G.state.trip ? Math.min(100, 30 + G.state.trip.prep * 8) : 30;
   const v = G.state.stats[key];
   return v === undefined ? 0 : v;
 }

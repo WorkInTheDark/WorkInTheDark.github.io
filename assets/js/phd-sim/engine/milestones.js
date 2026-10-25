@@ -15,14 +15,15 @@ import {
 import { makePaper, generateReviews, rebuttalPrompt, resolveRebuttal, decide, metaLine, nextResubmitTarget } from "./reviews.js";
 import { setCiteMean, rollBreakout } from "./citations.js";
 import { computeOffers, finalize } from "./endings.js";
-import { fireHook, arrowsFor } from "./events.js";
+import { fireHook, drawHook, arrowsFor } from "./events.js";
 import { check } from "./conditions.js";
+import { startTrip, tripPrompt, answerTrip, tripReport, finishTrip } from "./trip.js";
 import { t, T_ } from "./i18n.js";
 
 function sys(id, title, text, choices, data) {
   return {
     type: "sys", sys: id, title: title, text: text,
-    choices: choices.map(function (c, i) { return { i: i, label: c.label, desc: c.desc || "", arrows: c.arrows || [] }; }),
+    choices: choices.map(function (c, i) { return { i: i, label: c.label, desc: c.desc || "", arrows: c.arrows || [], tag: c.tag || null, feature: !!c.feature }; }),
     data: data || {}
   };
 }
@@ -230,56 +231,60 @@ function rejectPaper(G, pp) {
   s.pendingHooks.push({ hook: "after_reject", ctx: { paperId: pp.id } });
 }
 
-function conferencePrompt(G, pp) {
+// The conference card, when there's money to go (autoConference): the whole week (trip.js), just
+// long enough to present, or remotely. Whether it's a talk or a poster is decided here, so the card
+// can say which. The whole week is its own mode, played day by day, and the card says so (Arthur,
+// 2026-10-24: make it clear that this choice leads into it).
+function conferencePrompt(G, pp, d) {
   const s = G.state;
-  const city = G.rng.pick(G.D.names.cities || [t("Vienna")]);
   const fund = s.advisor ? s.advisor.params.fund : 3;
-  const choices = [];
-  const data = { paperId: pp.id, city: city, options: [] };
-  if (s.flags.visa_failed) {
-    data.options = ["remote"];
-    return sys("conference", t("{venue} in {city}", { venue: pp.venueName, city: city }), t("Your visa didn't come through in time. You'll present “{title}” remotely, at 3 am your time.", { title: pp.short }),
-      [{ label: t("Present remotely") }], data);
-  }
-  if (fund >= 3) {
-    choices.push({ label: t("Go in person"), desc: t("4 days next turn"), arrows: [{ stat: "energy", dir: "down", strength: 1 }] });
-    data.options.push("go");
-  } else {
-    choices.push({ label: t("Apply for a student travel grant"), desc: t("A coin flip") });
-    data.options.push("grant");
-    choices.push({ label: t("Volunteer for free registration"), desc: t("2 extra days") });
-    data.options.push("volunteer");
-  }
-  choices.push({ label: t("Present remotely") });
-  data.options.push("remote");
-  return sys("conference", t("{venue} in {city}", { venue: pp.venueName, city: city }),
-    t("“{title}” gets presented this turn.", { title: pp.short }) + " " + (fund >= 3 ? t("Your advisor will pay for the trip.") : t("Your lab has no travel money.")), choices, data);
+  const poster = d.kind === "poster";
+  return sys("conference", t("{venue} in {city}", { venue: pp.venueName, city: d.city }),
+    (poster ? t("“{title}” is a poster at {venue} this turn.", { title: pp.short, venue: pp.venueName }) : t("“{title}” is a talk at {venue} this turn.", { title: pp.short, venue: pp.venueName })) + " " +
+      (fund >= 3 ? t("Your advisor will pay for the trip.") : t("A student travel grant came through.")) + " " +
+      t("Stay the whole week and you'll play it day by day: sessions, coffee chats, your own presentation and the party, on very little sleep."),
+    [{ label: t("Go for the whole week"), tag: t("Conference week"), feature: true, desc: t("Sunday to Thursday, day by day · 5 days in {city}", { city: d.city }), arrows: [{ stat: "energy", dir: "down", strength: 2 }] },
+      { label: poster ? t("Fly in for your poster, fly out") : t("Fly in for your talk, fly out"), desc: t("2 days · no conference week"), arrows: [{ stat: "energy", dir: "down", strength: 1 }] },
+      { label: t("Present remotely"), desc: t("No days away, few new people") }],
+    { paperId: pp.id, city: d.city, kind: d.kind, options: ["week", "quick", "remote"] });
 }
 
-function attend(G, pp, city, extraDays) {
+// Flying in to present and straight back out: what happens is your talk or poster (events/conference.yml).
+function attend(G, pp, city, kind) {
   const s = G.state;
   addStatus(G, "at_conference", 1);
-  spendDays(G, (G.D.config.fixed_days.conference || 4) + (extraDays || 0));
+  spendDays(G, 2);
   s.telemetry.conferences++;
-  let net = G.rng.triangular(8, 3);
-  if (hasTrait(G, "polyglot") || hasTrait(G, "international")) net += 3;
+  let net = G.rng.triangular(4, 2);
+  if (hasTrait(G, "polyglot") || hasTrait(G, "international")) net += 2;
   addStat(G, "network", net);
-  let san = 3;
-  if (hasTrait(G, "foodie")) san += 3;
-  if (hasTrait(G, "homebody")) san -= 4;
-  addStat(G, "sanity", san);
-  if (G.rng.chance(0.5)) addStatus(G, "jet_lagged", 1);
+  if (G.rng.chance(0.4)) addStatus(G, "jet_lagged", 1);
   s.world.cities[city] = true;
-  fireHook(G, "conference", { city: city, paperId: pp.id, venue: pp.venueName }).forEach(function (it) { s.endItems.push(it); });
-  log(G, t("You fly to {city} for {venue} and present \u201c{title}\u201d. Four days of talks, posters and too much coffee.", { city: city, venue: pp.venueName, title: pp.short }), "news");
+  drawHook(G, kind === "poster" ? "conf_poster" : "conf_talk", { city: city, paperId: pp.id, venue: pp.venueName }, 1).forEach(function (it) { s.endItems.push(it); });
+  log(G, t("You fly to {city} for {venue}, present \u201c{title}\u201d and fly straight back.", { city: city, venue: pp.venueName, title: pp.short }), "news");
 }
 
-// Conferences happen on their own: you go if there's money for it, otherwise you present remotely.
-function autoConference(G, pp) {
+function presentRemotely(G, pp) {
   const s = G.state;
-  const city = G.rng.pick(G.D.names.cities || [t("Vienna")]);
-  const fund = s.advisor ? s.advisor.params.fund : 3;
+  const wasVisa = !!s.flags.visa_failed;
+  delete s.flags.visa_failed;
+  if (wasVisa) unlock(G, "remote_presenter");
+  addStat(G, "network", 2);
+  log(G, t("You present \u201c{title}\u201d at {venue} remotely.", { title: pp.short, venue: pp.venueName }), "news");
+}
+
+// A conference comes: with travel money (your advisor's, or a grant), the conference card before the
+// turn's plan; without it, or without a visa, you present remotely. Two papers at the same
+// conference make one trip.
+function autoConference(G, pp, items) {
+  const s = G.state;
   s.flags.trip_planned = s.papers.some(function (x) { return x !== pp && x.status === "accepted" && x.conferenceTurn && x.conferenceTurn > s.turn; });
+  const going = items.find(function (it) { return it.sys === "conference"; });
+  if (going) {
+    addStat(G, "network", 2);
+    log(G, t("You also present \u201c{title}\u201d at {venue}.", { title: pp.short, venue: pp.venueName }), "news");
+    return;
+  }
   if (s.flags.visa_failed) {
     delete s.flags.visa_failed;
     unlock(G, "remote_presenter");
@@ -287,9 +292,11 @@ function autoConference(G, pp) {
     log(G, t("Your visa didn't come through, so you present \u201c{title}\u201d at {venue} remotely, at 3 am your time.", { title: pp.short, venue: pp.venueName }), "news");
     return;
   }
+  const fund = s.advisor ? s.advisor.params.fund : 3;
   if (fund >= 3 || G.rng.chance(0.5 + s.stats.network / 400)) {
-    if (fund < 3) log(G, t("A student travel grant comes through."), "news");
-    attend(G, pp, city, 0);
+    const city = G.rng.pick(G.D.names.cities || [t("Vienna")]);
+    const kind = G.rng.chance(pp.tier === "workshop" || pp.tier === "findings" ? 0.7 : 0.5) ? "poster" : "talk";
+    items.push({ kind: "sys", sys: "conference", data: { paperId: pp.id, city: city, kind: kind } });
     return;
   }
   addStat(G, "network", 2);
@@ -539,8 +546,10 @@ export function buildSys(G, item) {
     case "conference": {
       const pp = paper(G, d.paperId);
       if (!pp || pp.status !== "accepted") return null;
-      return conferencePrompt(G, pp);
+      return conferencePrompt(G, pp, d);
     }
+    case "trip": return tripPrompt(G);
+    case "trip_report": return tripReport(G);
     case "qa": {
       // Committee meetings play out on their own: you give your best answers, and how they land
       // depends on your preparation and skills. One card shows how it went.
@@ -746,22 +755,18 @@ export function handleSys(G, prompt, choice) {
     case "conference": {
       const pp = paper(G, d.paperId);
       const opt = d.options[choice];
-      s.flags.trip_planned = s.papers.some(function (x) { return x.status === "accepted" && x.conferenceTurn && x.conferenceTurn > s.turn; });
-      if (opt === "remote") {
-        const wasVisa = !!s.flags.visa_failed;
-        delete s.flags.visa_failed;
-        if (wasVisa) unlock(G, "remote_presenter");
-        addStat(G, "network", 2);
-        return empty(t("You present to a camera and a small grid of faces. Two of them ask great questions."));
+      if (!pp) return null;
+      if (opt === "week") { startTrip(G, pp, d.city, d.kind); return null; }
+      if (opt === "quick") {
+        attend(G, pp, d.city, d.kind);
+        return empty(d.kind === "poster" ? t("Two days, one poster, three hours of standing and a lot of airport food. Worth it.") :
+          t("You land, give your talk, shake a few hands and fly home. Two days, mostly in airports."));
       }
-      if (opt === "grant") {
-        if (G.rng.chance(0.5 + s.stats.network / 400)) { attend(G, pp, d.city, 0); return null; }
-        addStat(G, "network", 2);
-        return empty(t("The travel grant doesn't come through, so you present remotely."));
-      }
-      attend(G, pp, d.city, opt === "volunteer" ? 2 : 0);
-      return null;
+      presentRemotely(G, pp);
+      return empty(t("You present to a camera and a small grid of faces. Two of them ask great questions."));
     }
+    case "trip": return answerTrip(G, prompt, choice);
+    case "trip_report": return finishTrip(G);
     case "proposal_offer":
       if (choice === 0) {
         s.milestones.proposalAt = s.turn + span(G.D.config.proposal_prep_turns || 4);
@@ -1103,7 +1108,7 @@ export function queuePapers(G) {
         queueRejection(G, pp, items);
       }
     }
-    if (pp.status === "accepted" && pp.conferenceTurn === s.turn) autoConference(G, pp);
+    if (pp.status === "accepted" && pp.conferenceTurn === s.turn) autoConference(G, pp, items);
   });
   // The Kind and Funded advisor's question comes the week before a deadline.
   activeProjects(G).forEach(function (p) {

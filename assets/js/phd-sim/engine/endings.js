@@ -181,7 +181,7 @@ function pickMoments(G) {
 // different people, your advisor, family and partner first, then labmates, your mentee and Reviewer 2.
 // Lines already on the card as a moment's text count for less. Their words come from the language shown
 // now. With fewer than two, Reviewer 2's opening line fills in, and with none, a labmate's PhD 101 advice.
-const SPEAKER_SCORE = { advisor: 3, partner: 2.5, parent: 2.5, reviewer2: 2, mentee: 2, labmate: 2, labmate2: 2, senior: 2, committee: 1.5 };
+const SPEAKER_SCORE = { advisor: 3, partner: 2.5, parent: 2.5, reviewer2: 2, mentee: 2, labmate: 2, labmate2: 2, senior: 2, prof: 2, committee: 1.5, stranger: 1.5 };
 const QUOTE_RARITY = { common: 0, uncommon: 1, rare: 2, legendary: 3 };
 const quoteKey = function (q) { return "q:" + q.id + ":" + q.part + ":" + q.k; };
 function quoteTemplate(ev, q) {

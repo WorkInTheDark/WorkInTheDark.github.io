@@ -157,6 +157,16 @@ export function applyOutcome(G, out, ctx) {
     if (key === "days") { s.dayAdj += n; res.visible.push({ stat: "days", amount: n }); return; }
     if (key === "days_next") { s.dayAdjNext += n; res.visible.push({ stat: "days_next", amount: n }); return; }
     if (key === "career_prep") { s.careerPrep += n; return; }
+    // At a conference (trip.js): people you meet, counted until you fly home, and practice for your talk.
+    if (key === "contacts") {
+      const c = Math.round(n);
+      if (!s.trip) { addStat(G, "network", c); return; }
+      const before = s.trip.contacts;
+      s.trip.contacts = Math.max(0, before + c);
+      if (s.trip.contacts !== before) res.visible.push({ stat: "contacts", amount: s.trip.contacts - before });
+      return;
+    }
+    if (key === "prep") { if (s.trip) s.trip.prep += n; return; }
     const d = addStat(G, key, n);
     if (VISIBLE_KEYS.indexOf(key) >= 0) { if (d) res.visible.push({ stat: key, amount: d }); }
     else if (HIDDEN_LINES[key] && d !== 0) {
