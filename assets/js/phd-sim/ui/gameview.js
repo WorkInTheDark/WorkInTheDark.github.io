@@ -338,9 +338,11 @@ function popupHtml(G, ui, promptInner, promptCls) {
   const isEvent = p && p.type === "event";
   const party = isAcceptance(p);
   const anim = ui.modal && ui.modal.fresh && !ui.modal.result ? (isEvent || party ? " ps-pop" : " ps-rise") : "";
-  // Away at a conference for the week (trip.js): your badge and the week instead of the turn strip.
+  // Away at a conference for the week (trip.js): your badge and the week instead of the turn strip. The
+  // conference card already sits on the week's carpet, so it reads as the way in.
   const trip = !!G.state.trip;
-  return '<div class="ps-overlay ' + (isEvent ? "ps-overlay-event ps-overlay-" + esc(p.rarity || "common") : party ? "ps-overlay-update ps-overlay-celebrate" : "ps-overlay-update") + (trip ? " ps-overlay-trip" : "") + '">' +
+  const carpet = trip || (p && p.type === "sys" && p.sys === "conference");
+  return '<div class="ps-overlay ' + (isEvent ? "ps-overlay-event ps-overlay-" + esc(p.rarity || "common") : party ? "ps-overlay-update ps-overlay-celebrate" : "ps-overlay-update") + (carpet ? " ps-overlay-trip" : "") + '">' +
     (trip ? tripBarHtml(G) : turnStripHtml(G, ui)) +
     '<div class="ps-card ps-dialog' + anim + " " + (promptCls || "") + '" role="dialog" aria-modal="true" aria-labelledby="ps-dialog-title">' + promptInner + "</div></div>";
 }

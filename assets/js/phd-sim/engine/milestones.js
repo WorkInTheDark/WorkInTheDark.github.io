@@ -23,7 +23,7 @@ import { t, T_ } from "./i18n.js";
 function sys(id, title, text, choices, data) {
   return {
     type: "sys", sys: id, title: title, text: text,
-    choices: choices.map(function (c, i) { return { i: i, label: c.label, desc: c.desc || "", arrows: c.arrows || [] }; }),
+    choices: choices.map(function (c, i) { return { i: i, label: c.label, desc: c.desc || "", arrows: c.arrows || [], tag: c.tag || null, feature: !!c.feature }; }),
     data: data || {}
   };
 }
@@ -233,7 +233,8 @@ function rejectPaper(G, pp) {
 
 // The conference card, when there's money to go (autoConference): the whole week (trip.js), just
 // long enough to present, or remotely. Whether it's a talk or a poster is decided here, so the card
-// can say which.
+// can say which. The whole week is its own mode, played day by day, and the card says so (Arthur,
+// 2026-10-24: make it clear that this choice leads into it).
 function conferencePrompt(G, pp, d) {
   const s = G.state;
   const fund = s.advisor ? s.advisor.params.fund : 3;
@@ -241,9 +242,9 @@ function conferencePrompt(G, pp, d) {
   return sys("conference", t("{venue} in {city}", { venue: pp.venueName, city: d.city }),
     (poster ? t("“{title}” is a poster at {venue} this turn.", { title: pp.short, venue: pp.venueName }) : t("“{title}” is a talk at {venue} this turn.", { title: pp.short, venue: pp.venueName })) + " " +
       (fund >= 3 ? t("Your advisor will pay for the trip.") : t("A student travel grant came through.")) + " " +
-      t("A conference is a week of talks, coffee, people and very little sleep."),
-    [{ label: t("Go for the whole week"), desc: t("5 days in {city}", { city: d.city }), arrows: [{ stat: "energy", dir: "down", strength: 2 }] },
-      { label: poster ? t("Fly in for your poster, fly out") : t("Fly in for your talk, fly out"), desc: t("2 days"), arrows: [{ stat: "energy", dir: "down", strength: 1 }] },
+      t("Stay the whole week and you'll play it day by day: sessions, coffee chats, your own presentation and the party, on very little sleep."),
+    [{ label: t("Go for the whole week"), tag: t("Conference week"), feature: true, desc: t("Sunday to Thursday, day by day · 5 days in {city}", { city: d.city }), arrows: [{ stat: "energy", dir: "down", strength: 2 }] },
+      { label: poster ? t("Fly in for your poster, fly out") : t("Fly in for your talk, fly out"), desc: t("2 days · no conference week"), arrows: [{ stat: "energy", dir: "down", strength: 1 }] },
       { label: t("Present remotely"), desc: t("No days away, few new people") }],
     { paperId: pp.id, city: d.city, kind: d.kind, options: ["week", "quick", "remote"] });
 }

@@ -29,12 +29,12 @@ function artHtml(p) {
 
 const SYS_KICKER = {
   notice: ["\u{1F4CC}", T_("News")], quals_notice: ["\u{1F393}", T_("Quals")], side: ["\u{1F388}", T_("On the side")], submit: ["\u{1F4E4}", T_("Deadline")], qa_result: ["\u{1F393}", T_("Committee")],
-  first_project: ["\u{1F9EA}", T_("Year 1")], focus_result: ["\u{1F4CB}", T_("Your two weeks")], decision: ["\u{1F4E8}", T_("Decision")], conference: ["\u2708\uFE0F", T_("Conference")], leave: ["\u{1F6AA}", T_("Crossroads")]
+  first_project: ["\u{1F9EA}", T_("Year 1")], focus_result: ["\u{1F4CB}", T_("Your two weeks")], decision: ["\u{1F4E8}", T_("Decision")], conference: ["\u{1F39F}\uFE0F", T_("Conference")], leave: ["\u{1F6AA}", T_("Crossroads")]
 };
 
 function choiceButtons(choices) {
   return '<div class="ps-choices">' + choices.map(function (c, n) {
-    return '<button class="ps-choice" data-action="choose" data-i="' + c.i + '">' +
+    return '<button class="ps-choice' + (c.feature ? " ps-choice-feature" : "") + '" data-action="choose" data-i="' + c.i + '">' +
       '<span><span class="ps-key" aria-hidden="true">' + (n + 1) + "</span>" + rich(c.label) +
       (c.tag ? '<span class="ps-tagchip">' + esc(c.tag) + "</span>" : "") +
       (c.desc ? '<span class="ps-choice-desc">' + esc(c.desc) + "</span>" : "") + "</span>" +
@@ -51,6 +51,7 @@ export function promptClass(p) {
   if (p.type === "event") return "ps-rarity-" + p.rarity;
   if (isAcceptance(p)) return "ps-rarity-legendary ps-accept-card";
   if (p.sys === "focus_result") return "ps-rarity-system ps-focus-card";
+  if (p.sys === "conference") return "ps-rarity-system ps-conf-card";
   return "ps-rarity-system";
 }
 
