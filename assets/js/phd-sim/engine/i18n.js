@@ -3,6 +3,7 @@
 // translated once at load time (translateData); text the code writes goes through t().
 // Tables live in _data/phd_sim_i18n/<lang>/*.yml as lists of { en, zh } pairs, kept up to date by
 // tools/phd-sim/i18n-extract.mjs.
+import { annotateQuotes } from "./quotes.js";
 
 export const LANGUAGES = [{ id: "en", label: "EN" }, { id: "zh", label: "中文" }];
 
@@ -77,6 +78,7 @@ export function eachText(data, fn) {
 export function translateData(raw, table) {
   const data = raw && (raw.data || raw);
   if (!table || !data) return raw;
+  annotateQuotes(data.events); // from the English, so every language records the same quotes
   eachText(data, function (src, en, set) { if (Object.prototype.hasOwnProperty.call(table, en) && table[en]) set(table[en]); });
   return raw;
 }

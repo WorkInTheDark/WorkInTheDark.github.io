@@ -16,18 +16,32 @@ const NUMBERS = [["years", T_("Years")], ["pubs", T_("First-author papers")], ["
 
 const has = function (v) { return v !== null && v !== undefined; };
 
-// Who said it: a senior labmate's advice (tips.yml) or the opening line of a review.
+// Who said it: someone in your events (quotes.js), the opening line of a review, or a senior labmate's
+// PhD 101 advice.
 export function quoteBy(q) {
   if (q.kind === "review") return t("Reviewer {n}", { n: q.n });
+  if (q.kind === "said") {
+    switch (q.by) {
+      case "advisor": return q.name || t("Your advisor");
+      case "labmate": case "labmate2": return q.name ? t("{name}, a labmate", { name: q.name }) : t("A labmate");
+      case "senior": return q.name ? t("{name}, a senior labmate", { name: q.name }) : t("A senior student");
+      case "mentee": return q.name ? t("{name}, your mentee", { name: q.name }) : t("Your mentee");
+      case "committee": return t("Your committee");
+      case "reviewer2": return t("Reviewer {n}", { n: 2 });
+      case "partner": return t("Your partner");
+      case "parent": return t("Your family");
+    }
+  }
   return q.by ? t("{name}, a senior labmate", { name: q.by }) : t("A senior student");
 }
 
 // Moments you lived through and what people said to you (endings.js pickMoments, pickQuotes).
 function storyBitsHtml(e, own) {
-  const moments = e.moments || [], quotes = e.quotes || [];
+  const moments = e.moments || [], quotes = (e.quotes || []).filter(function (q) { return q.text; });
   return (moments.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(t("Moments from this PhD")) + '</h3><div class="ps-card ps-moments">' +
       moments.map(function (m) {
         return '<div class="ps-moment"><div class="ps-moment-head"><span class="ps-tag">' + esc(t("Year {n}", { n: Math.floor(m.t / 26) + 1 })) + "</span><b>" + esc(m.title) + "</b></div>" +
+          (m.setup ? '<p class="ps-moment-setup">' + esc(m.setup) + "</p>" : "") +
           (m.label ? '<div class="ps-moment-pick">→ ' + esc(m.label) + "</div>" : "") + "<p>" + esc(m.text) + "</p></div>";
       }).join("") + "</div></div>" : "") +
     (quotes.length ? '<div class="ps-section"><h3 class="ps-section-title">' + esc(own ? t("Things people told you") : t("Things people said")) + '</h3><div class="ps-quotes">' +

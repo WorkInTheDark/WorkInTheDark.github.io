@@ -6,6 +6,7 @@ import { fill } from "./templating.js";
 import { applyOutcome } from "./effects.js";
 import { statValue, hasTrait } from "./derived.js";
 
+
 export const HOOK_CHANCE = {
   turn: 1, deadline: 0.3, after_submit: 0.2, reviews_in: 0.3, after_accept: 0.35, after_reject: 0.3,
   conference: 1, internship: 0.3, defense_prep: 0.4, defense: 1, job_market: 0.15, model_release: 0.25, graduation: 1,
@@ -112,7 +113,8 @@ export function presentEvent(G, item) {
   if (!boundObjectsExist(G, ctx)) return null;
   if (item.scheduled && !eventEligible(G, ev, ctx, true)) return null;
   const variants = ev.text.length ? ev.text : [""];
-  const text = fill(G.rng.pick(variants), G, ctx);
+  const shown = G.rng.pick(variants);
+  const text = fill(shown, G, ctx);
   const choices = [];
   ev.choices.forEach(function (c, i) {
     if (c.requires && !check(c.requires, G, ctx)) return;
@@ -133,7 +135,7 @@ export function presentEvent(G, item) {
   const cx = meta.codex.events[ev.id] = meta.codex.events[ev.id] || { n: 0, o: {} };
   cx.n++;
 
-  s.current = { id: ev.id, ctx: ctx };
+  s.current = { id: ev.id, ctx: ctx, vi: variants.indexOf(shown), text: text };
   return {
     type: "event",
     id: ev.id,
@@ -167,14 +169,39 @@ export function resolveEvent(G, choiceIndex) {
   res.choiceLabel = fill(c.label, G, cur.ctx);
   const cx = G.meta.codex.events[ev.id];
   if (cx) cx.o[String(choiceIndex) + (success === false ? "f" : "")] = res.text || true;
-  // Kept for the end card's moments (endings.js pickMoments), as shown, with ids for the share link.
+  // Kept for the end card (endings.js): the moment as shown, setup included, and anything someone said
+  // in it, with ids for the share link.
+  const f = success === false ? 1 : 0;
   if (res.text) {
     s.moments = s.moments || [];
-    s.moments.push({ id: ev.id, c: choiceIndex, f: success === false ? 1 : 0, t: s.turn, title: fill(ev.title || "", G, cur.ctx), label: res.choiceLabel, text: res.text });
+    s.moments.push({ id: ev.id, c: choiceIndex, f: f, vi: cur.vi, t: s.turn, title: fill(ev.title || "", G, cur.ctx), setup: cur.text || "", label: res.choiceLabel, text: res.text });
     if (s.moments.length > 200) s.moments.shift();
   }
+  // Quotes are kept as ids (quotes.js found them in the English), so a run records the same ones in
+  // every language; endings.js takes their words from the language shown at the end.
+  const says = ev.says || {};
+  const cs = (says.choices || [])[choiceIndex] || {};
+  const said = function (list, part) {
+    (list || []).forEach(function (q) {
+      s.quotes = s.quotes || [];
+      s.quotes.push({ kind: "said", id: ev.id, part: part, ref: part ? choiceIndex : cur.vi, f: f, k: q.k, by: q.kind, n: q.n, name: speakerName(G, q.kind, cur.ctx), t: s.turn });
+      if (s.quotes.length > 150) s.quotes.shift();
+    });
+  };
+  if (cur.vi !== undefined && cur.vi >= 0) said((says.setup || [])[cur.vi], 0);
+  said(c.check ? (success ? cs.success : cs.failure) : cs.out, 1);
   s.current = null;
   return res;
+}
+
+// The name of whoever said a quote, for the people the events name (quotes.js kinds). Names are the
+// same in every language; the advisor is named when the card is shown, people without a name aren't.
+// Only names the event already showed (ctx.tok), so this never draws dice.
+function speakerName(G, kind, ctx) {
+  const tok = (ctx && ctx.tok) || {};
+  if (kind === "senior") return fill("{senior}", G, ctx);
+  if (kind === "mentee") return G.state.mentee ? G.state.mentee.name : tok.mentee || "";
+  return kind === "labmate" || kind === "labmate2" ? tok[kind] || "" : "";
 }
 
 export function flavorLine(G) {

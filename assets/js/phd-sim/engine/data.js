@@ -1,5 +1,6 @@
 // Turns the raw JSON (site.data.phd_sim + the PhD 101 map) into indexed lookups.
 import { asList } from "./util.js";
+import { annotateQuotes } from "./quotes.js";
 
 function indexBy(list, key) {
   const out = {};
@@ -28,6 +29,7 @@ export function prepareData(raw) {
   D.eventById = {};
   D.byHook = {};
   const files = src.events || {};
+  annotateQuotes(files); // already done before a translation; for English, here
   Object.keys(files).sort().forEach(function (file) {
     asList(files[file]).forEach(function (ev) {
       if (!ev || !ev.id) return;

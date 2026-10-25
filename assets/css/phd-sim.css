@@ -496,6 +496,7 @@ html[data-theme='dark'] .ps-art img { filter: brightness(0.88); }
 .ps-moments { display: flex; flex-direction: column; gap: 0.75rem; }
 .ps-moment + .ps-moment { border-top: 1px dashed var(--ps-line); padding-top: 0.7rem; }
 .ps-moment-head { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.ps-moment-setup { margin: 0.3rem 0 0; font-size: 0.88rem; color: var(--ps-muted); }
 .ps-moment-pick { font-size: 0.82rem; color: var(--ps-accent); margin: 0.15rem 0 0.1rem; }
 .ps-moment p { margin: 0.15rem 0 0; font-size: 0.92rem; }
 .ps-quotes { display: flex; flex-direction: column; gap: 0.6rem; }

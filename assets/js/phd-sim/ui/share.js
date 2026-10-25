@@ -4,6 +4,7 @@
 import { esc, langSwitchHtml, citationsText } from "./common.js";
 import { t, T_, language } from "../engine/i18n.js";
 import { dailyDay, asList } from "../engine/util.js";
+import { quoteAt } from "../engine/quotes.js";
 import { detailsHtml, HIDDEN_SHOWN, quoteBy } from "./result.js";
 import qrcode from "../lib/qrcode.js";
 
@@ -13,6 +14,7 @@ const NUMS = ["y", "p", "c", "h", "r", "b"];
 const MORE = { ap: "allPubs", sb: "submissions", cf: "conferences", ot: "overtime", ev: "events", sc: "score" };
 const STATUS = ["accepted", "rejected", "under_review", "revise_resubmit"];
 const MAX_PAPERS = 12;
+const SPEAKERS = ["advisor", "labmate", "labmate2", "senior", "mentee", "committee", "reviewer2", "partner", "parent"];
 const own = function (o, k) { return !!o && typeof k === "string" && Object.prototype.hasOwnProperty.call(o, k); };
 
 // A shared moment or quote is rebuilt from the game's data, where names are tokens. The link doesn't
@@ -68,8 +70,10 @@ export function encodeResult(e, D) {
   if (papers.length) r.pp = papers.map(function (p) { return p.ref.concat([STATUS.indexOf(p.status), p.cites, p.first ? 1 : 0]); });
   // Moments: [event id, choice, failed its check 1/0, turn]. Quotes: ["t", tip id, name in names.yml, turn]
   // or ["r", reviewer persona, reviewer number, opening line index, turn].
-  if (e.moments && e.moments.length) r.mo = e.moments.map(function (m) { return [m.id, m.c, m.f, m.t]; });
+  if (e.moments && e.moments.length) r.mo = e.moments.map(function (m) { return [m.id, m.c, m.f, m.t, m.vi === undefined ? -1 : m.vi]; });
+  // Said in an event: ["s", event id, 0 setup / 1 outcome, setup line or choice, failed check, quote index, speaker, name, turn].
   if (e.quotes && e.quotes.length) r.qu = e.quotes.map(function (q) {
+    if (q.kind === "said") return ["s", q.id, q.part, q.ref, q.f, q.k, q.by, ((D.names || {}).first || []).indexOf(q.name), q.t];
     return q.kind === "tip" ? ["t", q.id, ((D.names || {}).first || []).indexOf(q.by), q.t] : ["r", q.persona, q.n, q.oi, q.t];
   });
   const bytes = new TextEncoder().encode(JSON.stringify(r));
@@ -133,7 +137,9 @@ export function decodeResult(token, D) {
       if (!ch) return null;
       const res = ch.check ? (a[2] === 1 ? ch.failure : ch.success) : ch;
       const title = genericFill(ev.title, adv), label = genericFill(ch.label, adv), text = genericFill(res && res.text, adv);
-      return title && label && text ? { id: ev.id, t: a[3], title: title, label: label, text: text } : null;
+      const vi = Number.isInteger(a[4]) && a[4] >= 0 ? a[4] : -1;
+      const setup = vi >= 0 && Array.isArray(ev.text) && typeof ev.text[vi] === "string" ? genericFill(ev.text[vi], adv) : "";
+      return title && label && text ? { id: ev.id, t: a[3], title: title, setup: setup || "", label: label, text: text } : null;
     }).filter(Boolean);
     out.quotes = (Array.isArray(r.qu) ? r.qu.slice(0, 3) : []).map(function (a) {
       if (!Array.isArray(a) || !turnOk(a[a.length - 1])) return null;
@@ -142,6 +148,18 @@ export function decodeResult(token, D) {
         const by = Number.isInteger(a[2]) && a[2] >= 0 ? ((D.names || {}).first || [])[a[2]] : null;
         const text = tp && genericFill(tp.text, adv);
         return text ? { kind: "tip", text: text, by: typeof by === "string" ? by : "", t: a[3] } : null;
+      }
+      if (a[0] === "s" && own(D.eventById, a[1]) && SPEAKERS.indexOf(a[6]) >= 0 && [a[2], a[3], a[5]].every(Number.isInteger)) {
+        const ev = D.eventById[a[1]];
+        let line = null;
+        if (a[2] === 0) line = asList(ev.text)[a[3]];
+        else {
+          const ch = (ev.choices || [])[a[3]] || {};
+          line = ch.check ? (a[4] === 1 ? (ch.failure || {}).text : (ch.success || {}).text) : ch.text;
+        }
+        const text = genericFill(quoteAt(line, a[5]), adv);
+        const name = a[6] === "advisor" ? adv || "" : Number.isInteger(a[7]) && a[7] >= 0 && typeof ((D.names || {}).first || [])[a[7]] === "string" ? D.names.first[a[7]] : "";
+        return text ? { kind: "said", by: a[6], name: name, text: text, t: a[8] } : null;
       }
       if (a[0] === "r" && own(D.personaById, a[1]) && Number.isInteger(a[2]) && a[2] >= 1 && a[2] <= 5) {
         const text = Number.isInteger(a[3]) && a[3] >= 0 ? genericFill(asList(D.personaById[a[1]].openers)[a[3]], adv) : null;
@@ -338,10 +356,11 @@ export function drawPoster(e, D) {
       x.font = "700 30px " + body;
       const tl = wrapLines(x, m.title, IN - 64 - tagW - 14, 2);
       x.font = "500 24px " + body;
+      const sl = m.setup ? wrapLines(x, m.setup, IN - 64, 3) : [];
       const ll = m.label ? wrapLines(x, "→ " + m.label, IN - 64, 2) : [];
       x.font = "500 26px " + body;
       const xl = wrapLines(x, m.text, IN - 64, 4);
-      return { tag: tag, tagW: tagW, tl: tl, ll: ll, xl: xl, h: tl.length * 40 + 6 + ll.length * 32 + xl.length * 36 + 12 };
+      return { tag: tag, tagW: tagW, tl: tl, sl: sl, ll: ll, xl: xl, h: tl.length * 40 + 6 + sl.length * 32 + ll.length * 32 + xl.length * 36 + 12 };
     });
     const h = 30 + items.reduce(function (sum, it) { return sum + it.h; }, 0) + (items.length - 1) * 24 + 16;
     card(y, h);
@@ -356,6 +375,7 @@ export function drawPoster(e, D) {
       text(it.tag, PAD + 42, ty + 27, "700 20px " + body, C.accent);
       it.tl.forEach(function (l, j) { text(l, PAD + 32 + it.tagW + 14, ty + 30 + j * 40, "700 30px " + body, C.ink); });
       ty += it.tl.length * 40 + 6;
+      it.sl.forEach(function (l) { text(l, PAD + 32, ty + 24, "500 24px " + body, C.muted); ty += 32; });
       it.ll.forEach(function (l) { text(l, PAD + 32, ty + 24, "500 24px " + body, C.accent); ty += 32; });
       it.xl.forEach(function (l) { text(l, PAD + 32, ty + 28, "500 26px " + body, C.ink); ty += 36; });
       ty += 12;
@@ -364,7 +384,7 @@ export function drawPoster(e, D) {
   }
 
   // What people told you: a senior labmate's advice and the harshest reviewer's opening line.
-  const quotes = e.quotes || [];
+  const quotes = (e.quotes || []).filter(function (q) { return q.text; });
   if (quotes.length) {
     y = heading(t("Things people told you"), y) + 18;
     const qFont = (language() === "zh" ? "" : "italic ") + "500 28px " + body;

@@ -413,6 +413,16 @@ test("a shared link carries the run's moments and quotes, with labmates as plain
     const src = (ch.check ? (mine.f ? ch.failure : ch.success) : ch).text;
     if (src.indexOf("{") < 0) assert.equal(m.text, mine.text, "a line without names comes back as it was");
   }
+  // Setups and things people said come back too, from the game's own lines.
+  for (const m of r.moments) {
+    const mine = e.moments.find((x) => x.id === m.id && x.t === m.t);
+    if (mine.vi >= 0 && D.eventById[m.id].text[mine.vi].indexOf("{") < 0) assert.equal(m.setup, mine.setup, "the setup line comes back as it was");
+  }
+  assert.ok(e.quotes.some((q) => q.kind === "said"), "someone in the run's events said something");
+  for (const q of e.quotes.filter((x) => x.kind === "said" && x.text.indexOf("{") < 0)) {
+    const back = r.quotes.find((x) => x.kind === "said" && x.text === q.text);
+    if (q.by !== "advisor" && !/\{/.test(q.text)) assert.ok(back, "a quote comes back: " + q.text);
+  }
   // A line with a labmate in it reads with "a labmate" instead.
   const ev = D.events.find((x) => (x.choices || []).some((c) => !c.check && /^\{labmate\} /.test(c.text || "")) && !/[{]/.test(x.title));
   const ci = ev.choices.findIndex((c) => !c.check && /^\{labmate\} /.test(c.text || ""));
@@ -421,7 +431,8 @@ test("a shared link carries the run's moments and quotes, with labmates as plain
   if (!/[{]/.test(ev.choices[ci].label) && !/\{(?!labmate\})/.test(ev.choices[ci].text)) assert.ok(one.moments[0].text.indexOf("A labmate ") === 0, one.moments[0] && one.moments[0].text);
   // Forged moments and quotes show nothing.
   const f = decodeResult(forge({ v: 1, e: D.endings[0].id, mo: [["__proto__", 0, 0, 1], [ev.id, 99, 0, 1], [ev.id, 0, 0, -5], "<b>"],
-    qu: [["t", "nope", 0, 1], ["r", "constructor", 2, 0, 1], ["r", "reviewer_2", 9, 0, 1], ["r", "reviewer_2", 2, 99, 1]] }), D);
+    qu: [["t", "nope", 0, 1], ["r", "constructor", 2, 0, 1], ["r", "reviewer_2", 9, 0, 1], ["r", "reviewer_2", 2, 99, 1],
+      ["s", "__proto__", 0, 0, 0, 0, "advisor", -1, 1], ["s", ev.id, 1, 0, 0, 0, "the dean", -1, 1], ["s", ev.id, 1, 0, 0, 99, "advisor", -1, 1]] }), D);
   assert.deepEqual([f.moments, f.quotes], [[], []]);
   const q = decodeResult(forge({ v: 1, e: D.endings[0].id, qu: [["r", "reviewer_2", 2, 3, 40], ["t", D.tips[0].id, 0, 5]] }), D);
   assert.equal(q.quotes[0].text, D.personaById.reviewer_2.openers[3]);
