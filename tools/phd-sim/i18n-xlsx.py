@@ -4,14 +4,14 @@
   export: ruby tools/phd-sim/export-data.rb
           node --experimental-default-type=module tools/phd-sim/i18n-review.mjs <rows.json> --json
           python3 tools/phd-sim/i18n-xlsx.py export <rows.json> <out.xlsx> [--literal <git ref>]
-                  [--prev <git ref>] [--reviewed <reviewed.json>] [--notes <notes.json>] [--pending <git ref>]
+                  [--prev <git ref>] [--reviewed <reviewed.json>] [--notes <notes.json>] [--pending <git ref> --round <n>]
   import: python3 tools/phd-sim/i18n-xlsx.py import <edited.xlsx>
 
 For a later round, --prev marks what changed since that version (with the old text beside it),
 --reviewed marks rows Arthur already reviewed ({"reviewed": [[table, English], ...]}), and --notes
 explains changes to them ({"<table>\t<English>": "why"}). --pending <ref> keeps only the lines that are new
 or changed since that version (the last round Arthur approved), each marked new or changed, with the
-earlier Chinese beside a changed line.
+earlier Chinese beside a changed line; --round numbers the sheet (round 4 follows round 3's approval).
 
 Rows are matched by table + English, so sorting or filtering the sheet is fine. An edited 中文 cell
 replaces that line's translation in _data/phd_sim_i18n/zh/<table>.yml, and in any other table with
@@ -50,10 +50,10 @@ def literal_tables(ref):
     return out
 
 
-def export(rows_json, out_path, ref, prev_ref=None, reviewed_json=None, notes_json=None, pending_ref=None):
+def export(rows_json, out_path, ref, prev_ref=None, reviewed_json=None, notes_json=None, pending_ref=None, round_n=3):
     data = json.load(open(rows_json, encoding="utf-8"))
     if pending_ref:
-        return export_pending(data, out_path, pending_ref)
+        return export_pending(data, out_path, pending_ref, round_n)
     lit = literal_tables(ref)
     prev = literal_tables(prev_ref) if prev_ref else None
     reviewed = {tuple(r) for r in json.load(open(reviewed_json, encoding="utf-8"))["reviewed"]} if reviewed_json else None
@@ -138,7 +138,7 @@ def export(rows_json, out_path, ref, prev_ref=None, reviewed_json=None, notes_js
     print("wrote", out_path, counts)
 
 
-def export_pending(data, out_path, ref):
+def export_pending(data, out_path, ref, round_n=3):
     """Only what Arthur hasn't reviewed: lines added or changed since ref. The game shares one Chinese
     line per English line, so a line counts as new only if its English wasn't in any table at ref."""
     then = {}
@@ -192,14 +192,15 @@ def export_pending(data, out_path, ref):
     for ws in [x for x in sheets if x.max_row < 2]:
         wb.remove(ws)
     lines = [
-        ("读博模拟器 · 待审中文（第 3 轮）", True),
-        ("这里只有你上次确认（第 2 轮）之后新增或改动的中文，共 " + str(total) + " 行：新增 " + str(new_n) + " 行，改动 " + str(changed_n) + " 行。", False),
-        ("每个分页按游戏里的位置排好：事件、游戏文本（周末活动、休学、结局、成就等）、界面文字。", False),
+        ("读博模拟器 · 待审中文（第 " + str(round_n) + " 轮）", True),
+        ("这里只有你上次确认（第 " + str(round_n - 1) + " 轮）之后新增或改动的中文，共 " + str(total) + " 行：新增 " + str(new_n) + " 行，改动 " + str(changed_n) + " 行。", False),
+        ("每个分页按游戏里的位置排好：事件、游戏文本（事件以外的内容，如会议周、周末活动、结局、成就）、界面文字。", False),
         ("只改黄色的「中文（在此修改）」一列；「上一版」是改动前的中文，只供对照。其他列请不要改（导入时按「表 + English」对行，排序、筛选都没关系）。", False),
-        ("{advisor}、{labmate}、{mentee}、{n} 这类花括号是游戏自动填的内容（人名、数字等），请原样保留，可以挪位置。", False),
+        ("{advisor}、{labmate}、{mentee}、{n} 这类花括号是游戏自动填的内容（人名、数字等），请原样保留，可以挪位置。{prof} 显示为“Kim教授”，后面不加空格；{stranger} 是开会时认识的人名。", False),
+        ("英文里加了引号的话，中文也用同样多、同样顺序的“”：结局卡片“别人对你说过的话”是按引号的位置摘的。", False),
         ("想让 Claude 处理的问题写在「备注 Notes for Claude」里。改完把文件发回给 Claude，Claude 会导入、检查并在游戏里测试。", False),
         ("", False),
-        ("Only the Chinese added or changed since round 2, which you approved: " + str(total) + " lines (" + str(new_n) + " new, " + str(changed_n) + " changed).", False),
+        ("Only the Chinese added or changed since round " + str(round_n - 1) + ", which you approved: " + str(total) + " lines (" + str(new_n) + " new, " + str(changed_n) + " changed).", False),
         ("Edit only the yellow 中文 column; keep {tokens} as they are. Rows are matched by table + English, so sorting and filtering are safe.", False),
     ]
     for i, (t, bold) in enumerate(lines, 1):
@@ -278,7 +279,7 @@ def do_import(xlsx):
 if __name__ == "__main__":
     if len(sys.argv) >= 4 and sys.argv[1] == "export":
         opt = lambda k, d=None: sys.argv[sys.argv.index(k) + 1] if k in sys.argv else d
-        export(sys.argv[2], sys.argv[3], opt("--literal", "zh-literal-pass"), opt("--prev"), opt("--reviewed"), opt("--notes"), opt("--pending"))
+        export(sys.argv[2], sys.argv[3], opt("--literal", "zh-literal-pass"), opt("--prev"), opt("--reviewed"), opt("--notes"), opt("--pending"), int(opt("--round") or 3))
     elif len(sys.argv) == 3 and sys.argv[1] == "import":
         do_import(sys.argv[2])
     else:
