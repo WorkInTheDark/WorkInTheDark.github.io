@@ -271,7 +271,13 @@ export class Game {
       out.push({ id: "intern_pace", kind: "core", label: t("Keep a healthy pace"), desc: "",
         arrows: [{ stat: "sanity", dir: "up", strength: 1 }] });
       activeProjects(this).slice(0, 2).forEach(function (p) {
-        if (currentStage(self, p).kind === "wait" || p.ready) return;
+        if (currentStage(self, p).kind === "wait") return;
+        // A paper that's ready can be refined on weekends too (playtest feedback, 2026-10-24).
+        if (p.ready) {
+          out.push({ id: "intern_weekend:" + p.id, kind: "core", label: t("Weekends refining “{title}”", { title: p.short }), desc: t("Ready"),
+            arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "quality", dir: "up", strength: 1 }] });
+          return;
+        }
         out.push({ id: "intern_weekend:" + p.id, kind: "core", label: t("Weekends on “{title}”", { title: p.short }), desc: "",
           arrows: [{ stat: "energy", dir: "down", strength: 2 }, { stat: "progress", dir: "up", strength: 1 }] });
       });
@@ -318,6 +324,11 @@ export class Game {
       });
     } else {
       out.push({ id: "recharge", kind: "core", label: t("Recharge"), desc: t("You're on leave, so resting is the job."), arrows: [{ stat: "energy", dir: "up", strength: 2 }, { stat: "sanity", dir: "up", strength: 1 }] });
+      // Or something else to do with the time (leave.yml; playtest feedback, 2026-10-24).
+      (this.D.leave || []).forEach(function (a) {
+        if (!check(a.when, self, {})) return;
+        out.push({ id: "leave:" + a.id, kind: "core", label: fill(a.label, self, {}), desc: fill(a.desc || "", self, {}), arrows: arrowsFor(a) });
+      });
     }
     // Only this turn: opportunities that came up, and anything an event unlocked.
     (s.turnOpps || []).forEach(function (o) {
@@ -434,6 +445,8 @@ export class Game {
       fireHook(this, "internship", { company: s.internship.accepted.company }).forEach(function (it) { items.push(it); });
     }
     if (hasStatus(this, "defense_prep")) fireHook(this, "defense_prep", {}).forEach(function (it) { items.push(it); });
+    // Starting a turn out of Energy (and not already sick): sometimes an "exhausted" event (events/health.yml).
+    if (s.stats.energy <= (this.D.config.energy.empty || 5) && !hasStatus(this, "sick")) fireHook(this, "exhausted", {}).forEach(function (it) { items.push(it); });
     if (hasStatus(this, "job_market")) fireHook(this, "job_market", {}).forEach(function (it) { items.push(it); });
     activeProjects(this).forEach(function (p) {
       if (!p.target || p.target.rrPaper || p.target.journalPaper) return;
@@ -453,11 +466,20 @@ export class Game {
     const odds = ev.per_turn || [0.15, 0.6, 0.25];
     let want = 0;
     for (let r = this.rng.next(), acc = 0; want < odds.length; want++) { acc += odds[want]; if (r < acc) break; }
-    const updates = items.filter(function (it) { return it.kind === "event" || PROMPT_SYS.indexOf(it.sys) >= 0; }).length;
+    // Getting sick or running out of Energy (events/health.yml) comes on top, so it doesn't push out the
+    // turn's other events.
+    const updates = items.filter(function (it) {
+      const def = it.kind === "event" ? self.D.eventById[it.id] : null;
+      if (def && (def.hook === "sick" || def.hook === "exhausted")) return false;
+      return it.kind === "event" || PROMPT_SYS.indexOf(it.sys) >= 0;
+    }).length;
     if (want - updates > 0) drawHook(this, "turn", {}, want - updates).forEach(function (it) { items.push(it); });
     // Now and then, something to do with an evening or a weekend: an optional pick on the plan screen.
     const low = s.stats.health < 45 || s.stats.sanity < 40;
-    s.turnSide = s.advisor && !hasStatus(this, "on_leave") && this.rng.chance((this.D.config.side && this.D.config.side.chance || 0.3) + (low ? 0.15 : 0)) ? rollSide(this) : [];
+    const sideCfg = this.D.config.side || {};
+    // Health under 50: a weekend card every turn, led by something for Health (rollSide).
+    const sideP = s.stats.health < (sideCfg.health_every_turn || 50) ? 1 : (sideCfg.chance || 0.3) + (low ? 0.15 : 0);
+    s.turnSide = s.advisor && !hasStatus(this, "on_leave") && this.rng.chance(sideP) ? rollSide(this) : [];
     s.turnItems = items.filter(function (it) { return PRE_SYS.indexOf(it.sys) >= 0; });
     s.laterItems = items.filter(function (it) { return PRE_SYS.indexOf(it.sys) < 0; });
     this.rollOpportunities();
@@ -528,7 +550,12 @@ export class Game {
       addStat(this, "network", allIn ? 2.4 : 1.2);
       addStat(this, "presenting", 0.4);
       if (allIn) s.internshipEffort = (s.internshipEffort || 0) + 1;
-      if (action.indexOf("intern_weekend:") === 0) weekendWork = "p:" + action.slice(15);
+      if (action.indexOf("intern_weekend:") === 0) {
+        weekendWork = "p:" + action.slice(15);
+        // Four weekend days refine a ready paper part of what a turn of refining does.
+        const wp = s.projects.find(function (x) { return x.id === action.slice(15); });
+        if (wp && wp.ready) wp.refineShare = cfg.progress.refine_weekend_share || 0.5;
+      }
       tally.work += 10;
     } else if (interning) {
       // A few vacation days, and easy evenings.
@@ -556,6 +583,7 @@ export class Game {
       else if (action === "quals_prep") dayKey = "quals_study";
       else if (ACTION_EXTRAS.indexOf(action) >= 0) dayKey = action === "apply_fellowship" || action === "proposal" || action === "defense" ? "writing_day" : "career";
       else if (action === "read") dayKey = "read";
+      else if (action.indexOf("leave:") === 0) dayKey = null;
       else if (opp && opp.def) {
         const kind = opp.def.days || "rest";
         if (kind === "project") {
@@ -564,7 +592,8 @@ export class Game {
           effD = eff * (opp.def.boost || 1);
         } else dayKey = kind === "none" ? null : kind;
       }
-      if (dayKey === "recharge") this.restTurn("recharge", fx.free, tally);
+      if (action.indexOf("leave:") === 0) this.leaveTurn(action.slice(6), tally);
+      else if (dayKey === "recharge") this.restTurn("recharge", fx.free, tally);
       else if (dayKey) this.applyDays(dayKey, effD, fx.free, tally);
       if (action.indexOf("crunch:") === 0) weekendWork = "p:" + action.slice(7);
       if (hasTrait(this, "caffeine_powered") && s.stats.energy < 40) addStat(this, "health", -1);
@@ -575,6 +604,7 @@ export class Game {
     for (let i = 0; i < 4 - ot; i++) {
       addStat(this, "energy", this.roll(cfg.energy.weekend_off));
       addStat(this, "sanity", cfg.sanity.weekend_off);
+      addStat(this, "health", cfg.health.weekend_off || 0);
       addStat(this, "friends_rel", 0.5);
       tally.self++; tally.social++;
     }
@@ -625,10 +655,10 @@ export class Game {
     let sickP = cfg.health.sick_base + cfg.health.sick_per_point * (100 - s.stats.health);
     if (tn >= cfg.health.flu_season[0] && tn <= cfg.health.flu_season[1]) sickP *= 2;
     if (!hasStatus(this, "sick") && this.rng.chance(sickP)) {
+      // Getting sick: the next turn loses free days and opens with how (events/health.yml, hook sick),
+      // where the choice sets the cost (playtest feedback, 2026-10-24: one line, the same cold every time).
       addStatus(this, "sick", 1);
-      addStat(this, "energy", -15);
-      addStat(this, "health", -4);
-      this.log(t("You catch something nasty. The next two weeks will be slow."), "bad");
+      s.pendingHooks.push({ hook: "sick", ctx: {} });
     }
     if (s.stats.sanity <= 0 && !hasStatus(this, "burnout")) {
       addStatus(this, "burnout", span(cfg.sanity.burnout_turns) + 1);
@@ -638,7 +668,7 @@ export class Game {
     }
     if (s.stats.health < 35 && !s.warnedHealth) {
       s.warnedHealth = true;
-      this.log(t("Your health is slipping: you'll get sick more often and work a little slower. Recharging helps, and so does saying yes to the gym or a hike when it comes up."), "bad");
+      this.log(t("Your health is slipping: you'll get sick more often and work a little slower. Recharging helps, and while Health is low there are weekend options every turn: pick one for your health."), "bad");
     } else if (s.stats.health > 55) s.warnedHealth = false;
     if (s.stats.energy < 20 && !s.warnedEnergy) {
       s.warnedEnergy = true;
@@ -742,6 +772,27 @@ export class Game {
 
   // Recharge restores a whole turn's worth however busy the turn is: classes and TA still
   // happen, but evenings, sleep and the weekend are yours. It's good for your body too.
+  // A leave turn spent on something from leave.yml: its effects and a line for the report, and once
+  // you've spent enough turns on it, what it leaves you with (often a trait).
+  leaveTurn(id, tally) {
+    const s = this.state;
+    const a = this.D.leaveById[id];
+    if (!a) return;
+    const res = applyOutcome(this, { effects: a.effects, flag_set: a.flag_set }, {});
+    const lines = [].concat(a.text || []);
+    if (lines.length) this.log(fill(this.rng.pick(lines), this, {}), "news");
+    s.counters["leave_" + id] = (s.counters["leave_" + id] || 0) + 1;
+    if (a.after && !s.flags["leave_done_" + id] && s.counters["leave_" + id] >= (a.after.turns || 1)) {
+      s.flags["leave_done_" + id] = true;
+      const after = applyOutcome(this, a.after, {});
+      if (after.text) this.log(after.text, "news");
+      after.notes.forEach(function (n) { this.log(n, "news"); }, this);
+    }
+    res.notes.forEach(function (n) { this.log(n, "news"); }, this);
+    // Not a desk turn: it counts as time for yourself, with other people and on your feet.
+    tally.self += 3; tally.social++; tally.exercise++;
+  }
+
   restTurn(kind, free, tally) {
     const s = this.state;
     const cfg = this.D.config;
@@ -951,6 +1002,7 @@ export class Game {
     const senior = s.labmates.filter(function (l) { return l.present !== false; }).sort(function (a, b) { return b.year - a.year; })[0];
     const said = t("{name}: “{tip}”", { name: senior ? senior.name : t("A senior student"), tip: tip.text });
     this.log(said, "tip", { title: ep.title, url: ep.url, topic: tip.topic });
+    s.quotes = (s.quotes || []).concat([{ tip: tip.id, by: senior ? senior.name : "", t: s.turn }]);
     this.shelveTip(ep, said);
   }
 

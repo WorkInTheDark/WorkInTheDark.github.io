@@ -226,6 +226,9 @@ export function newRun(D, opts) {
     recentCats: [],
     lastTipTurn: -99,
     tipsShown: {},
+    // For the end card (endings.js): every event you answered, and what people told you.
+    moments: [],
+    quotes: [],
     log: [],
     newAchievements: [],
     notices: [],

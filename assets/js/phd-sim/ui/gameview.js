@@ -27,6 +27,7 @@ function actionIcon(G, a) {
   if (a.kind === "opportunity") return "\u{1F39F}️";
   if (a.id.indexOf("crunch:") === 0) return "\u{1F525}";
   if (a.id.indexOf("refine:") === 0) return "✨";
+  if (a.id.indexOf("leave:") === 0) return ((G.D.leaveById || {})[a.id.slice(6)] || {}).icon || "\u{1F33F}";
   if (a.id.indexOf("p:") === 0 || a.id.indexOf("intern_weekend:") === 0) {
     const p = G.state.projects.find(function (x) { return x.id === a.id.slice(a.id.indexOf(":") + 1); });
     if (p && p.ready) return "✨";

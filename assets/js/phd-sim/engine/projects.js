@@ -127,6 +127,8 @@ export function rollStages(G, log) {
       advanceStage(G, p, log);
     }
   });
+  // A weekend share that wasn't used this turn (the paper went out first) doesn't carry over.
+  G.state.projects.forEach(function (p) { if (p.refineShare) p.refineShare = 0; });
 }
 
 // A turn of refining a ready paper: the same gain every pass (config progress.refine_pass, about
@@ -137,7 +139,9 @@ export function refinePass(G, p, log) {
   p.refining = false;
   p.refineTurns = (p.refineTurns || 0) + 1;
   p.lastWorked = G.state.turn;
-  const pass = G.D.config.progress.refine_pass || 0;
+  // Weekends during an internship give part of a pass (refineShare); a turn of refining gives all of it.
+  const pass = (G.D.config.progress.refine_pass || 0) * (p.refineShare || 1);
+  p.refineShare = 0;
   const weak = weakestComp(components(G, p));
   ["N", "S", "C"].forEach(function (k) { p.bonus[k] += pass * (k === weak ? 5 / 3 : 2 / 3); });
   if (log) log(t("{title}: the {part} is stronger now, so it should review better.", { title: p.short, part: t(PART_NAMES[weak]) }));

@@ -471,8 +471,11 @@ export function rollSide(G) {
   const trouble = { health: s.stats.health < 50, stress: s.stats.sanity < 45, energy: s.stats.energy < 35 };
   let pool = (G.D.side || []).filter(function (o) { return check(o.when, G, {}); });
   const out = [];
+  // With Health in trouble, the first pick always helps it (playtest feedback, 2026-10-24).
+  const healthFirst = trouble.health && pool.some(function (x) { return x.helps === "health"; });
   for (let i = 0; i < 2 && pool.length; i++) {
-    const o = G.rng.weighted(pool, function (x) { return (x.weight || 1) * (trouble[x.helps] ? 3 : 1); });
+    const from = i === 0 && healthFirst ? pool.filter(function (x) { return x.helps === "health"; }) : pool;
+    const o = G.rng.weighted(from, function (x) { return (x.weight || 1) * (trouble[x.helps] ? 3 : 1); });
     const ctx = {};
     const arrows = arrowsFor(o).concat(o.effects && o.effects["project.progress"] ? [{ stat: "progress", dir: "up", strength: 1 }] : []);
     out.push({ id: o.id, label: fill(o.label, G, ctx), desc: fill(o.desc || "", G, ctx), arrows: arrows, ctx: ctx });

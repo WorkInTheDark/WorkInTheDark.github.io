@@ -2,9 +2,10 @@
 // opens it sees a read-only card. Only ids and numbers go in the link; every name and sentence on the
 // card comes from the game's own data, so a hand-made link can't put new words on the page.
 import { esc, langSwitchHtml, citationsText } from "./common.js";
-import { t, language } from "../engine/i18n.js";
-import { dailyDay } from "../engine/util.js";
-import { detailsHtml, HIDDEN_SHOWN } from "./result.js";
+import { t, T_, language } from "../engine/i18n.js";
+import { dailyDay, asList } from "../engine/util.js";
+import { detailsHtml, HIDDEN_SHOWN, quoteBy } from "./result.js";
+import qrcode from "../lib/qrcode.js";
 
 const NUMS = ["y", "p", "c", "h", "r", "b"];
 // Since 2026-10-23 a link also carries the other numbers, the hidden numbers, the epilogue, the advisor
@@ -13,6 +14,25 @@ const MORE = { ap: "allPubs", sb: "submissions", cf: "conferences", ot: "overtim
 const STATUS = ["accepted", "rejected", "under_review", "revise_resubmit"];
 const MAX_PAPERS = 12;
 const own = function (o, k) { return !!o && typeof k === "string" && Object.prototype.hasOwnProperty.call(o, k); };
+
+// A shared moment or quote is rebuilt from the game's data, where names are tokens. The link doesn't
+// carry who your labmates were, so they become plain words; the advisor comes from the link. A line
+// with any other token is left out.
+const GENERIC = { labmate: T_("a labmate"), labmate2: T_("another labmate"), senior: T_("a senior labmate"), mentee: T_("the student you mentor"),
+  project: T_("the project"), paper: T_("the paper"), venue: T_("the conference"), city: T_("the conference city"), topic: T_("this topic") };
+function genericFill(text, advisor) {
+  if (typeof text !== "string") return null;
+  const zh = language() === "zh";
+  let ok = true;
+  const out = text.replace(/ ?\{([a-z0-9_]+)\} ?/g, function (m, k) {
+    const lead = m.charAt(0) === " " ? " " : "", trail = m.charAt(m.length - 1) === " " && m.length > 1 ? " " : "";
+    if (k === "advisor" && advisor) return lead + advisor + (zh ? "" : trail);
+    if (!GENERIC[k]) { ok = false; return m; }
+    return zh ? t(GENERIC[k]) : lead + t(GENERIC[k]) + trail;
+  });
+  if (!ok) return null;
+  return zh ? out : out.replace(/(^|[.!?]["”]?\s+)([a-z])/g, function (m, a, b) { return a + b.toUpperCase(); });
+}
 
 // Achievements travel as a bitmask over their order in achievements.yml (hex, 4 per character),
 // which keeps a link with twenty achievements about 200 characters long.
@@ -46,6 +66,12 @@ export function encodeResult(e, D) {
   let papers = (e.papers || []).filter(function (p) { return p.ref && STATUS.indexOf(p.status) >= 0; });
   if (papers.length > MAX_PAPERS) papers = papers.slice().sort(function (a, b) { return b.cites - a.cites; }).slice(0, MAX_PAPERS);
   if (papers.length) r.pp = papers.map(function (p) { return p.ref.concat([STATUS.indexOf(p.status), p.cites, p.first ? 1 : 0]); });
+  // Moments: [event id, choice, failed its check 1/0, turn]. Quotes: ["t", tip id, name in names.yml, turn]
+  // or ["r", reviewer persona, reviewer number, opening line index, turn].
+  if (e.moments && e.moments.length) r.mo = e.moments.map(function (m) { return [m.id, m.c, m.f, m.t]; });
+  if (e.quotes && e.quotes.length) r.qu = e.quotes.map(function (q) {
+    return q.kind === "tip" ? ["t", q.id, ((D.names || {}).first || []).indexOf(q.by), q.t] : ["r", q.persona, q.n, q.oi, q.t];
+  });
   const bytes = new TextEncoder().encode(JSON.stringify(r));
   let bin = "";
   bytes.forEach(function (b) { bin += String.fromCharCode(b); });
@@ -98,6 +124,31 @@ export function decodeResult(token, D) {
       const cites = Number(a[7]);
       return { venue: cycle.name + (a[2] === 1 ? " Findings" : ""), title: title, status: status, cites: Number.isInteger(cites) && cites >= 0 && cites < 1e7 ? cites : 0, first: a[8] === 1 };
     }).filter(Boolean);
+    const turnOk = function (v) { return Number.isInteger(v) && v >= 0 && v < 400; };
+    const adv = out.advisor && out.advisor.name;
+    out.moments = (Array.isArray(r.mo) ? r.mo.slice(0, 4) : []).map(function (a) {
+      if (!Array.isArray(a) || !own(D.eventById, a[0]) || !turnOk(a[3])) return null;
+      const ev = D.eventById[a[0]];
+      const ch = Number.isInteger(a[1]) ? (ev.choices || [])[a[1]] : null;
+      if (!ch) return null;
+      const res = ch.check ? (a[2] === 1 ? ch.failure : ch.success) : ch;
+      const title = genericFill(ev.title, adv), label = genericFill(ch.label, adv), text = genericFill(res && res.text, adv);
+      return title && label && text ? { id: ev.id, t: a[3], title: title, label: label, text: text } : null;
+    }).filter(Boolean);
+    out.quotes = (Array.isArray(r.qu) ? r.qu.slice(0, 3) : []).map(function (a) {
+      if (!Array.isArray(a) || !turnOk(a[a.length - 1])) return null;
+      if (a[0] === "t") {
+        const tp = (D.tips || []).find(function (x) { return x.id === a[1]; });
+        const by = Number.isInteger(a[2]) && a[2] >= 0 ? ((D.names || {}).first || [])[a[2]] : null;
+        const text = tp && genericFill(tp.text, adv);
+        return text ? { kind: "tip", text: text, by: typeof by === "string" ? by : "", t: a[3] } : null;
+      }
+      if (a[0] === "r" && own(D.personaById, a[1]) && Number.isInteger(a[2]) && a[2] >= 1 && a[2] <= 5) {
+        const text = Number.isInteger(a[3]) && a[3] >= 0 ? genericFill(asList(D.personaById[a[1]].openers)[a[3]], adv) : null;
+        return text ? { kind: "review", text: text, n: a[2], t: a[4] } : null;
+      }
+      return null;
+    }).filter(Boolean);
     return out;
   } catch (err) {
     return null;
@@ -109,7 +160,8 @@ function sharedEnding(r) {
   const text = r.ending.text && r.ending.text.indexOf("{") < 0 ? r.ending.text : r.ending.offer || "";
   const numbers = { years: r.y, pubs: r.p, citations: r.c, h: r.h, rejections: r.r, burnouts: r.b, beats: r.beats, stats: r.stats };
   Object.keys(r.more || {}).forEach(function (k) { numbers[k] = r.more[k]; });
-  return { text: text, epilogue: r.epilogue || [], numbers: numbers, papers: r.papers || [], achievements: r.achievements, advisor: r.advisor };
+  return { text: text, epilogue: r.epilogue || [], numbers: numbers, papers: r.papers || [], achievements: r.achievements, advisor: r.advisor,
+    moments: r.moments || [], quotes: r.quotes || [] };
 }
 
 export function readSharedFromLocation(D) {
@@ -180,7 +232,7 @@ export function sharedHtml(app) {
     detailsHtml(sharedEnding(r), D, false) +
     '<div class="ps-foot" style="justify-content:center">' +
     (app.fromBoard ? '<button class="ps-btn" data-action="board-back">' + esc(t("Back to the leaderboard")) + "</button>" : "") +
-    (r.daily === today ? '<button class="ps-btn" data-action="shared-daily">' + esc(t("Play the same daily PhD")) + "</button>" : "") +
+    (app.daily && r.daily === today ? '<button class="ps-btn" data-action="shared-daily">' + esc(t("Play the same daily PhD")) + "</button>" : "") +
     '<button class="ps-btn ps-btn-primary" data-action="shared-play">' + esc(t("Play your own PhD")) + "</button></div></div>";
 }
 
@@ -274,6 +326,60 @@ export function drawPoster(e, D) {
     y += h + 44;
   }
 
+  // Moments from this PhD: what happened, what you chose, how it went (playtest feedback, 2026-10-24:
+  // the things you lived through say more than bars do).
+  const moments = e.moments || [];
+  if (moments.length) {
+    y = heading(t("Moments from this PhD"), y) + 16;
+    const items = moments.map(function (m) {
+      const tag = t("Year {n}", { n: Math.floor(m.t / 26) + 1 });
+      x.font = "700 20px " + body;
+      const tagW = x.measureText(tag).width + 20;
+      x.font = "700 30px " + body;
+      const tl = wrapLines(x, m.title, IN - 64 - tagW - 14, 2);
+      x.font = "500 24px " + body;
+      const ll = m.label ? wrapLines(x, "→ " + m.label, IN - 64, 2) : [];
+      x.font = "500 26px " + body;
+      const xl = wrapLines(x, m.text, IN - 64, 4);
+      return { tag: tag, tagW: tagW, tl: tl, ll: ll, xl: xl, h: tl.length * 40 + 6 + ll.length * 32 + xl.length * 36 + 12 };
+    });
+    const h = 30 + items.reduce(function (sum, it) { return sum + it.h; }, 0) + (items.length - 1) * 24 + 16;
+    card(y, h);
+    let ty = y + 30;
+    items.forEach(function (it, i) {
+      if (i) {
+        x.strokeStyle = C.line; x.lineWidth = 2; x.setLineDash([8, 8]);
+        x.beginPath(); x.moveTo(PAD + 32, ty + 2); x.lineTo(PAD + IN - 32, ty + 2); x.stroke(); x.setLineDash([]);
+        ty += 24;
+      }
+      x.fillStyle = "#f9e3d8"; roundRect(x, PAD + 32, ty + 4, it.tagW, 32, 8); x.fill();
+      text(it.tag, PAD + 42, ty + 27, "700 20px " + body, C.accent);
+      it.tl.forEach(function (l, j) { text(l, PAD + 32 + it.tagW + 14, ty + 30 + j * 40, "700 30px " + body, C.ink); });
+      ty += it.tl.length * 40 + 6;
+      it.ll.forEach(function (l) { text(l, PAD + 32, ty + 24, "500 24px " + body, C.accent); ty += 32; });
+      it.xl.forEach(function (l) { text(l, PAD + 32, ty + 28, "500 26px " + body, C.ink); ty += 36; });
+      ty += 12;
+    });
+    y += h + 44;
+  }
+
+  // What people told you: a senior labmate's advice and the harshest reviewer's opening line.
+  const quotes = e.quotes || [];
+  if (quotes.length) {
+    y = heading(t("Things people told you"), y) + 18;
+    const qFont = (language() === "zh" ? "" : "italic ") + "500 28px " + body;
+    quotes.forEach(function (q) {
+      x.font = qFont;
+      const ql = wrapLines(x, "“" + q.text + "”", IN - 40, 5);
+      const qh = ql.length * 40 + 44;
+      x.fillStyle = C.accent; x.fillRect(PAD, y, 6, qh - 6);
+      ql.forEach(function (l, j) { text(l, PAD + 28, y + 30 + j * 40, qFont, C.ink); });
+      text("— " + quoteBy(q), PAD + 28, y + 30 + ql.length * 40 + 2, "500 22px " + body, C.muted);
+      y += qh + 22;
+    });
+    y += 22;
+  }
+
   // The numbers, four to a row.
   const cells = [[t("Years"), n.years], [t("First-author papers"), n.pubs], [t("All papers"), n.allPubs], [t("Citations"), n.citations], [t("h-index"), n.h],
     [t("Submissions"), n.submissions], [t("Rejections"), n.rejections], [t("Conferences"), n.conferences], [t("Overtime days"), n.overtime], [t("Burnouts"), n.burnouts],
@@ -288,23 +394,6 @@ export function drawPoster(e, D) {
     wrapLines(x, cell[0], cw - 20, 2).forEach(function (l, j) { text(l, cx + cw / 2, cy + 96 + j * 26, "500 22px " + body, C.muted, "center"); });
   });
   y += Math.ceil(cells.length / 4) * (ch + 16) + 36;
-
-  // The hidden numbers, two columns of bars.
-  const L = e.statLabels || {};
-  const stats = (n.stats ? HIDDEN_SHOWN.filter(function (k) { return n.stats[k] !== undefined && n.stats[k] !== null; }) : []);
-  if (stats.length) {
-    y = heading(t("The hidden numbers, revealed"), y) + 18;
-    const colW = (IN - 48) / 2;
-    stats.forEach(function (k, i) {
-      const cx = PAD + (i % 2) * (colW + 48), cy = y + Math.floor(i / 2) * 70;
-      const v = Math.max(0, Math.min(100, n.stats[k]));
-      text(t(L[k] || k), cx, cy + 24, "500 26px " + body, C.ink);
-      text(String(v), cx + colW, cy + 24, "700 26px " + body, C.ink, "right");
-      x.fillStyle = C.track; roundRect(x, cx, cy + 38, colW, 14, 7); x.fill();
-      x.fillStyle = v >= 60 ? C.good : v >= 35 ? "#d9a33a" : C.accent; roundRect(x, cx, cy + 38, Math.max(14, colW * v / 100), 14, 7); x.fill();
-    });
-    y += Math.ceil(stats.length / 2) * 70 + 24;
-  }
 
   if (e.advisor) {
     const line = e.advisor.name ? t("Advisor: {name} ({type}).", { name: e.advisor.name, type: e.advisor.label }) : t("Advisor: {type}.", { type: e.advisor.label });
@@ -346,17 +435,37 @@ export function drawPoster(e, D) {
     y = cy + 44 + 40;
   }
 
-  // The band at the bottom: where to play.
+  // The band at the bottom: where to play, with a QR code for it, since a picture in a feed can't be
+  // clicked (playtest feedback, 2026-10-24).
   y += 10;
-  x.fillStyle = C.navy; x.fillRect(0, y, W, 150);
-  text(t("A game about doing a PhD in NLP and HCI. Play your own."), PAD, y + 62, "500 28px " + body, C.navyMuted);
-  text(site, PAD, y + 112, "600 36px " + display, C.navyInk);
-  y += 150;
+  const bandH = 250, qrSize = 200;
+  x.fillStyle = C.navy; x.fillRect(0, y, W, bandH);
+  const qrDrawn = drawQr(x, location.origin + location.pathname.replace(/index\.html$/, ""), W - PAD - qrSize, y + (bandH - qrSize) / 2, qrSize);
+  const textW = IN - (qrDrawn ? qrSize + 32 : 0);
+  x.font = "500 28px " + body;
+  const tagLines = wrapLines(x, t("A game about doing a PhD in NLP and HCI. Play your own."), textW, 2);
+  tagLines.forEach(function (l, j) { text(l, PAD, y + 62 + j * 38, "500 28px " + body, C.navyMuted); });
+  if (qrDrawn) text(t("Scan the code to play"), PAD, y + 62 + tagLines.length * 38 + 8, "600 24px " + body, C.navyInk);
+  text(site, PAD, y + bandH - 40, "600 34px " + display, C.navyInk);
+  y += bandH;
 
   const c = document.createElement("canvas");
   c.width = W; c.height = Math.min(big.height, y);
   c.getContext("2d").drawImage(big, 0, 0);
   return c;
+}
+
+// A QR code for the game's address, white on its own quiet zone so phones read it on the dark band.
+// Returns false if it couldn't be made.
+function drawQr(x, url, left, top, size) {
+  let q;
+  try { q = qrcode(0, "M"); q.addData(url); q.make(); } catch (err) { return false; }
+  const n = q.getModuleCount(), quiet = 3, cell = Math.floor(size / (n + 2 * quiet));
+  const side = cell * (n + 2 * quiet), off = (size - side) / 2;
+  x.fillStyle = "#ffffff"; roundRect(x, left + off, top + off, side, side, 10); x.fill();
+  x.fillStyle = "#1b1b1f";
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) x.fillRect(left + off + (c + quiet) * cell, top + off + (r + quiet) * cell, cell, cell);
+  return true;
 }
 
 function roundRect(x, l, t, w, h, r) {

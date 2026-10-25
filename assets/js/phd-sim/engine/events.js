@@ -8,7 +8,8 @@ import { statValue, hasTrait } from "./derived.js";
 
 export const HOOK_CHANCE = {
   turn: 1, deadline: 0.3, after_submit: 0.2, reviews_in: 0.3, after_accept: 0.35, after_reject: 0.3,
-  conference: 1, internship: 0.3, defense_prep: 0.4, defense: 1, job_market: 0.15, model_release: 0.25, graduation: 1
+  conference: 1, internship: 0.3, defense_prep: 0.4, defense: 1, job_market: 0.15, model_release: 0.25, graduation: 1,
+  sick: 1, exhausted: 0.5
 };
 const HOOK_MAX = { conference: 1, graduation: 2 };
 
@@ -166,6 +167,12 @@ export function resolveEvent(G, choiceIndex) {
   res.choiceLabel = fill(c.label, G, cur.ctx);
   const cx = G.meta.codex.events[ev.id];
   if (cx) cx.o[String(choiceIndex) + (success === false ? "f" : "")] = res.text || true;
+  // Kept for the end card's moments (endings.js pickMoments), as shown, with ids for the share link.
+  if (res.text) {
+    s.moments = s.moments || [];
+    s.moments.push({ id: ev.id, c: choiceIndex, f: success === false ? 1 : 0, t: s.turn, title: fill(ev.title || "", G, cur.ctx), label: res.choiceLabel, text: res.text });
+    if (s.moments.length > 200) s.moments.shift();
+  }
   s.current = null;
   return res;
 }

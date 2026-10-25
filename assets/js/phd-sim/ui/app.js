@@ -25,6 +25,9 @@ export class App {
     this.savedRun = storage.loadRun();
     // The leaderboard server, if the page names one (data-board); otherwise there's no leaderboard.
     this.board = (root.getAttribute("data-board") || "").trim().replace(/\/+$/, "") || null;
+    // Whether the daily PhD is offered (config daily_challenge). Hidden, a daily run still plays and
+    // shares as before; there's just no way to start one and no daily board.
+    this.daily = !!this.D.config.daily_challenge;
     this.lang = language();
     this.game = null;
     this.screen = "title";
