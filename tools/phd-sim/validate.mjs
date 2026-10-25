@@ -21,7 +21,8 @@ const CATEGORIES = ["research", "data", "writing", "reviews", "advisor", "legion
 const HOOKS = ["turn", "deadline", "after_submit", "reviews_in", "after_accept", "after_reject", "conference", "internship", "defense_prep", "defense", "job_market", "model_release", "graduation", "sick", "exhausted"];
 const RARITY = ["common", "uncommon", "rare", "legendary"];
 const PREFIX = { research: "res_", data: "dat_", writing: "wri_", reviews: "rev_", advisor: "adv_", legion: "leg_", lab: "lab_", milestones: "mil_", teaching: "tea_", career: "car_", travel: "tra_", world: "wor_", life: "lif_", wellbeing: "wel_", exits: "exi_", tasks: "tsk_" };
-const EVENT_KEYS = ["id", "title", "category", "rarity", "hook", "trigger", "repeatable", "cooldown", "weight", "arc", "when", "text", "choices", "file"];
+// "says" is added when the data loads: the quotes engine/quotes.js finds in each event.
+const EVENT_KEYS = ["id", "title", "category", "rarity", "hook", "trigger", "repeatable", "cooldown", "weight", "arc", "when", "text", "choices", "file", "says"];
 const CHOICE_KEYS = ["label", "requires", "tag", "check", "success", "failure", "text", "effects", "flag_set", "flag_clear", "counter", "status", "status_remove", "trait_add", "schedule", "achievement", "tip", "ending", "unlock"];
 const OUTCOME_KEYS = ["text", "effects", "flag_set", "flag_clear", "counter", "status", "status_remove", "trait_add", "schedule", "achievement", "tip", "ending"];
 const COND_KEYS = ["year", "turn", "semester", "stat", "has_advisor", "advisor", "advisor_not", "background", "origin", "traits_any", "traits_none", "flags_all", "flags_any", "flags_none", "counter", "status_any", "status_none", "milestone", "project", "paper", "world", "telemetry", "chance", "any", "not"];
