@@ -1,6 +1,7 @@
 // Offers, endings, titles, epilogues, PhD 101 recommendations, and run finalization.
 import { check } from "./conditions.js";
 import { asList } from "./util.js";
+import { quoteAt } from "./quotes.js";
 import { fill } from "./templating.js";
 import { totalCitations, hIndex, acceptedPapers, firstAuthorPubs, hasTrait, paperCitations } from "./derived.js";
 import { yearOf, tOf, STAT_LABELS, HIDDEN, TURNS } from "./state.js";
@@ -135,17 +136,26 @@ function paperRef(G, p) {
 }
 
 // The end card's moments (playtest feedback, 2026-10-24: share what you lived through, not bars):
-// up to four answered events, the rarer and more personal the better (advisor signatures, the lab,
-// life outside it), one per kind of event and spread over the years, in the order they happened.
-// No dice, so the pick never changes a replay.
+// up to four answered events, each shown with its setup, the choice and how it went. The livelier the
+// better: rarer events, the chains, the advisor's signature events, the lab and life outside it, and
+// events where someone says something (Arthur, 2026-10-24: the first version read too flat). One per
+// kind of event, spread over the years, in the order they happened. No dice, so a replay never changes.
 const RARITY_SCORE = { legendary: 10, rare: 6, uncommon: 3, common: 1 };
-const CATEGORY_SCORE = { legion: 3, exit: 2, advisor: 1.5, lab: 1.5, life: 1.5, travel: 1.5, career: 1, milestone: 1, teaching: 0.5,
-  research: 0.5, writing: 0.5, reviews: 0.5, wellbeing: 0, world: 0, data: 0 };
+const CATEGORY_SCORE = { legion: 3, exit: 2, advisor: 2, life: 2, lab: 1.5, travel: 1.5, career: 1, milestone: 1, reviews: 1, teaching: 0.5,
+  research: 0.5, writing: 0.5, world: 0.5, data: 0.5, wellbeing: 0 };
+function hasSpeech(ev, m) {
+  const says = ev.says || {};
+  const ch = (says.choices || [])[m.c] || {};
+  return !!(((says.setup || [])[m.vi] || []).length || (ch.out || []).length || (ch.success || []).length || (ch.failure || []).length);
+}
+// What earlier end cards showed (meta.cardSeen), so the next one leans toward something new.
+function cardSeen(G, key) { return Math.min(3, ((G.meta && G.meta.cardSeen) || {})[key] || 0); }
 function pickMoments(G) {
   const cands = (G.state.moments || []).map(function (m) {
     const ev = G.D.eventById[m.id] || {};
-    let score = (RARITY_SCORE[ev.rarity] || 1) + (CATEGORY_SCORE[ev.category] || 0) + (ev.arc ? 1 : 0);
-    if (ev.hook === "sick" || ev.hook === "exhausted") score -= 1;
+    let score = (RARITY_SCORE[ev.rarity] || 1) + (CATEGORY_SCORE[ev.category] || 0) + (ev.arc ? 2 : 0) + (hasSpeech(ev, m) ? 1 : 0);
+    if (ev.hook === "sick" || ev.hook === "exhausted") score -= 2;
+    score -= 2 * cardSeen(G, "m:" + m.id);
     return { m: m, ev: ev, score: score };
   }).filter(function (c) { return c.m.text; })
     .sort(function (a, b) { return b.score - a.score || a.m.t - b.m.t; });
@@ -162,34 +172,74 @@ function pickMoments(G) {
   take(function (c) { return !picks.some(function (p) { return p.ev.category === c.ev.category; }); });
   take(function () { return true; });
   return picks.sort(function (a, b) { return a.m.t - b.m.t; }).map(function (c) {
-    return { id: c.m.id, c: c.m.c, f: c.m.f, t: c.m.t, title: c.m.title, label: c.m.label, text: c.m.text };
+    return { id: c.m.id, c: c.m.c, f: c.m.f, vi: c.m.vi, t: c.m.t, title: c.m.title, setup: c.m.setup || "", label: c.m.label, text: c.m.text };
   });
 }
 
-// What people said to you: the last piece of advice from a senior labmate (tips.yml, which come when
-// they fit what you're going through), and the opening line of the harshest review you got.
-function pickQuotes(G) {
+// What people said to you (Arthur, 2026-10-24: the first version, a PhD 101 tip and a reviewer's opening
+// line, wasn't much fun): up to three lines that people said to you in your events (quotes.js), from
+// different people, your advisor, family and partner first, then labmates, your mentee and Reviewer 2.
+// Lines already on the card as a moment's text count for less. Their words come from the language shown
+// now. With fewer than two, Reviewer 2's opening line fills in, and with none, a labmate's PhD 101 advice.
+const SPEAKER_SCORE = { advisor: 3, partner: 2.5, parent: 2.5, reviewer2: 2, mentee: 2, labmate: 2, labmate2: 2, senior: 2, committee: 1.5 };
+const QUOTE_RARITY = { common: 0, uncommon: 1, rare: 2, legendary: 3 };
+const quoteKey = function (q) { return "q:" + q.id + ":" + q.part + ":" + q.k; };
+function quoteTemplate(ev, q) {
+  if (!q.part) return asList(ev.text)[q.ref];
+  const ch = (ev.choices || [])[q.ref] || {};
+  return ch.check ? (q.f ? (ch.failure || {}).text : (ch.success || {}).text) : ch.text;
+}
+function pickQuotes(G, moments) {
   const s = G.state;
-  const out = [];
-  const tips = (s.quotes || []).filter(function (q) { return G.D.tips.some(function (tp) { return tp.id === q.tip; }); });
-  const tipQuote = function (q) {
-    const tp = G.D.tips.find(function (x) { return x.id === q.tip; });
-    return { kind: "tip", id: q.tip, by: q.by || "", text: tp.text, t: q.t };
-  };
-  if (tips.length) out.push(tipQuote(tips[tips.length - 1]));
-  let worst = null;
-  s.papers.forEach(function (p) {
-    (p.reviews || []).forEach(function (r, i) {
-      if (r.opener && !r.silent && (!worst || r.raw < worst.r.raw)) worst = { r: r, n: i + 1, t: p.decisionTurn || p.submittedTurn || s.turn };
-    });
+  const shownIds = moments.map(function (m) { return m.id; });
+  const cands = (s.quotes || []).filter(function (q) { return q.kind === "said" && G.D.eventById[q.id]; }).map(function (q) {
+    const ev = G.D.eventById[q.id];
+    let score = (SPEAKER_SCORE[q.by] || 1) + (QUOTE_RARITY[ev.rarity] || 0) + (ev.arc ? 1 : 0);
+    if (q.n >= 8 && q.n <= 90) score += 1; else if (q.n > 140) score -= 1;
+    if (shownIds.indexOf(q.id) >= 0) score -= 2;
+    score -= 2 * cardSeen(G, quoteKey(q));
+    // Words in the language shown; a line that names someone else by token is left out (it would need
+    // that event's names).
+    const raw = quoteAt(quoteTemplate(ev, q), q.k);
+    const ok = raw && !/\{(?!advisor\})[a-z0-9_.]+\}/.test(raw);
+    return { q: q, raw: raw, score: ok ? score : -99 };
+  }).filter(function (c) { return c.score > -50; })
+    .sort(function (a, b) { return b.score - a.score || a.q.t - b.q.t; });
+  const who = function (by) { return by === "labmate2" ? "labmate" : by; };
+  const picks = [];
+  // Different people first; then, to reach two, a second line from someone already on the card.
+  cands.forEach(function (c) {
+    if (picks.length >= 3 || picks.some(function (p) { return p.q.id === c.q.id || who(p.q.by) === who(c.q.by); })) return;
+    picks.push(c);
   });
-  if (worst) {
-    const persona = (G.D.reviews.personas || []).find(function (pp) { return pp.id === worst.r.persona; });
-    const oi = persona ? asList(persona.openers).indexOf(worst.r.opener) : -1;
-    out.push({ kind: "review", persona: worst.r.persona, n: worst.n, oi: oi, text: worst.r.opener, t: worst.t });
+  cands.forEach(function (c) {
+    if (picks.length >= 2 || picks.indexOf(c) >= 0 || picks.some(function (p) { return p.q.id === c.q.id; })) return;
+    picks.push(c);
+  });
+  const out = picks.sort(function (a, b) { return a.q.t - b.q.t; }).map(function (c) {
+    const q = c.q;
+    return { kind: "said", id: q.id, part: q.part, ref: q.ref, f: q.f, k: q.k, by: q.by, name: q.by === "advisor" ? fill("{advisor}", G, {}) : q.name || "", text: fill(c.raw, G, {}), t: q.t };
+  });
+  if (out.length < 2) {
+    let worst = null;
+    s.papers.forEach(function (p) {
+      (p.reviews || []).forEach(function (r, i) {
+        if (r.opener && !r.silent && (!worst || r.raw < worst.r.raw)) worst = { r: r, n: i + 1, t: p.decisionTurn || p.submittedTurn || s.turn };
+      });
+    });
+    if (worst && worst.r.persona === "reviewer_2" && !out.some(function (q) { return q.by === "reviewer2"; })) {
+      const persona = (G.D.reviews.personas || []).find(function (pp) { return pp.id === worst.r.persona; });
+      out.push({ kind: "review", persona: worst.r.persona, n: worst.n, oi: persona ? asList(persona.openers).indexOf(worst.r.opener) : -1, text: worst.r.opener, t: worst.t });
+    }
   }
-  if (out.length < 2 && tips.length > 1) out.unshift(tipQuote(tips[0]));
-  return out;
+  if (!out.length) {
+    const tips = (s.quotes || []).filter(function (q) { return q.tip && G.D.tips.some(function (tp) { return tp.id === q.tip; }); });
+    if (tips.length) {
+      const q = tips[tips.length - 1];
+      out.push({ kind: "tip", id: q.tip, by: q.by || "", text: G.D.tips.find(function (x) { return x.id === q.tip; }).text, t: q.t });
+    }
+  }
+  return out.sort(function (a, b) { return a.t - b.t; });
 }
 
 function pickRecommendations(G) {
@@ -240,6 +290,7 @@ export function finalize(G, endingId) {
   checkAchievements(G);
   const title = pickTitle(G);
   const epilogue = pickEpilogue(G);
+  const moments = pickMoments(G);
   const numbers = {
     years: Math.round((s.turn / TURNS) * 10) / 10,
     pubs: firstAuthorPubs(G),
@@ -275,8 +326,8 @@ export function finalize(G, endingId) {
     achievements: Object.keys(s.runAchievements || {}),
     advisor: s.advisor ? { label: s.advisor.label, name: t("Prof. {name}", { name: s.advisor.surname }),
       ref: [s.advisor.archetype, ((G.D.names || {}).last || []).indexOf(s.advisor.surname)] } : null,
-    moments: pickMoments(G),
-    quotes: pickQuotes(G),
+    moments: moments,
+    quotes: pickQuotes(G, moments),
     // Ids for the share link (ui/share.js): which epilogue lines this run got.
     ref: { epilogue: epilogue.ids }
   };
@@ -285,6 +336,10 @@ export function finalize(G, endingId) {
   ["endings", "titles", "advisors"].forEach(function (k) { meta.codex[k] = meta.codex[k] || {}; });
   meta.codex.titles[title.id] = (meta.codex.titles[title.id] || 0) + 1;
   meta.runsCompleted = (meta.runsCompleted || 0) + 1;
+  // What this card shows, so the next card leans toward something else (pickMoments, pickQuotes).
+  meta.cardSeen = meta.cardSeen || {};
+  s.ending.moments.forEach(function (m) { meta.cardSeen["m:" + m.id] = (meta.cardSeen["m:" + m.id] || 0) + 1; });
+  s.ending.quotes.forEach(function (q) { if (q.kind === "said") meta.cardSeen[quoteKey(q)] = (meta.cardSeen[quoteKey(q)] || 0) + 1; });
   s.phase = "ended";
   s.prompt = null;
 }
