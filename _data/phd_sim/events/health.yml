@@ -17,10 +17,10 @@
   choices:
     - label: "Stay in bed with soup"
       text: "You sleep fourteen hours and wake up a person again."
-      effects: { energy: "-6±2", health: "+1", days: -1 }
+      effects: { energy: "-6±2", health: "-1", days: -1 }
     - label: "Work from the couch under a blanket"
       text: "You get a little done. Your typing has a lot of sniffles in it."
-      effects: { energy: "-12±2", health: "-4±1" }
+      effects: { energy: "-12±2", health: "-5±1" }
 
 - id: ill_flu_season
   title: "Flu Season"
@@ -35,10 +35,10 @@
   choices:
     - label: "Sleep it off, and get the flu shot next year"
       text: "You make a note for next fall. For now there's tea, and a lot of sleep."
-      effects: { energy: "-8±2", health: "+1", days: -1 }
+      effects: { energy: "-8±2", health: "-1", days: -1 }
     - label: "Put on a mask and keep going"
       text: "You get through it slowly. So do the other six people in the lab."
-      effects: { energy: "-12±2", health: "-3±1", labmates_rel: "+1" }
+      effects: { energy: "-12±2", health: "-4±1", labmates_rel: "+1" }
 
 - id: ill_conference_souvenir
   title: "The Conference Souvenir"
@@ -53,10 +53,10 @@
   choices:
     - label: "Sleep off the jet lag and the fever together"
       text: "Two birds, one very long nap."
-      effects: { energy: "-6±2", health: "+1", days: -1 }
+      effects: { energy: "-6±2", health: "-1", days: -1 }
     - label: "Write up your conference notes from bed"
       text: "Half the notes are good ideas. The other half say \"ask about the thing\"."
-      effects: { energy: "-10±2", health: "-3±1", knowledge: "+1", network: "+1" }
+      effects: { energy: "-10±2", health: "-4±1", knowledge: "+1", network: "+1" }
 
 - id: ill_migraine
   title: "Migraine"
@@ -74,7 +74,7 @@
       effects: { energy: "-8±2", sanity: "+1", days: -1 }
     - label: "Dark mode, sunglasses, keep typing"
       text: "You finish the paragraph. Tomorrow you can't read it."
-      effects: { energy: "-12±2", health: "-4±1" }
+      effects: { energy: "-12±2", health: "-5±1" }
 
 - id: ill_your_back
   title: "Your Back"
@@ -89,10 +89,10 @@
   choices:
     - label: "See a physical therapist"
       text: "She gives you five exercises and a look. You do the exercises, mostly."
-      effects: { energy: "-6±2", health: "+3±1", days: -1 }
+      effects: { energy: "-6±2", health: "+1", days: -1 }
     - label: "Work standing up, leaning on the bookshelf"
       text: "The bookshelf is now a standing desk. Your back isn't convinced."
-      effects: { energy: "-10±2", health: "-2±1" }
+      effects: { energy: "-10±2", health: "-3±1" }
 
 - id: ill_the_stomach
   title: "The Stomach"
@@ -107,10 +107,10 @@
   choices:
     - label: "Rice porridge, and no coffee for two weeks"
       text: "The first three days are hard. Then food stops hurting."
-      effects: { energy: "-10±2", health: "+2±1" }
+      effects: { energy: "-10±2", health: "+1" }
     - label: "Antacids, and one coffee a day. Just one."
       text: "It's never just one."
-      effects: { energy: "-6±2", health: "-4±1" }
+      effects: { energy: "-6±2", health: "-5±1" }
 
 - id: ill_free_pizza
   title: "The Free Pizza"
@@ -124,10 +124,10 @@
   choices:
     - label: "Go to urgent care"
       text: "Two hours in the waiting room, then a nurse says \"fluids\". You drink fluids."
-      effects: { energy: "-8±2", health: "+1", days: -1 }
+      effects: { energy: "-8±2", health: "-1", days: -1 }
     - label: "Wait it out with crackers"
       text: "It works, eventually. You can't look at pepperoni for a month."
-      effects: { energy: "-12±2", health: "-3±1" }
+      effects: { energy: "-12±2", health: "-4±1" }
 
 - id: ill_no_voice
   title: "No Voice"
@@ -142,10 +142,10 @@
   choices:
     - label: "Email {advisor} and move your slot"
       text: "The reply is short: \"Feel better. Next week, then.\""
-      effects: { energy: "-8±2", health: "+1", days: -1 }
+      effects: { energy: "-8±2", health: "-1", days: -1 }
     - label: "Present by typing everything onto the slides"
       text: "Your slides have never been so complete. People say it's your clearest talk yet."
-      effects: { energy: "-12±2", health: "-2±1", presenting: "+1", writing: "+1" }
+      effects: { energy: "-12±2", health: "-3±1", presenting: "+1", writing: "+1" }
 
 - id: ill_your_eyes
   title: "Your Eyes"
@@ -160,10 +160,10 @@
   choices:
     - label: "Every 20 minutes, look 20 feet away for 20 seconds"
       text: "It's mostly the wall. Your eyes like the wall."
-      effects: { energy: "-6±2", health: "+2±1", days: -1 }
+      effects: { energy: "-6±2", health: "+1", days: -1 }
     - label: "Buy eye drops and turn the brightness down"
       text: "Your screen is dim, your eyes are still red, and the draft is a little longer."
-      effects: { energy: "-10±2", health: "-3±1" }
+      effects: { energy: "-10±2", health: "-4±1" }
 
 - id: ill_two_lines
   title: "Two Lines"
@@ -177,10 +177,10 @@
   choices:
     - label: "Isolate properly and rest"
       text: "You watch a whole TV series and feel guilty about none of it."
-      effects: { energy: "-4±2", health: "+1", sanity: "+2", days: -2 }
+      effects: { energy: "-4±2", health: "-1", sanity: "+2", days: -2 }
     - label: "Isolate, and join every meeting with the camera off"
       text: "You attend everything and remember nothing."
-      effects: { energy: "-12±2", health: "-3±1" }
+      effects: { energy: "-12±2", health: "-4±1" }
 
 # Out of Energy: a turn that starts with Energy at 5 or less.
 
