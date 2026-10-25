@@ -10,7 +10,7 @@ const END = /[.!?。！？]/;
 // Who, by what sits next to the quote. Tokens first; then the people the events name in words.
 const SPEAKERS = [
   [/\{advisor\}/, "advisor"], [/\{labmate2\}/, "labmate2"], [/\{labmate\}/, "labmate"], [/\{senior\}/, "senior"], [/\{mentee\}/, "mentee"],
-  [/\{committee\}/, "committee"], [/Reviewer 2|2 号审稿人/, "reviewer2"], [/[Yy]our partner|你对象|对象/, "partner"],
+  [/\{committee\}/, "committee"], [/\{prof\}/, "prof"], [/\{stranger\}/, "stranger"], [/Reviewer 2|2 号审稿人/, "reviewer2"], [/[Yy]our partner|你对象|对象/, "partner"],
   [/[Yy]our parent|家人/, "parent"]
 ];
 

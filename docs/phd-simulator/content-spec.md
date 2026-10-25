@@ -183,6 +183,7 @@ All keys are ANDed. Comparison strings are `"<30"`, `"<=1"`, `">=60"`, `">5"`, `
 | `world` | `{ hiring: freeze }` | `hiring`: `boom`, `neutral`, `freeze`; `hype` (comparison, the bound project's topic) |
 | `telemetry` | `{ rejections: ">=3" }` | Run statistics (section 4.1) |
 | `chance` | `0.3` | Extra random gate |
+| `trip` | `{ kind: talk, talk: before, days: [2, 3], did: [day_coffee] }` | During a conference week only: talk or poster, before or after it (or `tomorrow`), the day (1 Sunday to 5 Thursday), and the activity that brought the event (`did` / `did_not`, `conference.yml` ids) |
 | `any` | `[ {…}, {…} ]` | OR over sub-conditions |
 | `not` | `{ … }` | Negation |
 
@@ -242,6 +243,8 @@ Values are `"+7±3"` (a whole number rolled in [4, 10], peaked at 7), `"-5±2"`,
 | `paper.citations` | Bonus citations for the bound paper |
 | `days` / `days_next` | Free days gained (+) or lost (−) this turn or next. Typical ±1 to ±4 |
 | `career_prep` | Points toward internship and job applications. Typical 1–3 |
+| `contacts` | At a conference: people you meet, counted for the week and turned into Network when you fly home (`engine/trip.js`). Outside a trip it adds to Network directly. Typical 1–3 |
+| `prep` | At a conference before your talk: practice. Talk events can check it (`check: { stat: prep }`: 30 unpracticed, +8 per point) |
 
 Arrows are derived automatically: for each visible target (`energy`, `sanity`, `health`, `citations`), the center of the value gives ↑ or ↓, and ↑↑ or ↓↓ when it is 10 or more. Sanity arrows are drawn as Stress, flipped, in the same color. A check whose success and failure point opposite ways shows ↕.
 
@@ -259,7 +262,9 @@ Arrows are derived automatically: for each visible target (`energy`, `sanity`, `
 | `reviews_in` | When reviews arrive, before the rebuttal | 0.3 | `{paper}`, `{venue}` |
 | `after_accept` | After an acceptance | 0.35 | `{paper}`, `{venue}` |
 | `after_reject` | After a rejection | 0.3 | `{paper}`, `{venue}` |
-| `conference` | Each conference you attend in person | 1.0, 1 event | `{city}`, `{paper}`, `{venue}` |
+| `conference` | During a conference week: working the hallway, the poster hall, the booths (`conference.yml`) | per activity | `{city}`, `{paper}`, `{venue}` |
+| `conf_arrival`, `conf_session`, `conf_question`, `conf_coffee`, `conf_sightseeing`, `conf_night`, `conf_party`, `conf_last` | During a conference week, after the activity that leads to that kind of moment (`events/conference.yml` lists which) | per activity | `{city}`, `{paper}`, `{venue}` |
+| `conf_talk`, `conf_poster` | Your talk or poster, every time: on the week's talk day, or on a two-day trip | 1.0 | `{city}`, `{paper}`, `{venue}` |
 | `internship` | Each internship turn | 0.3 | `{company}` |
 | `defense_prep` | Each defense-prep turn | 0.4 | — |
 | `defense` | Defense day, before the Q&A | 1.0 | — |
@@ -330,6 +335,8 @@ The engine sets `coursework`, `ta`, `quals_prep`, `proposal_prep`, `defense_prep
 | `saw_it_coming` | Reviewer 2 asked the question you'd already fixed |
 | `inbox_zero` | Survived the post-vacation inbox |
 | `hood_backwards` | Wore the doctoral hood backwards |
+| `mic_check` | Asked a question at a conference session |
+| `last_one_standing` | Stayed for the conference after-party |
 
 ---
 
@@ -361,6 +368,8 @@ Use a tip only where the episode genuinely fits; at most one per event.
 | `{company}` | A fictional tech company |
 | `{model}`, `{biglab}` | The latest fictional frontier model and lab |
 | `{committee}` | A committee member, "Prof. Surname" |
+| `{prof}` | A professor met at a conference, "Prof. Surname" |
+| `{stranger}` | A student or researcher met at a conference (a first name) |
 | `{roll:200-600}` | A random whole number |
 | `{counter.name}` | A counter's value; `{counter.name\|ordinal}` gives "3rd" |
 

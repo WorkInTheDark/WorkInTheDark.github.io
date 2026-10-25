@@ -957,7 +957,7 @@
   title: "Thirty Seconds at Your Poster"
   category: legion
   rarity: uncommon
-  hook: conference
+  hook: conf_poster
   when: { advisor: [famous_absent] }
   text:
     - "For the first time this conference, {advisor} appears at your poster for {paper}, with a very famous friend in tow. \"You have thirty seconds. Go.\""

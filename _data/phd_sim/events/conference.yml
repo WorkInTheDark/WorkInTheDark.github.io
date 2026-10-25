@@ -1,0 +1,1363 @@
+# A week at a conference (engine/trip.js, conference.yml). Each hook is a kind of moment in the week,
+# drawn when you choose something to do (conference.yml activities' event):
+#   conf_arrival (Sunday evening), conf_session (keynotes and talks), conf_question (asking one at the
+#   mic), conf_coffee (coffee chats), conf_sightseeing, conf_night (dinners, bars, the walk home),
+#   conf_party (Wednesday's party), conf_talk and conf_poster (yours: something always happens),
+#   conf_last (Thursday and the flight home).
+# They bind {city}, {venue} and {paper}; {prof} is a professor and {stranger} a student or researcher
+# you meet there. contacts are people you meet (Network when you fly home); a check on prep is how
+# much you rehearsed.
+
+# --- Sunday evening ------------------------------------------------------------------------------
+
+- id: con_badge_typo
+  title: "Who Are You Again?"
+  category: travel
+  rarity: common
+  hook: conf_arrival
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The registration desk prints your badge. Your name is misspelled, your university is a different university, and the lanyard color says SPONSOR."
+  choices:
+    - label: "Get it reprinted"
+      text: "The line for reprints is forty minutes long. You meet three people in it, all with wrong badges."
+      effects: { energy: "-2", contacts: "+2±1", sanity: "+1" }
+    - label: "Keep it. It's a conversation starter"
+      text: "All week, people ask about your sponsorship deal. You make up a new answer each time."
+      effects: { contacts: "+2±1", sanity: "+2" }
+    - label: "Fix it with a pen"
+      text: "Your handwritten correction is readable from up close. Nobody gets that close."
+      effects: { sanity: "+1" }
+
+- id: con_reception_famous
+  title: "By the Cheese Table"
+  category: travel
+  rarity: uncommon
+  hook: conf_arrival
+  repeatable: true
+  cooldown: 26
+  text:
+    - "At the welcome reception, {prof}, whose textbook you learned from, is standing alone by the cheese table, looking at their phone."
+  choices:
+    - label: "Go say hello"
+      check: { stat: presenting, vs: 40, spread: 20 }
+      success:
+        text: "{prof} is delighted to talk about something other than the textbook. Twenty minutes later: \"Find me at the party. I want to hear the rest,\" {prof} says."
+        effects: { contacts: "+3±1", sanity: "+3" }
+      failure:
+        text: "You tell {prof} you love the textbook. {prof} says thank you. Then neither of you says anything for a very long time."
+        effects: { contacts: "+1", sanity: "-3" }
+    - label: "Admire from a safe distance"
+      text: "Someone else walks over, and they're laughing within a minute. Next year, you tell yourself."
+      effects: { sanity: "-1" }
+    - label: "Send {labmate} over first"
+      text: "{labmate} walks over without hesitating, then waves you in. Five minutes later you're both invited to {prof}'s lab dinner."
+      effects: { contacts: "+3", labmates_rel: "+2" }
+
+- id: con_roommate
+  title: "The Shared Room"
+  category: travel
+  rarity: common
+  hook: conf_arrival
+  repeatable: true
+  cooldown: 26
+  when: { has_advisor: true }
+  text:
+    - "To save money, you're sharing a hotel room with {labmate}. At 1 am you learn that {labmate} snores like a leaf blower."
+  choices:
+    - label: "Earplugs and hope"
+      check: { stat: energy, vs: 40, spread: 20 }
+      success:
+        text: "You sleep. More or less."
+        effects: { sanity: "+1" }
+      failure:
+        text: "You count snores until 4 am. You reach three thousand."
+        effects: { energy: "-5±1", sanity: "-2" }
+    - label: "Sleep in the bathtub"
+      text: "It's surprisingly quiet. Also surprisingly hard. {labmate} finds you there in the morning and laughs for a full minute."
+      effects: { energy: "-3", health: "-1", labmates_rel: "+2" }
+    - label: "Book your own room for one night"
+      text: "It costs a week of groceries. You sleep like a baby."
+      effects: { energy: "+3", sanity: "-1" }
+
+- id: con_jetlag_lobby
+  title: "The 3 am Lobby"
+  category: travel
+  rarity: common
+  hook: conf_arrival
+  repeatable: true
+  cooldown: 26
+  text:
+    - "It's 3 am, and the hotel lobby is full of wide-awake researchers on the wrong time zone, all pretending to answer email."
+  choices:
+    - label: "Join them"
+      text: "By 4 am you've met a postdoc from Seoul and a professor from Lisbon, and sketched a joint project on a napkin."
+      effects: { contacts: "+3±1", energy: "-3" }
+    - label: "Go back to bed and stare at the ceiling"
+      text: "You don't sleep, but you rest. That's what you tell yourself."
+      effects: { energy: "+1" }
+
+# --- Talks and sessions ---------------------------------------------------------------------------
+
+- id: con_scooped_live
+  title: "Your Next Paper, Presented"
+  category: travel
+  rarity: uncommon
+  hook: conf_session
+  when: { trip: { did: [day_sessions] } }
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The third talk of the session presents almost exactly the idea you were going to work on next. Same data, same angle, better plots."
+  choices:
+    - label: "Talk to them afterward"
+      check: { stat: network, vs: 45, spread: 20 }
+      success:
+        text: "You compare notes in the hallway. Your angle is different enough, and they suggest you keep in touch. Maybe even work together."
+        effects: { contacts: "+2", taste: "+2", sanity: "+2" }
+      failure:
+        text: "They're polite and in a hurry. You're left holding a half-formed idea that now has a published twin."
+        effects: { sanity: "-4±1" }
+    - label: "Quietly cross it off your list"
+      text: "You draw a line through the idea in your notebook. It hurts less than you thought, and you have two others."
+      effects: { sanity: "-2", taste: "+1" }
+    - label: "Find what they missed"
+      check: { stat: taste, vs: 50, spread: 20 }
+      success:
+        text: "By the end of the session, you have a follow-up they haven't thought of."
+        effects: { taste: "+2", sanity: "+3" }
+      failure:
+        text: "Everything you think of, they already did in the appendix."
+        effects: { knowledge: "+1", sanity: "-3" }
+
+- id: con_cited_on_slide
+  title: "There It Is"
+  category: travel
+  rarity: rare
+  hook: conf_session
+  text:
+    - "A speaker puts up a slide titled \"Prior work\", and there it is: your preprint of {paper}, your name, in a room of four hundred people."
+  choices:
+    - label: "Take a photo for your advisor"
+      requires: { has_advisor: true }
+      text: "{advisor} replies with three exclamation points, which for {advisor} is a parade."
+      effects: { sanity: "+5±1", advisor_rel: "+2" }
+    - label: "Whisper to the person next to you"
+      text: "\"That's me,\" you whisper. They look at the slide, then at you, then at the slide. \"Cool,\" they whisper back, and they mean it."
+      effects: { sanity: "+4", contacts: "+1" }
+    - label: "Find the speaker afterward"
+      check: { stat: presenting, vs: 40, spread: 20 }
+      success:
+        text: "They're thrilled to meet you and have three questions about your method. You have answers to two."
+        effects: { contacts: "+2", citations: "+2±1", sanity: "+3" }
+      failure:
+        text: "They've already left for another session. You write them a very long email instead."
+        effects: { contacts: "+1", sanity: "+2" }
+
+- id: con_two_profs_fight
+  title: "The Q&A That Became a Debate"
+  category: travel
+  rarity: uncommon
+  hook: conf_session
+  repeatable: true
+  cooldown: 26
+  text:
+    - "During the Q&A, two senior professors start arguing about whether benchmarks mean anything. It's been eight minutes. The session chair has given up."
+  choices:
+    - label: "Enjoy the show"
+      text: "It's the best talk of the conference, and it isn't on the program."
+      effects: { sanity: "+3", knowledge: "+1" }
+    - label: "Step up to the mic with a middle ground"
+      check: { stat: knowledge, vs: 55, spread: 20 }
+      success:
+        text: "Both professors turn to look at you. One says, \"Exactly.\" The other says, \"Fine.\" The chair mouths \"thank you\"."
+        effects: { contacts: "+3", presenting: "+1", sanity: "+2" }
+        achievement: mic_check
+      failure:
+        text: "They both turn to you, disagree with you, then agree with each other that you're wrong. Unity, at last."
+        effects: { presenting: "+1", sanity: "-4±1" }
+        achievement: mic_check
+    - label: "Slip out to another session"
+      text: "You catch the last two talks next door. The argument is all anyone talks about at lunch anyway."
+      effects: { knowledge: "+1" }
+
+- id: con_floor_seat
+  title: "Standing Room Only"
+  category: travel
+  rarity: common
+  hook: conf_session
+  when: { trip: { did: [day_sessions] } }
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The session on your topic is in a room for forty people. Two hundred show up. You're on the floor by the door with your knees under your chin."
+  choices:
+    - label: "Stay for all of it"
+      text: "Your legs fall asleep twice. The talks are worth it, mostly."
+      effects: { energy: "-2", knowledge: "+2" }
+    - label: "Watch the stream from the hallway"
+      text: "You watch on your phone from a hallway bench, next to six other people doing the same thing. By the end, you're a group."
+      effects: { contacts: "+2±1", knowledge: "+1" }
+
+- id: con_famous_neighbor
+  title: "The Seat Next to You"
+  category: travel
+  rarity: uncommon
+  hook: conf_session
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The seat next to you is taken by {prof}, one of the founders of your field, who is quietly correcting the speaker's equations in the margin of the program."
+  choices:
+    - label: "Whisper a question"
+      check: { stat: knowledge, vs: 50, spread: 20 }
+      success:
+        text: "{prof} whispers back a two-sentence answer that clears up a month of confusion. \"Come by tomorrow and we'll argue about it properly.\""
+        effects: { knowledge: "+2", contacts: "+2", sanity: "+2" }
+      failure:
+        text: "{prof} looks at you as if you'd asked about the weather, then turns back to the screen."
+        effects: { sanity: "-2" }
+    - label: "Sneak a look at the margin notes"
+      text: "{prof} has found a sign error on slide 12. You check. {prof} is right. You'll never trust a slide again."
+      effects: { knowledge: "+1", taste: "+1" }
+    - label: "Sit very still"
+      text: "You sit perfectly still for forty minutes. Your posture has never been better."
+      effects: { sanity: "-1" }
+
+- id: con_keynote_spicy
+  title: "Won't Matter in Five Years"
+  category: travel
+  rarity: common
+  hook: conf_session
+  when: { trip: { did: [day_keynote] } }
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The keynote speaker announces that most of the papers at this conference won't matter in five years. The room laughs nervously. Your paper is at this conference."
+  choices:
+    - label: "Take it personally"
+      text: "You spend the afternoon wondering if yours is one of them. By dinner you've decided it's at least in the top half."
+      effects: { sanity: "-3", taste: "+1" }
+    - label: "Take notes on what will matter"
+      check: { stat: taste, vs: 45, spread: 20 }
+      success:
+        text: "You leave with three questions that might matter in five years, and one of them is yours."
+        effects: { taste: "+2", sanity: "+2" }
+      failure:
+        text: "Your notes say \"WHAT MATTERS???\" in large letters. It's a start."
+        effects: { taste: "+1" }
+
+# --- Asking a question at the mic --------------------------------------------------------------------
+
+- id: con_first_question
+  title: "Hand Up"
+  category: travel
+  rarity: common
+  hook: conf_question
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The talk ends. The chair asks for questions. Your hand is in the air before you can stop it. The mic is at the far end of the aisle."
+  choices:
+    - label: "Ask the question you wrote down"
+      check: { stat: presenting, vs: 35, spread: 20 }
+      success:
+        text: "Your voice shakes on the first word and steadies by the fifth. The speaker thinks for a second and says it's a great question, and clearly means it."
+        effects: { contacts: "+2", presenting: "+2", sanity: "+3" }
+        achievement: mic_check
+      failure:
+        text: "You ask it. It comes out twice as long as you wrote it. The speaker kindly answers a different question."
+        effects: { presenting: "+1", sanity: "-2" }
+        achievement: mic_check
+    - label: "Lower your hand slowly, as if stretching"
+      text: "Someone else asks your exact question and gets a great answer. You nod as if you'd planned it."
+      effects: { sanity: "-1" }
+
+- id: con_comment_not_question
+  title: "More of a Comment"
+  category: travel
+  rarity: uncommon
+  hook: conf_question
+  repeatable: true
+  cooldown: 26
+  text:
+    - "You ask your question; the speaker answers it well. Then the person behind you takes the mic, says it's more of a comment than a question, and starts presenting their own paper."
+  choices:
+    - label: "Wait it out"
+      text: "Four minutes. You learn their whole paper. Honestly, it's pretty good."
+      effects: { knowledge: "+1", sanity: "-1" }
+      achievement: mic_check
+    - label: "Catch the speaker at the door instead"
+      text: "You skip the line and catch the speaker on the way out. They're relieved to talk to someone who asked an actual question."
+      effects: { contacts: "+2", sanity: "+1" }
+      achievement: mic_check
+
+- id: con_question_misread
+  title: "Not Quite What You Asked"
+  category: travel
+  rarity: common
+  hook: conf_question
+  repeatable: true
+  cooldown: 26
+  text:
+    - "You ask a question you've been thinking about all week. The speaker smiles and answers a completely different question, with total confidence."
+  choices:
+    - label: "Politely ask again"
+      check: { stat: presenting, vs: 45, spread: 20 }
+      success:
+        text: "You put it in one sentence. The speaker pauses. \"Oh. Oh, that's interesting. I don't know.\" The room goes quiet, the good kind of quiet."
+        effects: { contacts: "+3±1", presenting: "+2", sanity: "+2" }
+        achievement: mic_check
+      failure:
+        text: "The second answer is to yet another question. The chair moves on."
+        effects: { presenting: "+1", sanity: "-3" }
+        achievement: mic_check
+    - label: "Say thank you and sit down"
+      text: "At the break, three people find you. They wanted the answer to your actual question too."
+      effects: { contacts: "+2", sanity: "-1" }
+      achievement: mic_check
+
+- id: con_famous_followup
+  title: "Building on Your Question"
+  category: travel
+  rarity: rare
+  hook: conf_question
+  text:
+    - "You ask your question at the mic. Before the speaker can answer, {prof}, one of the biggest names in the field, stands up and says, \"I want to build on that question.\""
+  choices:
+    - label: "Hold your ground at the mic"
+      check: { stat: knowledge, vs: 50, spread: 20 }
+      success:
+        text: "You, {prof} and the speaker end up in a three-way conversation that runs five minutes over. Afterward, {prof} asks who your advisor is."
+        effects: { contacts: "+4±1", sanity: "+3", presenting: "+1" }
+        achievement: mic_check
+      failure:
+        text: "{prof} builds on your question so thoroughly that by the end, nobody remembers it was yours."
+        effects: { contacts: "+1", sanity: "-2" }
+        achievement: mic_check
+    - label: "Step back and let them"
+      text: "{prof} asks a better version of your question and thanks you by name. People look at you differently at lunch."
+      effects: { contacts: "+2", sanity: "+2" }
+      achievement: mic_check
+
+- id: con_mic_line
+  title: "Number Five in Line"
+  category: travel
+  rarity: common
+  hook: conf_question
+  repeatable: true
+  cooldown: 26
+  text:
+    - "There are six people in line at the mic and four minutes left in the session. You're number five."
+  choices:
+    - label: "Stay in line"
+      check: { stat: energy, vs: 35, spread: 20 }
+      success:
+        text: "The chair lets the session run over. You ask your question at 12:02 to a hungry room, and it's a good one."
+        effects: { presenting: "+1", contacts: "+1", sanity: "+2" }
+        achievement: mic_check
+      failure:
+        text: "\"We're out of time.\" You walk back to your seat holding a question nobody will ever hear."
+        effects: { sanity: "-2" }
+    - label: "Ask the person ahead of you instead"
+      text: "Number four turns out to have the same question. You team up and corner the speaker together at the break."
+      effects: { contacts: "+2" }
+
+- id: con_question_your_paper
+  title: "That's Why We Tried This"
+  category: travel
+  rarity: uncommon
+  hook: conf_question
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The speaker is {stranger}, a student from another lab. You ask your question. \"Wait,\" {stranger} says, squinting at your badge. \"You wrote {paper}? That's why we tried this.\""
+  choices:
+    - label: "Grab coffee after"
+      text: "You spend the break comparing notes. By the end, you're planning a joint workshop paper."
+      effects: { contacts: "+3", sanity: "+3" }
+      achievement: mic_check
+    - label: "Act like it's no big deal"
+      text: "You say \"oh, cool\" very casually. You replay the moment on a loop all afternoon."
+      effects: { sanity: "+4" }
+      achievement: mic_check
+
+# --- Coffee chats ------------------------------------------------------------------------------------
+
+- id: con_coffee_big_name
+  title: "Coffee with a Big Name"
+  category: travel
+  rarity: uncommon
+  hook: conf_coffee
+  when: { trip: { did: [day_coffee] } }
+  repeatable: true
+  cooldown: 26
+  text:
+    - "{prof} actually said yes to coffee. {prof} arrives four minutes late, orders an espresso and says, \"So. What are you working on?\""
+  choices:
+    - label: "Give your one-minute pitch"
+      check: { stat: presenting, vs: 45, spread: 20 }
+      success:
+        text: "{prof} asks three sharp questions, then says, \"Send me the paper. And think about a summer visit to my lab.\""
+        effects: { contacts: "+3", career_prep: "+2", sanity: "+3" }
+      failure:
+        text: "You squeeze your five-minute pitch into one breathless minute. {prof} is kind about it, and checks the time twice."
+        effects: { contacts: "+1", sanity: "-3" }
+    - label: "Ask about their work instead"
+      text: "{prof} talks happily for twenty minutes. You learn a lot, and {prof} remembers you as a very good listener."
+      effects: { knowledge: "+2", contacts: "+2" }
+    - label: "Ask for career advice"
+      text: "{prof} tells you the one thing they wish they'd known as a student: \"Pick problems you'd still care about if nobody cited them.\""
+      effects: { taste: "+2", contacts: "+1", sanity: "+2" }
+
+- id: con_coffee_rival
+  title: "Same Problem, Same Deadline"
+  category: travel
+  rarity: uncommon
+  hook: conf_coffee
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Your coffee chat is with {stranger}, who turns out to be working on the same problem as you, with the same dataset, for the same deadline."
+  choices:
+    - label: "Propose working together"
+      check: { stat: network, vs: 45, spread: 20 }
+      success:
+        text: "\"Honestly? I'd love that,\" {stranger} says. You leave with a shared doc and one less rival."
+        effects: { contacts: "+3", sanity: "+4" }
+      failure:
+        text: "{stranger} says they'll think about it, in the voice people use when they won't."
+        effects: { contacts: "+1", sanity: "-2" }
+    - label: "Split the problem"
+      text: "You agree: {stranger} takes efficiency, you take evaluation. You shake on it over a croissant."
+      effects: { contacts: "+2", sanity: "+3", taste: "+1" }
+    - label: "Race them"
+      text: "You smile, finish your coffee and go back to the hotel to run experiments. The race is on."
+      effects: { energy: "-3", sanity: "-3" }
+
+- id: con_coffee_forgot_name
+  title: "Great to See You Again!"
+  category: travel
+  rarity: common
+  hook: conf_coffee
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Someone in the coffee line waves at you, clearly delighted to see you again. You have absolutely no idea who they are."
+  choices:
+    - label: "Bluff it"
+      check: { stat: presenting, vs: 45, spread: 20 }
+      success:
+        text: "You keep it vague for ten minutes until they mention their dataset. It's {stranger}! You met at a workshop last year. Saved."
+        effects: { contacts: "+2", sanity: "+1" }
+      failure:
+        text: "\"Sorry, remind me what you work on?\" you finally ask. \"We had dinner together. Last night.\""
+        effects: { contacts: "+1", sanity: "-3" }
+    - label: "Confess you've forgotten"
+      text: "They laugh: they'd forgotten your name too and were bluffing. You introduce yourselves again, properly this time."
+      effects: { contacts: "+2", sanity: "+2" }
+
+- id: con_coffee_recruiter
+  title: "Coffee, on {company}"
+  category: travel
+  rarity: common
+  hook: conf_coffee
+  repeatable: true
+  cooldown: 26
+  text:
+    - "A recruiter from {company} invites you for coffee. Within five minutes, they ask when you graduate. Within ten, they mention the salary range."
+  choices:
+    - label: "Hear them out"
+      text: "The number is bigger than your stipend by a factor you calculate twice. You take their card and stare at it on the train."
+      effects: { career_prep: "+2", sanity: "+1", contacts: "+1" }
+    - label: "Steer the talk to research"
+      text: "They're surprisingly interested in your work. Their research team, they say, is hiring interns next summer."
+      effects: { career_prep: "+1", contacts: "+2" }
+    - label: "Say you're not on the market yet"
+      text: "\"Everyone says that,\" they say with a smile, and hand you a card anyway."
+      effects: { contacts: "+1" }
+
+- id: con_coffee_senior_advice
+  title: "An Hour of Honest Advice"
+  category: travel
+  rarity: common
+  hook: conf_coffee
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Your coffee with {stranger}, a fifth-year from another lab, turns into an hour of honest talk about advisors, burnout and which conferences are worth it."
+  choices:
+    - label: "Take notes"
+      text: "You fill two pages. The best line, from {stranger}, gets underlined twice: \"Nobody remembers your rejections but you.\""
+      effects: { sanity: "+3", contacts: "+1" }
+    - label: "Ask what they'd do differently"
+      text: "\"Start writing earlier,\" {stranger} says. \"And go to the conference party. I mean it.\""
+      effects: { sanity: "+2", writing: "+1", contacts: "+1" }
+
+- id: con_coffee_reviewed
+  title: "You Reviewed This Paper"
+  category: travel
+  rarity: rare
+  hook: conf_coffee
+  text:
+    - "Halfway through coffee, you realize that the paper {stranger} is telling you about is the one you reviewed last month. You gave it a 2."
+  choices:
+    - label: "Say nothing, as reviewers should"
+      text: "You keep the review anonymous and give them some advice, which is basically your review again, out loud. \"That's so helpful,\" {stranger} says. \"Way more useful than our reviewers.\""
+      effects: { contacts: "+2", sanity: "+2" }
+    - label: "Suddenly need the restroom"
+      text: "You hide in the restroom for six minutes. When you come back, they've bought you a pastry."
+      effects: { contacts: "+1", sanity: "-2" }
+
+- id: con_coffee_postdoc
+  title: "Send Me Your CV"
+  category: travel
+  rarity: uncommon
+  hook: conf_coffee
+  repeatable: true
+  cooldown: 26
+  when: { year: ">=3" }
+  text:
+    - "Over coffee, {prof}, who runs a lab you'd love to join as a postdoc, says, \"Are you on the market next year? Send me your CV.\""
+  choices:
+    - label: "Send it that night"
+      text: "You update your CV in the hotel room at midnight and send it before you lose your nerve. The reply comes by breakfast: let's talk in the spring."
+      effects: { career_prep: "+3", sanity: "+2", contacts: "+2" }
+    - label: "Ask what they look for"
+      text: "{prof} tells you: \"One thing you're known for. Just one.\" You spend the flight home trying to name yours."
+      effects: { career_prep: "+2", taste: "+1", contacts: "+1" }
+
+# --- Seeing the city ----------------------------------------------------------------------------------
+
+- id: con_tour_lost
+  title: "The Walking Tour"
+  category: travel
+  rarity: common
+  hook: conf_sightseeing
+  when: { trip: { did: [day_excursion] } }
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The walking tour of {city} starts with forty researchers and one guide. Twenty minutes in, there are thirty-one researchers. Nobody knows where the other nine went."
+  choices:
+    - label: "Stick with the guide"
+      text: "You learn the history of {city}, and the guide's opinion of tourists who don't listen. Both are fascinating."
+      effects: { sanity: "+3", energy: "-1" }
+    - label: "Go find the lost nine"
+      check: { stat: network, vs: 40, spread: 20 }
+      success:
+        text: "You find them in a bakery, arguing about evaluation metrics. You stay for the pastries and the argument."
+        effects: { contacts: "+3", sanity: "+3" }
+      failure:
+        text: "You don't find them, and now you're lost too. You see a lot of {city} trying to get back."
+        effects: { energy: "-3", sanity: "+2" }
+
+- id: con_museum
+  title: "The Museum"
+  category: travel
+  rarity: common
+  hook: conf_sightseeing
+  repeatable: true
+  cooldown: 26
+  when: { has_advisor: true, trip: { did: [day_sightsee, last_sightsee] } }
+  text:
+    - "{labmate} drags a few of you to a museum. It turns out to have a whole wing of old calculating machines."
+  choices:
+    - label: "Spend two hours with the machines"
+      text: "You read every label. {labmate} has to pull you away by the sleeve. You leave with a postcard of a 1960s mainframe."
+      effects: { sanity: "+4", energy: "-2", labmates_rel: "+2" }
+    - label: "Find the café"
+      text: "You sit in the museum café while the others look at art. It's the most peaceful hour of the week."
+      effects: { energy: "+2", sanity: "+3" }
+
+- id: con_food_adventure
+  title: "Where the Locals Eat"
+  category: travel
+  rarity: common
+  hook: conf_sightseeing
+  repeatable: true
+  cooldown: 26
+  text:
+    - "A student from {city} offers to show a group of you where the locals actually eat. The place has no sign, no menu and a forty-minute line."
+  choices:
+    - label: "Order whatever they order"
+      check: { stat: health, vs: 40, spread: 20 }
+      success:
+        text: "It's the best meal of your life. You will describe it to your family in unnecessary detail."
+        effects: { sanity: "+5±1", contacts: "+2" }
+      failure:
+        text: "It's delicious. Your stomach has opinions about it for the next day and a half."
+        effects: { sanity: "+3", health: "-3±1", energy: "-3" }
+    - label: "Play it safe"
+      text: "You order the one thing you recognize. It's also amazing. Everyone else's still looks better."
+      effects: { sanity: "+3", contacts: "+1" }
+
+- id: con_sunrise_hike
+  title: "A Short Hike"
+  category: travel
+  rarity: uncommon
+  hook: conf_sightseeing
+  repeatable: true
+  cooldown: 26
+  text:
+    - "{stranger}, a postdoc you met yesterday, is organizing a sunrise hike outside {city}. \"It's a short one,\" {stranger} promises."
+  choices:
+    - label: "Go"
+      check: { stat: energy, vs: 45, spread: 20 }
+      success:
+        text: "It's not short. It's beautiful. At the top, eight sweaty researchers take the best photo of the conference."
+        effects: { sanity: "+6±1", health: "+2", contacts: "+3", energy: "-4" }
+      failure:
+        text: "It's not short. You make it, barely, and doze through every session that afternoon."
+        effects: { energy: "-8±2", sanity: "+3", health: "+1", contacts: "+2" }
+    - label: "Sleep in"
+      text: "You see the photos at breakfast: eight happy, sweaty researchers. Next time."
+      effects: { energy: "+3", sanity: "-1" }
+
+- id: con_advisor_spotted
+  title: "Caught Skipping"
+  category: travel
+  rarity: uncommon
+  hook: conf_sightseeing
+  repeatable: true
+  cooldown: 26
+  when: { has_advisor: true, trip: { did: [day_sightsee, last_sightsee] } }
+  text:
+    - "You're skipping sessions to eat ice cream by the river when you see {advisor} walking toward you. Also holding an ice cream."
+  choices:
+    - label: "Wave"
+      text: "{advisor} sits down next to you. \"Don't tell anyone, but this is the best part of any conference,\" {advisor} says. You talk about everything but research for an hour."
+      effects: { advisor_rel: "+4", sanity: "+4" }
+    - label: "Hide behind a tree"
+      check: { stat: energy, vs: 40, spread: 20 }
+      success:
+        text: "You make it behind the tree. {advisor} strolls past without seeing you. It occurs to you that neither of you is at the sessions."
+        effects: { sanity: "+2" }
+      failure:
+        text: "{advisor} sees you mid-dive, says \"nice tree\", and sits down on the bench next to it to finish the ice cream."
+        effects: { advisor_rel: "+2", sanity: "-1" }
+
+- id: con_group_photo
+  title: "Forty Researchers on a Bridge"
+  category: travel
+  rarity: common
+  hook: conf_sightseeing
+  when: { trip: { did: [day_excursion] } }
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Someone asks a passerby to take a group photo: forty researchers on a famous bridge in {city}, badges still on."
+  choices:
+    - label: "Get in the front row"
+      text: "You end up in the middle of the photo, mid-blink. It becomes the conference's official photo."
+      effects: { sanity: "+3", contacts: "+2" }
+    - label: "Take the photo yourself"
+      text: "You take forty shots. In the best one, a pigeon has landed on a famous professor's head. Everyone wants a copy."
+      effects: { contacts: "+3", sanity: "+2" }
+
+- id: con_rain_awning
+  title: "Under the Awning"
+  category: travel
+  rarity: common
+  hook: conf_sightseeing
+  when: { trip: { did: [day_sightsee, day_excursion, last_sightsee] } }
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Halfway through your afternoon in {city}, the sky opens. You and three people from the conference are stuck under a small awning for an hour."
+  choices:
+    - label: "Make the most of it"
+      text: "By the time the rain stops, you've swapped research, quals stories and worst reviews. Friends for life, possibly."
+      effects: { contacts: "+3", sanity: "+3" }
+    - label: "Make a run for it"
+      text: "You sprint back to the hotel and arrive looking like you swam there. A hot shower is the best decision of the day."
+      effects: { health: "-1", energy: "-2", sanity: "+1" }
+
+# --- Evenings ------------------------------------------------------------------------------------------
+
+- id: con_napkin_idea
+  title: "The Napkin"
+  category: travel
+  rarity: rare
+  hook: conf_night
+  when: { trip: { did_not: [night_lab_dinner] } }
+  text:
+    - "At dinner, you and {stranger} start sketching on a napkin. By dessert, it's covered in arrows, and it might be a real paper."
+  choices:
+    - label: "Keep the napkin"
+      text: "You photograph it, then keep the original in your passport. Months later, it becomes a workshop paper with both your names on it."
+      effects: { taste: "+3", contacts: "+2", sanity: "+3" }
+    - label: "Sleep on it"
+      text: "In the morning you find the napkin in your pocket. It says \"ATTENTION BUT BACKWARDS??\" and nothing else."
+      effects: { taste: "+1", sanity: "+1" }
+
+- id: con_karaoke
+  title: "Karaoke"
+  category: travel
+  rarity: common
+  hook: conf_night
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Dinner turns into karaoke. Someone has put your name on the list. The song is a power ballad. The audience includes three program committee members."
+  choices:
+    - label: "Commit fully"
+      check: { stat: presenting, vs: 40, spread: 20 }
+      success:
+        text: "You hit the high note. Mostly. The room goes wild, and people call you by the song's name for the rest of the week."
+        effects: { contacts: "+3", sanity: "+5±1", energy: "-3" }
+      failure:
+        text: "You miss the high note, and commit to missing it, which gets a bigger cheer than hitting it would have."
+        effects: { contacts: "+2", sanity: "+3", energy: "-3" }
+    - label: "Duet with {labmate}"
+      requires: { has_advisor: true }
+      text: "{labmate} takes the high notes, you take the harmonies, and together you're adequate. It's the most you've bonded all year."
+      effects: { labmates_rel: "+3", sanity: "+3", energy: "-2" }
+    - label: "Sneak out"
+      text: "You slip out during someone else's song. Nobody notices. You're a little disappointed that nobody noticed."
+      effects: { energy: "+2", sanity: "-1" }
+
+- id: con_dinner_bill
+  title: "Twelve People, One Bill"
+  category: travel
+  rarity: common
+  hook: conf_night
+  when: { trip: { did: [night_strangers] } }
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Dinner with twelve researchers ends with one bill, four currencies, three payment apps and a math PhD volunteering to \"just quickly\" split it."
+  choices:
+    - label: "Let the mathematician handle it"
+      text: "Forty minutes later, everyone owes slightly too much and nobody minds. It was a great dinner."
+      effects: { sanity: "+2", contacts: "+2" }
+    - label: "Pay for the table and sort it out later"
+      check: { stat: network, vs: 40, spread: 20 }
+      success:
+        text: "Everyone pays you back by morning, plus a few drinks owed. You're now known as the one who paid."
+        effects: { contacts: "+3", sanity: "+1" }
+      failure:
+        text: "Eight of the twelve pay you back. The other four are names you'll recognize for the rest of your career."
+        effects: { contacts: "+2", sanity: "-4" }
+
+- id: con_advisor_stories
+  title: "Back in My Day"
+  category: travel
+  rarity: uncommon
+  hook: conf_night
+  repeatable: true
+  cooldown: 26
+  when: { has_advisor: true, trip: { did: [night_lab_dinner] } }
+  text:
+    - "At dinner, after a glass of wine, {advisor} starts telling grad school stories: the paper rejected five times, the defense where the projector caught fire."
+  choices:
+    - label: "Ask for more"
+      text: "{advisor} tells you about almost failing the first year of the PhD. You'd never have guessed. You see your own year a little differently."
+      effects: { advisor_rel: "+4", sanity: "+4" }
+    - label: "Ask about the projector"
+      text: "\"It wasn't a fire,\" {advisor} says. \"It was smoke. There's a difference.\" The whole table is in tears."
+      effects: { advisor_rel: "+2", sanity: "+5", labmates_rel: "+1" }
+
+- id: con_lost_way_back
+  title: "The Long Way Back"
+  category: travel
+  rarity: common
+  hook: conf_night
+  repeatable: true
+  cooldown: 26
+  text:
+    - "At midnight, walking back from dinner, you realize your phone is at 2%, the hotel's name is in a script you can't read, and every street looks the same."
+  choices:
+    - label: "Ask someone for directions"
+      check: { stat: network, vs: 35, spread: 20 }
+      success:
+        text: "The someone is another conference attendee, also lost. Together you find the hotel at 1 am. You're best friends now."
+        effects: { contacts: "+2", energy: "-3", sanity: "+1" }
+      failure:
+        text: "You walk for an hour and find the hotel by recognizing a pharmacy you passed on Sunday."
+        effects: { energy: "-5", sanity: "-2" }
+    - label: "Trust your sense of direction"
+      text: "Your sense of direction takes you to the river, a night market and, finally, the hotel. The best accident of the trip."
+      effects: { energy: "-4", sanity: "+3" }
+
+- id: con_quitting_talk
+  title: "1 am at the Bar"
+  category: travel
+  rarity: uncommon
+  hook: conf_night
+  when: { trip: { did_not: [night_lab_dinner, night_sponsor] } }
+  repeatable: true
+  cooldown: 26
+  text:
+    - "At a bar at 1 am, {stranger} leans over and says, \"Can I tell you something? I'm thinking about quitting my PhD.\""
+  choices:
+    - label: "Just listen"
+      text: "You listen for an hour and don't give advice. At the end, {stranger} says, \"Thanks. I think I just needed to say it out loud.\""
+      effects: { contacts: "+1", sanity: "-1", energy: "-3" }
+    - label: "Share your own doubts"
+      text: "You tell them about your worst month. You both laugh at things that weren't funny at the time. It helps, both of you."
+      effects: { contacts: "+2", sanity: "+4", energy: "-3" }
+
+- id: con_sponsor_speech
+  title: "The Food Is Getting Cold"
+  category: travel
+  rarity: common
+  hook: conf_night
+  when: { trip: { did: [night_sponsor] } }
+  repeatable: true
+  cooldown: 26
+  text:
+    - "At a sponsored dinner, a host from {company} stands up to give a twenty-minute speech about their AI platform. The food is getting cold. Nobody dares to eat."
+  choices:
+    - label: "Eat anyway"
+      text: "You start eating. One by one, the table joins you. By the end of the speech you've had two courses and made three friends."
+      effects: { contacts: "+3", energy: "+1" }
+    - label: "Ask a hard question at the end"
+      check: { stat: knowledge, vs: 50, spread: 20 }
+      success:
+        text: "Your question is sharp enough that their head of research comes over afterward and asks for your email."
+        effects: { contacts: "+2", career_prep: "+2" }
+      failure:
+        text: "The host answers with a slide you've already seen twice. Your soup is now cold."
+        effects: { sanity: "-1" }
+
+# --- The party -----------------------------------------------------------------------------------------
+
+- id: con_advisor_dances
+  title: "Your Advisor Can Dance"
+  category: travel
+  rarity: uncommon
+  hook: conf_party
+  repeatable: true
+  cooldown: 26
+  when: { has_advisor: true }
+  text:
+    - "At the party, {advisor} hits the dance floor. With enthusiasm. With a move that may involve an imaginary lasso. The whole lab is watching."
+  choices:
+    - label: "Join in"
+      text: "You dance with {advisor}. Somebody films it. The video becomes lab legend, and {advisor} brings it up at lab meetings for years."
+      effects: { advisor_rel: "+5", sanity: "+5", labmates_rel: "+2" }
+    - label: "Film it"
+      text: "You get it all on video. {labmate} begs you to send it to the group chat. You never will. Probably."
+      effects: { sanity: "+4", labmates_rel: "+2" }
+    - label: "Pretend you don't know them"
+      text: "You study the bar menu with great interest. {advisor} waves at you from the dance floor. Everyone sees."
+      effects: { sanity: "+1", advisor_rel: "-1" }
+
+- id: con_party_gossip
+  title: "Gossip by the Bar"
+  category: travel
+  rarity: common
+  hook: conf_party
+  repeatable: true
+  cooldown: 26
+  text:
+    - "By the bar, a circle of professors is trading gossip: who's moving to which university, which startup just raised money, whose lab is falling apart."
+  choices:
+    - label: "Listen in"
+      text: "You learn more about the field in fifteen minutes than in a semester. Half of it might even be true."
+      effects: { knowledge: "+1", career_prep: "+2", sanity: "+1" }
+    - label: "Join the circle"
+      check: { stat: network, vs: 50, spread: 20 }
+      success:
+        text: "You land one good joke, and they let you stay. By the end, {prof} has offered to read your next draft."
+        effects: { contacts: "+3", sanity: "+3" }
+      failure:
+        text: "You join the circle. The circle goes quiet, then politely dissolves."
+        effects: { sanity: "-3" }
+
+- id: con_overheard_paper
+  title: "Clearly Flawed"
+  category: travel
+  rarity: uncommon
+  hook: conf_party
+  repeatable: true
+  cooldown: 26
+  text:
+    - "At the bar, you overhear someone explaining why {paper} is \"clearly flawed\". They've got it wrong. They don't know you're standing right behind them."
+  choices:
+    - label: "Introduce yourself"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "\"Hi, I wrote that,\" you say. A pause. Then they ask a real question, you give a real answer, and they buy you a drink."
+        effects: { contacts: "+3", sanity: "+4", citations: "+2±1" }
+      failure:
+        text: "\"Hi, I wrote that,\" you say. A pause. They apologize, then explain it wrong again, more slowly."
+        effects: { contacts: "+1", sanity: "-4" }
+    - label: "Let it go"
+      text: "You walk away. For the next three days, you compose the perfect reply in the shower."
+      effects: { sanity: "-3" }
+    - label: "Laugh it off with {labmate}"
+      requires: { has_advisor: true }
+      text: "{labmate} acts out the whole exchange, dramatically, twice. It's funnier every time, and it stops stinging."
+      effects: { sanity: "+2", labmates_rel: "+2" }
+
+- id: con_ai_argument
+  title: "Does It Understand?"
+  category: travel
+  rarity: common
+  hook: conf_party
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Two famous researchers start arguing about whether {model} actually understands anything. A crowd gathers. Someone hands you a drink and asks which side you're on."
+  choices:
+    - label: "Pick a side, loudly"
+      check: { stat: taste, vs: 50, spread: 20 }
+      success:
+        text: "Your argument gets a cheer and, from one of the famous researchers, a nod. You'll turn up in someone's blog post."
+        effects: { contacts: "+3", sanity: "+3", taste: "+1" }
+      failure:
+        text: "You pick a side, then lose your own argument halfway through. The crowd moves on to the next speaker."
+        effects: { contacts: "+1", sanity: "-3" }
+    - label: "Say it depends what \"understand\" means"
+      text: "Both sides groan. Then both sides agree with you. You've united the room in mild annoyance."
+      effects: { contacts: "+2", sanity: "+2" }
+    - label: "Get more snacks"
+      text: "The debate goes on for two hours. You eat very well."
+      effects: { energy: "+2", sanity: "+1" }
+
+- id: con_lost_phone
+  title: "Where's Your Phone?"
+  category: travel
+  rarity: common
+  hook: conf_party
+  repeatable: true
+  cooldown: 26
+  text:
+    - "At midnight you realize you've lost your phone. The party is loud and dark, and four hundred people are wearing the same lanyard."
+  choices:
+    - label: "Search the whole venue"
+      check: { stat: energy, vs: 40, spread: 20 }
+      success:
+        text: "You find it under a table, next to someone's very expensive laptop. You return the laptop to its owner, who is now your friend for life."
+        effects: { contacts: "+2", energy: "-3", sanity: "+2" }
+      failure:
+        text: "It's gone. You spend the rest of the trip navigating {city} with a paper map, like it's 1995."
+        effects: { energy: "-4", sanity: "-4±1" }
+    - label: "Ask the DJ to announce it"
+      text: "The DJ stops the music to announce your lost phone. Four hundred researchers turn to look at you. Someone has it. You're briefly famous."
+      effects: { contacts: "+2", sanity: "-1" }
+
+- id: con_party_recruiter
+  title: "Five Minutes?"
+  category: travel
+  rarity: common
+  hook: conf_party
+  repeatable: true
+  cooldown: 26
+  text:
+    - "A research director from {biglab} corners you by the coat check. They've read your paper, they say. Do you have five minutes?"
+  choices:
+    - label: "Make it fifteen"
+      text: "It turns into an informal interview over very loud music. You think it went well. You can't hear anything for an hour afterward."
+      effects: { career_prep: "+3", contacts: "+2", energy: "-2" }
+    - label: "Ask for their email instead"
+      text: "They give you a card. The card has no email on it, only a logo. You find the email the next morning anyway."
+      effects: { career_prep: "+1", contacts: "+1" }
+
+- id: con_dance_off
+  title: "Dance-Off"
+  category: travel
+  rarity: rare
+  hook: conf_party
+  when: { has_advisor: true }
+  text:
+    - "Someone challenges your lab to a dance-off against a team from {biglab}. The DJ is in on it. A circle forms."
+  choices:
+    - label: "Accept the challenge"
+      check: { stat: presenting, vs: 45, spread: 20 }
+      success:
+        text: "Your lab wins. {labmate} pulls out a move nobody knew they had. By morning, the video is all over the conference hashtag."
+        effects: { labmates_rel: "+5", sanity: "+6±1", contacts: "+3" }
+      failure:
+        text: "You lose, badly and joyfully. The {biglab} team buys your lab a round out of pity."
+        effects: { labmates_rel: "+4", sanity: "+4", contacts: "+2" }
+    - label: "Send {labmate} in alone"
+      text: "{labmate} wins it single-handedly. Your lab will tell this story at every lab meeting until the end of time."
+      effects: { labmates_rel: "+3", sanity: "+4" }
+
+- id: con_social_battery
+  title: "Social Battery: 0%"
+  category: travel
+  rarity: common
+  hook: conf_party
+  when: { trip: { did_not: [party_after] } }
+  repeatable: true
+  cooldown: 26
+  text:
+    - "It's 11 pm. The music is too loud, the room is too hot, you've been talking to people for four days straight, and your social battery is empty."
+  choices:
+    - label: "Leave quietly"
+      text: "You walk back to the hotel alone through quiet streets. It's the most restful twenty minutes of the week."
+      effects: { energy: "+2", sanity: "+2" }
+    - label: "Find a quiet corner"
+      text: "You find a corner where three other people are also recharging. Nobody talks. It's lovely."
+      effects: { sanity: "+2", contacts: "+1" }
+    - label: "Push through"
+      check: { stat: energy, vs: 40, spread: 20 }
+      success:
+        text: "You get a second wind at midnight and have the best conversation of the week."
+        effects: { contacts: "+3", sanity: "+2", energy: "-4" }
+      failure:
+        text: "You stay. You smile. You remember nothing of the last hour but the bass line."
+        effects: { energy: "-6±1", sanity: "-2" }
+
+- id: con_open_bar
+  title: "The Open Bar"
+  category: travel
+  rarity: uncommon
+  hook: conf_party
+  repeatable: true
+  cooldown: 26
+  when: { has_advisor: true }
+  text:
+    - "The open bar is very open. {labmate2} is three drinks in and about to tell a famous professor exactly what they think of the professor's last paper."
+  choices:
+    - label: "Intervene"
+      check: { stat: presenting, vs: 40, spread: 20 }
+      success:
+        text: "You steer {labmate2} toward the snacks mid-sentence. The professor never learns how close it came."
+        effects: { labmates_rel: "+3", sanity: "+1" }
+      failure:
+        text: "You arrive one sentence too late. The professor listens, thinks, and says {labmate2} might be right. Nobody saw that coming."
+        effects: { labmates_rel: "+2", sanity: "+2", contacts: "+1" }
+    - label: "Let it happen"
+      text: "The professor laughs and argues back, and the two of them talk for an hour. {labmate2} wakes up with a new collaborator and a headache."
+      effects: { labmates_rel: "+1", sanity: "+2" }
+
+# --- Your talk: something always happens -----------------------------------------------------------------
+
+- id: con_talk_adapter
+  title: "The Wrong Adapter"
+  category: travel
+  rarity: common
+  hook: conf_talk
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Your laptop won't talk to the projector. The adapter you brought is the wrong one. The session chair is looking at the clock, and three hundred people are looking at you."
+  choices:
+    - label: "Ask the room for an adapter"
+      check: { stat: network, vs: 40, spread: 20 }
+      success:
+        text: "Someone in the front row tosses you an adapter like a relay baton. You start one minute late, to applause."
+        effects: { contacts: "+2", sanity: "+2" }
+      failure:
+        text: "Four people offer adapters. None fit. You present from the chair's laptop, using the PDF you emailed yourself at 3 am."
+        effects: { sanity: "-4±1", presenting: "+1" }
+    - label: "Give the talk without slides"
+      check: { stat: prep, vs: 60, spread: 20 }
+      success:
+        text: "You give it from memory, drawing the key figure on the whiteboard. People call it the clearest talk of the session."
+        effects: { presenting: "+3", contacts: "+3", sanity: "+3" }
+      failure:
+        text: "You describe your figures with your hands for fifteen minutes. People nod, imagining very different figures."
+        effects: { sanity: "-4±1", presenting: "+1" }
+
+- id: con_talk_clicker
+  title: "The Clicker"
+  category: travel
+  rarity: common
+  hook: conf_talk
+  repeatable: true
+  cooldown: 26
+  text:
+    - "On slide 3, the clicker dies. On slide 4, it comes back to life and skips ahead to slide 9."
+  choices:
+    - label: "Laugh and walk to the laptop"
+      text: "You joke that the clicker read ahead. The room laughs, and the rest of the talk feels like a conversation."
+      effects: { presenting: "+2", sanity: "+2" }
+    - label: "Ask the chair to click for you"
+      check: { stat: prep, vs: 50, spread: 20 }
+      success:
+        text: "You say \"next\" twenty-two times, and the rhythm works. The chair gets a laugh every time."
+        effects: { presenting: "+1", sanity: "+1", contacts: "+1" }
+      failure:
+        text: "The chair clicks twice for every \"next\". You spend the talk saying \"back one, sorry\"."
+        effects: { sanity: "-3" }
+
+- id: con_talk_scooped_before
+  title: "The Talk Before Yours"
+  category: travel
+  rarity: uncommon
+  hook: conf_talk
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The speaker before you presents almost the same result, on almost the same data. They finish to warm applause. You're up next."
+  choices:
+    - label: "Address it head-on"
+      check: { stat: prep, vs: 55, spread: 20 }
+      success:
+        text: "You open with: \"You just saw one way to do this. Here's why ours is different.\" Best opening line of the conference."
+        effects: { presenting: "+3", contacts: "+3", sanity: "+3" }
+      failure:
+        text: "You try to explain the difference on the spot. It takes four minutes and two attempts, and you run out of time for your results."
+        effects: { sanity: "-4±1", presenting: "+1" }
+    - label: "Give the talk as planned"
+      text: "You give it as rehearsed. In the Q&A, someone asks how it differs from the last talk. You were ready for that one, at least."
+      effects: { presenting: "+1", sanity: "-1" }
+
+- id: con_talk_front_row
+  title: "Slide 7"
+  category: travel
+  rarity: uncommon
+  hook: conf_talk
+  repeatable: true
+  cooldown: 26
+  text:
+    - "You recognize the person in the front row: {prof}, whose method you call \"limited\" on slide 7. Slide 7 is coming."
+  choices:
+    - label: "Soften slide 7 on the fly"
+      check: { stat: presenting, vs: 50, spread: 20 }
+      success:
+        text: "You call it \"a strong baseline with some open questions\". {prof} nods, and finds you afterward to talk about the open questions."
+        effects: { contacts: "+3", sanity: "+2", presenting: "+1" }
+      failure:
+        text: "You try to soften it and end up saying \"limited, but in a good way\". {prof} raises an eyebrow that will haunt you."
+        effects: { sanity: "-3" }
+    - label: "Leave it as it is"
+      check: { stat: prep, vs: 55, spread: 20 }
+      success:
+        text: "You show the numbers. {prof} studies the slide, then gives you a thumbs up. Respect, it turns out, is about the evidence."
+        effects: { contacts: "+2", sanity: "+4", presenting: "+2" }
+      failure:
+        text: "{prof} starts writing something during slide 7 and keeps writing until slide 12."
+        effects: { sanity: "-4±1" }
+
+- id: con_talk_advisor_mouthing
+  title: "Your Advisor, Mouthing Along"
+  category: travel
+  rarity: common
+  hook: conf_talk
+  repeatable: true
+  cooldown: 26
+  when: { has_advisor: true }
+  text:
+    - "{advisor} is in the third row, nodding at every slide. Then {advisor} starts mouthing the words along with you."
+  choices:
+    - label: "Ignore it and keep going"
+      check: { stat: prep, vs: 45, spread: 20 }
+      success:
+        text: "You stay in your own rhythm. Afterward, {advisor} says, \"You didn't need me there at all. Good.\""
+        effects: { advisor_rel: "+3", presenting: "+2", sanity: "+3" }
+      failure:
+        text: "You start matching {advisor}'s pace, which is faster than yours. You finish four minutes early and out of breath."
+        effects: { presenting: "+1", sanity: "-2" }
+    - label: "Talk to someone else in the room"
+      text: "You find a friendly face in the fifth row and give the talk to them. They become the person you picture at every talk from now on."
+      effects: { presenting: "+2", sanity: "+1" }
+
+- id: con_talk_mic_dies
+  title: "The Mic Dies"
+  category: travel
+  rarity: common
+  hook: conf_talk
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Two minutes in, the microphone dies. The room is big. Someone in the back row cups a hand to their ear."
+  choices:
+    - label: "Project like a stage actor"
+      check: { stat: energy, vs: 40, spread: 20 }
+      success:
+        text: "You give the whole talk at full volume, and the back row hears every word. Your voice will need a day to recover."
+        effects: { presenting: "+2", energy: "-4", contacts: "+1" }
+      failure:
+        text: "You project for six minutes. Then your voice cracks, and you finish in a hoarse whisper that somehow makes everyone lean in."
+        effects: { energy: "-4", sanity: "-2", presenting: "+1" }
+    - label: "Wait for the tech"
+      text: "The tech arrives in four minutes with a new mic. You fill the time with a joke about microphones, and it lands."
+      effects: { sanity: "+1", presenting: "+1" }
+
+- id: con_talk_fire_alarm
+  title: "Fire Alarm"
+  category: travel
+  rarity: rare
+  hook: conf_talk
+  text:
+    - "Halfway through your talk, the fire alarm goes off. Three hundred people file out into the parking lot. Slide 8 is still on the screen."
+  choices:
+    - label: "Finish the talk in the parking lot"
+      check: { stat: presenting, vs: 45, spread: 20 }
+      success:
+        text: "You stand on a bench and give the rest of the talk to the crowd outside. It's the most memorable talk of the conference, and you didn't even have slides."
+        effects: { contacts: "+5±1", presenting: "+3", sanity: "+4" }
+      failure:
+        text: "You try. A truck goes by. Then another. People drift off toward the coffee."
+        effects: { contacts: "+2", sanity: "-3" }
+    - label: "Wait it out"
+      text: "It was a burnt toaster. Twenty minutes later, you finish to a half-full room of very loyal listeners."
+      effects: { contacts: "+1", sanity: "-1" }
+
+- id: con_talk_typo
+  title: "A Typo in the Title"
+  category: travel
+  rarity: common
+  hook: conf_talk
+  repeatable: true
+  cooldown: 26
+  text:
+    - "On your title slide, in letters a foot tall, there's a typo. You notice it the moment it goes up. So does the audience."
+  choices:
+    - label: "Make a joke about it"
+      check: { stat: presenting, vs: 40, spread: 20 }
+      success:
+        text: "\"I promise the code has fewer typos,\" you say. Big laugh. The room is on your side from then on."
+        effects: { presenting: "+2", sanity: "+2" }
+      failure:
+        text: "Your joke about the typo somehow has a typo in it too. The laugh is mostly sympathy."
+        effects: { sanity: "-2" }
+    - label: "Pretend it isn't there"
+      text: "You power through. Someone posts a photo of the slide. It gets more likes than your paper."
+      effects: { sanity: "-2", citations: "+1" }
+
+# --- Your poster: something always happens -----------------------------------------------------------------
+
+- id: con_poster_tube
+  title: "The Poster Tube"
+  category: travel
+  rarity: uncommon
+  hook: conf_poster
+  repeatable: true
+  cooldown: 26
+  text:
+    - "You left your poster tube in the taxi. The poster session starts in two hours."
+  choices:
+    - label: "Print it at a copy shop"
+      check: { stat: energy, vs: 40, spread: 20 }
+      success:
+        text: "You find a shop that prints it on fabric. It looks better than the original, and it doesn't wrinkle."
+        effects: { sanity: "+2", energy: "-3" }
+      failure:
+        text: "The only open shop prints it on eleven sheets of regular paper. You tape them together. People call it the quilt."
+        effects: { sanity: "-3", contacts: "+1" }
+    - label: "Present it from your laptop"
+      text: "You hold your laptop up like a tray for three hours. Your arms won't forgive you, but people crowd in close to see."
+      effects: { energy: "-4", contacts: "+2", health: "-1" }
+
+- id: con_poster_neighbor
+  title: "The Poster Next Door"
+  category: travel
+  rarity: common
+  hook: conf_poster
+  repeatable: true
+  cooldown: 26
+  text:
+    - "The poster next to yours is about the same problem. Its presenter, {stranger}, keeps glancing at your poster. You keep glancing at theirs."
+  choices:
+    - label: "Team up and present both"
+      text: "You start sending visitors to each other. By the end you're giving joint tours of the problem, and visitors stay twice as long."
+      effects: { contacts: "+4±1", sanity: "+3" }
+    - label: "Compete for visitors"
+      check: { stat: presenting, vs: 45, spread: 20 }
+      success:
+        text: "Your pitch is sharper and your crowd is bigger. At the end, {stranger} comes over: \"Okay. Teach me your pitch.\""
+        effects: { contacts: "+3", presenting: "+2" }
+      failure:
+        text: "Their crowd is bigger. Their poster has a QR code to a live demo. Next time, you think: a QR code."
+        effects: { contacts: "+1", sanity: "-2" }
+
+- id: con_poster_long_talker
+  title: "Twenty-Five Minutes"
+  category: travel
+  rarity: common
+  hook: conf_poster
+  repeatable: true
+  cooldown: 26
+  text:
+    - "A visitor arrives at your poster and stays. Twenty-five minutes. They have a theory about your work, and about the field, and about their own PhD."
+  choices:
+    - label: "Politely wrap it up"
+      check: { stat: presenting, vs: 45, spread: 20 }
+      success:
+        text: "You find a gentle exit: you offer your email so you can keep talking later. Three people who were waiting step up."
+        effects: { contacts: "+2", sanity: "+1" }
+      failure:
+        text: "Every exit you try, they take as an invitation for another story. You lose four visitors."
+        effects: { contacts: "+1", sanity: "-3" }
+    - label: "Let them talk"
+      text: "Somewhere around minute twenty, they say something genuinely brilliant. You write it down. It ends up in your next paper."
+      effects: { taste: "+2", energy: "-2", contacts: "+1" }
+
+- id: con_poster_voice
+  title: "Explanation Number Forty"
+  category: travel
+  rarity: common
+  hook: conf_poster
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Two hours into the session, you've explained your poster forty times. Your voice is starting to go."
+  choices:
+    - label: "Keep pitching"
+      check: { stat: energy, vs: 40, spread: 20 }
+      success:
+        text: "You make it to the end on throat lozenges and willpower. Forty-three explanations, a personal record."
+        effects: { contacts: "+3", energy: "-4", presenting: "+1" }
+      failure:
+        text: "Your voice gives out at explanation thirty-eight. You finish by pointing at things on the poster and nodding."
+        effects: { contacts: "+2", energy: "-4", health: "-1" }
+    - label: "Get {labmate} to take a shift"
+      requires: { has_advisor: true }
+      text: "{labmate} learns your pitch in five minutes and delivers it with more enthusiasm than you ever have. Visitors love it."
+      effects: { labmates_rel: "+2", contacts: "+2", energy: "+1" }
+
+# --- The last day --------------------------------------------------------------------------------------------
+
+- id: con_last_gem
+  title: "The Best Paper Nobody Saw"
+  category: travel
+  rarity: uncommon
+  hook: conf_last
+  when: { trip: { did: [last_sessions] } }
+  repeatable: true
+  cooldown: 26
+  text:
+    - "In the last session, eleven people in a big room, a student named {stranger} presents a small, perfect paper. Nobody important is there to see it."
+  choices:
+    - label: "Tell them it was great"
+      text: "You find {stranger} after the talk and say it was the best paper you saw all week. They look like they might cry. You've made someone's conference."
+      effects: { contacts: "+2", sanity: "+4" }
+    - label: "Post about it"
+      text: "Your post gets more attention than the talk did. A week later, {stranger} emails you: three labs have reached out."
+      effects: { contacts: "+2", sanity: "+3", network: "+1" }
+
+- id: con_gate_work
+  title: "Gate 34"
+  category: travel
+  rarity: common
+  hook: conf_last
+  repeatable: true
+  cooldown: 26
+  text:
+    - "Your flight is delayed three hours. The gate is full of people from the conference, laptops open, typing furiously."
+  choices:
+    - label: "Join them and write"
+      text: "You draft the introduction of your next paper at gate 34. It's the best intro you've ever written, which says something about airports."
+      effects: { writing: "+2", energy: "-2", sanity: "+1" }
+    - label: "Sleep"
+      text: "You sleep on your backpack and wake up with a strap pattern on your face, just as your group starts boarding."
+      effects: { energy: "+3" }
+    - label: "Start a conversation"
+      text: "Gate 34 turns into a mini-workshop. Someone suggests making it a real one next year."
+      effects: { contacts: "+3", energy: "-2" }
+
+- id: con_keep_in_touch
+  title: "We Should Keep in Touch"
+  category: travel
+  rarity: common
+  hook: conf_last
+  repeatable: true
+  cooldown: 26
+  text:
+    - "On the last morning, you run into {stranger}, whom you met on Monday. You both say you should keep in touch. People always say that."
+  choices:
+    - label: "Set a date right now"
+      text: "You put a video call on the calendar on the spot. Two months later it's still happening, monthly. It's turning into a paper."
+      effects: { contacts: "+2", sanity: "+2", taste: "+1" }
+    - label: "Say \"definitely\" and mean it, vaguely"
+      text: "You both say \"definitely\". You both mean it. Neither of you writes first."
+      effects: { sanity: "+1" }

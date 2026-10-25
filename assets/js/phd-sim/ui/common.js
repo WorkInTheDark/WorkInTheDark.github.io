@@ -19,7 +19,7 @@ export function yearsText(n) { return n === 1 ? t("1 year") : t("{n} years", { n
 
 // The engine's "sanity" is shown as Stress = 100 − sanity: arrows and numbers flip, colors don't
 // (green is always good for you).
-const SHORT = { energy: T_("Energy"), sanity: T_("Stress"), health: T_("Health"), citations: T_("Citations"), progress: T_("Progress"), quality: T_("Quality"), quals: T_("Quals odds") };
+const SHORT = { energy: T_("Energy"), sanity: T_("Stress"), health: T_("Health"), citations: T_("Citations"), progress: T_("Progress"), quality: T_("Quality"), quals: T_("Quals odds"), contacts: T_("People met") };
 const SYM = { up: ["↑", "↑↑"], down: ["↓", "↓↓"], mixed: ["↕", "↕"] };
 // What an arrow says, plain and strong ("Energy up", "Energy up a lot").
 const SAY = {
@@ -46,7 +46,7 @@ export function shownStat(stat, value) {
   return stat === "sanity" ? 100 - value : value;
 }
 
-const DELTA_LABEL = { energy: T_("Energy"), sanity: T_("Stress"), health: T_("Health"), citations: T_("Citations"), days: T_("Free days this turn"), days_next: T_("Free days next turn") };
+const DELTA_LABEL = { energy: T_("Energy"), sanity: T_("Stress"), health: T_("Health"), citations: T_("Citations"), days: T_("Free days this turn"), days_next: T_("Free days next turn"), contacts: T_("People met") };
 
 export function deltasHtml(list) {
   if (!list || !list.length) return "";

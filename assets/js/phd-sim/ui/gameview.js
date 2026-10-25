@@ -9,6 +9,7 @@ import {
 } from "../engine/index.js";
 import { isAcceptance } from "./prompts.js";
 import { t, T_ } from "../engine/i18n.js";
+import { tripBarHtml } from "./trip.js";
 
 const KIND_ICON = { empirical: "\u{1F9EA}", study: "\u{1F5E3}️", system: "\u{1F6E0}️", dataset: "\u{1F5C2}️", position: "\u{1F9ED}" };
 const TIER = { top: T_("top"), mid: T_("mid"), workshop: T_("workshop"), journal: T_("journal") };
@@ -337,8 +338,10 @@ function popupHtml(G, ui, promptInner, promptCls) {
   const isEvent = p && p.type === "event";
   const party = isAcceptance(p);
   const anim = ui.modal && ui.modal.fresh && !ui.modal.result ? (isEvent || party ? " ps-pop" : " ps-rise") : "";
-  return '<div class="ps-overlay ' + (isEvent ? "ps-overlay-event ps-overlay-" + esc(p.rarity || "common") : party ? "ps-overlay-update ps-overlay-celebrate" : "ps-overlay-update") + '">' +
-    turnStripHtml(G, ui) +
+  // Away at a conference for the week (trip.js): your badge and the week instead of the turn strip.
+  const trip = !!G.state.trip;
+  return '<div class="ps-overlay ' + (isEvent ? "ps-overlay-event ps-overlay-" + esc(p.rarity || "common") : party ? "ps-overlay-update ps-overlay-celebrate" : "ps-overlay-update") + (trip ? " ps-overlay-trip" : "") + '">' +
+    (trip ? tripBarHtml(G) : turnStripHtml(G, ui)) +
     '<div class="ps-card ps-dialog' + anim + " " + (promptCls || "") + '" role="dialog" aria-modal="true" aria-labelledby="ps-dialog-title">' + promptInner + "</div></div>";
 }
 

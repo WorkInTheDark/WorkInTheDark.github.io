@@ -47,7 +47,8 @@
   title: "Lost Luggage"
   category: travel
   rarity: uncommon
-  hook: conference
+  hook: conf_arrival
+  when: { trip: { kind: talk, talk: tomorrow } }
   text:
     - "Your suitcase is somewhere between two airports. Your talk at {venue} is tomorrow morning, and you're wearing the hoodie you slept in on the plane."
   choices:
@@ -74,7 +75,8 @@
   title: "The Keynote Nap"
   category: travel
   rarity: common
-  hook: conference
+  hook: conf_session
+  when: { trip: { did: [day_keynote] } }
   repeatable: true
   cooldown: 13
   text:
@@ -96,7 +98,7 @@
   title: "Behind the Pillar"
   category: travel
   rarity: common
-  hook: conference
+  hook: conf_poster
   repeatable: true
   cooldown: 13
   text:
@@ -126,7 +128,7 @@
   title: "Your Hero, at Your Poster"
   category: travel
   rarity: rare
-  hook: conference
+  hook: conf_poster
   text:
     - "Your research hero walks up to your poster for {paper}, reads it for a full minute, and asks the one question you hoped nobody would ask."
   choices:
@@ -154,7 +156,7 @@
   title: "Your Poster, Explained"
   category: travel
   rarity: uncommon
-  hook: conference
+  hook: conf_poster
   text:
     - "A visitor stops at your poster and explains {paper} to you, confidently and incorrectly, for six minutes."
   choices:
@@ -177,7 +179,8 @@
   title: "The Seat Next to Yours"
   category: travel
   rarity: uncommon
-  hook: conference
+  hook: conf_night
+  when: { trip: { did: [night_sponsor, night_strangers] } }
   text:
     - "At the networking dinner in {city}, the name card next to yours belongs to the author of your favorite paper."
   choices:
@@ -202,18 +205,18 @@
         effects: { network: "-2±1", sanity: "-3±1" }
 
 - id: tra_last_talk
-  title: "Last Talk, Last Day"
+  title: "Last Talk of the Day"
   category: travel
   rarity: uncommon
-  hook: conference
+  hook: conf_talk
   text:
-    - "Your talk on {paper} is the last one on the last day of {venue}. The room seats 300. Eleven people came, and four are packing their bags."
+    - "Your talk on {paper} is the last one of the day at {venue}, right before the reception. The room seats 300. Eleven people came, and four are checking the time."
   choices:
     - label: "Give it everything anyway"
       text: "The eleven ask great questions. One of them turns out to be next year's program chair."
       effects: { presenting: "+3±1", network: "+3±1", energy: "-4±1" }
     - label: "Cut it to ten minutes"
-      text: "You finish early. Everyone makes their flight, and they like you for it."
+      text: "You finish early. Everyone makes it to the reception, and they like you for it."
       effects: { energy: "+3±1", sanity: "+2±1", presenting: "+1" }
     - label: "Pull the chairs into a circle"
       check: { stat: presenting, vs: 50, spread: 20 }
@@ -228,7 +231,7 @@
   title: "Minute Twelve"
   category: travel
   rarity: uncommon
-  hook: conference
+  hook: conf_talk
   text:
     - "Your talk on {paper} is at minute 12 of 15 when the session chair stands up and starts thanking you. Your two best slides are still ahead."
   choices:
@@ -296,7 +299,7 @@
   title: "Four Minutes"
   category: travel
   rarity: common
-  hook: conference
+  hook: conf_arrival
   repeatable: true
   cooldown: 13
   text:
@@ -316,7 +319,8 @@
   title: "The Keynote Spark"
   category: travel
   rarity: uncommon
-  hook: conference
+  hook: conf_session
+  when: { trip: { did: [day_keynote] } }
   text:
     - "A keynote at {venue} reframes a problem you've been stuck on. By the end, you have a page of notes and a new project idea."
   choices:
@@ -342,7 +346,7 @@
   title: "The Flight Home"
   category: travel
   rarity: common
-  hook: conference
+  hook: conf_last
   repeatable: true
   cooldown: 13
   text:
@@ -371,7 +375,7 @@
   title: "The Live Demo"
   category: travel
   rarity: uncommon
-  hook: conference
+  hook: conf_talk
   text:
     - "Your live demo for {paper} begins. The conference Wi-Fi does not. Forty people watch a loading spinner on the big screen."
   choices:
@@ -470,7 +474,7 @@
   title: "Silent Film"
   category: travel
   rarity: uncommon
-  hook: conference
+  hook: conf_talk
   text:
     - "{venue} plays pre-recorded talks in your session. Yours, for {paper}, starts with no audio. You're in the third row, and every head slowly turns toward you."
   choices:

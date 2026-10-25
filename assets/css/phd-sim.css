@@ -422,6 +422,34 @@ html[data-theme='dark'] .ps-rarity-system { border-top-color: var(--ps-hud-muted
 .ps-trail i.ps-trail-event { border-radius: 2px; transform: rotate(45deg); width: 8px; height: 8px; }
 .ps-trail i.ps-trail-done { background: var(--ps-good); }
 .ps-trail i.ps-trail-now { background: var(--ps-accent-solid); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ps-accent-solid) 30%, transparent); }
+/* a week at a conference (ui/trip.js): convention-center carpet, your badge and the week's schedule */
+.ps-overlay-trip { --ps-carpet: #1d4380; background: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.07) 0 2px, transparent 2.5px) 0 0 / 18px 18px, radial-gradient(circle at 75% 75%, rgba(255, 210, 90, 0.08) 0 2px, transparent 2.5px) 0 0 / 18px 18px, linear-gradient(160deg, color-mix(in srgb, var(--ps-carpet) 92%, transparent), color-mix(in srgb, #0f2348 94%, transparent)); }
+.ps-overlay-trip.ps-overlay-event { background: repeating-conic-gradient(from 0deg at 50% 40%, color-mix(in srgb, var(--ps-ray) 16%, transparent) 0 9deg, transparent 9deg 18deg), linear-gradient(160deg, color-mix(in srgb, var(--ps-carpet) 92%, transparent), color-mix(in srgb, #0f2348 94%, transparent)); }
+.ps-overlay-trip > .ps-rarity-system { border-top-color: #2f6fd6; }
+.ps-tripbar {
+  width: 100%; max-width: 640px; flex-shrink: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.75rem; align-items: center;
+  padding: 0.45rem 0.7rem; border-radius: 12px; background: var(--ps-card); border: 2px solid var(--ps-line); font-size: 0.78rem;
+}
+.ps-badge {
+  position: relative; display: flex; flex-direction: column; align-items: center; min-width: 7.5rem; max-width: 10rem; padding: 0 0.5rem 0.35rem;
+  border-radius: 8px; background: #fffdf7; color: #2b2620; border: 1.5px solid rgba(0, 0, 0, 0.12); transform: rotate(-2deg); overflow: hidden;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+.ps-badge::before { content: ""; position: absolute; top: 0.25rem; left: 50%; width: 1.4rem; height: 0.28rem; margin-left: -0.7rem; border-radius: 99px; background: rgba(0, 0, 0, 0.28); }
+.ps-app .ps-badge-venue { align-self: stretch; text-align: center; margin: 0 -0.5rem 0.4rem; padding: 0.62rem 0.5rem 0.2rem; background: var(--ps-lanyard); color: #fff; font-family: var(--ps-display); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ps-app .ps-badge-name { font-family: var(--ps-display); font-weight: 600; font-size: 1rem; line-height: 1.1; color: #2b2620; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ps-app .ps-badge-role { margin-top: 0.15rem; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ps-lanyard); }
+.ps-tripinfo { min-width: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+.ps-week { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.3rem; }
+.ps-week li { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin: 0; }
+.ps-app .ps-wk-day { grid-column: 1 / -1; text-align: center; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em; color: var(--ps-muted); }
+.ps-wk-cell { display: flex; align-items: center; justify-content: center; height: 20px; border-radius: 5px; font-style: normal; font-size: 0.72rem; line-height: 1; background: var(--ps-line); }
+.ps-wk-cell.ps-wk-later { background: transparent; border: 1.5px dashed var(--ps-line); }
+.ps-wk-cell.ps-wk-done { background: color-mix(in srgb, var(--ps-lanyard) 55%, var(--ps-card)); }
+.ps-wk-cell.ps-wk-now { background: var(--ps-lanyard); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ps-lanyard) 30%, transparent); animation: ps-pulse 1.6s ease-in-out infinite; }
+.ps-wk-cell.ps-wk-fly { background: transparent; color: var(--ps-muted); font-size: 0.7rem; }
+.ps-tripfacts { display: flex; flex-wrap: wrap; gap: 0.25rem 0.9rem; color: var(--ps-muted); font-weight: 600; }
+.ps-overlay-event > .ps-tripbar { max-width: 640px; }
 /* the event's picture */
 .ps-art { position: absolute; left: 0; top: 0; bottom: 0; width: var(--ps-art-w); background: var(--ps-wash); border-right: 2px solid var(--ps-line); }
 .ps-art img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
@@ -628,6 +656,11 @@ button.ps-endbar:hover { background: color-mix(in srgb, var(--ps-line) 35%, tran
   .ps-review > .ps-select { grid-column: 1 / -1; }
   .ps-overlay { padding: 0.5rem 0.6rem 0.8rem; }
   .ps-turnstrip-date { display: none; }
+  .ps-tripbar { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
+  .ps-badge { flex-direction: row; justify-content: center; gap: 0.5rem; max-width: none; min-width: 0; padding: 0.2rem 0.5rem; transform: none; }
+  .ps-badge::before { display: none; }
+  .ps-app .ps-badge-venue { align-self: auto; margin: 0; padding: 0.1rem 0.45rem; border-radius: 5px; }
+  .ps-app .ps-badge-role { margin-top: 0; }
   .ps-overlay-event > .ps-dialog { padding-left: 1rem; min-height: 0; }
   .ps-art { position: static; float: right; width: 84px; height: 84px; margin: 0 0 0.4rem 0.6rem; border: 2px solid var(--ps-line); border-radius: 12px; overflow: hidden; }
   .ps-ribbon { display: none; }

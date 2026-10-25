@@ -66,3 +66,7 @@
 - { id: two_body, name: "Two Bodies, One Plan", desc: "Worked out the two-body problem with your partner." }
 - { id: grand_mentor, name: "Grand-Mentor", desc: "Your first mentee started a PhD of their own." }
 - { id: break_the_cycle, name: "Break the Cycle", desc: "Reviewed your old Reviewer 2's paper fairly." }
+# --- Conference week (2026-10-24)
+- { id: whole_week, name: "The Whole Week", desc: "Stayed for a whole week at a conference." }
+- { id: mic_check, name: "Mic Check", desc: "Asked a question at a conference session." }
+- { id: last_one_standing, name: "Last One Standing", desc: "Stayed for the conference after-party." }

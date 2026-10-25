@@ -459,6 +459,7 @@
   category: life
   rarity: common
   hook: conference
+  when: { trip: { days: [2] } }
   repeatable: true
   cooldown: 13
   text:
@@ -813,10 +814,10 @@
   title: "Nine Hours Apart"
   category: life
   rarity: uncommon
-  hook: conference
+  hook: conf_night
   weight: 2
   arc: partner
-  when: { flags_all: [partner] }
+  when: { flags_all: [partner], trip: { kind: talk, talk: after } }
   text:
     - "Your talk at {venue} ends at 4 pm in {city}, which is 7 am at home. Your partner got up early to hear how it went."
   choices:

@@ -2,6 +2,7 @@
 // the rebuttal, and the result view shown after every decision.
 import { esc, rich, arrowsHtml, deltasHtml } from "./common.js";
 import { ART_FILES } from "./art-manifest.js";
+import { tripKicker } from "./trip.js";
 import { t, T_ } from "../engine/i18n.js";
 
 const CATEGORY = {
@@ -61,8 +62,8 @@ export function eventHtml(p) {
 }
 
 export function sysHtml(p) {
-  const k = SYS_KICKER[p.sys] || ["\u{1F4E8}", T_("Decision")];
   const d = p.data || {};
+  const k = d.trip ? tripKicker(d) : SYS_KICKER[p.sys] || ["\u{1F4E8}", T_("Decision")];
   // A committee meeting: each question, and whether your answer landed.
   const lines = d.lines && d.lines.length ? '<ul class="ps-qa-lines">' + d.lines.map(function (l) {
     return '<li class="' + (l.ok ? "ps-qa-ok" : "ps-qa-no") + '"><span aria-hidden="true">' + (l.ok ? "\u2713" : "\u2717") + "</span>" +

@@ -1058,7 +1058,7 @@
   title: "Last Row"
   category: wellbeing
   rarity: common
-  hook: conference
+  hook: conf_arrival
   repeatable: true
   cooldown: 13
   text:
@@ -1079,6 +1079,7 @@
   category: wellbeing
   rarity: common
   hook: conference
+  when: { trip: { days: [2, 3] } }
   repeatable: true
   cooldown: 13
   text:
@@ -1120,6 +1121,7 @@
   category: wellbeing
   rarity: common
   hook: conference
+  when: { trip: { days: [4, 5] } }
   repeatable: true
   cooldown: 13
   text:
@@ -1169,7 +1171,7 @@
   title: "Canceled"
   category: wellbeing
   rarity: rare
-  hook: conference
+  hook: conf_last
   text:
     - "Your flight home from {city} is canceled overnight. The line for hotel vouchers is two hours long and not moving."
   choices:

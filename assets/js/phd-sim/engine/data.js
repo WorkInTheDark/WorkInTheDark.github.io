@@ -90,5 +90,7 @@ export function prepareData(raw) {
   D.sideById = indexBy(D.side);
   D.leave = asList(src.leave);
   D.leaveById = indexBy(D.leave);
+  const cf = src.conference || {};
+  D.conference = { scenes: asList(cf.scenes), activities: asList(cf.activities), questions: asList(cf.questions), askers: asList(cf.askers) };
   return D;
 }

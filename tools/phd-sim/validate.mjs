@@ -18,18 +18,19 @@ const err = (where, msg) => errors.push(where + ": " + msg);
 const warn = (where, msg) => warnings.push(where + ": " + msg);
 
 const CATEGORIES = ["research", "data", "writing", "reviews", "advisor", "legion", "lab", "milestone", "teaching", "career", "travel", "world", "life", "wellbeing", "exit"];
-const HOOKS = ["turn", "deadline", "after_submit", "reviews_in", "after_accept", "after_reject", "conference", "internship", "defense_prep", "defense", "job_market", "model_release", "graduation", "sick", "exhausted"];
+const HOOKS = ["turn", "deadline", "after_submit", "reviews_in", "after_accept", "after_reject", "conference", "internship", "defense_prep", "defense", "job_market", "model_release", "graduation", "sick", "exhausted",
+  "conf_arrival", "conf_session", "conf_question", "conf_coffee", "conf_sightseeing", "conf_night", "conf_party", "conf_talk", "conf_poster", "conf_last"];
 const RARITY = ["common", "uncommon", "rare", "legendary"];
-const PREFIX = { research: "res_", data: "dat_", writing: "wri_", reviews: "rev_", advisor: "adv_", legion: "leg_", lab: "lab_", milestones: "mil_", teaching: "tea_", career: "car_", travel: "tra_", world: "wor_", life: "lif_", wellbeing: "wel_", exits: "exi_", tasks: "tsk_" };
+const PREFIX = { research: "res_", data: "dat_", writing: "wri_", reviews: "rev_", advisor: "adv_", legion: "leg_", lab: "lab_", milestones: "mil_", teaching: "tea_", career: "car_", travel: "tra_", conference: "con_", world: "wor_", life: "lif_", wellbeing: "wel_", exits: "exi_", tasks: "tsk_" };
 // "says" is added when the data loads: the quotes engine/quotes.js finds in each event.
 const EVENT_KEYS = ["id", "title", "category", "rarity", "hook", "trigger", "repeatable", "cooldown", "weight", "arc", "when", "text", "choices", "file", "says"];
 const CHOICE_KEYS = ["label", "requires", "tag", "check", "success", "failure", "text", "effects", "flag_set", "flag_clear", "counter", "status", "status_remove", "trait_add", "schedule", "achievement", "tip", "ending", "unlock"];
 const OUTCOME_KEYS = ["text", "effects", "flag_set", "flag_clear", "counter", "status", "status_remove", "trait_add", "schedule", "achievement", "tip", "ending"];
-const COND_KEYS = ["year", "turn", "semester", "stat", "has_advisor", "advisor", "advisor_not", "background", "origin", "traits_any", "traits_none", "flags_all", "flags_any", "flags_none", "counter", "status_any", "status_none", "milestone", "project", "paper", "world", "telemetry", "chance", "any", "not"];
+const COND_KEYS = ["year", "turn", "semester", "stat", "has_advisor", "advisor", "advisor_not", "background", "origin", "traits_any", "traits_none", "flags_all", "flags_any", "flags_none", "counter", "status_any", "status_none", "milestone", "project", "paper", "world", "telemetry", "chance", "any", "not", "trip"];
 const TELEMETRY = ["turns", "overtime_days", "overtime_streak", "burnouts", "days_off_streak", "submissions", "acceptances", "rejections", "desk_rejects", "first_author_pubs", "coauthor_pubs", "citations", "h_index", "conferences", "rebuttals", "reading_days", "social_days", "ta_semesters", "lab_meetings_in_person", "top_pubs", "workshop_pubs", "min_sanity", "internships", "study_projects", "mentor_days", "rest_days", "exercise_days", "ideas", "scoops", "resubmissions", "events_seen"];
 const EFFECT_PROJECT = ["project.progress", "project.quality.N", "project.quality.S", "project.quality.C", "project.delay", "project.pivot", "project.abandon"];
 const EFFECT_PAPER = ["paper.score", "paper.desk_reject", "paper.citations"];
-const EFFECT_OTHER = ["days", "days_next", "career_prep", "citations"];
+const EFFECT_OTHER = ["days", "days_next", "career_prep", "citations", "contacts", "prep"];
 const STAGES = new Set(["revise"]);
 Object.values(PROJECT_TYPES).forEach((t) => t.stages.forEach((s) => STAGES.add(s.id)));
 const ARCHETYPES = new Set(D.archetypes.map((a) => a.id));
@@ -39,7 +40,7 @@ const STATUSES = new Set(D.statuses.map((s) => s.id));
 const ACHIEVEMENTS = new Set(D.achievements.map((a) => a.id));
 const TOPICS = new Set(Object.keys(D.phd101));
 const ENDINGS = new Set(D.endings.map((e) => e.id));
-const TOKENS = ["player", "advisor", "labmate", "labmate2", "senior", "mentee", "project", "project.topic", "paper", "venue", "city", "company", "model", "biglab", "committee", "roll", "topic", "fake_prior"];
+const TOKENS = ["player", "advisor", "labmate", "labmate2", "senior", "mentee", "project", "project.topic", "paper", "venue", "city", "company", "model", "biglab", "committee", "roll", "topic", "fake_prior", "prof", "stranger"];
 
 function checkCond(where, c) {
   if (c === undefined || c === null) return;
@@ -51,6 +52,10 @@ function checkCond(where, c) {
     if (k === "traits_any" || k === "traits_none") [].concat(v).forEach((t) => { if (!TRAITS.has(t)) err(where, "unknown trait '" + t + "'"); });
     if (k === "status_any" || k === "status_none") [].concat(v).forEach((t) => { if (!STATUSES.has(t)) err(where, "unknown status '" + t + "'"); });
     if (k === "telemetry") Object.keys(v).forEach((t) => { if (!TELEMETRY.includes(t)) err(where, "unknown telemetry '" + t + "'"); });
+    if (k === "trip") {
+      Object.keys(v).forEach((tk) => { if (!["kind", "talk", "days", "did", "did_not"].includes(tk)) err(where, "unknown trip field '" + tk + "'"); });
+      [].concat(v.did || [], v.did_not || []).forEach((id) => { if (!D.conference.activities.some((a) => a.id === id)) err(where, "unknown conference activity '" + id + "'"); });
+    }
     if (k === "project") {
       Object.keys(v).forEach((pk) => { if (!["type", "stage", "stage_kind", "turns_to_deadline", "status", "first_author"].includes(pk)) err(where, "unknown project field '" + pk + "'"); });
       [].concat(v.type || []).forEach((t) => { if (!PROJECT_TYPES[t]) err(where, "unknown project type '" + t + "'"); });
@@ -120,7 +125,7 @@ for (const ev of D.events) {
     checkCond(cw + ".requires", c.requires);
     if (c.check) {
       if (!c.check.stat || c.check.vs === undefined) err(cw, "check needs stat and vs");
-      else if (!STAT_IDS.includes(c.check.stat) && c.check.stat !== "citations") err(cw, "unknown check stat '" + c.check.stat + "'");
+      else if (!STAT_IDS.includes(c.check.stat) && c.check.stat !== "citations" && c.check.stat !== "prep") err(cw, "unknown check stat '" + c.check.stat + "'");
       checkOutcome(cw + ".success", c.success || {}, ev, schedules);
       checkOutcome(cw + ".failure", c.failure || {}, ev, schedules);
     } else checkOutcome(cw, c, ev, schedules);
@@ -190,6 +195,32 @@ for (const o of D.leave) {
     checkOutcome(where + ".after", rest, { id: o.id, file: "leave", when: o.when }, schedules);
   }
 }
+// A week at a conference (conference.yml, engine/trip.js).
+const CF = D.conference;
+const SCENES = ["arrival", "day", "night", "eve", "after", "talk", "poster", "party", "last"];
+for (const id of SCENES) { const sc = CF.scenes.find((x) => x.id === id); if (!sc || ![].concat(sc.text || []).length) err("conference/scenes", "missing scene '" + id + "'"); }
+for (const sc of CF.scenes) { if (!SCENES.includes(sc.id)) err("conference/scenes", "unknown scene '" + sc.id + "'"); [].concat(sc.text || []).forEach((x) => checkTokens("conference/scenes/" + sc.id, x)); }
+const ACT_KEYS = ["id", "slots", "talk", "kind", "always", "rest", "when", "label", "desc", "text", "effects", "flag_set", "achievement", "event", "weight"];
+const actIds = new Set();
+for (const a of CF.activities) {
+  const where = "conference/" + a.id;
+  if (actIds.has(a.id)) err(where, "duplicate id");
+  actIds.add(a.id);
+  for (const k of Object.keys(a)) if (!ACT_KEYS.includes(k)) err(where, "unknown key '" + k + "'");
+  if (!a.label) err(where, "missing label");
+  if (![].concat(a.text || []).length) err(where, "missing text");
+  [].concat(a.slots || []).forEach((sl) => { if (!["arrival", "day", "night", "party", "last"].includes(sl)) err(where, "unknown slot '" + sl + "'"); });
+  if (a.talk && !["before", "after", "just_after"].includes(a.talk)) err(where, "talk must be before, after or just_after");
+  if (a.kind && !["talk", "poster"].includes(a.kind)) err(where, "kind must be talk or poster");
+  if (a.event && !HOOKS.includes(a.event.hook)) err(where, "unknown event hook '" + a.event.hook + "'");
+  checkCond(where + ".when", a.when);
+  [a.label, a.desc].concat(a.text || []).forEach((x) => checkTokens(where, x));
+  checkOutcome(where, { effects: a.effects, flag_set: a.flag_set, achievement: a.achievement }, { id: a.id, file: "conference", when: a.when }, schedules);
+}
+for (const sl of ["arrival", "day", "night", "party", "last"]) if (!CF.activities.some((a) => [].concat(a.slots).includes(sl) && a.rest)) err("conference", "no way to rest in slot '" + sl + "'");
+for (const q of CF.questions) { if (!["knowledge", "weakness", "big_picture", "gotcha"].includes(q.kind)) err("conference/questions/" + q.id, "bad kind"); checkTokens("conference/questions/" + q.id, q.text); }
+for (const a of CF.askers) checkTokens("conference/askers/" + a.id, a.label);
+for (const h of HOOKS.filter((x) => x.startsWith("conf_"))) if (!(D.byHook[h] || []).length) err("conference", "no events for hook " + h);
 for (const tp of D.topics) {
   const tt = tp.titles || {};
   for (const f of ["nlp", "hci"]) if (!Array.isArray(tt[f]) || tt[f].length < 2) err("topics/" + tp.id, "needs at least two " + f + " titles");

@@ -328,6 +328,95 @@ test("on leave there's more to do than rest, and sticking with it leaves somethi
   assert.ok(g.state.log.some((e) => e.text.indexOf("Music is part of your week again.") === 0), "and the report says so");
 });
 
+// An accepted paper whose conference is next turn, with travel money.
+function withConference(seed) {
+  const g = gameWithProject(seed);
+  const s = g.state;
+  s.advisor.params.fund = 4;
+  s.flags.visa_failed = false;
+  s.papers.push({
+    id: "x900", projectId: null, title: "A Test Paper", short: "A Test Paper", type: "empirical", topic: s.world.topics[0].id,
+    venueId: "acl", venueName: "ACL", tier: "top", journal: false, cycle: 0, submittedTurn: s.turn - 12, reviewsTurn: s.turn - 6, decisionTurn: s.turn - 2,
+    conferenceTurn: s.turn + 1, rebuttal: false, rr: false, round: 1, comps: { N: 60, S: 60, C: 60 }, Q: 60, status: "accepted", reviews: null, preprint: false,
+    firstAuthor: true, submissions: 1, citations: 0, citeMean: 0, pubTurn: s.turn - 2, breakout: 1, bonusCites: 0, scoreBonus: 0, promises: 0
+  });
+  return g;
+}
+
+test("a conference can be the whole week: eight parts, your talk and its questions, the party, and the people you met become Network", () => {
+  const g = withConference("trip-1");
+  const s = g.state;
+  const rng = new Rng("trip-1:answers");
+  g.submitPlan({ action: "recharge" });
+  let card = null;
+  for (let i = 0; i < 200 && !card; i++) {
+    const p = g.step();
+    if (p.type === "sys" && p.sys === "conference") card = p;
+    else if (p.type !== "turn_end") g.answer(answerFor(p, rng));
+  }
+  assert.ok(card, "the conference card comes");
+  assert.equal(s.stage, "start_items", "before the turn's plan");
+  assert.equal(card.choices.length, 3);
+  const days = s.dayAdj;
+  g.answer({ choice: 0 });
+  assert.ok(s.trip, "the week starts");
+  assert.equal(s.dayAdj, days - 5, "and takes five of the turn's days");
+  const kind = s.trip.kind, network = s.stats.network;
+  const seen = { activity: 0, talk: 0, qa: 0, report: 0, party: 0, events: 0 };
+  let contacts = 0;
+  for (let i = 0; i < 100 && s.trip; i++) {
+    const p = g.step();
+    if (p.type === "event") { seen.events++; g.answer({ choice: p.choices[0].i }); continue; }
+    assert.equal(p.type, "sys");
+    const d = p.data;
+    assert.ok(d.trip, "every card this week belongs to the trip: " + p.sys);
+    if (d.qa) { seen.qa++; assert.equal(p.choices.length, 4); }
+    else if (d.talkStart) seen.talk++;
+    else if (d.report) seen.report++;
+    else {
+      seen.activity++;
+      assert.ok(p.choices.length >= 2 && p.choices.length <= 4);
+      if (d.step === 6) { seen.party++; assert.ok(s.trip.options.every((id) => id.indexOf("party_") === 0), "Wednesday evening is the party"); }
+    }
+    contacts = s.trip.contacts;
+    g.answer({ choice: rng.int(0, p.choices.length - 1) });
+  }
+  assert.equal(s.trip, null, "the week ends");
+  assert.deepEqual([seen.activity, seen.talk, seen.qa, seen.report, seen.party], [7, 1, 2, 1, 1]);
+  assert.ok(seen.events >= 2, "with things happening: " + seen.events);
+  const bonus = s.player.traits.includes("polyglot") || s.player.traits.includes("international") ? 2 : 0;
+  assert.equal(Math.round(s.stats.network - network), Math.min(18, Math.round(contacts * 0.9)) + bonus, "the people you met become Network");
+  assert.ok(s.runAchievements.whole_week);
+  assert.ok(!s.statuses.some((st) => st.id === "at_conference"), "you're back for the rest of the turn");
+  assert.ok(s.log.some((e) => e.text.indexOf("A week at ACL in ") === 0), "and the turn's report says so");
+  assert.ok(["talk", "poster"].includes(kind));
+  // Then the turn goes on: the plan, with the days that are left.
+  const p = g.step();
+  assert.equal(p.type, "plan");
+});
+
+test("flying in just to present takes two days and brings one thing that happens there", () => {
+  const g = withConference("trip-2");
+  const s = g.state;
+  const rng = new Rng("trip-2:answers");
+  g.submitPlan({ action: "recharge" });
+  for (let i = 0; i < 200; i++) {
+    const p = g.step();
+    if (p.type === "sys" && p.sys === "conference") {
+      const days = s.dayAdj, conferences = s.telemetry.conferences;
+      g.answer({ choice: 1 });
+      assert.equal(s.trip, undefined);
+      assert.equal(s.dayAdj, days - 2);
+      assert.equal(s.telemetry.conferences, conferences + 1);
+      assert.equal(s.endItems.length, 1);
+      assert.ok(["conf_talk", "conf_poster"].includes(D.eventById[s.endItems[0].id].hook));
+      return;
+    }
+    if (p.type !== "turn_end") g.answer(answerFor(p, rng));
+  }
+  assert.fail("no conference card");
+});
+
 test("the rebuttal preview shows where each reply could take a score, without touching the game's dice", () => {
   const g = gameWithProject("outlook-1");
   const paper = { id: "x9", reviews: [

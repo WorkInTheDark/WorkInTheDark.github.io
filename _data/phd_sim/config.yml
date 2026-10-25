@@ -139,7 +139,7 @@ fixed_days:                # days per turn (two weeks)
   ta_peak: 3             # T8 and T18 (grading)
   meetings: 1
   defense_prep: 5
-  conference: 4
+  conference: 5          # a whole conference week (trip.js); flying in just to present is 2
 
 ta_chance_by_funding: [0.8, 0.6, 0.35, 0.15, 0.05]
 graduation_pubs: 3

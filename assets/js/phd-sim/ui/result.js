@@ -27,6 +27,8 @@ export function quoteBy(q) {
       case "senior": return q.name ? t("{name}, a senior labmate", { name: q.name }) : t("A senior student");
       case "mentee": return q.name ? t("{name}, your mentee", { name: q.name }) : t("Your mentee");
       case "committee": return t("Your committee");
+      case "prof": return q.name ? t("{name}, met at a conference", { name: q.name }) : t("A professor you met at a conference");
+      case "stranger": return q.name ? t("{name}, met at a conference", { name: q.name }) : t("Someone you met at a conference");
       case "reviewer2": return t("Reviewer {n}", { n: 2 });
       case "partner": return t("Your partner");
       case "parent": return t("Your family");

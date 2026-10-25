@@ -76,6 +76,9 @@ export function fill(text, G, ctx) {
       case "model": out = ctx.model || (s.world.models.length ? s.world.models[s.world.models.length - 1].name : bound(G, ctx, "model", function () { return t("the newest frontier model"); })); break;
       case "biglab": out = ctx.biglab || (s.world.models.length ? s.world.models[s.world.models.length - 1].lab : bound(G, ctx, "biglab", function () { return G.rng.pick(D.names.labs || [t("a big lab")]); })); break;
       case "committee": out = bound(G, ctx, "committee", function () { return t("Prof. {name}", { name: G.rng.pick(D.names.last || ["Lee"]) }); }); break;
+      // People you meet at a conference: a professor, and a student or researcher you didn't know before.
+      case "prof": out = bound(G, ctx, "prof", function () { return t("Prof. {name}", { name: G.rng.pick(D.names.last || ["Lee"]) }); }); break;
+      case "stranger": out = bound(G, ctx, "stranger", function () { return G.rng.pick(D.names.first || ["Sam"]); }); break;
       case "fake_prior": out = bound(G, ctx, "fake_prior", function () { return fakePrior(G); }); break;
       case "roll": {
         const k = "roll:" + a + "-" + b;

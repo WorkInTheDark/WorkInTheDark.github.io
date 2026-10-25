@@ -1,0 +1,377 @@
+# A week at a conference (engine/trip.js). Eight steps from Sunday evening to Thursday: the scene for
+# each, the things you can do, and the questions after your talk or at your poster.
+#
+# scenes: one line per visit, picked at random (a scene shown once this week isn't shown again).
+#   arrival (Sunday evening), day, night, eve (the evening before your talk), after (the evening after),
+#   talk / poster (yours), party (Wednesday evening), last (Thursday).
+# activities: what a step offers. slots: arrival, day, night (eve and after too), party, last.
+#   talk: before | after | just_after (only the evening right after), relative to your talk.
+#   kind: talk | poster, for one or the other. always: offered whenever it fits. rest: the way to rest
+#   (shown last). effects as in events, plus contacts (people you meet; Network when you fly home) and
+#   prep (practice; your talk's checks and answers go better). event: { hook, chance } for what happens.
+# questions: asked after your talk or at your poster. kind and difficulty work as at quals.
+# askers: who asks.
+
+scenes:
+  - id: arrival
+    text:
+      - "{city}, Sunday evening. The registration desk hands you a badge, a tote bag and a program as thick as a thesis. The welcome reception started an hour ago."
+      - "You land in {city} after a day of airports. The hotel lobby is full of people wearing {venue} lanyards and staring at their phones."
+      - "You check into the hotel in {city}, drop your bag and open the program. Four days, nine parallel tracks, and a welcome reception in an hour."
+  - id: day
+    text:
+      - "The convention center hums. Nine parallel sessions, a hall full of posters, and a coffee line that never gets shorter."
+      - "Another day at {venue}. The conference app crashed overnight, so everyone is following a printed schedule, and each other."
+      - "The morning keynote is packed. The hallway outside is just as busy: people who skipped the keynote to talk to each other."
+      - "Lunch is a boxed sandwich eaten standing up. The afternoon has three sessions you wanted to see, all at the same time."
+  - id: night
+    text:
+      - "Evening in {city}. Your group chat has four dinner plans, two bar plans and one person asking if anyone has a charger."
+      - "The sessions are over for the day, and the other conference begins: dinners, bars, and people you've only ever known as names on papers."
+      - "Your feet hurt. Your phone says you walked 18,000 steps without leaving the building. There's still a whole evening ahead."
+  - id: eve
+    text:
+      - "You present tomorrow. Everyone around you is heading out to dinner, and you're in the hotel room, staring at your own figures."
+      - "Tomorrow is your turn. You've checked the time and the place three times. A labmate asks if you're coming out tonight."
+  - id: after
+    text:
+      - "It's done. You presented at {venue}. The adrenaline is wearing off, and you're suddenly starving."
+      - "Your part is over. For the first time this week, you can actually enjoy the conference."
+  - id: talk
+    text:
+      - "Your session starts at 10:30 in a room with three hundred chairs. You're the third speaker. Your laptop is at 64% battery."
+      - "You find the room, check in with the session chair and test the projector. Fifteen minutes to go. The room is filling up."
+  - id: poster
+    text:
+      - "The poster hall is the size of an airplane hangar. Your board is number 214. You have pushpins, a water bottle and two hours on your feet."
+      - "You pin up your poster at 9. By 9:15 the hall is roaring. Three hours to go, every one of them standing."
+  - id: party
+    text:
+      - "Wednesday night: the conference party, in what is clearly a converted warehouse. There's a DJ, free drinks, and every professor you've ever cited."
+      - "The party invitation says the dress code is \"whatever\", the most stressful dress code there is. Every big name in the field will be there."
+  - id: last
+    text:
+      - "The last day. Half the attendees have already left; the ones who stayed look tired and very relaxed. Your flight is this evening."
+      - "Thursday. The final sessions are half empty, the coffee runs out by ten, and your suitcase is waiting at the hotel's front desk."
+
+activities:
+  # --- Sunday evening
+  - id: arr_reception
+    slots: [arrival]
+    label: "Go to the welcome reception"
+    desc: "Name tags, small talk, finger food"
+    text:
+      - "You balance a tiny plate and introduce yourself eleven times. Two of the names stick."
+      - "You find the only other person from your subfield and talk shop for an hour by the dessert table."
+    effects: { energy: "-3", contacts: "+2±1" }
+    event: { hook: conf_arrival, chance: 0.7 }
+  - id: arr_explore
+    slots: [arrival]
+    label: "Walk around {city}"
+    desc: "Stretch your legs after the flight"
+    text:
+      - "You walk until {city} stops looking like a picture on your phone. The jet lag can wait."
+    effects: { energy: "-2", sanity: "+3±1" }
+    event: { hook: conf_sightseeing, chance: 0.4 }
+  - id: arr_sleep
+    slots: [arrival]
+    rest: true
+    label: "Go to bed early"
+    desc: "You'll need it"
+    text:
+      - "You're asleep by nine. You're also wide awake at four, staring at the ceiling, but that's jet lag's problem."
+    effects: { energy: "+5±1", sanity: "+1" }
+
+  # --- Before your talk (always offered)
+  - id: rehearse_talk
+    slots: [arrival, day, night]
+    talk: before
+    kind: talk
+    always: true
+    label: "Rehearse your talk"
+    desc: "Smoother delivery, less of {city}"
+    text:
+      - "You give your talk to the hotel mirror four times. On the fourth, you finally stop saying \"um\" on slide 6."
+      - "You time yourself: 14 minutes, 12 minutes, 17 minutes. You cut a slide you loved."
+      - "You practice answering questions out loud to an empty room. The empty room is tough but fair."
+    effects: { energy: "-2", prep: "+3" }
+  - id: rehearse_poster
+    slots: [arrival, day, night]
+    talk: before
+    kind: poster
+    always: true
+    label: "Practice your poster pitch"
+    desc: "The one-minute and five-minute versions"
+    text:
+      - "You practice the one-minute version and the five-minute version, then a ten-second version for people who are just walking by."
+      - "You explain your poster to the hotel lamp until the explanation fits in one breath."
+    effects: { energy: "-2", prep: "+3" }
+
+  # --- Daytime
+  - id: day_keynote
+    slots: [day]
+    label: "Go to the keynote"
+    desc: "A famous name in a very big room"
+    text:
+      - "The keynote speaker says the field is at a crossroads. They said that last year too, but the slides are better this time."
+      - "You take notes for the first twenty minutes and photos of slides for the rest."
+    effects: { energy: "-2", knowledge: "+1", taste: "+1" }
+    event: { hook: conf_session, chance: 0.5 }
+  - id: day_sessions
+    slots: [day]
+    label: "Sit through the sessions in your area"
+    desc: "Six talks in a row"
+    text:
+      - "Six talks in a row. Two are great, one is basically your next paper, and you lose the thread of the other three."
+      - "You find a seat near an outlet and stay there all afternoon. Your notes get shorter with every talk."
+    effects: { energy: "-3", knowledge: "+2" }
+    event: { hook: conf_session, chance: 0.5 }
+  - id: day_question
+    slots: [day, last]
+    label: "Ask a question in a session"
+    desc: "Get up and speak at the mic"
+    text:
+      - "Today you're going to ask a question. You pick a session, sit near the aisle and listen harder than you have all week."
+    effects: { energy: "-2", sanity: "-2" }
+    event: { hook: conf_question, chance: 1 }
+  - id: day_coffee
+    slots: [day]
+    label: "Set up a coffee chat"
+    desc: "Email someone whose work you admire"
+    text:
+      - "You send a nervous email to someone whose paper you've read three times. They reply in four minutes: \"Sure, 2:30 by the escalators?\""
+      - "You message a researcher you've only ever cited. They say yes. Now you have to think of something to say."
+    effects: { energy: "-2", contacts: "+1" }
+    event: { hook: conf_coffee, chance: 1 }
+  - id: day_hallway
+    slots: [day]
+    label: "Work the hallway"
+    desc: "Skip a session and talk to people"
+    text:
+      - "You skip a session to stand near the coffee urns. Within an hour you've talked to five people, one of whom you've cited twice."
+      - "You do laps of the hallway, saying hello to anyone who makes eye contact. It works better than it should."
+    effects: { energy: "-3", contacts: "+2±1" }
+    event: { hook: conference, chance: 0.6 }
+  - id: day_posters
+    slots: [day]
+    label: "Walk the poster session"
+    desc: "Two hundred posters, two hours"
+    text:
+      - "Two hundred posters in two hours. You find three that matter to you, one that scoops a side project, and a free pen."
+      - "You read posters until the words blur, and ask every presenter the same question. Their answers are all different."
+    effects: { energy: "-3", knowledge: "+1", contacts: "+1" }
+    event: { hook: conference, chance: 0.5 }
+  - id: day_mentoring
+    slots: [day]
+    label: "Go to the mentoring lunch"
+    desc: "Assigned tables, senior people"
+    text:
+      - "You share a table with a professor, two students and a startup founder. The professor talks about failing their quals. It helps more than you expected."
+    effects: { energy: "-2", contacts: "+2", sanity: "+1" }
+    event: { hook: conf_coffee, chance: 0.5 }
+  - id: day_booths
+    slots: [day]
+    label: "Visit the industry booths"
+    desc: "Free swag, recruiters"
+    text:
+      - "You collect four T-shirts, eleven stickers and a recruiter's card. One of the T-shirts fits."
+    effects: { energy: "-2", contacts: "+1", career_prep: "+1" }
+    event: { hook: conference, chance: 0.4 }
+  - id: day_sightsee
+    slots: [day]
+    label: "Skip the afternoon and see {city}"
+    desc: "With whoever else is skipping"
+    text:
+      - "You and a few people from the lab slip out after lunch. Nobody says the word \"paper\" for four whole hours."
+    effects: { energy: "-3", sanity: "+5±1" }
+    event: { hook: conf_sightseeing, chance: 0.8 }
+  - id: day_excursion
+    slots: [day]
+    talk: after
+    label: "Join the conference excursion"
+    desc: "One bus, one guide, forty researchers"
+    text:
+      - "The bus is full of researchers pretending not to talk about research. It lasts eleven minutes."
+    effects: { energy: "-4", sanity: "+4±1", contacts: "+2±1" }
+    event: { hook: conf_sightseeing, chance: 0.8 }
+  - id: day_cafe
+    slots: [day]
+    label: "Catch up on work in a café"
+    desc: "The lab didn't stop because you left"
+    text:
+      - "You answer 31 emails, review a labmate's draft and feel almost in control. Outside, the conference goes on without you."
+    effects: { energy: "-2", sanity: "+2" }
+  - id: day_nap
+    slots: [day]
+    rest: true
+    label: "Go back to the hotel for a nap"
+    desc: "Skip the afternoon sessions"
+    text:
+      - "You sleep through two sessions and wake up unsure which country you're in. Worth it."
+    effects: { energy: "+4±1", sanity: "+1" }
+
+  # --- Evenings
+  - id: night_lab_dinner
+    slots: [arrival, night]
+    when: { has_advisor: true }
+    label: "Dinner with your lab"
+    desc: "{advisor} might pay"
+    text:
+      - "{advisor} takes the lab to a restaurant with a two-hour wait. You spend the wait hearing about conferences in the nineties."
+      - "The lab finds a noodle place near the hotel and trades plans for the week: who presents when, which talks to see, which parties to crash."
+    effects: { energy: "-2", sanity: "+3", advisor_rel: "+1", labmates_rel: "+2" }
+    event: { hook: conf_night, chance: 0.5 }
+  - id: night_sponsor
+    slots: [night]
+    label: "Go to a sponsor's dinner"
+    desc: "Free food, and a pitch for their platform"
+    text:
+      - "The food is excellent, and the recruiting pitch lasts exactly as long as dessert."
+    effects: { energy: "-3", contacts: "+2±1", career_prep: "+1" }
+    event: { hook: conf_night, chance: 0.6 }
+  - id: night_strangers
+    slots: [night]
+    label: "Tag along to dinner with people you just met"
+    desc: "Twelve researchers, one long table"
+    text:
+      - "Someone says \"we're getting dinner, want to come?\" and suddenly you're at a table of twelve researchers splitting a bill nobody can figure out."
+    effects: { energy: "-3", contacts: "+3±1", sanity: "+1" }
+    event: { hook: conf_night, chance: 0.7 }
+  - id: night_bar
+    slots: [night]
+    label: "Go out with the other students"
+    desc: "It'll be a late one"
+    text:
+      - "You end up in a bar with students from six countries, ranking advisors by how fast they answer email. You get back at 2 am."
+    effects: { energy: "-5", sanity: "+4±1", health: "-1", contacts: "+2±1" }
+    event: { hook: conf_night, chance: 0.7 }
+  - id: night_explore
+    slots: [night]
+    label: "Explore {city} at night"
+    desc: "Street food, lights, no lanyard"
+    text:
+      - "You take off your badge and walk. Street food, a river, a bridge with too many tourists. For two hours you're just visiting."
+    effects: { energy: "-3", sanity: "+5±1" }
+    event: { hook: conf_sightseeing, chance: 0.6 }
+  - id: night_call_home
+    slots: [night]
+    label: "Call home"
+    desc: "It's morning there"
+    text:
+      - "You call home from the hotel. It's breakfast there. They want to know whether you've eaten anything that wasn't a conference sandwich."
+    effects: { sanity: "+3", family_rel: "+3" }
+  - id: night_celebrate
+    slots: [night]
+    talk: just_after
+    always: true
+    label: "Celebrate with the others from your session"
+    desc: "They're just as relieved"
+    text:
+      - "The four speakers from your session end up at the same bar, still a little shaky, toasting the fact that you all survived the questions."
+    effects: { energy: "-3", sanity: "+5±1", contacts: "+2±1" }
+    event: { hook: conf_night, chance: 0.5 }
+  - id: night_early
+    slots: [night]
+    rest: true
+    label: "Early night"
+    desc: "Room service and bed"
+    text:
+      - "Room service, a shower with real water pressure, and nine hours of sleep. Your future self is grateful."
+    effects: { energy: "+5±1", sanity: "+1" }
+
+  # --- Wednesday evening: the party
+  - id: party_dance
+    slots: [party]
+    label: "Go to the party and dance"
+    desc: "The DJ is surprisingly good"
+    text:
+      - "You dance. Your labmates dance. A very famous researcher busts out a move you will think about for years."
+    effects: { energy: "-5", sanity: "+6±1", labmates_rel: "+2", contacts: "+1" }
+    event: { hook: conf_party, chance: 1 }
+  - id: party_network
+    slots: [party]
+    label: "Work the room"
+    desc: "Every big name is here, holding a drink"
+    text:
+      - "You make the rounds holding a drink you never finish. By the end you've pitched your research eleven times, and the pitch is finally good."
+    effects: { energy: "-4", sanity: "-1", contacts: "+3±1", career_prep: "+1" }
+    event: { hook: conf_party, chance: 1 }
+  - id: party_after
+    slots: [party]
+    label: "Stay for the after-party"
+    desc: "Nobody remembers whose idea it was"
+    text:
+      - "The party ends at midnight. The after-party, at a karaoke bar someone found on their phone, ends at three. Your voice gives out at 2:30."
+    effects: { energy: "-7", sanity: "+5±1", health: "-2", contacts: "+2±1" }
+    event: { hook: conf_party, chance: 1 }
+    achievement: last_one_standing
+  - id: party_skip
+    slots: [party]
+    rest: true
+    label: "Skip it: room service and bed"
+    desc: "You'll see the photos tomorrow"
+    text:
+      - "You hear the bass through the hotel walls and fall asleep anyway. In the morning the photos look like a great party. You feel great too."
+    effects: { energy: "+5±1", sanity: "-1" }
+
+  # --- Thursday
+  - id: last_sessions
+    slots: [last]
+    label: "Go to the last sessions"
+    desc: "Half empty, often the best"
+    text:
+      - "The last session has eleven people in it, speakers included. The talks are excellent, and the questions turn into a conversation."
+    effects: { energy: "-2", knowledge: "+1", contacts: "+1" }
+    event: { hook: conf_last, chance: 0.6 }
+  - id: last_followup
+    slots: [last]
+    label: "Write follow-up emails"
+    desc: "While the names are still fresh"
+    text:
+      - "You write to everyone whose name you collected, before you forget who said what. Three of them reply before you board."
+    effects: { energy: "-1", contacts: "+2", career_prep: "+1" }
+  - id: last_sightsee
+    slots: [last]
+    label: "See {city} before your flight"
+    desc: "Leave your bag at the hotel"
+    text:
+      - "You leave your suitcase with the hotel and spend the last hours seeing what you missed. You buy gifts for the lab at the airport anyway."
+    effects: { energy: "-3", sanity: "+4±1" }
+    event: { hook: conf_sightseeing, chance: 0.6 }
+  - id: last_airport
+    slots: [last]
+    rest: true
+    label: "Head to the airport early"
+    desc: "Sleep at the gate"
+    text:
+      - "You get to the airport three hours early, find an outlet and sleep sitting up. Somewhere over the ocean, you start sketching your next paper."
+    effects: { energy: "+2", sanity: "+1" }
+    event: { hook: conf_last, chance: 0.4 }
+
+askers:
+  - { id: front_row_prof, for: [talk], label: "A professor in the front row" }
+  - { id: mic_student, for: [talk], label: "A student at the microphone" }
+  - { id: industry, label: "Someone from industry" }
+  - { id: chair, for: [talk], label: "The session chair, filling a silence" }
+  - { id: famous, label: "A famous name you only recognize after they've started talking" }
+  - { id: laptop, for: [talk], label: "Someone who was typing on their laptop the whole time" }
+  - { id: coffee_visitor, for: [poster], label: "A visitor with a coffee" }
+  - { id: reader, for: [poster], label: "A professor who reads every word before speaking" }
+  - { id: photographer, for: [poster], label: "A student who just took a photo of your poster" }
+
+questions:
+  - { id: q_baseline, kind: knowledge, difficulty: 50, text: "Did you compare against {fake_prior}? It seems like the obvious baseline." }
+  - { id: q_dataset, kind: knowledge, difficulty: 40, text: "How big is the dataset, and how did you collect it?" }
+  - { id: q_scale, kind: knowledge, difficulty: 55, text: "Does this still work with a bigger model?" }
+  - { id: q_axis, kind: knowledge, difficulty: 35, text: "On that plot, what's on the y-axis? I couldn't read it from here." }
+  - { id: q_sample, kind: weakness, difficulty: 55, text: "Your sample is pretty small. How sure are you about the effect?" }
+  - { id: q_annotators, kind: weakness, difficulty: 50, text: "Who were your annotators, and how much did they agree with each other?" }
+  - { id: q_english, kind: weakness, difficulty: 55, text: "Isn't this only tested on English?" }
+  - { id: q_cherry, kind: weakness, difficulty: 60, text: "Were the examples on your slides cherry-picked?" }
+  - { id: q_why, kind: big_picture, difficulty: 55, text: "Why should anyone outside this subfield care?" }
+  - { id: q_change, kind: big_picture, difficulty: 50, text: "Say this works perfectly. What changes?" }
+  - { id: q_obsolete, kind: big_picture, difficulty: 60, text: "Won't the next frontier model just make this unnecessary?" }
+  - { id: q_comment, kind: gotcha, difficulty: 55, text: "This is more of a comment than a question, but I did something very similar in 2009…" }
+  - { id: q_my_paper, kind: gotcha, difficulty: 60, text: "Are you aware of my paper on this? You didn't cite it." }
+  - { id: q_wrong, kind: gotcha, difficulty: 65, text: "I think your main result is wrong. Convince me otherwise." }
+  - { id: q_three_part, kind: gotcha, difficulty: 55, text: "I have a three-part question. Actually, four parts." }

@@ -14,14 +14,15 @@ const NUMS = ["y", "p", "c", "h", "r", "b"];
 const MORE = { ap: "allPubs", sb: "submissions", cf: "conferences", ot: "overtime", ev: "events", sc: "score" };
 const STATUS = ["accepted", "rejected", "under_review", "revise_resubmit"];
 const MAX_PAPERS = 12;
-const SPEAKERS = ["advisor", "labmate", "labmate2", "senior", "mentee", "committee", "reviewer2", "partner", "parent"];
+const SPEAKERS = ["advisor", "labmate", "labmate2", "senior", "mentee", "committee", "reviewer2", "partner", "parent", "prof", "stranger"];
 const own = function (o, k) { return !!o && typeof k === "string" && Object.prototype.hasOwnProperty.call(o, k); };
 
 // A shared moment or quote is rebuilt from the game's data, where names are tokens. The link doesn't
 // carry who your labmates were, so they become plain words; the advisor comes from the link. A line
 // with any other token is left out.
 const GENERIC = { labmate: T_("a labmate"), labmate2: T_("another labmate"), senior: T_("a senior labmate"), mentee: T_("the student you mentor"),
-  project: T_("the project"), paper: T_("the paper"), venue: T_("the conference"), city: T_("the conference city"), topic: T_("this topic") };
+  project: T_("the project"), paper: T_("the paper"), venue: T_("the conference"), city: T_("the conference city"), topic: T_("this topic"),
+  prof: T_("a professor"), stranger: T_("someone you met") };
 function genericFill(text, advisor) {
   if (typeof text !== "string") return null;
   const zh = language() === "zh";

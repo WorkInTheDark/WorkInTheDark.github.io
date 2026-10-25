@@ -24,7 +24,7 @@ Arthur reviews every line before the Chinese version goes live.
 - Full-width Chinese punctuation: ，。？！：；（）. Quotation marks are “ ” and ‘ ’. Use 《》 only for book titles, not paper titles.
 - **No dashes (—— or —).** The English avoids them too. Use a comma, a colon or a full stop.
 - Put a half-width space between Chinese and English words or numbers: 投稿到 ACL, 3 篇论文, 第 2 号审稿人. There's no space before full-width punctuation.
-- Tokens follow the same rule by what they render: a space next to tokens that show Latin text (`{labmate} 忘了来`, `投到 {venue}`), but none after `{advisor}` or `{committee}`, which end in 教授 (`去找 {advisor}聊聊`).
+- Tokens follow the same rule by what they render: a space next to tokens that show Latin text (`{labmate} 忘了来`, `投到 {venue}`), but none after `{advisor}`, `{committee}` or `{prof}`, which end in 教授 (`去找 {advisor}聊聊`).
 - Use ASCII digits. Keep "%" half-width: 30%.
 
 ## Tokens
@@ -35,6 +35,8 @@ Keep every `{token}` exactly as written. You may move it within the sentence. Th
 |---|---|---|
 | `{advisor}` | Lee教授 | Already includes 教授, so don't add 教授 or 导师 next to it |
 | `{committee}` | Okafor教授 | Same |
+| `{prof}` | Kim教授 | A professor met at a conference. Same |
+| `{stranger}` | a name (Latin letters) | Someone met at a conference |
 | `{labmate}`, `{labmate2}`, `{senior}`, `{mentee}`, `{player}` | a name (Latin letters) | |
 | `{topic}`, `{project.topic}` | the research topic in Chinese | e.g. 幻觉检测 |
 | `{venue}` | the venue's English name | ACL, CHI |

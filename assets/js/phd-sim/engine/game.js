@@ -25,9 +25,10 @@ import {
 } from "./milestones.js";
 
 const WORK_DAYS = ["read", "network", "help", "mentor", "career", "project", "writing_day"];
-// Prompts that come before the turn's focus: your first project, and decisions on your papers
-// (a rejection changes what you'd plan, so you hear about it first).
-const PRE_SYS = ["first_project", "decision", "quals_notice"];
+// Prompts that come before the turn's focus: your first project, decisions on your papers (a
+// rejection changes what you'd plan, so you hear about it first), and a conference (the week away
+// comes out of the turn's days).
+const PRE_SYS = ["first_project", "decision", "quals_notice", "conference"];
 // System prompts that count as one of the turn's "things that happen".
 const PROMPT_SYS = ["submit", "rebuttal", "qa", "qa_result", "quals_notice", "offers", "final_offers", "internship_offer", "the_question", "decision", "conference", "fellowship_apply", "internship_apply", "job_market_start"];
 const ACTION_EXTRAS = ["apply_internship", "apply_fellowship", "proposal", "defense", "job_market", "quals_prep"];
