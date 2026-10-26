@@ -46,8 +46,8 @@ const HINT = {
   gotcha: T_("It was a trap; acknowledging or reframing beats a direct answer.")
 };
 const QUESTIONS = 2;
-// Every part of the week is a long one, more tiring than a day in the lab (Energy); until your talk is
-// over, it weighs on you (Stress, as sanity). Measured 2026-10-24 over 150 bot runs: the week costs
+// Every part of the week is a long one, more tiring than a day in the lab (Energy), except the ones you
+// spend resting; until your talk is over, it weighs on you (Stress, as sanity). Measured 2026-10-24 over 150 bot runs: the week costs
 // about 20 Energy and adds a little Stress overall, with relief after the talk and at the party.
 const LONG_DAY = -1, PRESSURE = -3;
 
@@ -213,10 +213,14 @@ export function answerTrip(G, prompt, choice) {
   const a = activity(G, trip.options[choice]) || activity(G, trip.options[0]);
   const res = applyOutcome(G, { text: G.rng.pick(asList(a.text)), effects: a.effects, flag_set: a.flag_set, achievement: a.achievement }, ctx);
   res.choiceLabel = fill(a.label, G, ctx);
-  // Long days, jet lag the first evening and day, and the talk weighing on you until it's done.
-  addVisible(res.visible, "energy", addStat(G, "energy", LONG_DAY + (trip.jet && trip.step <= 1 ? -2 : 0)));
+  // Long days, jet lag the first evening and day, and the talk weighing on you until it's done. Resting
+  // is the way out of the first two (Arthur, 2026-10-26: a nap that netted zero Energy read as broken):
+  // it costs no long day, and sleeping while jet-lagged gets you over it.
+  const jetNow = trip.jet && trip.step <= 1;
+  if (!a.rest) addVisible(res.visible, "energy", addStat(G, "energy", LONG_DAY + (jetNow ? -2 : 0)));
   if (trip.step < trip.talkAt) addVisible(res.visible, "sanity", addStat(G, "sanity", PRESSURE));
-  if (trip.jet && trip.step === 0) res.notes.push(t("Jet lag: your body thinks it's the middle of the night."));
+  if (jetNow && a.rest) { trip.jet = false; res.notes.push(t("You sleep off the jet lag.")); }
+  else if (jetNow && trip.step === 0) res.notes.push(t("Jet lag: your body thinks it's the middle of the night."));
   else if (trip.step < trip.talkAt) res.notes.push(untilTalk(trip));
   trip.did = a.id;
   const events = a.event && G.rng.chance(a.event.chance === undefined ? 1 : a.event.chance) ? drawHook(G, a.event.hook, ctx, 1) : [];
