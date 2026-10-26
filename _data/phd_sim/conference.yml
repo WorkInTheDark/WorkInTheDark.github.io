@@ -7,8 +7,9 @@
 # activities: what a step offers. slots: arrival, day, night (eve and after too), party, last.
 #   talk: before | after | just_after (only the evening right after), relative to your talk.
 #   kind: talk | poster, for one or the other. always: offered whenever it fits. rest: the way to rest
-#   (shown last). effects as in events, plus contacts (people you meet; Network when you fly home) and
-#   prep (practice; your talk's checks and answers go better). event: { hook, chance } for what happens.
+#   (always offered, shown last; it costs no long day and gets you over jet lag). effects as in events,
+#   plus contacts (people you meet; Network when you fly home) and prep (practice; your talk's checks
+#   and answers go better). event: { hook, chance } for what happens.
 # questions: asked after your talk or at your poster. kind and difficulty work as at quals.
 # askers: who asks.
 
@@ -80,7 +81,7 @@ activities:
     desc: "You'll need it"
     text:
       - "You're asleep by nine. You're also wide awake at four, staring at the ceiling, but that's jet lag's problem."
-    effects: { energy: "+5±1", sanity: "+1" }
+    effects: { energy: "+6±1", sanity: "+1" }
 
   # --- Before your talk (always offered)
   - id: rehearse_talk
@@ -208,7 +209,7 @@ activities:
     desc: "Skip the afternoon sessions"
     text:
       - "You sleep through two sessions and wake up unsure which country you're in. Worth it."
-    effects: { energy: "+4±1", sanity: "+1" }
+    effects: { energy: "+5±1", sanity: "+1" }
 
   # --- Evenings
   - id: night_lab_dinner
@@ -277,7 +278,7 @@ activities:
     desc: "Room service and bed"
     text:
       - "Room service, a shower with real water pressure, and nine hours of sleep. Your future self is grateful."
-    effects: { energy: "+5±1", sanity: "+1" }
+    effects: { energy: "+6±1", sanity: "+1" }
 
   # --- Wednesday evening: the party
   - id: party_dance
@@ -312,7 +313,7 @@ activities:
     desc: "You'll see the photos tomorrow"
     text:
       - "You hear the bass through the hotel walls and fall asleep anyway. In the morning the photos look like a great party. You feel great too."
-    effects: { energy: "+5±1", sanity: "-1" }
+    effects: { energy: "+6±1", sanity: "-1" }
 
   # --- Thursday
   - id: last_sessions
@@ -345,7 +346,7 @@ activities:
     desc: "Sleep at the gate"
     text:
       - "You get to the airport three hours early, find an outlet and sleep sitting up. Somewhere over the ocean, you start sketching your next paper."
-    effects: { energy: "+2", sanity: "+1" }
+    effects: { energy: "+3", sanity: "+1" }
     event: { hook: conf_last, chance: 0.4 }
 
 askers:

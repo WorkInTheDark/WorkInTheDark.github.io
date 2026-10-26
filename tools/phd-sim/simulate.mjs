@@ -301,6 +301,16 @@ if (process.env.QSTATS) {
       " scoreBonus avg " + avg(q.map((p) => p.bonus)) + " accepted " + pct(q.filter((p) => p.st === "accepted").length, q.length));
   }
 }
+// The top of the score range, which the leaderboard shows: one run far above the rest is usually
+// citations (a breakout paper over a long PhD).
+{
+  const byScore = all.slice().sort((a, b) => a.score - b.score);
+  const at = (q) => byScore[Math.min(byScore.length - 1, Math.floor(q * (byScore.length - 1)))];
+  const top = byScore[byScore.length - 1];
+  console.log("Score tail (all bots): P95 " + at(0.95).score.toFixed(0) + ", P99 " + at(0.99).score.toFixed(0) + ", max " + top.score.toFixed(0) +
+    " (" + top.policy + ": " + top.pubs + " papers, " + top.cites + " citations, h " + top.h + ", " + top.years.toFixed(1) + " years)");
+}
+if (process.argv.includes("--dump")) writeFileSync(process.argv[process.argv.indexOf("--dump") + 1], JSON.stringify(all.map((x) => ({ policy: x.policy, score: x.score, cites: x.cites, h: x.h, pubs: x.pubs, years: x.years, ending: x.ending, title: x.title }))));
 if (process.argv.includes("--percentiles")) {
   const sc = all.map((x) => x.score).sort((a, b) => a - b);
   const q = Array.from({ length: 101 }, (_, i) => Math.round(sc[Math.min(sc.length - 1, Math.floor((i / 100) * (sc.length - 1)))] * 10) / 10);

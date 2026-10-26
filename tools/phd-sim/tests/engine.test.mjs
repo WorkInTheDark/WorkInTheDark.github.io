@@ -395,6 +395,28 @@ test("a conference can be the whole week: eight parts, your talk and its questio
   assert.equal(p.type, "plan");
 });
 
+test("resting at a conference gives Energy back, and sleeping the first evening gets you over jet lag", () => {
+  const g = withConference("trip-3");
+  const s = g.state;
+  const rng = new Rng("trip-3:answers");
+  g.submitPlan({ action: "recharge" });
+  for (let i = 0; i < 200 && !s.trip; i++) {
+    const p = g.step();
+    if (p.type === "sys" && p.sys === "conference") g.answer({ choice: 0 });
+    else if (p.type !== "turn_end") g.answer(answerFor(p, rng));
+  }
+  assert.ok(s.trip);
+  s.trip.jet = true;
+  s.stats.energy = 50;
+  const p = g.step();
+  const rest = p.choices.length - 1;
+  assert.ok(D.conference.activities.find((a) => a.id === s.trip.options[rest]).rest, "the way to rest is offered, last");
+  const res = g.answer({ choice: rest });
+  const gained = res.visible.find((v) => v.stat === "energy").amount;
+  assert.ok(gained >= 5, "a full night's sleep: Energy +" + gained);
+  assert.equal(s.trip.jet, false, "and no more jet lag");
+});
+
 test("flying in just to present takes two days and brings one thing that happens there", () => {
   const g = withConference("trip-2");
   const s = g.state;
