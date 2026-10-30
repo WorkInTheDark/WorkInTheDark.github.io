@@ -12,6 +12,18 @@ export function langSwitchHtml() {
   }).join("") + "</div>";
 }
 
+// The full-screen switch (app.js setFull): corner brackets out to go full screen, in to come back.
+const FULL_ICON = {
+  on: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+  off: '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>'
+};
+export function fullButtonHtml(full, cls) {
+  const label = full ? t("Exit full screen") : t("Full screen");
+  return '<button class="' + (cls || "ps-icon-btn") + '" data-action="full" title="' + esc(label) + '" aria-label="' + esc(label) + '" aria-pressed="' + full + '">' +
+    '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+    FULL_ICON[full ? "off" : "on"] + "</svg>" + (cls && cls.indexOf("ps-fs-label") >= 0 ? "<span>" + esc(label) + "</span>" : "") + "</button>";
+}
+
 // "1 paper" but "3 papers" (Chinese reads the same either way).
 export function papersText(n) { return n === 1 ? t("1 paper") : t("{n} papers", { n: n }); }
 export function citationsText(n) { return n === 1 ? t("1 citation") : t("{n} citations", { n: n }); }

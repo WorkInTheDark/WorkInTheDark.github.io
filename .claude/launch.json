@@ -3,7 +3,9 @@
   "configurations": [
     {
       "name": "phd-sim-dev",
-      "url": "http://127.0.0.1:8766"
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["tools/phd-sim/serve.py"],
+      "port": 8766
     },
     {
       "name": "phd-sim-board",

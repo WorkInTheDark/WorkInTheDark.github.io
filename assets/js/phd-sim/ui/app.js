@@ -1,7 +1,7 @@
 // The app shell: screens, the play loop, prompts, saving, and input handling.
 import { prepareData, newRun, rollTraits, Game, newSeed, storage } from "../engine/index.js";
 import { Rng } from "../engine/rng.js";
-import { prefersReducedMotion, esc, setKnownTitles } from "./common.js";
+import { prefersReducedMotion, esc, setKnownTitles, fullButtonHtml } from "./common.js";
 import { gameHtml, orderedActions } from "./gameview.js";
 import { eventHtml, sysHtml, rebuttalHtml, resultHtml, promptClass } from "./prompts.js";
 import { titleHtml, setupHtml, codexHtml, endHtml } from "./screens.js";
@@ -12,13 +12,21 @@ import { boardScreenHtml, loadBoards, submitRun, openRun } from "./board.js";
 import { hoverDot } from "./chart.js";
 
 const REOPEN_KEY = "phdsim:reopen";
+const FULL_KEY = "phdsim:full";
 
 // Focus that came from the keyboard; some browsers also focus a button when it's clicked or tapped.
 function keyboardFocus(el) { try { return el.matches(":focus-visible"); } catch (e) { return true; } }
 
 export class App {
   constructor(root, rawData) {
-    this.root = root;
+    // The page's #phd-sim holds the game (this.root, redrawn on every render) and, beside it, the
+    // achievement pop-ups, so both stay on screen when the game goes full screen.
+    this.host = root;
+    root.classList.add("ps-host");
+    root.textContent = "";
+    this.root = document.createElement("div");
+    this.root.className = "ps-view";
+    root.appendChild(this.root);
     this.D = prepareData(rawData);
     this.storageOk = storage.storageAvailable();
     this.meta = storage.loadMeta();
@@ -51,6 +59,7 @@ export class App {
       hoverDot(self, dot && (e.type === "pointerover" || e.type === "focusin") ? dot.getAttribute("data-id") : null);
     };
     ["pointerover", "pointerout", "focusin", "focusout"].forEach(function (k) { root.addEventListener(k, hover); });
+    this.initFull();
     // A shared result link (#r=…) opens a read-only card instead of the title screen.
     this.shared = readSharedFromLocation(this.D);
     if (this.shared) this.screen = "shared";
@@ -135,7 +144,9 @@ export class App {
     const still = (popKey === this.lastPopKey ? " ps-still-pop" : "") + (sceneKey === this.lastSceneKey ? " ps-still-scene" : "");
     this.lastPopKey = popKey;
     this.lastSceneKey = sceneKey;
-    this.root.innerHTML = '<div class="ps-app ps-app-' + this.screen + still + '"><div class="ps-screen">' + body + "</div>" +
+    // The full-screen switch: in the game it's in the top strip, elsewhere in the window's corner.
+    const corner = this.screen !== "game" && !this.standalone ? fullButtonHtml(this.full, "ps-fs-corner" + (this.screen === "title" ? " ps-fs-label" : "")) : "";
+    this.root.innerHTML = '<div class="ps-app ps-app-' + this.screen + still + '">' + corner + '<div class="ps-screen">' + body + "</div>" +
       (this.toast ? '<div class="ps-toast" role="status">' + esc(this.toast) + "</div>" : "") + "</div>";
     if (this.keepScroll) {
       window.scrollTo(0, scrollY);
@@ -264,7 +275,7 @@ export class App {
       this.achLayer = document.createElement("div");
       this.achLayer.className = "ps-ach-layer";
       this.achLayer.setAttribute("aria-live", "polite");
-      document.body.appendChild(this.achLayer);
+      this.host.appendChild(this.achLayer);
     }
     const layer = this.achLayer;
     list.forEach(function (a, i) {
@@ -350,6 +361,66 @@ export class App {
 
   // The language comes from the saved choice when the page loads (main.js), so switching saves the
   // run and the choice and reloads; the game picks up where it was, in the new language.
+  // ---- Full screen --------------------------------------------------------------------------
+
+  // Players asked to play full screen on phones and computers (2026-10-30). Where a page may go full
+  // screen (computers, Android, iPad), the game does. On iPhone, where only videos can, the game
+  // window fills the browser window instead, and the page added to the Home Screen opens as an app
+  // with no browser bars at all; there, and in any installed copy, the game always fills the screen.
+  initFull() {
+    const self = this;
+    const host = this.host;
+    this.fsApi = !!(host.requestFullscreen || host.webkitRequestFullscreen);
+    let installed = false;
+    try { installed = window.matchMedia("(display-mode: standalone), (display-mode: fullscreen)").matches || navigator.standalone === true; } catch (e) { installed = false; }
+    this.standalone = installed;
+    this.full = false;
+    const changed = function () {
+      // Esc or the system's back gesture left the real full screen: leave the filled window too.
+      if (self.fsElement()) self.realFull = true;
+      else if (self.realFull) { self.realFull = false; if (self.full) self.setFull(false); }
+    };
+    document.addEventListener("fullscreenchange", changed);
+    document.addEventListener("webkitfullscreenchange", changed);
+    let again = false;
+    try { again = sessionStorage.getItem(FULL_KEY) === "1"; } catch (e) { again = false; }
+    // An installed copy always fills the screen. After a reload (switching the language), the window
+    // fills the browser again; going truly full screen again takes a tap, as browsers require.
+    if (installed || again) this.applyFull(true);
+  }
+
+  fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+
+  applyFull(on) {
+    this.full = on;
+    this.host.classList.toggle("ps-full", on);
+    document.documentElement.classList.toggle("ps-full-page", on);
+    if (!this.standalone) { try { sessionStorage.setItem(FULL_KEY, on ? "1" : ""); } catch (e) { /* only this visit */ } }
+  }
+
+  setFull(on) {
+    if (this.standalone) return;
+    const host = this.host;
+    this.applyFull(on);
+    if (on && this.fsApi && !this.fsElement()) {
+      try {
+        const p = host.requestFullscreen ? host.requestFullscreen({ navigationUI: "hide" }) : host.webkitRequestFullscreen();
+        if (p && p.catch) p.catch(function () { /* the filled window is the fallback */ });
+      } catch (e) { /* the filled window is the fallback */ }
+    } else if (!on && this.fsElement()) {
+      try {
+        const p = document.exitFullscreen ? document.exitFullscreen() : document.webkitExitFullscreen();
+        if (p && p.catch) p.catch(function () {});
+      } catch (e) { /* already out */ }
+    }
+    if (on && !this.fsApi && !this.fullHinted) {
+      this.fullHinted = true;
+      this.flashToast(t("Tip: add this page to your Home Screen to play without the browser bars."));
+    }
+    this.keepScroll = true;
+    this.render();
+  }
+
   switchLanguage(id) {
     if (!id || id === language()) return;
     if (this.game && this.game.state.phase !== "ended") storage.saveRun(this.game.state);
@@ -398,6 +469,7 @@ export class App {
       case "chart-ending": this.chart.ending = id && this.chart.ending !== id ? id : null; this.keepScroll = true; this.render(); break;
       case "chart-open": if (id) openRun(this, id); break;
       case "lang": this.switchLanguage(id); break;
+      case "full": this.setFull(!this.full); break;
       case "back": this.screen = this.prev || "title"; this.render(); break;
       case "inspect": if (!this.modal) { this.inspect = id; this.keepScroll = true; this.render(); } break;
       case "close-inspect": this.inspect = null; this.keepScroll = true; this.render(); break;
@@ -469,6 +541,9 @@ export class App {
   }
 
   onKey(e) {
+    // Esc leaves the filled window too (a real full screen handles Esc itself), unless it's closing
+    // a panel or close-up first.
+    if (e.key === "Escape" && this.full && !this.standalone && !this.panel && !this.inspect && !this.fsElement()) { this.setFull(false); return; }
     if (e.key === "Enter" && e.target && e.target.id === "ps-nick") { e.preventDefault(); submitRun(this); return; }
     if (e.altKey || e.ctrlKey || e.metaKey || this.screen !== "game") return;
     if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA")) return;

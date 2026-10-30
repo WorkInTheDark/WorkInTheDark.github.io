@@ -33,6 +33,16 @@
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url | bust_css_cache }}">
     <link rel="canonical" href="{{ page.url | replace:'index.html','' | absolute_url }}">
 
+    {% if page.app_manifest %}
+    <!-- A page that can be added to the Home Screen as an app with no browser bars (the PhD Simulator) -->
+    <link rel="manifest" href="{{ page.app_manifest | relative_url }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="{{ page.app_title | default: page.title }}">
+    <meta name="theme-color" content="{{ page.app_color | default: '#ffffff' }}">
+    {% if page.app_icon %}<link rel="apple-touch-icon" href="{{ page.app_icon | relative_url }}">{% endif %}
+    {% endif %}
+
     <!-- Dark Mode -->
     {% if site.enable_darkmode %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jwarby/jekyll-pygments-themes@master/{{ site.highlight_theme_dark | append: '.css' }}" media="none" id="highlight_theme_dark" />
