@@ -2,7 +2,7 @@
 // A top strip (date, bars, score) with a progress band under it (project trackers and what's
 // affecting you), a scene in the middle (this turn's choices, or whatever is happening), and a
 // quiet footer with PhD 101 pointers.
-import { esc, rich, bar, arrowsHtml, shownStat } from "./common.js";
+import { esc, rich, bar, arrowsHtml, shownStat, fullButtonHtml } from "./common.js";
 import {
   yearOf, turnDates, turnStartLabel, absTurn, WEEKS_PER_TURN, PROJECT_TYPES, STAGE_LABELS, FIELD_LABELS, fieldOf, stageInfo,
   deadlineLabel, venuesFor, totalCitations, firstAuthorPubs, qualsPassChance, chanceWord, defenseOpensAt
@@ -48,7 +48,7 @@ function meter(icon, label, value, cls, low) {
     "<b>" + Math.round(value) + "</b>" + bar(value, cls, low) + "</div>";
 }
 
-function hudHtml(G) {
+function hudHtml(G, ui) {
   const s = G.state;
   const pending = s.papers.filter(function (p) { return p.status === "under_review" || p.status === "revise_resubmit"; }).length;
   return '<header class="ps-hud">' +
@@ -62,6 +62,7 @@ function hudHtml(G) {
     '<span title="' + esc(t("Citations")) + '">✦ <b>' + totalCitations(G) + "</b></span></div>" +
     '<div class="ps-hud-btns"><button class="ps-icon-btn" data-action="achievements" title="' + esc(t("Achievements")) + '" aria-label="' + esc(t("Achievements")) + '">\u{1F3C6}</button>' +
     '<button class="ps-icon-btn" data-action="leave" title="' + esc(t("Leave the PhD")) + '" aria-label="' + esc(t("Leave the PhD")) + '">\u{1F6AA}</button>' +
+    (ui && !ui.standalone ? fullButtonHtml(ui.full) : "") +
     '<button class="ps-icon-btn" data-action="title" title="' + esc(t("Menu")) + '" aria-label="' + esc(t("Menu")) + '">☰</button></div>' +
     "</header>";
 }
@@ -352,6 +353,6 @@ export function gameHtml(G, ui, promptInner, promptCls) {
   if (promptInner) scene = ui.plan ? planHtml(G, ui) : "";
   else if (ui.inspect && G.state.projects.some(function (p) { return p.id === ui.inspect && p.status === "active"; })) scene = inspectHtml(G, G.state.projects.find(function (p) { return p.id === ui.inspect; }));
   else scene = ui.plan ? planHtml(G, ui) : "";
-  return '<div class="ps-game">' + hudHtml(G) + bandHtml(G, ui) + '<main class="ps-scene"' + (promptInner ? ' aria-hidden="true"' : "") + ">" + scene + "</main>" + tipShelfHtml(G) +
+  return '<div class="ps-game">' + hudHtml(G, ui) + bandHtml(G, ui) + '<main class="ps-scene"' + (promptInner ? ' aria-hidden="true"' : "") + ">" + scene + "</main>" + tipShelfHtml(G) +
     (promptInner ? popupHtml(G, ui, promptInner, promptCls) : ui.panel === "ach" ? achievementsHtml(G) : "") + "</div>";
 }
