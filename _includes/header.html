@@ -74,7 +74,13 @@
               {%- if child.permalink and child.permalink == page.permalink -%}{%- assign dropdown_current = true -%}{%- endif -%}
               {%- endfor %}
               <li class="nav-item dropdown {% if dropdown_current %}active{% endif %}">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown{{ forloop.index }}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ p.title }}
+                {%- comment -%}
+                  A dropdown page that has its own permalink links to it: the label
+                  navigates, and the menu opens on hover (or keyboard focus) via CSS
+                  rather than Bootstrap's click toggle. Without a permalink it keeps
+                  the original click-to-open behaviour.
+                {%- endcomment -%}
+                <a class="nav-link dropdown-toggle" href="{% if p.permalink %}{{ p.permalink | relative_url }}{% else %}#{% endif %}" id="navbarDropdown{{ forloop.index }}" {% unless p.permalink %}role="button" data-toggle="dropdown"{% endunless %} aria-haspopup="true" aria-expanded="false">{{ p.title }}
                   {%- if dropdown_current -%}
                   <span class="sr-only">(current)</span>
                   {%- endif -%}

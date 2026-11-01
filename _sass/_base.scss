@@ -2315,6 +2315,100 @@ h4 {
 }
 
 /*******************************************************************************
+ * Playground — the landing page listing things built for fun, and the navbar
+ * behaviour that lets its tab both link to that page and open a menu.
+ ******************************************************************************/
+
+.playground-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.75rem;
+}
+
+.playground-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--global-divider-color);
+  border-radius: 10px;
+  color: var(--global-text-color);
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease-in-out,
+    transform 0.1s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+
+  &:hover {
+    border-color: var(--phd101-accent);
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+  }
+}
+
+.playground-card-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid var(--global-divider-color);
+}
+
+.playground-card-body {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.15rem 1.15rem;
+}
+
+.playground-card-title {
+  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-weight: 600;
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+.playground-card-text {
+  margin-top: 0.4rem;
+  color: var(--global-text-color);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.playground-card-cta {
+  margin-top: 0.8rem;
+  color: var(--phd101-accent);
+  font-family: "Lato", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* ─── Linkable dropdown tabs ───────────────────────────────────────────
+ * The parent label is a real link (see _includes/header.html), so the menu
+ * cannot rely on Bootstrap's click toggle. On a wide viewport it opens on
+ * hover, and on keyboard focus so it is reachable without a mouse. */
+@media (min-width: 992px) {
+  .navbar-nav .nav-item.dropdown:hover > .dropdown-menu,
+  .navbar-nav .nav-item.dropdown:focus-within > .dropdown-menu {
+    display: block;
+    margin-top: 0;      /* no gap for the pointer to fall through */
+  }
+}
+
+/* Collapsed navbar: no hover exists, so the children sit under the parent as
+ * indented links rather than behind a toggle the reader cannot open. */
+@media (max-width: 991px) {
+  .navbar-nav .nav-item.dropdown > .dropdown-menu {
+    display: block;
+    position: static;
+    float: none;
+    padding: 0;
+    margin: 0 0 0 1rem;
+    background: transparent;
+    border: 0;
+  }
+}
+
+/*******************************************************************************
  * "Share your thoughts with me!" — a tab pinned to the right margin on the
  * PhD 101 landing page and every episode, opening a message dialog.
  *
