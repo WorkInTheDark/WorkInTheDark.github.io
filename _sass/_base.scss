@@ -2395,16 +2395,41 @@ h4 {
 }
 
 /* Collapsed navbar: no hover exists, so the children sit under the parent as
- * indented links rather than behind a toggle the reader cannot open. */
-@media (max-width: 991px) {
+ * indented links rather than behind a toggle the reader cannot open.
+ *
+ * `position` needs !important: MDB ships `.navbar .dropdown-menu { position:
+ * absolute !important }`, which would lift the children out of the flow and
+ * float them over the tabs underneath. `text-align` has to be reset too,
+ * because Bootstrap hard-codes `text-align: left` on `.dropdown-menu` and the
+ * collapsed menu is right-aligned. */
+@media (max-width: 991.98px) {   /* Bootstrap's own navbar-expand-lg breakpoint */
   .navbar-nav .nav-item.dropdown > .dropdown-menu {
     display: block;
-    position: static;
+    position: static !important;
     float: none;
+    min-width: 0;
+    width: auto;
     padding: 0;
-    margin: 0 0 0 1rem;
+    margin: 0 1rem 0 0;   /* stepped in from the right edge the tabs align to */
+    text-align: inherit;
     background: transparent;
     border: 0;
+    box-shadow: none;
+  }
+
+  /* Lighter and smaller than the top-level tabs, so the nesting is legible
+   * without a caret or an indent to the left. */
+  .navbar-nav .nav-item.dropdown > .dropdown-menu > .dropdown-item {
+    padding: 0.4rem 0;   /* ~36px tall: a comfortable thumb target, still shorter than a tab */
+    font-size: 0.85rem;
+    font-weight: 400;
+    background: transparent;
+  }
+
+  /* The label is a plain link here, and the children are already showing, so
+   * the caret would promise a toggle that does not exist. */
+  .navbar-nav .nav-item.dropdown > .nav-link.dropdown-toggle::after {
+    display: none;
   }
 }
 
