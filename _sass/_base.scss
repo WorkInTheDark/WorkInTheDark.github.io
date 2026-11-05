@@ -762,6 +762,32 @@ footer.sticky-bottom {
   font-size: 0.9rem;
 }
 
+/* Contact links above the copyright line, so they are the last thing on
+ * every page rather than the theme credit. */
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  list-style: none;
+
+  li {
+    font-family: "Lato", sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  a {
+    color: var(--phd101-accent);
+    font-weight: 700;
+
+    &:hover {
+      color: var(--phd101-accent);
+    }
+  }
+}
+
 // CV
 
 .cv {
@@ -1443,62 +1469,614 @@ nav[data-toggle="toc"] {
 }
 
 /*******************************************************************************
- * Recruiting / announcement banner on the About page.
- * Driven by `recruiting:` front matter in _pages/about.md.
+ * Homepage (_layouts/about.html): the vision banner, profile, PhD 101 band,
+ * research list (_includes/home_research.html), and news beside Playground.
+ *
+ * Accents use the --phd101-accent* tokens from _themes.scss. Despite the name
+ * they are the site accent, with dark-mode values already checked for contrast.
  ******************************************************************************/
 
-.recruiting-banner {
-  display: block;
-  margin: 1.25rem 0 1.75rem;
-  padding: 1rem 1.25rem 0.9rem;
-  background: rgba($arthur-blue, 0.06);
-  border-left: 4px solid $arthur-blue;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+/* A tinted band that runs to the window edges. The spread shadow paints past
+ * the container and clip-path trims it back to the band's own height, so the
+ * band goes full width without widening the page (100vw would add a
+ * horizontal scrollbar wherever scrollbars take up space). */
+@mixin home-band {
+  background: var(--home-band-bg);
+  box-shadow: 0 0 0 100vmax var(--home-band-bg);
+  clip-path: inset(0 -100vmax);
+}
 
-  .recruiting-banner-label {
-    display: inline-block;
-    margin-bottom: 0.55rem;
-    padding: 0.18rem 0.65rem;
-    background: $arthur-blue;
-    color: #ffffff;
-    font-family: "Lato", sans-serif;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    border-radius: 999px;
-    line-height: 1.4;
+.home-section-title {
+  margin: 0 0 1rem;
+  font-family: "Lato", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+
+  a {
+    color: inherit;
+
+    &:hover {
+      color: var(--phd101-accent);
+      text-decoration: none;
+    }
+  }
+}
+
+/* "All news →", "All of Playground →" */
+.home-more {
+  display: inline-block;
+  margin-top: 0.9rem;
+  color: var(--phd101-accent);
+  font-family: "Lato", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  &:hover {
+    color: var(--phd101-accent);
+  }
+}
+
+.home-banner {
+  @include home-band;
+  margin-top: -3rem;   /* meet the navbar: cancels the container's mt-5 */
+  padding: 2.75rem 0;
+  text-align: center;
+
+  p {
+    max-width: 44rem;
+    margin: 0 auto;
+    font-size: 1.55rem;
+    line-height: 1.45;
+  }
+}
+
+.home-profile {
+  display: flex;
+  align-items: flex-start;
+  gap: 2.25rem;
+  margin-top: 2.75rem;
+}
+
+.home-profile-photo {
+  flex: none;
+  width: 11rem;
+
+  figure {
+    margin: 0;
   }
 
-  .recruiting-banner-body {
-    color: var(--global-text-color);
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.home-profile-body {
+  flex: 1;
+  min-width: 0;
+  max-width: 42rem;   /* keeps the introduction near 75 characters a line */
+}
+
+.home-name {
+  margin: 0;
+  font-size: 2.4rem;
+  line-height: 1.15;
+}
+
+.home-role {
+  margin: 0.4rem 0 0;
+  color: var(--home-meta-color);
+  font-family: "Lato", sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.home-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    font-family: "Lato", sans-serif;
     font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  a {
+    color: var(--phd101-accent);
+    font-weight: 700;
+
+    &:hover {
+      color: var(--phd101-accent);
+    }
+  }
+
+  i {
+    margin-right: 0.35rem;
+  }
+}
+
+.home-intro {
+  margin-top: 1.15rem;
+
+  p {
+    margin: 0 0 0.75rem;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.home-background {
+  margin: 0.6rem 0 0;
+  color: var(--home-meta-color);
+  font-size: 0.92rem;
+  line-height: 1.6;
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+/* The recruiting note sits under the introduction on its own tint, so it reads
+ * as an invitation rather than one more paragraph. */
+.recruiting-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  margin-top: 1.35rem;
+  padding: 0.9rem 1.15rem;
+  background: var(--phd101-accent-tint);
+  border-radius: 8px;
+
+  > i {
+    margin-top: 0.3rem;
+    color: var(--phd101-accent);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.97rem;
     line-height: 1.55;
+  }
+
+  strong {
+    color: var(--home-accent-on-tint);
+    font-weight: 700;
+  }
+
+  a {
+    color: var(--home-accent-on-tint);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+/* PhD 101 band: the whole band is one link to the series. */
+.home-phd101 {
+  @include home-band;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 3rem;
+  padding: 1.6rem 0;
+  color: var(--global-text-color);
+
+  &:hover {
+    color: var(--global-text-color);
+    text-decoration: none;
+
+    .home-phd101-go {
+      text-decoration: underline;
+    }
+  }
+
+  /* The theme's global `span` rule would otherwise reset these to light
+   * Lato in the body colour. */
+  span {
+    color: inherit;
+    font-weight: inherit;
+  }
+}
+
+.home-phd101-icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 10px;
+  background: var(--global-bg-color);
+  border: 1px solid var(--global-divider-color);
+  color: var(--phd101-accent) !important;
+  font-size: 1.25rem;
+}
+
+.home-phd101-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.home-phd101-title {
+  font-family: "Lato", sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700 !important;
+  line-height: 1.3;
+}
+
+.home-phd101-text {
+  margin-top: 0.15rem;
+  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-size: 0.97rem;
+  line-height: 1.55;
+}
+
+.home-phd101-cta {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.home-phd101-go {
+  color: var(--phd101-accent) !important;
+  font-family: "Lato", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700 !important;
+}
+
+.home-phd101-meta {
+  margin-top: 0.15rem;
+  color: var(--home-meta-color) !important;
+  font-family: "Lato", sans-serif;
+  font-size: 0.82rem;
+}
+
+/* Research: domain and topic filters above a list that scrolls in place. */
+.home-research {
+  margin-top: 3rem;
+}
+
+.research-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.research-filters[hidden] {
+  display: none;
+}
+
+.research-filter-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.research-filter-label {
+  flex: none;
+  width: 4rem;
+  padding-top: 0.4rem;
+  color: var(--home-meta-color);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* First level: a segmented control, so it reads as a switch rather than as
+ * more of the topic chips below it. */
+.research-domains {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--global-divider-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.research-domain {
+  padding: 0.4rem 1rem;
+  background: transparent;
+  border: 0;
+  color: var(--home-meta-color);
+  font-family: "Lato", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+
+  & + & {
+    border-left: 1px solid var(--global-divider-color);
+  }
+
+  &:hover {
+    color: var(--phd101-accent);
+  }
+
+  &.is-active {
+    background: var(--phd101-accent-tint);
+    color: var(--home-accent-on-tint);
+  }
+}
+
+.research-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Second level: same chip as the PhD 101 chapter filters. */
+.research-topic {
+  padding: 0.25rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--global-divider-color);
+  border-radius: 999px;
+  color: var(--home-meta-color);
+  font-family: "Lato", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    color 0.15s ease-in-out;
+
+  &:hover {
+    border-color: var(--phd101-accent);
+    color: var(--phd101-accent);
+  }
+
+  &.is-active {
+    background: var(--phd101-accent-tint);
+    border-color: var(--phd101-accent-edge-strong);
+    color: var(--home-accent-on-tint);
+  }
+}
+
+.research-topic[hidden] {
+  display: none;
+}
+
+.research-domain,
+.research-topic {
+  &:focus-visible {
+    outline: 2px solid var(--phd101-accent);
+    outline-offset: 2px;
+  }
+}
+
+.research-n {
+  margin-left: 0.35rem;
+  color: inherit;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.research-count {
+  margin: 1.1rem 0 0;
+  padding-bottom: 0.5rem;
+  color: var(--home-meta-color);
+  font-family: "Lato", sans-serif;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--global-divider-color);
+}
+
+.research-list {
+  max-height: 28rem;
+  margin: 0;
+  padding: 0 0.75rem 0 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  border-bottom: 1px solid var(--global-divider-color);
+
+  &:focus-visible {
+    outline: 2px solid var(--phd101-accent);
+    outline-offset: 2px;
+  }
+}
+
+.research-paper {
+  display: flex;
+  gap: 1.25rem;
+  padding: 0.7rem 0;
+  line-height: 1.45;
+
+  & + & {
+    border-top: 1px solid var(--global-divider-color);
+  }
+
+  /* Undo the theme's global `span` colour and weight inside each row. */
+  span {
+    color: inherit;
+    font-weight: inherit;
+  }
+}
+
+.research-paper[hidden] {
+  display: none;
+}
+
+.research-venue {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  width: 8.5rem;
+  padding-top: 0.1rem;
+  color: var(--home-meta-color) !important;
+  font-family: "Lato", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700 !important;
+}
+
+.research-domain-names {
+  color: inherit !important;
+  font-weight: 400 !important;
+}
+
+.research-domain-name + .research-domain-name::before,
+.research-tag + .research-tag::before {
+  content: " · ";
+}
+
+.research-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.research-title {
+  color: var(--global-text-color) !important;
+  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-size: 0.98rem;
+  font-weight: 400 !important;
+  line-height: 1.45;
+}
+
+/* Linked titles stay in the text colour so a long list does not turn into a
+ * wall of blue; the underline marks them as links. */
+a.research-title {
+  align-self: flex-start;
+  text-decoration: underline;
+  text-decoration-color: var(--phd101-accent-edge-strong);
+  text-underline-offset: 3px;
+
+  &:hover {
+    color: var(--phd101-accent) !important;
+    text-decoration-color: var(--phd101-accent);
+  }
+}
+
+.research-tags {
+  margin-top: 0.2rem;
+  color: var(--home-meta-color) !important;
+  font-family: "Lato", sans-serif;
+  font-size: 0.8rem;
+}
+
+.research-tag {
+  color: inherit !important;
+
+  &.is-match {
+    color: var(--phd101-accent) !important;
+    font-weight: 700 !important;
+  }
+}
+
+/* News beside Playground, equal width. */
+.home-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2.75rem;
+  margin-top: 3rem;
+}
+
+.home-playground .playground-card {
+  max-width: 26rem;
+}
+
+@media (max-width: 767.98px) {
+  .home-split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+
+  .home-phd101 {
+    flex-wrap: wrap;
+  }
+
+  .home-phd101-cta {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.75rem;
+    width: 100%;
+    padding-left: 4.25rem;   /* line up under the title, past the icon */
+    text-align: left;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .home-banner {
+    padding: 2rem 0;
 
     p {
-      margin: 0;
+      font-size: 1.25rem;
     }
-    p + p {
-      margin-top: 0.5rem;
-    }
+  }
 
-    a {
-      color: $arthur-blue;
-      font-weight: 600;
-      text-decoration: none;
-      border-bottom: 1px solid rgba($arthur-blue, 0.3);
-      transition: border-color 0.15s ease-in-out;
+  .home-profile {
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
 
-      &:hover {
-        border-bottom-color: $arthur-blue;
-        text-decoration: none;
-      }
-    }
+  .home-profile-photo {
+    width: 8.5rem;
+  }
 
-    strong, b {
-      font-weight: 700;
+  .home-name {
+    font-size: 2rem;
+  }
+
+  .research-filter-row {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .research-filter-label {
+    width: auto;
+    padding-top: 0;
+  }
+
+  .research-domain {
+    padding: 0.4rem 0.75rem;
+  }
+
+  /* One sideways-scrolling row of topics instead of eight wrapped ones. The
+   * negative margins let the row run to the screen edges. */
+  .research-topics {
+    flex-wrap: nowrap;
+    align-self: stretch;   /* otherwise the nowrap row sizes to all its chips */
+    margin: 0 -15px;
+    padding: 0 15px 0.35rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
     }
+  }
+
+  .research-topic {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  .research-list {
+    max-height: 65vh;
+  }
+
+  .research-paper {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .research-venue {
+    flex-direction: row;
+    gap: 0.5rem;
+    width: auto;
   }
 }
 
@@ -1512,171 +2090,54 @@ h4 {
 }
 
 /*******************************************************************************
- * Thrust list — paper-led project list with tag pills inside research thrusts.
+ * News — the homepage column (limit=true) and the full /news/ page, both from
+ * _includes/news.html.
  ******************************************************************************/
 
-.thrust-list {
+.news-list {
+  margin: 0;
+  padding: 0;
   list-style: none;
-  padding-left: 0;
-  margin: 0.75rem 0 1.25rem;
-
-  li {
-    margin-bottom: 0.55rem;
-    line-height: 1.5;
-  }
-
-  /* Paper / system title (the markdown link). Same weight/size/family as body
-   * text — the underline + accent color carry the "this is a link" signal. */
-  li > a {
-    text-decoration: none;
-    border-bottom: 1px solid rgba($arthur-blue, 0.3);
-
-    &:hover {
-      border-bottom-color: $arthur-blue;
-      text-decoration: none;
-    }
-  }
-
-  /* Venue marker `(CHI '26)`. Kept as <em> for semantic meaning, but rendered
-   * as plain regular body text — not italic, not grey, not smaller. */
-  li em {
-    color: var(--global-text-color);
-    font-style: normal;
-    font-size: inherit;
-    margin: 0;
-  }
 }
 
-/* Short italic description after a paper title (em-dash separated). Uses the
- * primary text color at reduced opacity so it stays clearly readable while still
- * reading as secondary content. Adapts to dark mode automatically. */
-.thrust-desc {
-  font-family: "Lato", sans-serif;
-  // font-family: "IBM Plex Serif", "Source Serif 4", Georgia, serif;
-  color: var(--global-text-color);
-  opacity: 0.8;
-  // font-style: italic;
-}
-
-/* Base tag pill — neutral fallback if data-tag is missing. Currently unused on
- * the rendered page (descriptions replaced inline pills), but kept in case we
- * want to reintroduce per-row tags later. */
-.thrust-tag {
-  display: inline-block;
-  margin: 0 0.18rem 0.18rem 0;
-  padding: 0.06rem 0.55rem;
-  background: rgba(128, 128, 128, 0.13);
-  color: var(--global-text-color-light);
-  font-family: "Lato", sans-serif;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  border-radius: 999px;
-  vertical-align: 1px;
-  white-space: nowrap;
-  cursor: default;
-}
-
-/* Per-tag colors. Each tag carries `data-tag="<slug>"` so future JS can filter
- * by attribute selector (e.g., dim all pills NOT matching the clicked slug).
- * Backgrounds are semi-transparent so they read on light + dark backgrounds. */
-.thrust-tag[data-tag="rpm"]      { background: rgba(38, 152, 186, 0.16);  color: #1a6b80; }
-.thrust-tag[data-tag="postop"]   { background: rgba(0, 159, 6, 0.14);     color: #1f6e2a; }
-.thrust-tag[data-tag="decision"] { background: rgba(242, 145, 5, 0.18);   color: #a05d00; }
-.thrust-tag[data-tag="comm"]     { background: rgba(149, 9, 142, 0.13);   color: #7a0673; }
-.thrust-tag[data-tag="coord"]    { background: rgba(37, 105, 237, 0.15);  color: #1d52b8; }
-
-/*******************************************************************************
- * Filter bar — clickable filter buttons above a thrust-list.
- * Inactive state is uniformly greyed; the active button picks up the same
- * color family as its corresponding tag pill. JS toggles `.is-active`.
- ******************************************************************************/
-
-.filter-bar {
+.news-item {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0.85rem 0 1rem;
-}
+  gap: 1rem;
+  padding: 0.55rem 0;
+  line-height: 1.55;
 
-.filter-btn {
-  display: inline-block;
-  padding: 0.22rem 0.75rem;
-  background: rgba(128, 128, 128, 0.10);
-  color: var(--global-text-color-light);
-  font-family: "Lato", sans-serif;
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  border: 0;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-
-  &:hover:not(.is-active) {
-    background: rgba(128, 128, 128, 0.18);
-    color: var(--global-text-color);
+  & + & {
+    border-top: 1px solid var(--global-divider-color);
   }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba($arthur-blue, 0.25);
-  }
-}
-
-/* Active states — neutral dark for "All", tag-color match for everything else.
- * Active state uses higher alpha than the pill so the button reads as "selected." */
-.filter-btn.is-active[data-filter="all"]        { background: rgba(33, 37, 41, 0.85);   color: #fff; }
-
-/* Thrust I — clinical care */
-.filter-btn.is-active[data-filter="rpm"]        { background: rgba(38, 152, 186, 0.32); color: #134c5b; }
-.filter-btn.is-active[data-filter="postop"]     { background: rgba(0, 159, 6, 0.28);    color: #155020; }
-.filter-btn.is-active[data-filter="decision"]   { background: rgba(242, 145, 5, 0.36);  color: #7a4500; }
-.filter-btn.is-active[data-filter="comm"]       { background: rgba(149, 9, 142, 0.26);  color: #5d044f; }
-.filter-btn.is-active[data-filter="coord"]      { background: rgba(37, 105, 237, 0.30); color: #143e8c; }
-
-/* Thrust II — collaborative LLM agents */
-.filter-btn.is-active[data-filter="vision"]     { background: rgba(80, 70, 184, 0.30);  color: #2e2675; }
-.filter-btn.is-active[data-filter="evaluation"] { background: rgba(194, 24, 91, 0.28);  color: #6f0a30; }
-.filter-btn.is-active[data-filter="capability"] { background: rgba(46, 125, 50, 0.32);  color: #154018; }
-.filter-btn.is-active[data-filter="oversight"]  { background: rgba(193, 90, 11, 0.32);  color: #5a2900; }
-.filter-btn.is-active[data-filter="roleplay"]   { background: rgba(123, 31, 162, 0.28); color: #3d0660; }
-
-/*******************************************************************************
- * News section — used in news.html include and the /news/ page.
- ******************************************************************************/
-
-.news {
-  /* Slightly heavier body weight than default 300 so dense news items read
-   * comfortably in the table layout. Same family (IBM Plex Serif) as the rest
-   * of the body. */
-  td {
-    font-weight: 400;
-    line-height: 1.55;
-  }
-
-  /* Date column stays a touch lighter and uses Lato so dates align like metadata. */
-  th {
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    color: var(--global-text-color-light);
-  }
-
-  /* Link styling inside news content. To change the news link color, edit
-   * the $news-link-color value below. */
-  $news-link-color: $arthur-orange;
 
   a {
-    color: $news-link-color;
-    text-decoration: none;
-    border-bottom: 1px solid rgba($news-link-color, 0.25);
-    transition: border-color 0.15s ease-in-out;
+    color: var(--phd101-accent);
+    text-decoration: underline;
+    text-decoration-color: var(--phd101-accent-edge-strong);
+    text-underline-offset: 2px;
 
     &:hover {
-      border-bottom-color: $news-link-color;
-      text-decoration: none;
+      color: var(--phd101-accent);
+      text-decoration-color: var(--phd101-accent);
     }
   }
+}
+
+.news-date {
+  flex: none;
+  width: 4rem;
+  padding-top: 0.1rem;
+  color: var(--home-meta-color);
+  font-family: "Lato", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.news-text {
+  min-width: 0;
+  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-size: 0.97rem;
+  font-weight: 400 !important;
 }
 
 /*******************************************************************************

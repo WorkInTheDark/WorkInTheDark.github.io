@@ -183,7 +183,7 @@ phd_sim_board: "https://api.bingshengyao.com"
 announcements:
   enabled: true
   scrollable: false # adds a vertical scroll bar if there are more than 3 news items
-  limit: 10 # max news items shown on the about page; leave blank for all
+  limit: 4 # news items shown on the homepage; /news/ lists them all
 
 latest_posts:
   enabled: false

@@ -43,6 +43,15 @@
   --phd101-accent-edge-strong: #{rgba($arthur-blue, 0.45)};
   --phd101-accent-rule: #{rgba($arthur-blue, 0.35)};
 
+  /* Homepage bands (vision banner, PhD 101): a faint wash of the accent. */
+  --home-band-bg: #{mix($arthur-blue, $white-color, 4%)};
+  /* Secondary text on the homepage: venues, tags, dates. The theme's light
+   * grey is under 4:1 on white, so this one is darker in light mode. */
+  --home-meta-color: #6b6b6b;
+  /* Accent text sitting on --phd101-accent-tint: the plain accent drops to
+   * ~4.2:1 there, so text on the tint takes a darker blue. */
+  --home-accent-on-tint: #{darken($arthur-blue, 9%)};
+
   .fa-sun {
     display : none;
   }
@@ -141,6 +150,10 @@ html[data-theme='dark'] {
   --phd101-accent-edge: #{rgba(lighten($arthur-blue, 22%), 0.30)};
   --phd101-accent-edge-strong: #{rgba(lighten($arthur-blue, 22%), 0.55)};
   --phd101-accent-rule: #{rgba(lighten($arthur-blue, 22%), 0.40)};
+
+  --home-band-bg: #{mix($arthur-blue, $grey-color-dark, 9%)};
+  --home-meta-color: #{$custom-web01-grey};
+  --home-accent-on-tint: #{lighten($arthur-blue, 22%)};
 
   .fa-sun {
     padding-left: 10px;

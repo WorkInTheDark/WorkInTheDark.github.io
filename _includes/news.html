@@ -1,95 +1,29 @@
-    <div style="display: flex; width: 100%;">
-      <!-- News Section -->
-      <!-- <div class="news" style="width: 70%;"> -->
-              
-          <div class="news" style="width: 70%;">
-            <h2><a href="{{ '/news/' | relative_url }}" style="color: inherit;">News</a></h2>
-            {% if site.data.news != blank -%}
-            {%- assign news_size = site.data.news | size -%}
-            <div class="table-responsive" {% if include.limit and site.announcements.scrollable and news_size > 3 %}style="max-height: 60vw"{% endif %}>
-              <table class="table-dark table-sm table-borderless">
-              {% if include.limit and site.announcements.limit %}
-              {% assign news_limit = site.announcements.limit %}
-              {% else %}
-              {% assign news_limit = news_size %}
-              {% endif %}
-              {% for item in site.data.news limit: news_limit %}
-                <tr>
-                  <th scope="row" style="width:12%; text-align: left;">{{ item.date | date: "%Y.%m" }}</th>
-                  <td>{{ item.content | markdownify | remove: '<p>' | remove: '</p>' | emojify }}</td>
-                </tr>
-              {%- endfor %}
-              </table>
-            </div>
-          {%- else -%}
-            <p>No news so far...</p>
-          {%- endif %}
-          </div>
-
-      <!-- </div>   -->
-
-
-      <!-- <div class="news" style="width: 30%;"> -->
-              
-        <div class="news" style="width: 30%;">
-          <h2><a href="{{ '/news/' | relative_url }}" style="color: inherit;">Travels</a></h2>
-
-          <div class="table-responsive" {% if include.limit and site.announcements.scrollable > 3 %}style="max-height: 60vw"{% endif %}>
-            <table class="table-dark table-sm table-borderless">
-
-              <tr>
-                <th scope="row" style="width:12%; text-align: left;">{{ "2025" }}</th>
-                <td> <a class="news-title"> TBD. </a> </td>
-              </tr>
-              <!-- <tr>
-                <th scope="row" style="width:12%; text-align: left;">{{ "2025-4-30" | date: "%Y.%m.%d" }}</th>
-                <td> <a class="news-title"> Yokohama, JP <br> <span style="color:#EB7F00">CHI 2025</span> </a> </td>
-              </tr> -->
-<!--             
-            <tr>
-              <th scope="row" style="width:12%; text-align: left;">{{ "2024-11-12" | date: "%Y.%m.%d" }}</th>
-              <td> <a class="news-title"> Miami, FL <br> <span style="color:#6c7663">EMNLP 2024</span> </a> </td>
-            </tr>
-
-            <tr>
-              <th scope="row" style="width:12%; text-align: left;">{{ "2024-11-09" | date: "%Y.%m.%d" }}</th>
-              <td> <a class="news-title"> San José, Costa Rica <br> <span style="color:#6c7663">CSCW 2024</span> </a> </td>
-            </tr>
-
-            <tr></tr>
-              <th scope="row" style="width:12%; text-align: left;">{{ "2024-11-07" | date: "%Y.%m.%d" }}</th>
-              <td> <a class="news-title"> Arlington, VA <br> <span style="color:#6c7663">AAAI Fall Symposium</span> </a> </td>
-            </tr>
-
-            <tr>
-              <th scope="row" style="width:12%; text-align: left;">{{ "2024-05-11" | date: "%Y.%m.%d" }}</th>
-              <td> <a class="news-title"> Honolulu, HI <br> <span style="color:#6c7663">CHI 2024</span> </a> </td>
-            </tr>
-
-            <tr>
-              <th scope="row" style="width:12%; text-align: left;">{{ "2024-03-18" | date: "%Y.%m.%d" }}</th>
-              <td> <a class="news-title"> Boston, MA <br> <span style="color:#6c7663">AMIA Summit</span> </a> </td>
-            </tr>
-
-            <tr>
-              <th scope="row" style="width:12%; text-align: left;">{{ "2024-03-04" | date: "%Y.%m.%d" }}</th>
-              <td> <a class="news-title"> Los Angeles, CA <br> <span style="color:#6c7663">Visit USC</span> </a> </td>
-            </tr>
-
-            <tr>
-              <th scope="row" style="width:12%; text-align: left;">{{ "2024-01-20" | date: "%Y.%m.%d" }}</th>
-              <td> <a class="news-title"> Seattle, WA <br> <span style="color:#6c7663">Visit UW & Meta</span> </a> </td>
-            </tr> -->
-
-
-
-            </table>
-          </div>
-
-        </div>
-
-      <!-- </div>   -->
-
-
-
-    </div>
+{%- comment -%}
+  News from _data/news.yml. On the homepage (`limit=true`) it shows the newest
+  `site.announcements.limit` items and links to /news/, which lists them all.
+{%- endcomment -%}
+<section class="home-news" aria-labelledby="news-title">
+  {%- if include.limit %}
+  <h2 class="home-section-title" id="news-title"><a href="{{ '/news/' | relative_url }}">News</a></h2>
+  {%- endif %}
+  {%- if site.data.news != blank %}
+  {%- if include.limit and site.announcements.limit %}
+  {%- assign news_limit = site.announcements.limit %}
+  {%- else %}
+  {%- assign news_limit = site.data.news | size %}
+  {%- endif %}
+  <ol class="news-list">
+    {%- for item in site.data.news limit: news_limit %}
+    <li class="news-item">
+      <time class="news-date" datetime="{{ item.date | date: '%Y-%m' }}">{{ item.date | date: "%Y.%m" }}</time>
+      <span class="news-text">{{ item.content | markdownify | remove: '<p>' | remove: '</p>' | strip | emojify }}</span>
+    </li>
+    {%- endfor %}
+  </ol>
+  {%- if include.limit %}
+  <a class="home-more" href="{{ '/news/' | relative_url }}">All news &rarr;</a>
+  {%- endif %}
+  {%- else %}
+  <p>No news so far.</p>
+  {%- endif %}
+</section>

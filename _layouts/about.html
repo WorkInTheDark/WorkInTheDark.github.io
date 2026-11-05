@@ -3,99 +3,99 @@ layout: default
 ---
 
 <!-- about.html -->
-      <div class="post">
-        <header class="post-header">
-          <h1 class="post-title">
-            <!-- {% if site.title == "blank" -%}<span class="font-weight-bold">{{ site.first_name }}</span> {{ site.middle_name }} {{ site.last_name }}{%- else -%}{{ site.title }}{%- endif %} -->
-            <!-- {% if site.title == "blank" -%} {{ site.first_name }} {{ site.middle_name }} {{ site.last_name }}{%- else -%}{{ site.title }}{%- endif %} -->
-            <!-- {% if site.title == "blank" -%} {{ site.first_name }} {{ site.middle_name }} <span class="font-weight-bold" style="color: #0096FF">{{ site.last_name }}</span>{%- else -%}{{ site.title }}{%- endif %} -->
-            {% if site.title == "blank" -%} {{ site.first_name }} {{ site.middle_name }} <span class="last-name">{{ site.last_name }}</span>{%- else -%}{{ site.title }}{%- endif %}
-          
-          </h1>
-          <p class="desc">{{ page.subtitle }}</p>
-        </header>
+<div class="post home">
 
-        {% if page.recruiting and page.recruiting.enabled %}
-          <aside class="recruiting-banner" role="note" aria-label="{{ page.recruiting.label | default: 'Announcement' }}">
-            <span class="recruiting-banner-label">{{ page.recruiting.label | default: 'Announcement' }}</span>
-            <div class="recruiting-banner-body">
-              {{ page.recruiting.body | markdownify }}
-            </div>
-          </aside>
-        {% endif %}
+  {%- if page.banner %}
+  <section class="home-banner" aria-label="Research vision">
+    <p>{{ page.banner }}</p>
+  </section>
+  {%- endif %}
 
-        <article>
-          {% if page.profile -%}
-          <div class="profile float-{%- if page.profile.align == 'left' -%}left{%- else -%}right{%- endif -%}">
-            {%- if page.profile.image %}
-              {%- assign profile_image_path = page.profile.image | prepend: 'assets/img/' -%}
+  <section class="home-profile">
+    {%- if page.profile.image %}
+    {%- assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
+    <div class="home-profile-photo">
+      {% include figure.html
+      path=profile_image_path
+      class="img-fluid rounded-circle"
+      alt="Portrait of Bingsheng Arthur Yao"
+      cache_bust=true -%}
+    </div>
+    {%- endif %}
 
-              {% if page.profile.image_circular %}
-                {%- assign profile_image_class = "img-fluid z-depth-1 rounded-circle" -%}
-              {% else %}
-                {%- assign profile_image_class = "img-fluid z-depth-1 rounded" -%}
-              {% endif %}
+    <div class="home-profile-body">
+      <h1 class="post-title home-name">{{ site.first_name }} {{ site.middle_name }} <span class="last-name">{{ site.last_name }}</span></h1>
+      <p class="home-role">{{ page.subtitle }}</p>
 
-              {% include figure.html
-              path=profile_image_path
-              class=profile_image_class
-              alt=page.profile.image
-              cache_bust=true -%}
-            {% endif -%}
-            {%- if page.profile.address %}
-            <div class="address">
-              {{ page.profile.address }}
-            </div>
-            {%- endif %}
-          </div>
-          {%- endif %}
+      <ul class="home-links">
+        {%- if site.email %}
+        <li><a href="mailto:{{ site.email | encode_email }}"><i class="fas fa-envelope" aria-hidden="true"></i>Email</a></li>
+        {%- endif %}
+        {%- if site.scholar_userid %}
+        <li><a href="https://scholar.google.com/citations?user={{ site.scholar_userid }}"><i class="ai ai-google-scholar" aria-hidden="true"></i>Google Scholar</a></li>
+        {%- endif %}
+        <li><a href="{{ '/cv/' | relative_url }}"><i class="fas fa-file-lines" aria-hidden="true"></i>CV</a></li>
+        {%- if site.github_username %}
+        <li><a href="https://github.com/{{ site.github_username }}"><i class="fab fa-github" aria-hidden="true"></i>GitHub</a></li>
+        {%- endif %}
+        {%- if site.twitter_username %}
+        <li><a href="https://twitter.com/{{ site.twitter_username }}"><i class="fab fa-twitter" aria-hidden="true"></i>Twitter</a></li>
+        {%- endif %}
+      </ul>
 
-          <div class="clearfix">
-            {{ content }}
-          </div>
+      <div class="home-intro">
+        {{ content }}
+      </div>
 
-          <!-- News -->
-          {% if page.news and site.announcements.enabled -%}
-            
-            {%- include news.html limit=true %}
-            
-          {%- endif %}
+      {%- if page.background %}
+      <p class="home-background">{{ page.background | markdownify | remove: '<p>' | remove: '</p>' | strip }}</p>
+      {%- endif %}
 
-          <!-- Latest posts -->
-          {% if page.latest_posts -%}
-            <h2><a href="{{ '/blog/' | relative_url }}" style="color: inherit;">Latest Posts</a></h2>
-            {%- include latest_posts.html %}
-            
-          {%- endif %}
+      {%- if page.recruiting and page.recruiting.enabled %}
+      <aside class="recruiting-note" aria-label="{{ page.recruiting.label | default: 'Announcement' }}">
+        <i class="fas fa-user-plus" aria-hidden="true"></i>
+        <p><strong>{{ page.recruiting.label | default: 'Announcement' }}.</strong> {{ page.recruiting.body | markdownify | remove: '<p>' | remove: '</p>' | strip }}</p>
+      </aside>
+      {%- endif %}
+    </div>
+  </section>
 
+  {%- assign phd101_episodes = site.phd101 | size %}
+  {%- if phd101_episodes > 0 %}
+  {%- assign phd101_chapters = site.phd101 | group_by: "chapter" | size %}
+  <a class="home-phd101" href="{{ '/phd101/' | relative_url }}">
+    <span class="home-phd101-icon" aria-hidden="true"><i class="fas fa-book-open"></i></span>
+    <span class="home-phd101-body">
+      <span class="home-phd101-title">PhD 101</span>
+      <span class="home-phd101-text">{{ page.phd101_intro }}</span>
+    </span>
+    <span class="home-phd101-cta">
+      <span class="home-phd101-go">Start reading &rarr;</span>
+      <span class="home-phd101-meta">{{ phd101_chapters }} chapters, {{ phd101_episodes }} episodes</span>
+    </span>
+  </a>
+  {%- endif %}
 
-          {% if page.second_content %}
-          <hr><div class="clearfix">
-              {{ page.second_content | markdownify }}
-          </div>
-          {% endif %}
+  {% include home_research.html %}
 
-          <!-- Selected papers -->
-          <!-- {% if page.selected_papers -%}
-            <br>
-            <h2><a href="{{ '/publications/' | relative_url }}" style="color: inherit;">Publications</a></h2>
-            {%- include selected_papers.html %}
-          {%- endif %} -->
+  <div class="home-split">
+    {%- if page.news and site.announcements.enabled %}
+    {% include news.html limit=true %}
+    {%- endif %}
 
-
-          <!-- Social -->
-          {%- if page.social %}
-            <div class="social">
-              <div class="contact-icons">
-                {% include social.html %}
-              </div>
-
-              <div class="contact-note">
-                {{ site.contact_note }}
-              </div>
-
-            </div>
-          {%- endif %}
-        </article>
+    <section class="home-playground" aria-labelledby="home-playground-title">
+      <h2 class="home-section-title" id="home-playground-title"><a href="{{ '/playground/' | relative_url }}">Playground</a></h2>
+      <a class="playground-card" href="{{ '/phd-simulator/' | relative_url }}">
+        <img class="playground-card-image" src="{{ '/assets/phd-sim/og.jpg' | relative_url }}"
+             alt="PhD Simulator" loading="lazy" width="1200" height="630">
+        <span class="playground-card-body">
+          <span class="playground-card-title">PhD Simulator</span>
+          <span class="playground-card-text">Five years, give or take. A game about doing a PhD in NLP and HCI, built from real stories.</span>
+          <span class="playground-card-cta">Play &rarr;</span>
+        </span>
+      </a>
+      <a class="home-more" href="{{ '/playground/' | relative_url }}">All of Playground &rarr;</a>
+    </section>
+  </div>
 
 </div>

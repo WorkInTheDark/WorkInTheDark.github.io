@@ -1,0 +1,124 @@
+{%- comment -%}
+  Homepage research list. Papers, domains and topics live in _data/research.yml.
+  Two rows of filters (domain, then topic) narrow a list that scrolls in place.
+  Without JavaScript the filters stay hidden and the full list still scrolls.
+{%- endcomment -%}
+{%- assign research = site.data.research -%}
+{%- if research and research.papers.size > 0 %}
+{%- assign papers = research.papers %}
+<section class="home-research" id="research" aria-labelledby="research-title">
+  <h2 class="home-section-title" id="research-title">Research</h2>
+
+  <div class="research-filters" hidden>
+    <div class="research-filter-row">
+      <span class="research-filter-label" id="research-domain-label">Domain</span>
+      <div class="research-domains" role="group" aria-labelledby="research-domain-label">
+        <button type="button" class="research-domain is-active" data-domain="all" aria-pressed="true">All<span class="research-n">{{ papers.size }}</span></button>
+        {%- for d in research.domains %}
+        {%- assign n = papers | where_exp: "p", "p.domains contains d.key" | size %}
+        <button type="button" class="research-domain" data-domain="{{ d.key }}" aria-pressed="false">{{ d.label }}<span class="research-n">{{ n }}</span></button>
+        {%- endfor %}
+      </div>
+    </div>
+    <div class="research-filter-row">
+      <span class="research-filter-label" id="research-topic-label">Topic</span>
+      <div class="research-topics" role="group" aria-labelledby="research-topic-label">
+        <button type="button" class="research-topic is-active" data-topic="all" aria-pressed="true">All Topics<span class="research-n">{{ papers.size }}</span></button>
+        {%- for t in research.topics %}
+        {%- assign n = papers | where_exp: "p", "p.topics contains t.key" | size %}
+        <button type="button" class="research-topic" data-topic="{{ t.key }}" aria-pressed="false">{{ t.label }}<span class="research-n">{{ n }}</span></button>
+        {%- endfor %}
+      </div>
+    </div>
+  </div>
+
+  <p class="research-count" aria-live="polite">{{ papers.size }} papers, newest first</p>
+  <ol class="research-list" tabindex="0" aria-labelledby="research-title">
+    {%- for p in papers %}
+    <li class="research-paper" data-domains="{{ p.domains | join: ' ' }}" data-topics="{{ p.topics | join: ' ' }}">
+      <span class="research-venue">{{ p.venue }}<span class="research-domain-names">
+        {%- for d in research.domains %}{% if p.domains contains d.key %}<span class="research-domain-name">{{ d.label }}</span>{% endif %}{% endfor -%}
+      </span></span>
+      <span class="research-body">
+        {%- if p.url %}
+        <a class="research-title" href="{{ p.url }}">{{ p.title }}</a>
+        {%- else %}
+        <span class="research-title">{{ p.title }}</span>
+        {%- endif %}
+        <span class="research-tags">
+          {%- for t in research.topics %}{% if p.topics contains t.key %}<span class="research-tag" data-topic="{{ t.key }}">{{ t.label }}</span>{% endif %}{% endfor -%}
+        </span>
+      </span>
+    </li>
+    {%- endfor %}
+  </ol>
+</section>
+
+<script>
+(function () {
+  var root = document.getElementById('research');
+  if (!root) return;
+  var filters = root.querySelector('.research-filters');
+  var list = root.querySelector('.research-list');
+  var countEl = root.querySelector('.research-count');
+  var papers = Array.prototype.slice.call(root.querySelectorAll('.research-paper'));
+  var domainButtons = Array.prototype.slice.call(root.querySelectorAll('.research-domain'));
+  var topicButtons = Array.prototype.slice.call(root.querySelectorAll('.research-topic'));
+  var domain = 'all';
+  var topic = 'all';
+
+  // data-domains and data-topics hold space-separated keys.
+  function has(el, attr, key) {
+    return key === 'all' || (' ' + el.getAttribute(attr) + ' ').indexOf(' ' + key + ' ') !== -1;
+  }
+
+  function press(buttons, attr, key) {
+    buttons.forEach(function (b) {
+      var on = b.getAttribute(attr) === key;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+
+  function update() {
+    var pool = papers.filter(function (p) { return has(p, 'data-domains', domain); });
+
+    // Topic counts follow the chosen domain; topics with nothing in it step aside.
+    topicButtons.forEach(function (b) {
+      var key = b.getAttribute('data-topic');
+      var n = pool.filter(function (p) { return has(p, 'data-topics', key); }).length;
+      b.querySelector('.research-n').textContent = n;
+      b.hidden = n === 0;
+      if (b.hidden && key === topic) topic = 'all';
+    });
+
+    press(domainButtons, 'data-domain', domain);
+    press(topicButtons, 'data-topic', topic);
+
+    var shown = 0;
+    papers.forEach(function (p) {
+      var on = has(p, 'data-domains', domain) && has(p, 'data-topics', topic);
+      p.hidden = !on;
+      if (on) shown += 1;
+      Array.prototype.forEach.call(p.querySelectorAll('.research-tag'), function (tag) {
+        tag.classList.toggle('is-match', tag.getAttribute('data-topic') === topic);
+      });
+    });
+
+    countEl.textContent = shown + (shown === 1 ? ' paper' : ' papers') + ', newest first';
+    list.scrollTop = 0;
+  }
+
+  filters.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button');
+    if (!b) return;
+    if (b.hasAttribute('data-domain')) domain = b.getAttribute('data-domain');
+    if (b.hasAttribute('data-topic')) topic = b.getAttribute('data-topic');
+    update();
+  });
+
+  filters.hidden = false;
+  update();
+})();
+</script>
+{%- endif %}

@@ -2,126 +2,27 @@
 layout: about
 title: About
 permalink: /
-subtitle: Associate Research Scientist at Northeastern University
+subtitle: Associate Research Scientist, Khoury College of Computer Sciences, Northeastern University
 
+# The centred band at the top of the page.
+banner: I study how humans and AI agents can collaborate effectively, and how their partnership can unlock new ways of thinking, working, and creating together.
+
+# The small grey line under the introduction.
+background: Previously a postdoctoral researcher with Prof. [Dakuo Wang](https://www.dakuowang.com/). PhD from Rensselaer Polytechnic Institute, advised by Prof. [Jim Hendler](https://www.cs.rpi.edu/~hendler/).
 
 profile:
-  align: right
   image: profile-square.jpeg
-  image_circular: false # crops the image to make it circular
-  address: >
-    
-
-news: true  # includes a list of news items
-latest_posts: false  # includes a list of the newest posts
-selected_papers: false # includes a list of papers marked as "selected={true}"
-social: false  # includes social icons at the bottom of the page
 
 recruiting:
   enabled: true
   label: Recruiting
   body: >
-    I am actively seeking self-motivated research assistants. See the [Prospective Students](/prospective/) page for application form and FAQs.
+    I am actively seeking self-motivated research assistants. See the [Prospective Students](/prospective/) page for the application form and FAQs.
 
-second_content: |
-  
+# One line for the PhD 101 band; the chapter and episode counts are worked out.
+phd101_intro: A growing collection of short lessons, reflections, and practical notes I share with current and prospective PhD students.
+
+news: true  # News beside Playground; the item count is announcements.limit in _config.yml
 ---
 
-I am an **associate research scientist** in the Khoury College of Computer Sciences at Northeastern University (PI: Prof. [Dakuo Wang](https://www.dakuowang.com/)). I received my PhD from Rensselaer Polytechnic Institute, advised by Prof. [Jim Hendler](https://www.cs.rpi.edu/~hendler/).
-
-I study **how LLM agents can genuinely collaborate with humans** through the lens of remote human collaboration. My research sits at the intersection of *Human-Computer Interaction* and *Natural Language Processing*, with a focus on **designing** the interaction patterns and methodologies for effective human-agent collaboration in practice, and on **developing** and **evaluating** LLM agents that can think and behave collaboratively.
-
-
-## Research
-
-
-#### I. Human-Centered AI for Clinical Care
-Healthcare workflows often break down at the seams between provider teams, patients, and caregivers. I **investigate gaps in stakeholders' communication and coordination** across different clinical scenarios, and **design, deploy, and study AI/LLM-powered multi-modal systems** that work in those gaps to support the people involved. My work spans clinical decision-making, patient-provider communication, provider coordination, remote patient monitoring, and post-surgical care.
-
-<div class="filter-bar" data-filter-target="thrust-clinical">
-  <button type="button" class="filter-btn is-active" data-filter="all">All</button>
-  <button type="button" class="filter-btn" data-filter="rpm">Remote Patient Monitoring</button>
-  <button type="button" class="filter-btn" data-filter="postop">Post-Surgical Care</button>
-  <button type="button" class="filter-btn" data-filter="decision">Clinical Decision Making</button>
-  <button type="button" class="filter-btn" data-filter="comm">Patient-Provider Communication</button>
-  <button type="button" class="filter-btn" data-filter="coord">Provider Coordination</button>
-</div>
-
-<ul id="thrust-clinical" class="thrust-list">
-  <li data-tags="rpm postop"> <em>(CSCW '26)</em> <a href="https://arxiv.org/abs/2502.05740">RECOVER: LLM-Based Remote Monitoring System for Post-Surgical Cancer Care</a> </li>
-  <li data-tags="decision comm"> <em>(CHI '26)</em> <a href="https://dl.acm.org/doi/full/10.1145/3772318.3791301">Providers' Perspectives for Serious Illness Conversations in the ED</a> </li>
-  <li data-tags="comm coord postop"> <em>(CHI '26)</em> <a href="https://dl.acm.org/doi/full/10.1145/3772318.3791960">Collaboration Breakdowns Between Provider Teams and Patietns in Post-Surgery Care</a> </li>
-  <li data-tags="rpm postop"> <em>(CHI '25)</em> <a href="https://dl.acm.org/doi/full/10.1145/3706598.3714272">CardioAI: Multi-Modal AI Remote Monitoring System for Cancer Treatment-Induced Cardiotoxicity</a></li>
-  <li data-tags="comm"> <em>(IMWUT '24)</em> <a href="https://dl.acm.org/doi/10.1145/3659625">Talk2Care: LLM-Based Conversational Assistant for Asynchronous Older Adults-Provider Communication</a></li>
-  <li data-tags="decision"> <em>(CHI '24)</em> <a href="https://dl.acm.org/doi/full/10.1145/3613904.3642343">AI-Assisted Clinical Decision Making for Sepsis Diagnosis</a></li>
-</ul>
-
-
-#### II. Genuine Human-Agent Collaboration
-I envision a near future where LLM agents can genuinely collaborate *with* us, not *for* us, like a remote human collaborator. To get there, I **design interaction patterns and study methodologies** for human-agent collaboration, and **develop and benchmark LLM agents** that can think and behave collaboratively. My work spans collaboration frameworks and design philosophy, trust and shared context in human-agent teams, evaluation methods for collaboration quality, agent oversight, and role-playing agents.
-
-<div class="filter-bar" data-filter-target="thrust-agents">
-  <button type="button" class="filter-btn is-active" data-filter="all">All</button>
-  <button type="button" class="filter-btn" data-filter="vision">Vision &amp; Framework</button>
-  <button type="button" class="filter-btn" data-filter="evaluation">Evaluation &amp; Benchmarking</button>
-  <button type="button" class="filter-btn" data-filter="capability">Agent Capability</button>
-  <button type="button" class="filter-btn" data-filter="oversight">Agent Oversight</button>
-  <button type="button" class="filter-btn" data-filter="roleplay">Role-Playing Agents</button>
-</div>
-
-<ul id="thrust-agents" class="thrust-list">
-  <li data-tags="vision evaluation"> <em>(CHI '26)</em> <a href="https://dl.acm.org/doi/full/10.1145/3772318.3790879">Configurable Research Platform for Controlled Human-Agent Collaboration Experiments</a> </li>
-  <li data-tags="oversight evaluation"> <em>(CHI '26)</em> <a href="https://dl.acm.org/doi/full/10.1145/3772318.3791568">LLM Agent Susceptibility to Manipulative Interfaces</a></li>
-  <li data-tags="vision"> <em>(CHI EA '26)</em> <a href="https://dl.acm.org/doi/full/10.1145/3772363.3778744">A vision, design philosophy, and empirical framework for Human-Agent Collaboration</a></li>
-  <li data-tags="evaluation capability">  <em>(CHI EA '26)</em> <a href="https://dl.acm.org/doi/full/10.1145/3772363.3799039">Agent A/B: Automated and Scalable A/B Testing Simulation</a></li>
-  <li data-tags="capability roleplay"> <em>(Preprint, 2025)</em> <a href="https://arxiv.org/abs/2510.14205">Dynamic Persona Refinement Framework for Optimizing Behavioral and Cognitive Alignment</a></li>
-  <li data-tags="evaluation roleplay"> <em>(ACL Findings '25)</em> <a href="https://aclanthology.org/2025.findings-acl.938/">Survey of LLM Role-Playing Agent Evaluation</a></li>
-</ul>
-
-<!-- Appointment / Education sections intentionally hidden — they live on the CV. -->
-
-
-
-### Note
-
-
-Please refer to my [Google Scholar](https://scholar.google.com/citations?user=hJlsDfAAAAAJ) page for the most up-to-date publication record.
-
-The best way to reach out is through emails: **b [dot] yao [at] northeastern [dot] edu**. 
-
-
-***
-
-
-<script>
-(function () {
-  // Filter handler for any .filter-bar that points at a .thrust-list via data-filter-target.
-  // Buttons inside the bar carry data-filter; list items inside the target are shown only
-  // if they contain a [data-tag="<filter>"] span (or always, when filter is "all").
-  document.querySelectorAll('.filter-bar').forEach(function (bar) {
-    var listId = bar.getAttribute('data-filter-target');
-    var list = listId && document.getElementById(listId);
-    if (!list) return;
-
-    bar.addEventListener('click', function (ev) {
-      var btn = ev.target.closest('.filter-btn');
-      if (!btn || btn.classList.contains('is-active')) return;
-
-      bar.querySelectorAll('.filter-btn').forEach(function (b) {
-        b.classList.remove('is-active');
-      });
-      btn.classList.add('is-active');
-
-      var filter = btn.getAttribute('data-filter');
-      list.querySelectorAll('li').forEach(function (li) {
-        // Match papers whose `data-tags="..."` (space-separated) contains the filter slug.
-        var match = filter === 'all' || li.matches('[data-tags~="' + filter + '"]');
-        li.style.display = match ? '' : 'none';
-      });
-    });
-  });
-})();
-</script>
-
-
-
+My research investigates how people collaborate, and what it takes for AI agents to become effective partners in human work. By studying collaborative processes and designing human–AI systems, I envision a future of **collaborative symbiosis**, where humans and AI agents complement one another to expand what we can accomplish together.
