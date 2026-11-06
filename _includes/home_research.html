@@ -36,9 +36,7 @@
   <ol class="research-list" tabindex="0" aria-labelledby="research-title">
     {%- for p in papers %}
     <li class="research-paper" data-domains="{{ p.domains | join: ' ' }}" data-topics="{{ p.topics | join: ' ' }}">
-      <span class="research-venue">{{ p.venue }}<span class="research-domain-names">
-        {%- for d in research.domains %}{% if p.domains contains d.key %}<span class="research-domain-name">{{ d.label }}</span>{% endif %}{% endfor -%}
-      </span></span>
+      <span class="research-venue">{{ p.venue }}</span>
       <span class="research-body">
         {%- if p.url %}
         <a class="research-title" href="{{ p.url }}">{{ p.title }}</a>

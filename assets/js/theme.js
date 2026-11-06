@@ -1,11 +1,26 @@
 // Has to be in the head tag, otherwise a flicker effect will occur.
+//
+// The page follows the system's light or dark setting until the reader uses
+// the toggle. That choice is kept under "theme-choice". "theme" itself only
+// mirrors the theme on screen (common.js and giscus.html read it); it used to
+// decide the start-up theme too, and it holds "dark" for every earlier visitor
+// because the old default was dark, so it is no longer trusted for that.
+const THEME_CHOICE = "theme-choice";
 
-let toggleTheme = (theme) => {
-  if (theme == "dark") {
-    setTheme("light");
+let systemTheme = () =>
+  window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+
+let toggleTheme = () => {
+  let current = document.documentElement.getAttribute("data-theme") || systemTheme();
+  let next = current == "dark" ? "light" : "dark";
+
+  // Choosing what the system already shows hands control back to the system.
+  if (next == systemTheme()) {
+    localStorage.removeItem(THEME_CHOICE);
   } else {
-    setTheme("dark");
+    localStorage.setItem(THEME_CHOICE, next);
   }
+  setTheme(next);
 };
 
 let setTheme = (theme) => {
@@ -43,7 +58,7 @@ let setTheme = (theme) => {
     document.documentElement.removeAttribute("data-theme");
   }
 
-  localStorage.setItem("theme", theme);
+  localStorage.setItem("theme", theme); // mirror only; see the note at the top
 
   // Updates the background of medium-zoom overlay.
   if (typeof medium_zoom !== "undefined") {
@@ -87,16 +102,18 @@ let transTheme = () => {
   }, 500);
 };
 
-let initTheme = (theme) => {
-  if (theme == null || theme == "null") {
-    // const userPref = window.matchMedia;
-    // if (userPref && userPref("(prefers-color-scheme: dark)").matches) {
-    //   theme = "dark";
-    // }
-    theme = "dark";
-  }
+let initTheme = () => {
+  let choice = localStorage.getItem(THEME_CHOICE);
+  setTheme(choice == "dark" || choice == "light" ? choice : systemTheme());
 
-  setTheme(theme);
+  // Until the reader chooses, follow the system when it switches (for example
+  // at sunset on an automatic schedule).
+  let query = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+  if (query && query.addEventListener) {
+    query.addEventListener("change", () => {
+      if (!localStorage.getItem(THEME_CHOICE)) setTheme(systemTheme());
+    });
+  }
 };
 
-initTheme(localStorage.getItem("theme"));
+initTheme();

@@ -1758,8 +1758,7 @@ html[data-theme='dark'] {
   max-height: 34rem;
   margin: 0;
   padding: 0 0.75rem 0 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  overflow-y: auto;   /* at either end, the page carries on scrolling */
   list-style: none;
   border-bottom: 1px solid var(--global-divider-color);
 
@@ -1800,15 +1799,6 @@ html[data-theme='dark'] {
   font-family: "Lato", sans-serif;
   font-size: 0.82rem;
   font-weight: 700 !important;
-}
-
-.research-domain-names {
-  color: inherit !important;
-  font-weight: 400 !important;
-}
-
-.research-domain-name + .research-domain-name::before {
-  content: " · ";
 }
 
 .research-body {
