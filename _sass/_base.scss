@@ -2,290 +2,12 @@
  * Styles for the base elements of the theme.
  ******************************************************************************/
 
- @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
+ // Fonts (Lato, Source Serif 4, Caveat) load from one <link> in _includes/head.html.
 
  // CUSTOM
 .title-blue {
   color: var(--arthur-blue);
 }
-
-
-// CUSTOM TYPOGRAPHY
-.lato-thin {
-  font-family: "Lato", sans-serif;
-  font-weight: 100;
-  font-style: normal;
-}
-
-.lato-light {
-  font-family: "Lato", sans-serif;
-  font-weight: 300;
-  font-style: normal;
-}
-
-.lato-regular {
-  font-family: "Lato", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.lato-bold {
-  font-family: "Lato", sans-serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.lato-black {
-  font-family: "Lato", sans-serif;
-  font-weight: 900;
-  font-style: normal;
-}
-
-.lato-thin-italic {
-  font-family: "Lato", sans-serif;
-  font-weight: 100;
-  font-style: italic;
-}
-
-.lato-light-italic {
-  font-family: "Lato", sans-serif;
-  font-weight: 300;
-  font-style: italic;
-}
-
-.lato-regular-italic {
-  font-family: "Lato", sans-serif;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.lato-bold-italic {
-  font-family: "Lato", sans-serif;
-  font-weight: 700;
-  font-style: italic;
-}
-
-.lato-black-italic {
-  font-family: "Lato", sans-serif;
-  font-weight: 900;
-  font-style: italic;
-}
-
-.noto-serif-light {
-  font-family: "Noto Serif", serif;
-  font-optical-sizing: auto;
-  font-weight: 300;
-  font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
-}
-
-.noto-serif-light-italic {
-  font-family: "Noto Serif", serif;
-  font-optical-sizing: auto;
-  font-weight: 300;
-  font-style: italic;
-  font-variation-settings:
-    "wdth" 100;
-}
-
-.noto-serif-regular {
-  font-family: "Noto Serif", serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
-}
-
-.noto-serif-regular-italic {
-  font-family: "Noto Serif", serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: italic;
-  font-variation-settings:
-    "wdth" 100;
-}
-
-.noto-serif-medium {
-  font-family: "Noto Serif", serif;
-  font-optical-sizing: auto;
-  font-weight: 500;
-  font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
-}
-
-.noto-serif-medium-italic {
-  font-family: "Noto Serif", serif;
-  font-optical-sizing: auto;
-  font-weight: 500;
-  font-style: italic;
-  font-variation-settings:
-    "wdth" 100;
-}
-
-.noto-serif-semibold {
-  font-family: "Noto Serif", serif;
-  font-optical-sizing: auto;
-  font-weight: 600;
-  font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
-}
-
-.noto-serif-semibold-italic {
-  font-family: "Noto Serif", serif;
-  font-optical-sizing: auto;
-  font-weight: 600;
-  font-style: italic;
-  font-variation-settings:
-    "wdth" 100;
-}
-
-
-
-.source-serif-4-light {
-  font-family: "Source Serif 4", serif;
-  font-optical-sizing: auto;
-  font-weight: 300;
-  font-style: normal;
-}
-
-.source-serif-4-light-italic {
-  font-family: "Source Serif 4", serif;
-  font-optical-sizing: auto;
-  font-weight: 300;
-  font-style: italic;
-}
-
-.source-serif-4-regular {
-  font-family: "Source Serif 4", serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.source-serif-4-regular-italic {
-  font-family: "Source Serif 4", serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.source-serif-4-medium {
-  font-family: "Source Serif 4", serif;
-  font-optical-sizing: auto;
-  font-weight: 500;
-  font-style: normal;
-}
-
-.source-serif-4-medium-italic {
-  font-family: "Source Serif 4", serif;
-  font-optical-sizing: auto;
-  font-weight: 500;
-  font-style: italic;
-}
-
-.source-serif-4-semibold {
-  font-family: "Source Serif 4", serif;
-  font-optical-sizing: auto;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.source-serif-4-semibold-italic {
-  font-family: "Source Serif 4", serif;
-  font-optical-sizing: auto;
-  font-weight: 600;
-  font-style: italic;
-}
-
-
-.ibm-plex-serif-thin {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 100;
-  font-style: normal;
-}
-
-.ibm-plex-serif-extralight {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 200;
-  font-style: normal;
-}
-
-.ibm-plex-serif-light {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 300;
-  font-style: normal;
-}
-
-.ibm-plex-serif-regular {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.ibm-plex-serif-medium {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 500;
-  font-style: normal;
-}
-
-.ibm-plex-serif-semibold {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.ibm-plex-serif-bold {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.ibm-plex-serif-thin-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 100;
-  font-style: italic;
-}
-
-.ibm-plex-serif-extralight-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 200;
-  font-style: italic;
-}
-
-.ibm-plex-serif-light-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 300;
-  font-style: italic;
-}
-
-.ibm-plex-serif-regular-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.ibm-plex-serif-medium-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 500;
-  font-style: italic;
-}
-
-.ibm-plex-serif-semibold-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 600;
-  font-style: italic;
-}
-
-.ibm-plex-serif-bold-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 700;
-  font-style: italic;
-}
-
 
 
 // Typography
@@ -325,59 +47,61 @@ span,
 strong {
   color: var(--global-text-color);
   font-family: "Lato", sans-serif;
-  font-weight: 300; /* Light weight — good for display/headings */
+  font-weight: 400; /* Lato at regular and bold only; the light weight reads thin */
 }
 
-/* Body text: IBM Plex Serif for a more geometric/techy feel that pairs well with Lato
- * sans headings. Source Serif 4 / Georgia kept as fallbacks. To swap families, just
- * reorder the stack. Headings stay Lato (sans) for the classic serif-body pairing.
- * `strong, b` are included so **bold** inline text follows the body family;
- * the strong/b font-weight: 600 rule below still wins on weight. */
+/* MDB sets the body in light Roboto; everything not covered above follows
+ * regular Lato instead. */
+body {
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+}
+
+/* Type system: Lato for reading and labels, Source Serif 4 for headings, and
+ * Caveat for the homepage banner only. PhD 101 episodes keep Source Serif for
+ * their long-form text (see the PhD 101 article block). */
 p,
 li,
 em,
 strong,
 b {
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Lato", sans-serif;
   font-weight: 400;
   line-height: 1.7;
 }
 
 strong,
 b {
-  font-weight: 600; /* Slightly bolder so bold lead-ins still pop next to serif body */
+  font-weight: 700;
 }
 
 h1,
 h2,
 h3,
 h4,
-h5 {
-  font-family: 'Lato', sans-serif;
+h5,
+h6 {
+  font-family: "Source Serif 4", Georgia, serif;
+  font-weight: 600;
 }
 
 
 .post-title {
-  font-family: 'Lato', sans-serif;
-  font-weight: 300;    /* normal weight for first/middle names */
-  color: inherit;      /* or whatever global color you use */
+  font-family: "Source Serif 4", Georgia, serif;
+  font-weight: 500;
+  color: inherit;
 }
 
 
 .post-title .last-name {
-  font-family: 'Lato', sans-serif;
-  font-weight: 500;    /* bold weight for last name */
+  font-family: inherit;
+  font-weight: 500;
   color: #2569ED;
 }
 
 .conference {
   font-weight: 500;    
   // color: #2569ED;
-}
-
-h2 {
-  font-family: 'Lato', sans-serif;
-  font-weight: 300;    
 }
 
 .rounded-box {
@@ -588,15 +312,22 @@ blockquote {
     color: var(--global-text-color);
   }
 
-  /* Brand title (the "Bingsheng Arthur Yao" text top-left on non-home pages).
-   * Use the body serif. First/middle name reads lighter so the last name stands
-   * out as the visual anchor. !important needed to override Bootstrap's
-   * `.font-weight-lighter` utility class. */
+  /* Brand title (the "Bingsheng Arthur Yao" text top-left on every page), in
+   * the heading serif like the name on the homepage. First/middle name reads
+   * lighter so the last name stands out as the visual anchor. !important is
+   * needed to override Bootstrap's `.font-weight-lighter` utility class, and
+   * the spans name the family themselves because the global `span` rule would
+   * otherwise set them in Lato. */
   .navbar-brand.title {
-    font-family: "IBM Plex Serif", "Source Serif 4", Georgia, serif !important;
+    font-family: "Source Serif 4", Georgia, serif !important;
+
+    .brand-first,
+    .brand-last {
+      font-family: inherit;
+    }
 
     .brand-first {
-      font-weight: 300 !important;
+      font-weight: 400 !important;
       opacity: 0.6;
     }
 
@@ -1492,9 +1223,9 @@ $home-section-gap-sm: 3.25rem;
 
 .home-section-title {
   margin: 0 0 1.4rem;
-  font-family: "Lato", sans-serif;
+  font-family: "Source Serif 4", Georgia, serif;
   font-size: 1.75rem;
-  font-weight: 400;
+  font-weight: 600;
 
   a {
     color: inherit;
@@ -1572,11 +1303,14 @@ $home-section-gap-sm: 3.25rem;
   padding: 4.5rem 0;
   text-align: center;
 
+  /* The one handwritten line on the site. */
   p {
-    max-width: 44rem;
+    max-width: 46rem;
     margin: 0 auto;
-    font-size: 1.6rem;
-    line-height: 1.55;
+    font-family: "Caveat", "Lato", cursive;
+    font-size: 2.35rem;
+    font-weight: 500;
+    line-height: 1.3;
   }
 }
 
@@ -1761,16 +1495,16 @@ $home-section-gap-sm: 3.25rem;
 }
 
 .home-phd101-title {
-  font-family: "Lato", sans-serif;
+  font-family: "Source Serif 4", Georgia, serif;
   font-size: 1.75rem;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   line-height: 1.3;
 }
 
 .home-phd101-text {
   max-width: 40rem;
   margin-top: 0.45rem;
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Lato", sans-serif;
   font-size: 1.05rem;
   line-height: 1.7;
 }
@@ -1991,7 +1725,7 @@ $home-section-gap-sm: 3.25rem;
 
 .research-title {
   color: var(--global-text-color) !important;
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Lato", sans-serif;
   font-size: 0.98rem;
   font-weight: 400 !important;
   line-height: 1.45;
@@ -2064,7 +1798,7 @@ a.research-title {
     padding: 3rem 0;
 
     p {
-      font-size: 1.3rem;
+      font-size: 1.85rem;
     }
   }
 
@@ -2218,7 +1952,7 @@ h4 {
 
 .news-text {
   min-width: 0;
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Lato", sans-serif;
   font-size: 0.97rem;
   font-weight: 400 !important;
 }
@@ -2325,12 +2059,10 @@ h4 {
   user-select: none;
   cursor: default;
 
-  /* Lab-norms typography:
-   *   h2 / h3 keep document-style sizing in Lato (sans) for clear hierarchy.
-   *   Body inherits the site-wide IBM Plex Serif from the global p/li rule,
-   *   matching the Prospective Students page. */
+  /* Lab-norms typography: h2 / h3 keep document-style sizing; families follow
+   * the site (serif headings, Lato body), matching the Prospective Students
+   * page. */
   h2 {
-    font-family: "Lato", sans-serif;
     font-size: 18pt;
     font-weight: 700;
     margin-top: 1.75rem;
@@ -2338,7 +2070,6 @@ h4 {
   }
 
   h3 {
-    font-family: "Lato", sans-serif;
     font-size: 13pt;
     font-weight: 700;
     margin-top: 1.25rem;
@@ -2393,7 +2124,7 @@ h4 {
  * summary (a <p>, so serif by the site-wide rule) lands at nearly the same
  * family and size as the card titles below it and reads as a title itself. */
 .phd101-chapter-heading {
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Source Serif 4", Georgia, serif;
   font-weight: 600;
   font-size: 1.5rem;
   margin-bottom: 0.35rem;
@@ -2643,7 +2374,7 @@ h4 {
  * not by color. `--global-text-color-light` is #828282, which at this size
  * falls below the WCAG AA 4.5:1 contrast minimum on white. */
 .phd101-card-title {
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Source Serif 4", Georgia, serif;
   font-weight: 500;
   font-size: 1.02rem;
   line-height: 1.3;
@@ -2905,7 +2636,7 @@ h4 {
 }
 
 .playground-card-title {
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Source Serif 4", Georgia, serif;
   font-weight: 600;
   font-size: 1.2rem;
   line-height: 1.3;
@@ -3108,7 +2839,7 @@ h4 {
 
 .phd101-contact-heading {
   margin: 0 0 0.3rem;
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Source Serif 4", Georgia, serif;
   font-weight: 600;
   font-size: 1.3rem;
   color: var(--global-text-color);
@@ -3348,6 +3079,24 @@ h4 {
   text-align: justify;
 }
 
+/* Episodes are long-form reading, so their text stays in Source Serif while
+ * the rest of the site reads in Lato. */
+.phd101-article .post article {
+  p,
+  li,
+  em,
+  strong,
+  b,
+  blockquote {
+    font-family: "Source Serif 4", Georgia, serif;
+  }
+
+  strong,
+  b {
+    font-weight: 600;
+  }
+}
+
 /* Align the post header (title + subtitle from frontmatter) with the
  * 800px article column so the page reads as a single centered article. */
 .phd101-article .post-header {
@@ -3400,7 +3149,7 @@ h4 {
 .phd101-article .post article p.phd101-epigraph {
   max-width: 34rem;
   margin: 0 auto 2.25rem;
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Source Serif 4", Georgia, serif;
   font-style: italic;
   font-size: 1.15rem;
   line-height: 1.6;
@@ -3418,25 +3167,25 @@ h4 {
 }
 
 .phd101-article .post-title {
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Source Serif 4", Georgia, serif;
   font-weight: 600;       /* semibold */
   font-style: normal;     /* upright — the italic belongs to the subtitle */
 }
 
 .phd101-article .post article h1,
 .phd101-article .post article h2{
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Source Serif 4", Georgia, serif;
   font-weight: 600;       /* semibold */
   font-style: italic;
 }
 .phd101-article .post article h3{
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Source Serif 4", Georgia, serif;
   font-weight: 400;       /* semibold */
   font-style: normal;
 }
 .phd101-article .post article h4,
 .phd101-article .post article h5 {
-  font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
+  font-family: "Source Serif 4", Georgia, serif;
 }
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
