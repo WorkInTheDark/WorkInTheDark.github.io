@@ -51,13 +51,13 @@
   /* Accent text sitting on --phd101-accent-tint: the plain accent drops to
    * ~4.2:1 there, so text on the tint takes a darker blue. */
   --home-accent-on-tint: #{darken($arthur-blue, 9%)};
-  /* Homepage spotlight grid (see .home-backdrop): hairlines that are barely
+  /* Spotlight grid on every page (see .page-backdrop): hairlines that are barely
    * there at rest, a stronger set lit under the cursor, and accent crosses
    * every fourth line. The banner phrase highlight is a purple marker swipe
    * in the navbar hover colour. */
-  --home-grid-faint: rgba(0, 0, 0, 0.03);
-  --home-grid-lit: rgba(0, 0, 0, 0.14);
-  --home-grid-cross: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='112' height='112'><path d='M50.5 55.5h10M55.5 50.5v10' stroke='%232569ED' stroke-width='1'/></svg>");
+  --backdrop-grid-faint: rgba(0, 0, 0, 0.03);
+  --backdrop-grid-lit: rgba(0, 0, 0, 0.14);
+  --backdrop-grid-cross: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='112' height='112'><path d='M50.5 55.5h10M55.5 50.5v10' stroke='%232569ED' stroke-width='1'/></svg>");
   --home-highlight: #{rgba($purple-color, 0.18)};
 
   .fa-sun {
@@ -162,9 +162,9 @@ html[data-theme='dark'] {
   --home-band-bg: #{mix($arthur-blue, $grey-color-dark, 9%)};
   --home-meta-color: #{$custom-web01-grey};
   --home-accent-on-tint: #{lighten($arthur-blue, 22%)};
-  --home-grid-faint: rgba(255, 255, 255, 0.035);
-  --home-grid-lit: rgba(255, 255, 255, 0.13);
-  --home-grid-cross: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='112' height='112'><path d='M50.5 55.5h10M55.5 50.5v10' stroke='%238DB0F6' stroke-width='1'/></svg>");
+  --backdrop-grid-faint: rgba(255, 255, 255, 0.035);
+  --backdrop-grid-lit: rgba(255, 255, 255, 0.13);
+  --backdrop-grid-cross: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='112' height='112'><path d='M50.5 55.5h10M55.5 50.5v10' stroke='%238DB0F6' stroke-width='1'/></svg>");
   --home-highlight: #{rgba(lighten($purple-color, 15%), 0.3)};
 
   .fa-sun {

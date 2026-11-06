@@ -1298,14 +1298,15 @@ $home-section-gap-sm: 3.25rem;
   }
 }
 
-/* Spotlight grid behind the top of the homepage. A hairline grid sits barely
- * visible on the page background; under the cursor a soft light shows a
- * stronger grid with accent crosses. The layer fades out down the page, so it
- * belongs to the banner and profile and is gone by the sections below.
- * _layouts/about.html moves --spot-x / --spot-y with the cursor; without a
- * mouse the light rests behind the banner. Absolute with no positioned
- * ancestor, so left/right reach the window edges without 100vw. */
-.home-backdrop {
+/* Spotlight grid behind the top of every page (_layouts/default.html). A
+ * hairline grid sits barely visible on the page background; under the cursor
+ * a soft light shows a stronger grid with accent crosses. The layer fades out
+ * down the page, so it belongs to the banner or page title and is gone by the
+ * content below. _includes/scripts/backdrop.html moves --spot-x / --spot-y
+ * with the cursor; without a mouse the light rests behind the homepage banner
+ * or the page title. Absolute with no positioned ancestor, so left/right
+ * reach the window edges without 100vw. */
+.page-backdrop {
   --spot-x: 50%;
   --spot-y: 10rem;
   position: absolute;
@@ -1316,21 +1317,21 @@ $home-section-gap-sm: 3.25rem;
   height: 75rem;
   pointer-events: none;
   background-image:
-    linear-gradient(to right, transparent 13px, var(--home-grid-faint) 13px, var(--home-grid-faint) 14px, transparent 14px),
-    linear-gradient(to bottom, transparent 13px, var(--home-grid-faint) 13px, var(--home-grid-faint) 14px, transparent 14px);
+    linear-gradient(to right, transparent 13px, var(--backdrop-grid-faint) 13px, var(--backdrop-grid-faint) 14px, transparent 14px),
+    linear-gradient(to bottom, transparent 13px, var(--backdrop-grid-faint) 13px, var(--backdrop-grid-faint) 14px, transparent 14px);
   background-position: 50% 0;
   background-size: 28px 28px;
   -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 30%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0, #000 30%, transparent 100%);
 }
 
-.home-backdrop-lit {
+.page-backdrop-lit {
   position: absolute;
   inset: 0;
   background-image:
-    var(--home-grid-cross),
-    linear-gradient(to right, transparent 13px, var(--home-grid-lit) 13px, var(--home-grid-lit) 14px, transparent 14px),
-    linear-gradient(to bottom, transparent 13px, var(--home-grid-lit) 13px, var(--home-grid-lit) 14px, transparent 14px),
+    var(--backdrop-grid-cross),
+    linear-gradient(to right, transparent 13px, var(--backdrop-grid-lit) 13px, var(--backdrop-grid-lit) 14px, transparent 14px),
+    linear-gradient(to bottom, transparent 13px, var(--backdrop-grid-lit) 13px, var(--backdrop-grid-lit) 14px, transparent 14px),
     radial-gradient(circle 15rem at var(--spot-x) var(--spot-y), var(--phd101-accent-wash), transparent);
   background-position: 50% 0, 50% 0, 50% 0, 0 0;
   background-size: 112px 112px, 28px 28px, 28px 28px, 100% 100%;

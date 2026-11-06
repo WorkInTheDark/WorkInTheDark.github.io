@@ -10,6 +10,7 @@ app_manifest: /assets/phd-sim/manifest.webmanifest
 app_title: PhD Sim
 app_icon: /assets/phd-sim/apple-touch-icon.png
 app_color: "#283454"
+backdrop: false   # the game has its own art; no spotlight grid behind it
 ---
 
 <link rel="preconnect" href="https://fonts.googleapis.com">

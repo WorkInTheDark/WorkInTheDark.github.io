@@ -5,8 +5,6 @@ layout: default
 <!-- about.html -->
 <div class="post home">
 
-  <div class="home-backdrop" aria-hidden="true"><div class="home-backdrop-lit"></div></div>
-
   {%- if page.banner %}
   <section class="home-banner" aria-label="Research vision">
     <p>
@@ -104,51 +102,3 @@ layout: default
   {% include home_research.html %}
 
 </div>
-
-<script>
-(function () {
-  // Move the homepage spotlight (.home-backdrop) after a mouse. Touch screens
-  // keep the light resting behind the banner. The light eases toward the
-  // pointer unless the reader prefers reduced motion.
-  var backdrop = document.querySelector('.home-backdrop');
-  var banner = document.querySelector('.home-banner');
-  if (!backdrop || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-  var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var pointer = null;      // last pointer position, viewport coordinates
-  var x = null, y = null;  // where the light is, backdrop coordinates
-  var tx, ty, frame = 0;
-
-  function aim() {
-    var box = backdrop.getBoundingClientRect();
-    if (pointer) {
-      tx = pointer.x - box.left;
-      ty = pointer.y - box.top;
-    } else {
-      var b = banner ? banner.getBoundingClientRect() : box;
-      tx = box.width / 2;
-      ty = b.top - box.top + b.height / 2;
-    }
-    if (x === null || calm) { x = tx; y = ty; }
-    if (!frame) frame = requestAnimationFrame(step);
-  }
-
-  function step() {
-    frame = 0;
-    x += (tx - x) * 0.14;
-    y += (ty - y) * 0.14;
-    if (Math.abs(tx - x) < 0.5 && Math.abs(ty - y) < 0.5) { x = tx; y = ty; }
-    backdrop.style.setProperty('--spot-x', x + 'px');
-    backdrop.style.setProperty('--spot-y', y + 'px');
-    if (x !== tx || y !== ty) frame = requestAnimationFrame(step);
-  }
-
-  document.addEventListener('pointermove', function (e) {
-    if (e.pointerType !== 'mouse') return;
-    pointer = { x: e.clientX, y: e.clientY };
-    aim();
-  }, { passive: true });
-  document.documentElement.addEventListener('mouseleave', function () { pointer = null; aim(); });
-  window.addEventListener('scroll', aim, { passive: true });
-  aim();
-})();
-</script>

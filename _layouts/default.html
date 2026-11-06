@@ -12,6 +12,12 @@
   <!-- Body -->
   <body class="{% if site.navbar_fixed %}fixed-top-nav{% endif %} {% unless site.footer_fixed %}sticky-bottom-footer{% endunless %}{% if page.body_class %} {{ page.body_class }}{% endif %}">
 
+    {%- unless page.backdrop == false %}
+    <!-- Spotlight grid behind the top of the page; `backdrop: false` in a
+         page's front matter turns it off. -->
+    <div class="page-backdrop" aria-hidden="true"><div class="page-backdrop-lit"></div></div>
+    {%- endunless %}
+
     <!-- Header -->
     {%- include header.html %}
 
@@ -66,5 +72,8 @@
     {% include scripts/analytics.html %}
     {% include scripts/progressBar.html %}
     {% include scripts/back-to-top.html %}
+    {%- unless page.backdrop == false %}
+    {% include scripts/backdrop.html %}
+    {%- endunless %}
   </body>
 </html>
