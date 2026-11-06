@@ -49,6 +49,9 @@ $arthur-orange: #EB7F00 !default;
 $arthur-green: #83B692 !default;
 $arthur-yellow: #EDC707 !default;
 $arthur-blue:           #2569ED !default;
+// Dark mode: the same hue at full saturation, lifted just enough to read on
+// the dark background (~5.4:1). Lightening alone washed it out to a pastel.
+$arthur-blue-dark:      #4C8FFF !default;
 
 $grey-color:          #828282 !default;
 $grey-color-light:    lighten($grey-color, 40%);
