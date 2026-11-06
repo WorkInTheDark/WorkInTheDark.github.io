@@ -4,8 +4,11 @@ title: About
 permalink: /
 subtitle: Associate Research Scientist, Khoury College of Computer Sciences, Northeastern University
 
-# The centred band at the top of the page.
-banner: I study how humans and AI agents can collaborate effectively, and how their partnership can unlock new ways of thinking, working, and creating together.
+# The centred band at the top of the page, one entry per line. On a wide
+# screen the first line never wraps. **Bold** marks the highlighted phrase.
+banner:
+  - I study how **humans and AI agents** collaborate effectively,
+  - and how their partnership unlocks new ways of thinking, working, and creating together.
 
 # The small grey line under the introduction.
 background: Previously a postdoctoral researcher with Prof. [Dakuo Wang](https://www.dakuowang.com/). PhD from Rensselaer Polytechnic Institute, advised by Prof. [Jim Hendler](https://www.cs.rpi.edu/~hendler/).
