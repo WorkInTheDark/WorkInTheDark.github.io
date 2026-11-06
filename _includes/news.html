@@ -21,7 +21,7 @@
     {%- endfor %}
   </ol>
   {%- if include.limit %}
-  <a class="home-more" href="{{ '/news/' | relative_url }}">All news &rarr;</a>
+  <a class="home-more" href="{{ '/news/' | relative_url }}">All news <span class="home-arrow" aria-hidden="true">&rarr;</span></a>
   {%- endif %}
   {%- else %}
   <p>No news so far.</p>

@@ -66,6 +66,7 @@
   var topicButtons = Array.prototype.slice.call(root.querySelectorAll('.research-topic'));
   var domain = 'all';
   var topic = 'all';
+  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // data-domains and data-topics hold space-separated keys.
   function has(el, attr, key) {
@@ -80,7 +81,9 @@
     });
   }
 
-  function update() {
+  // `animate` is set when the reader changed a filter, so the rows that remain
+  // fade in rather than jumping into place.
+  function update(animate) {
     var pool = papers.filter(function (p) { return has(p, 'data-domains', domain); });
 
     // Topic counts follow the chosen domain; topics with nothing in it step aside.
@@ -95,23 +98,34 @@
     press(domainButtons, 'data-domain', domain);
     press(topicButtons, 'data-topic', topic);
 
-    var shown = 0;
+    var shown = [];
     papers.forEach(function (p) {
       var on = has(p, 'data-domains', domain) && has(p, 'data-topics', topic);
       p.hidden = !on;
-      if (on) shown += 1;
+      p.classList.remove('is-entering');
+      if (on) shown.push(p);
     });
 
-    countEl.textContent = shown + (shown === 1 ? ' paper' : ' papers') + ', newest first';
+    if (animate && !calm) {
+      void list.offsetWidth;   // restart the animation on rows that were already showing
+      shown.forEach(function (p, i) {
+        p.style.animationDelay = Math.min(i, 8) * 25 + 'ms';
+        p.classList.add('is-entering');
+      });
+    }
+
+    var n = shown.length;
+    countEl.textContent = n + (n === 1 ? ' paper' : ' papers') + ', newest first';
     list.scrollTop = 0;
   }
+
 
   filters.addEventListener('click', function (ev) {
     var b = ev.target.closest('button');
     if (!b) return;
     if (b.hasAttribute('data-domain')) domain = b.getAttribute('data-domain');
     if (b.hasAttribute('data-topic')) topic = b.getAttribute('data-topic');
-    update();
+    update(true);
   });
 
   filters.hidden = false;

@@ -1517,6 +1517,52 @@ $home-section-gap-sm: 3.25rem;
 
   &:hover {
     color: var(--phd101-accent);
+    text-decoration: none;
+  }
+}
+
+/* Motion only answers the reader: arrows step forward on hover, and rows
+ * fade in after a filter changes. Nothing moves on its own. */
+.home-arrow {
+  display: inline-block;
+  color: inherit;          /* past the theme's global `span` colour and weight */
+  font-weight: inherit;
+  transition: transform 0.2s ease-out;
+}
+
+.home-more:hover .home-arrow,
+.home-phd101:hover .home-arrow,
+.playground-card:hover .home-arrow {
+  transform: translateX(3px);
+}
+
+@keyframes research-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.research-paper.is-entering {
+  animation: research-row-in 0.28s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-arrow,
+  .home-phd101-icon,
+  a.research-title {
+    transition: none;
+  }
+
+  .home-more:hover .home-arrow,
+  .home-phd101:hover .home-arrow,
+  .playground-card:hover .home-arrow {
+    transform: none;
   }
 }
 
@@ -1678,8 +1724,9 @@ $home-section-gap-sm: 3.25rem;
     color: var(--global-text-color);
     text-decoration: none;
 
-    .home-phd101-go {
-      text-decoration: underline;
+    .home-phd101-icon {
+      background: var(--phd101-accent-tint);
+      border-color: var(--phd101-accent-edge-strong);
     }
   }
 
@@ -1703,6 +1750,7 @@ $home-section-gap-sm: 3.25rem;
   border: 1px solid var(--global-divider-color);
   color: var(--phd101-accent) !important;
   font-size: 1.6rem;
+  transition: background-color 0.2s ease-out, border-color 0.2s ease-out;
 }
 
 .home-phd101-body {
@@ -1956,6 +2004,7 @@ a.research-title {
   text-decoration: underline;
   text-decoration-color: var(--phd101-accent-edge-strong);
   text-underline-offset: 3px;
+  transition: color 0.15s ease-out, text-decoration-color 0.15s ease-out;
 
   &:hover {
     color: var(--phd101-accent) !important;
