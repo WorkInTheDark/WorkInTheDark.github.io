@@ -45,9 +45,9 @@
         {%- else %}
         <span class="research-title">{{ p.title }}</span>
         {%- endif %}
-        <span class="research-tags">
-          {%- for t in research.topics %}{% if p.topics contains t.key %}<span class="research-tag" data-topic="{{ t.key }}">{{ t.label }}</span>{% endif %}{% endfor -%}
-        </span>
+        {%- if p.authors %}
+        <span class="research-authors">{{ p.authors | escape | replace: "Bingsheng Yao", "<strong>Bingsheng Yao</strong>" }}</span>
+        {%- endif %}
       </span>
     </li>
     {%- endfor %}
@@ -100,9 +100,6 @@
       var on = has(p, 'data-domains', domain) && has(p, 'data-topics', topic);
       p.hidden = !on;
       if (on) shown += 1;
-      Array.prototype.forEach.call(p.querySelectorAll('.research-tag'), function (tag) {
-        tag.classList.toggle('is-match', tag.getAttribute('data-topic') === topic);
-      });
     });
 
     countEl.textContent = shown + (shown === 1 ? ' paper' : ' papers') + ', newest first';

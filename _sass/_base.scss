@@ -1480,6 +1480,10 @@ nav[data-toggle="toc"] {
  * the container and clip-path trims it back to the band's own height, so the
  * band goes full width without widening the page (100vw would add a
  * horizontal scrollbar wherever scrollbars take up space). */
+/* Vertical space between homepage sections. */
+$home-section-gap: 4.75rem;
+$home-section-gap-sm: 3.25rem;
+
 @mixin home-band {
   background: var(--home-band-bg);
   box-shadow: 0 0 0 100vmax var(--home-band-bg);
@@ -1487,9 +1491,9 @@ nav[data-toggle="toc"] {
 }
 
 .home-section-title {
-  margin: 0 0 1rem;
+  margin: 0 0 1.4rem;
   font-family: "Lato", sans-serif;
-  font-size: 1.6rem;
+  font-size: 1.75rem;
   font-weight: 400;
 
   a {
@@ -1519,22 +1523,22 @@ nav[data-toggle="toc"] {
 .home-banner {
   @include home-band;
   margin-top: -3rem;   /* meet the navbar: cancels the container's mt-5 */
-  padding: 2.75rem 0;
+  padding: 4.5rem 0;
   text-align: center;
 
   p {
     max-width: 44rem;
     margin: 0 auto;
-    font-size: 1.55rem;
-    line-height: 1.45;
+    font-size: 1.6rem;
+    line-height: 1.55;
   }
 }
 
 .home-profile {
   display: flex;
   align-items: flex-start;
-  gap: 2.25rem;
-  margin-top: 2.75rem;
+  gap: 3rem;
+  margin-top: $home-section-gap;
 }
 
 .home-profile-photo {
@@ -1564,7 +1568,7 @@ nav[data-toggle="toc"] {
 }
 
 .home-role {
-  margin: 0.4rem 0 0;
+  margin: 0.6rem 0 0;
   color: var(--home-meta-color);
   font-family: "Lato", sans-serif;
   font-size: 1rem;
@@ -1574,8 +1578,8 @@ nav[data-toggle="toc"] {
 .home-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 1.25rem;
-  margin: 0.8rem 0 0;
+  gap: 0.5rem 1.5rem;
+  margin: 1.1rem 0 0;
   padding: 0;
   list-style: none;
 
@@ -1600,10 +1604,11 @@ nav[data-toggle="toc"] {
 }
 
 .home-intro {
-  margin-top: 1.15rem;
+  margin-top: 1.6rem;
 
   p {
-    margin: 0 0 0.75rem;
+    margin: 0 0 1rem;
+    line-height: 1.8;
   }
 
   p:last-child {
@@ -1612,7 +1617,7 @@ nav[data-toggle="toc"] {
 }
 
 .home-background {
-  margin: 0.6rem 0 0;
+  margin: 1rem 0 0;
   color: var(--home-meta-color);
   font-size: 0.92rem;
   line-height: 1.6;
@@ -1629,9 +1634,9 @@ nav[data-toggle="toc"] {
 .recruiting-note {
   display: flex;
   align-items: flex-start;
-  gap: 0.8rem;
-  margin-top: 1.35rem;
-  padding: 0.9rem 1.15rem;
+  gap: 0.9rem;
+  margin-top: 1.9rem;
+  padding: 1.15rem 1.4rem;
   background: var(--phd101-accent-tint);
   border-radius: 8px;
 
@@ -1664,9 +1669,9 @@ nav[data-toggle="toc"] {
   @include home-band;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  margin-top: 3rem;
-  padding: 1.6rem 0;
+  gap: 1.75rem;
+  margin-top: $home-section-gap;
+  padding: 3.25rem 0;
   color: var(--global-text-color);
 
   &:hover {
@@ -1691,13 +1696,13 @@ nav[data-toggle="toc"] {
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 10px;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 14px;
   background: var(--global-bg-color);
   border: 1px solid var(--global-divider-color);
   color: var(--phd101-accent) !important;
-  font-size: 1.25rem;
+  font-size: 1.6rem;
 }
 
 .home-phd101-body {
@@ -1709,16 +1714,17 @@ nav[data-toggle="toc"] {
 
 .home-phd101-title {
   font-family: "Lato", sans-serif;
-  font-size: 1.3rem;
+  font-size: 1.75rem;
   font-weight: 700 !important;
   line-height: 1.3;
 }
 
 .home-phd101-text {
-  margin-top: 0.15rem;
+  max-width: 40rem;
+  margin-top: 0.45rem;
   font-family: "Source Serif 4", "IBM Plex Serif", Georgia, serif;
-  font-size: 0.97rem;
-  line-height: 1.55;
+  font-size: 1.05rem;
+  line-height: 1.7;
 }
 
 .home-phd101-cta {
@@ -1732,12 +1738,12 @@ nav[data-toggle="toc"] {
 .home-phd101-go {
   color: var(--phd101-accent) !important;
   font-family: "Lato", sans-serif;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 700 !important;
 }
 
 .home-phd101-meta {
-  margin-top: 0.15rem;
+  margin-top: 0.3rem;
   color: var(--home-meta-color) !important;
   font-family: "Lato", sans-serif;
   font-size: 0.82rem;
@@ -1745,13 +1751,13 @@ nav[data-toggle="toc"] {
 
 /* Research: domain and topic filters above a list that scrolls in place. */
 .home-research {
-  margin-top: 3rem;
+  margin-top: $home-section-gap;
 }
 
 .research-filters {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .research-filters[hidden] {
@@ -1864,8 +1870,8 @@ nav[data-toggle="toc"] {
 }
 
 .research-count {
-  margin: 1.1rem 0 0;
-  padding-bottom: 0.5rem;
+  margin: 1.6rem 0 0;
+  padding-bottom: 0.6rem;
   color: var(--home-meta-color);
   font-family: "Lato", sans-serif;
   font-size: 0.85rem;
@@ -1873,7 +1879,7 @@ nav[data-toggle="toc"] {
 }
 
 .research-list {
-  max-height: 28rem;
+  max-height: 34rem;
   margin: 0;
   padding: 0 0.75rem 0 0;
   overflow-y: auto;
@@ -1889,8 +1895,8 @@ nav[data-toggle="toc"] {
 
 .research-paper {
   display: flex;
-  gap: 1.25rem;
-  padding: 0.7rem 0;
+  gap: 1.5rem;
+  padding: 1.05rem 0;
   line-height: 1.45;
 
   & + & {
@@ -1925,8 +1931,7 @@ nav[data-toggle="toc"] {
   font-weight: 400 !important;
 }
 
-.research-domain-name + .research-domain-name::before,
-.research-tag + .research-tag::before {
+.research-domain-name + .research-domain-name::before {
   content: " · ";
 }
 
@@ -1958,19 +1963,18 @@ a.research-title {
   }
 }
 
-.research-tags {
-  margin-top: 0.2rem;
+.research-authors {
+  margin-top: 0.35rem;
   color: var(--home-meta-color) !important;
   font-family: "Lato", sans-serif;
-  font-size: 0.8rem;
-}
+  font-size: 0.85rem;
+  line-height: 1.55;
 
-.research-tag {
-  color: inherit !important;
-
-  &.is-match {
-    color: var(--phd101-accent) !important;
-    font-weight: 700 !important;
+  strong {
+    color: var(--global-text-color);
+    font-family: inherit;
+    font-weight: 700;
+    line-height: inherit;
   }
 }
 
@@ -1978,8 +1982,8 @@ a.research-title {
 .home-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 2.75rem;
-  margin-top: 3rem;
+  gap: 3.5rem;
+  margin-top: $home-section-gap;
 }
 
 .home-playground .playground-card {
@@ -1989,7 +1993,7 @@ a.research-title {
 @media (max-width: 767.98px) {
   .home-split {
     grid-template-columns: minmax(0, 1fr);
-    gap: 2.5rem;
+    gap: $home-section-gap-sm;
   }
 
   .home-phd101 {
@@ -2001,24 +2005,54 @@ a.research-title {
     align-items: baseline;
     gap: 0.75rem;
     width: 100%;
-    padding-left: 4.25rem;   /* line up under the title, past the icon */
+    padding-left: 5.75rem;   /* line up under the title, past the icon */
     text-align: left;
   }
 }
 
 @media (max-width: 575.98px) {
   .home-banner {
-    padding: 2rem 0;
+    padding: 3rem 0;
 
     p {
-      font-size: 1.25rem;
+      font-size: 1.3rem;
     }
   }
 
   .home-profile {
     flex-direction: column;
-    gap: 1.25rem;
-    margin-top: 2rem;
+    gap: 1.5rem;
+    margin-top: $home-section-gap-sm;
+  }
+
+  .home-phd101,
+  .home-research,
+  .home-split {
+    margin-top: $home-section-gap-sm;
+  }
+
+  /* Icon above the text on a phone, so the text and link get the full width. */
+  .home-phd101 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 2.5rem 0;
+  }
+
+  .home-phd101-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 10px;
+    font-size: 1.25rem;
+  }
+
+  .home-phd101-cta {
+    flex-wrap: wrap;
+    padding-left: 0;
+  }
+
+  .home-phd101-go {
+    white-space: nowrap;
   }
 
   .home-profile-photo {
@@ -2102,9 +2136,9 @@ h4 {
 
 .news-item {
   display: flex;
-  gap: 1rem;
-  padding: 0.55rem 0;
-  line-height: 1.55;
+  gap: 1.1rem;
+  padding: 0.85rem 0;
+  line-height: 1.6;
 
   & + & {
     border-top: 1px solid var(--global-divider-color);

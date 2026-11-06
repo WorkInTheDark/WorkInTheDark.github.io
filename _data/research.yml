@@ -22,304 +22,371 @@ topics:
 
 papers:
   - title: "RECOVER: Designing a Large Language Model-based Remote Patient Monitoring System for Postoperative Gastrointestinal Cancer Care"
+    authors: "Ziqi Yang, Yuxuan Lu, Jennifer Bagdasarian, Vedant Das Swain, Ritu Agarwal, Collin Campbell, Waddah Al-Refaie, Jehan El-Bayoumi, G. Gao, Dakuo Wang, Bingsheng Yao, Nawar Shara"
     venue: "CSCW 2026"
     domains: [hci]
     topics: [health]
     url: https://arxiv.org/abs/2502.05740
   - title: "Bridging Knowledge Gaps in Clinical AI: An Activity Theory Perspective on Interdisciplinary Data Work for Telehealth"
+    authors: "Bingsheng Yao, Yao Du, Yue Fu, Xuhai Xu, Yanjun Gao, Hong Yu, Dakuo Wang"
     venue: "CSCW 2026"
     domains: [hci]
     topics: [health]
   - title: "Balancing Efficiency and Empathy: Healthcare Providers' Perspectives on AI-Supported Workflows for Serious Illness Conversations in the Emergency Department"
+    authors: "Menglin Zhao, Zhuorui Yong, Ruijia Guan, Kai-Wei Chang, Adrian Haimovich, Kei Ouchi, Timothy Bickmore, Zhan Zhang, Bingsheng Yao, Dakuo Wang, Smit Desai"
     venue: "CHI 2026"
     domains: [hci]
     topics: [health]
     url: https://dl.acm.org/doi/full/10.1145/3772318.3791301
   - title: "Exploring Collaboration Breakdowns Between Provider Teams and Patients in Post-Surgery Care"
+    authors: "Bingsheng Yao, Menglin Zhao, Zhan Zhang, Pengqi Wang, Emma G Chester, Changchang Yin, Tianshi Li, Varun Mishra, et al."
     venue: "CHI 2026"
     domains: [hci]
     topics: [health]
     url: https://dl.acm.org/doi/full/10.1145/3772318.3791960
   - title: "Through the Lens of Human-Human Collaboration: A Configurable Research Platform for Exploring Human-Agent Collaboration"
+    authors: "Bingsheng Yao, Jiaju Chen, Chaoran Chen, April Yi Wang, Toby Jia-Jun Li, Dakuo Wang"
     venue: "CHI 2026"
     domains: [hci]
     topics: [collaboration, agents]
     url: https://dl.acm.org/doi/full/10.1145/3772318.3790879
   - title: "Dark Patterns Meet GUI Agents: LLM Agent Susceptibility to Manipulative Interfaces and the Role of Human Oversight"
+    authors: "Jingyu Tang, Chaoran Chen, Jiawen Li, Zhiping Zhang, Bingcan Guo, Ibrahim Khalilov, Simret Araya Gebreegziabher, Bingsheng Yao, et al."
     venue: "CHI 2026"
     domains: [hci, nlp]
     topics: [agents, collaboration]
     url: https://dl.acm.org/doi/full/10.1145/3772318.3791568
   - title: "LLM-based Embodied Conversational Agent for Reducing Foreign Language Speaking Anxiety in Social VR"
+    authors: "Mengxu Pan, Panxin Liu, Jinda Zhang, Raina Cao, Viduni Ariyawansa, Yaning Li, Bingsheng Yao, Dakuo Wang, Philippe Pasquier, Alexandra Kitson, Mirjana Prpa"
     venue: "CHI 2026"
     domains: [hci]
     topics: [education, everyday]
   - title: "From Human-Human Collaboration to Human-Agent Collaboration: A Vision, Design Philosophy, and an Empirical Framework for Achieving Successful Partnerships Between Humans and LLM Agents"
+    authors: "Bingsheng Yao, Chaoran Chen, April Yi Wang, Tongshuang Wu, Toby Jia-Jun Li, Dakuo Wang"
     venue: "CHI EA 2026"
     domains: [hci]
     topics: [collaboration]
     url: https://dl.acm.org/doi/full/10.1145/3772363.3778744
   - title: "Agent A/B: Automated and Scalable A/B Testing on Live Websites with Interactive LLM Agents"
+    authors: "Yuxuan Lu, Ting-Yao Hsu, Hansu Gu, Limeng Cui, Yaochen Xie, William P Headden III, Bingsheng Yao, Akash Veeragouni, Jiapeng Liu, Sreyashi Nag, Jessie Wang, Dakuo Wang"
     venue: "CHI EA 2026"
     domains: [hci, nlp]
     topics: [agents]
     url: https://dl.acm.org/doi/full/10.1145/3772363.3799039
   - title: "Multi-Agent-as-Judge: Aligning LLM-Agent-Based Automated Evaluation with Multi-Dimensional Human Evaluation"
+    authors: "Jiaju Chen, Yuxuan Lu, Xiaojie Wang, Huimin Zeng, Jing Huang, Jiri Gesi, Ying Xu, Bingsheng Yao, Dakuo Wang"
     venue: "ACL 2026"
     domains: [nlp]
     topics: [agents]
   - title: "Can LLM Agents Simulate Multi-Turn Human Behavior? Evidence from Real Online Customer Behavior Data"
+    authors: "Yuxuan Lu, Jing Huang, Yan Han, Bingsheng Yao, Sisong Bei, Yaochen Xie, Yisi Sang, Qi He, Dakuo Wang"
     venue: "ACL 2026"
     domains: [nlp]
     topics: [agents]
   - title: "LLMs for Now, Fine-Tuning for Later: An Ensemble Approach to Data Drift in Domain-Specific Tasks"
+    authors: "Yuxuan Lu, Bingsheng Yao, Shao Zhang, Yisi Sang, Yun Wang, Hansu Gu, Peng Zhang, Tun Lu, Toby Jia-Jun Li, Dakuo Wang"
     venue: "ACL 2026"
     domains: [nlp]
     topics: [nlp-methods]
   - title: "“Should I Give Up Now?” Investigating LLM Pitfalls in Software Engineering"
+    authors: "Jiessie Tie, Bingsheng Yao, Tianshi Li, Hongbo Fang, Syed Ishtiaque Ahmed, Dakuo Wang, Shurui Zhou"
     venue: "TOSEM 2026"
     domains: [hci]
     topics: [everyday]
   - title: "The Obvious Invisible Threat: Vulnerabilities of LLM-Powered GUI Agents to Adversarial UI Manipulations in Web Interaction Tasks"
+    authors: "Chaoran Chen, Zhiping Zhang, Bingcan Guo, Shang Ma, Ibrahim Khalilov, Simret A Gebreegziabher, Bingsheng Yao, Dakuo Wang, Yanfang Ye, Ziang Xiao, et al."
     venue: "TAISAP 2026"
     domains: [nlp]
     topics: [agents]
   - title: "WatchGuardian: Enabling User-Defined Personalized Just-in-Time Intervention on Smartwatch"
+    authors: "Ying Lei, Yancheng Cao, Will Ke Wang, Yuanzhe Dong, Changchang Yin, Weidan Cao, Ping Zhang, Jingzhen Yang, …, Bingsheng Yao, et al."
     venue: "ACM HEALTH 2026"
     domains: [hci]
     topics: [health]
   - title: "SurgWound-Bench: A Benchmark for Surgical Wound Diagnosis"
+    authors: "Jiahao Xu, Changchang Yin, Odysseas P Chatzipanagiotou, Diamantis I Tsilimigras, Kevin Clear, Bingsheng Yao, Weidan Cao, Dakuo Wang, Timothy M Pawlik, Ping Zhang"
     venue: "npj Digit. Med. 2026"
     domains: [others]
     topics: [health]
   - title: "Striking a Balance: Evaluating How Aggregations of Multiple Forecasts Impact Judgment Under Uncertainty"
+    authors: "Ruishi Zou, Siyi Wu, Racquel Fygenson, Bingsheng Yao, Dakuo Wang, Lace Padilla"
     venue: "PacificVis 2026"
     domains: [hci]
     topics: [others]
   - title: "Humans' ALMANAC: A Human Collaboration Dataset of Action-Level Mental Model Annotations for Agent Collaboration"
+    authors: "Jiaju Chen, Yuxuan Lu, Jiayi Su, Chaoran Chen, Songlin Xiao, Zheng Zhang, Yun Wang, Yunyao Li, …, Bingsheng Yao, et al."
     venue: "Preprint 2026"
     domains: [hci, nlp]
     topics: [collaboration]
   - title: "CollabSim: A CSCW-Grounded Methodology for Investigating Collaborative Competence of LLM Agents through Controlled Multi-Agent Experiments"
+    authors: "Jiaju Chen, Bo Sun, Yuxuan Lu, Yun Wang, Dakuo Wang, Bingsheng Yao"
     venue: "Preprint 2026"
     domains: [hci, nlp]
     topics: [collaboration, agents]
   - title: "Deco: Extending Personal Physical Objects into Pervasive AI Companion through a Dual-Embodiment Framework"
+    authors: "Zhihan Jiang, Mengyuan Millie Wu, Ruishi Zou, Shiyu Xu, Xun Qian, Emma Macmanus, Steven Liao, Ping Zhang, …, Bingsheng Yao, et al."
     venue: "Preprint 2026"
     domains: [hci]
     topics: [everyday]
   - title: "Secret Use of Large Language Model (LLM)"
+    authors: "Zhiping Zhang, Chenxinran Shen, Bingsheng Yao, Dakuo Wang, Tianshi Li"
     venue: "CSCW 2025"
     domains: [hci]
     topics: [everyday]
     url: https://arxiv.org/abs/2409.19450
   - title: "“Mango Mango, How to Let The Lettuce Dry Without A Spinner?”: Exploring User Perceptions of Using An LLM-Based Conversational Assistant Toward Cooking Partner"
+    authors: "Szeyi Chan, Jiachen Li, Bingsheng Yao, Amama Mahmood, Chien-Ming Huang, Holly Jimison, Elizabeth D Mynatt, Dakuo Wang"
     venue: "CSCW 2025"
     domains: [hci]
     topics: [everyday]
     url: https://arxiv.org/abs/2310.05853
   - title: "CardioAI: A Multimodal AI-Based System to Support Symptom Monitoring and Risk Prediction of Cancer Treatment-Induced Cardiotoxicity"
+    authors: "Siyi Wu, Weidan Cao, Shihan Fu, Bingsheng Yao, Ziqi Yang, Changchang Yin, Varun Mishra, Daniel Addison, Ping Zhang, Dakuo Wang"
     venue: "CHI 2025"
     domains: [hci]
     topics: [health]
     url: https://dl.acm.org/doi/full/10.1145/3706598.3714272
   - title: "Characterizing LLM-Empowered Personalized Story Reading and Interaction for Children: Insights from Multi-Stakeholder Perspectives"
+    authors: "Jiaju Chen, Minglong Tang, Yuxuan Lu, Bingsheng Yao, Elissa Fan, Xiaojuan Ma, Ying Xu, Dakuo Wang, Yuling Sun, Liang He"
     venue: "CHI 2025"
     domains: [hci]
     topics: [education]
   - title: "Examining Student and Teacher Perspectives on Undisclosed Use of Generative AI in Academic Work"
+    authors: "Rudaiba Adnin, Atharva Pandkar, Bingsheng Yao, Dakuo Wang, Maitraye Das"
     venue: "CHI 2025"
     domains: [hci]
     topics: [education, everyday]
   - title: "Live-Streaming-Based Dual-Teacher Classes for Equitable Education: Insights and Challenges From Local Teachers' Perspective in Disadvantaged Areas"
+    authors: "Yuling Sun, Jiaju Chen, Xiaomu Zhou, Xiaojuan Ma, Bingsheng Yao, Kai Zhang, Liang He, Dakuo Wang"
     venue: "CHI 2025"
     domains: [hci]
     topics: [education]
   - title: "Promoting Prosociality via Micro-Acts of Joy: A Large-Scale Well-Being Intervention Study"
+    authors: "Hitesh Goel, Yoobin Park, Li-Ou Jin, Darwin A Guevarra, Peggy Callahan, Jolene Smith, Bingsheng Yao, Dakuo Wang, et al."
     venue: "CHI 2025"
     domains: [hci]
     topics: [health, everyday]
   - title: "Vital Insight: Assisting Experts' Context-Driven Sensemaking of Multi-modal Personal Tracking Data Using Visualization and Human-in-the-Loop LLM"
+    authors: "Jiachen Li, Xiwen Li, Justin Steinberg, Akshat Choube, Bingsheng Yao, Xuhai Xu, Dakuo Wang, Elizabeth Mynatt, Varun Mishra"
     venue: "IMWUT 2025"
     domains: [hci, nlp]
     topics: [health]
   - title: "User Interaction Patterns and Breakdowns in Conversing with LLM-Powered Voice Assistants"
+    authors: "Amama Mahmood, Junxiang Wang, Bingsheng Yao, Dakuo Wang, Chien-Ming Huang"
     venue: "IJHCS 2025"
     domains: [hci]
     topics: [everyday]
     url: https://arxiv.org/abs/2309.13879
   - title: "Towards a Design Guideline for RPA Evaluation: A Survey of Large Language Model-Based Role-Playing Agents"
+    authors: "Chaoran Chen, Bingsheng Yao, Ruishi Zou, Wenyue Hua, Weimin Lyu, Toby Jia-Jun Li, Dakuo Wang"
     venue: "ACL Findings 2025"
     domains: [nlp]
     topics: [agents]
     url: https://aclanthology.org/2025.findings-acl.938/
   - title: "Large Language Models with Temporal Reasoning for Longitudinal Clinical Summarization and Prediction"
+    authors: "Maya Kruse, Shiyue Hu, Nicholas Derby, Yifu Wu, Samantha Stonbraker, Bingsheng Yao, Dakuo Wang, Elizabeth M Goldberg, Yanjun Gao"
     venue: "EMNLP Findings 2025"
     domains: [nlp]
     topics: [health, nlp-methods]
   - title: "SepsisCalc: Integrating Clinical Calculators into Early Sepsis Prediction via Dynamic Temporal Graph Construction"
+    authors: "Changchang Yin, Shihan Fu, Bingsheng Yao, Thai-Hoang Pham, Weidan Cao, Dakuo Wang, Jeffrey Caterino, Ping Zhang"
     venue: "KDD 2025"
     domains: [others]
     topics: [health]
   - title: "More Modality, More AI: Exploring Design Opportunities of AI-Based Multi-modal Remote Monitoring Technologies for Early Detection of Mental Health Sequelae in Youth Concussion Patients"
+    authors: "Bingsheng Yao, Menglin Zhao, Yuling Sun, Weidan Cao, Changchang Yin, Stephen Intille, Xuhai Xu, Ping Zhang, Jingzhen Yang, Dakuo Wang"
     venue: "Preprint 2025"
     domains: [hci]
     topics: [health]
   - title: "“It Felt Like I Was Left in the Dark”: Exploring Information Needs and Design Opportunities for Family Caregivers of Older Adult Patients in Critical Care Settings"
+    authors: "Shihan Fu, Bingsheng Yao, Smit Desai, Yuqi Hu, Yuling Sun, Samantha Stonbraker, Yanjun Gao, Elizabeth M Goldberg, Dakuo Wang"
     venue: "Preprint 2025"
     domains: [hci]
     topics: [health]
   - title: "UXAgent: A System for Simulating Usability Testing of Web Design with LLM Agents"
+    authors: "Yuxuan Lu, Bingsheng Yao, Hansu Gu, Jing Huang, Jessie Wang, Yang Li, Jiri Gesi, Qi He, Toby Jia-Jun Li, Dakuo Wang"
     venue: "Preprint 2025"
     domains: [hci, nlp]
     topics: [agents]
   - title: "LLM Agent Meets Agentic AI: Can LLM Agents Simulate Customers to Evaluate Agentic-AI-based Shopping Assistants?"
+    authors: "Lu Sun, Shihan Fu, Bingsheng Yao, Yuxuan Lu, Wenbo Li, Hansu Gu, Jiri Gesi, Jing Huang, Chen Luo, Dakuo Wang"
     venue: "Preprint 2025"
     domains: [nlp]
     topics: [agents]
   - title: "DPRF: A Generalizable Dynamic Persona Refinement Framework for Optimizing Behavior Alignment Between Personalized LLM Role-Playing Agents and Humans"
+    authors: "Bingsheng Yao, Bo Sun, Yuanzhe Dong, Yuxuan Lu, Dakuo Wang"
     venue: "Preprint 2025"
     domains: [nlp]
     topics: [agents]
     url: https://arxiv.org/abs/2510.14205
   - title: "Rethinking Human-AI Collaboration in Complex Medical Decision Making: A Case Study in Sepsis Diagnosis"
+    authors: "Shao Zhang, Jianing Yu, Xuhai Xu, Changchang Yin, Yuxuan Lu, Bingsheng Yao, Melanie Tory, Lace M Padilla, Jeffrey Caterino, Ping Zhang, Dakuo Wang"
     venue: "CHI 2024"
     domains: [hci]
     topics: [health, collaboration]
     url: https://dl.acm.org/doi/full/10.1145/3613904.3642343
   - title: "“It's a Fair Game”, or Is It? Examining How Users Navigate Disclosure Risks and Benefits When Using LLM-Based Conversational Agents"
+    authors: "Zhiping Zhang, Michelle Jia, Hao-Ping Lee, Bingsheng Yao, Sauvik Das, Ada Lerner, Dakuo Wang, Tianshi Li"
     venue: "CHI 2024"
     domains: [hci]
     topics: [everyday]
     url: https://arxiv.org/abs/2309.11653
   - title: "Human-Centered Privacy Research in the Age of Large Language Models"
+    authors: "Tianshi Li, Sauvik Das, Hao-Ping Lee, Dakuo Wang, Bingsheng Yao, Zhiping Zhang"
     venue: "CHI EA 2024"
     domains: [hci]
     topics: [community, everyday]
   - title: "Building LLM-Based AI Agents in Social Virtual Reality"
+    authors: "Hongyu Wan, Jinda Zhang, Abdulaziz Arif Suria, Bingsheng Yao, Dakuo Wang, Yvonne Coady, Mirjana Prpa"
     venue: "CHI EA 2024"
     domains: [hci]
     topics: [everyday]
   - title: "Exploring Parent's Needs for Children-Centered AI to Support Preschoolers' Interactive Storytelling and Reading Activities"
+    authors: "Yuling Sun, Jiaju Chen, Bingsheng Yao, Jiali Liu, Dakuo Wang, Xiaojuan Ma, Yuxuan Lu, Ying Xu, Liang He"
     venue: "CSCW 2024"
     domains: [hci]
     topics: [education]
     url: https://arxiv.org/abs/2401.13804
   - title: "Challenges and Opportunities of LLM-Based Synthetic Personae and Data in HCI"
+    authors: "Mirjana Prpa, Giovanni Troiano, Bingsheng Yao, Toby Jia-Jun Li, Dakuo Wang, Hansu Gu"
     venue: "CSCW 2024 workshop"
     domains: [hci]
     topics: [community, agents]
   - title: "Talk2Care: An LLM-Based Voice Assistant for Communication Between Healthcare Providers and Older Adults"
+    authors: "Ziqi Yang, Xuhai Xu, Bingsheng Yao, Ethan Rogers, Shao Zhang, Stephen Intille, Nawar Shara, Guodong Gordon Gao, Dakuo Wang"
     venue: "IMWUT 2024"
     domains: [hci]
     topics: [health]
     url: https://dl.acm.org/doi/10.1145/3659625
   - title: "Mental-LLM: Leveraging Large Language Models for Mental Health Prediction via Online Text Data"
+    authors: "Xuhai Xu, Bingsheng Yao, Yuanzhe Dong, Saadia Gabriel, Hong Yu, James Hendler, Marzyeh Ghassemi, Anind K Dey, Dakuo Wang"
     venue: "IMWUT 2024"
     domains: [hci, nlp]
     topics: [health, nlp-methods]
     url: https://dl.acm.org/doi/abs/10.1145/3643540
   - title: "StorySparkQA: Expert-Annotated QA Pairs with Real-World Knowledge for Children's Story-Based Learning"
+    authors: "Jiaju Chen, Yuxuan Lu, Shao Zhang, Bingsheng Yao, Yuanzhe Dong, Ying Xu, Yunyao Li, Qianwen Wang, Dakuo Wang, Yuling Sun"
     venue: "EMNLP 2024"
     domains: [nlp]
     topics: [education, nlp-methods]
     url: https://arxiv.org/abs/2311.09756
   - title: "More Samples or More Prompts? Exploring Effective Few-Shot In-Context Learning for LLMs with In-Context Sampling"
+    authors: "Bingsheng Yao, Hardy Chen, Ruishi Zou, Yuxuan Lu, Jiachen Li, Shao Zhang, Yisi Sang, Sijia Liu, James Hendler, Dakuo Wang"
     venue: "NAACL Findings 2024"
     domains: [nlp]
     topics: [nlp-methods]
     url: https://arxiv.org/abs/2311.09782
   - title: "SepsisLab: Early Sepsis Prediction with Uncertainty Quantification and Active Sensing"
+    authors: "Changchang Yin, Pin-Yu Chen, Bingsheng Yao, Dakuo Wang, Jeffrey Caterino, Ping Zhang"
     venue: "KDD 2024"
     domains: [others]
     topics: [health]
     url: https://dl.acm.org/doi/abs/10.1145/3637528.3671586
   - title: "Enhance Machine Reasoning via Active Learning with Human Rationales"
+    authors: "Bingsheng Yao"
     venue: "PhD dissertation 2024"
     domains: [hci, nlp]
     topics: [explanations]
   - title: "Sunnie: An Anthropomorphic LLM-Based Conversational Agent for Mental Well-Being Activity Recommendation"
+    authors: "Siyi Wu, Feixue Han, Bingsheng Yao, Tianyi Xie, Xuan Zhao, Dakuo Wang"
     venue: "Preprint 2024"
     domains: [hci]
     topics: [health, everyday]
   - title: "Clinical Challenges and AI Opportunities in Decision-Making for Cancer Treatment-Induced Cardiotoxicity"
+    authors: "Siyi Wu, Weidan Cao, Shihan Fu, Bingsheng Yao, Ziqi Yang, Changchang Yin, Varun Mishra, Daniel Addison, Ping Zhang, Dakuo Wang"
     venue: "Preprint 2024"
     domains: [hci]
     topics: [health]
   - title: "Human and LLM-Based Voice Assistant Interaction: An Analytical Framework for User Verbal and Nonverbal Behaviors"
+    authors: "Szeyi Chan, Shihan Fu, Jiachen Li, Bingsheng Yao, Smit Desai, Mirjana Prpa, Dakuo Wang"
     venue: "Preprint 2024"
     domains: [hci]
     topics: [everyday]
   - title: "Designing and Evaluating Sampling Strategies for Multiple-Forecast Visualization (MFV)"
+    authors: "Ruishi Zou, Siyi Wu, Bingsheng Yao, Dakuo Wang, Lace Padilla"
     venue: "Preprint 2024"
     domains: [hci]
     topics: [others]
   - title: "Are Human Explanations Always Helpful? Towards Objective Evaluation of Human Natural Language Explanations"
+    authors: "Bingsheng Yao, Prithviraj Sen, Lucian Popa, James Hendler, Dakuo Wang"
     venue: "ACL 2023"
     domains: [nlp]
     topics: [explanations]
     url: https://aclanthology.org/2023.acl-long.821
   - title: "‘Don't Get Too Technical with Me’: A Discourse Structure-Based Framework for Automatic Science Journalism"
+    authors: "Ronald Cardenas, Bingsheng Yao, Dakuo Wang, Yufang Hou"
     venue: "EMNLP 2023"
     domains: [nlp]
     topics: [nlp-methods]
     url: https://aclanthology.org/2023.emnlp-main.76
   - title: "Beyond Labels: Empowering Human Annotators with Natural Language Explanations through a Novel Active-Learning Architecture"
+    authors: "Bingsheng Yao, Ishan Jindal, Lucian Popa, Yannis Katsis, Sayan Ghosh, Lihong He, Yuxuan Lu, Shashank Srivastava, Yunyao Li, James Hendler, Dakuo Wang"
     venue: "EMNLP Findings 2023"
     domains: [nlp]
     topics: [explanations]
     url: https://aclanthology.org/2023.findings-emnlp.778
   - title: "Human Still Wins over LLM: An Empirical Study of Active Learning on Domain-Specific Annotation Tasks"
+    authors: "Yuxuan Lu, Bingsheng Yao, Shao Zhang, Yun Wang, Peng Zhang, Tun Lu, Toby Jia-Jun Li, Dakuo Wang"
     venue: "Preprint 2023"
     domains: [nlp]
     topics: [explanations]
     url: https://arxiv.org/abs/2311.09825
   - title: "Fantastic Questions and Where to Find Them: FairytaleQA, an Authentic Dataset for Narrative Comprehension"
+    authors: "Ying Xu, Dakuo Wang, Mo Yu, Daniel Ritchie, Bingsheng Yao, Tongshuang Wu, Zheng Zhang, Toby Jia-Jun Li, et al."
     venue: "ACL 2022"
     domains: [nlp]
     topics: [education, nlp-methods]
     url: https://aclanthology.org/2022.acl-long.34
   - title: "It is AI's Turn to Ask Humans a Question: Question-Answer Pair Generation for Children's Story Books"
+    authors: "Bingsheng Yao, Dakuo Wang, Tongshuang Wu, Tran Hoang, Branda Sun, Toby Jia-Jun Li, Mo Yu, Ying Xu"
     venue: "ACL 2022"
     domains: [nlp]
     topics: [education, nlp-methods]
     url: https://aclanthology.org/2022.acl-long.54
   - title: "StoryBuddy: A Human-AI Collaborative Chatbot for Parent-Child Interactive Storytelling with Flexible Parental Involvement"
+    authors: "Zheng Zhang, Ying Xu, Yanhao Wang, Bingsheng Yao, Daniel Ritchie, Tongshuang Wu, Mo Yu, Dakuo Wang, Toby Jia-Jun Li"
     venue: "CHI 2022"
     domains: [hci]
     topics: [education, collaboration]
     url: https://doi.org/10.1145/3491102.3517479
   - title: "GEMv2: Multilingual NLG Benchmarking in a Single Line of Code"
+    authors: "Sebastian Gehrmann, Abhik Bhattacharjee, Abinaya Mahendiran, Alex Wang, Alexandros Papangelis, Aman Madaan, Angelina McMillan-Major, Anna Shvets, …, Bingsheng Yao, et al."
     venue: "EMNLP Demo 2022"
     domains: [nlp]
     topics: [nlp-methods]
     url: https://aclanthology.org/2022.emnlp-demos.27
   - title: "A Corpus for Commonsense Inference in Story Cloze Test"
+    authors: "Bingsheng Yao, Ethan Joseph, Julian Lioanag, Mei Si"
     venue: "LREC 2022"
     domains: [nlp]
     topics: [nlp-methods]
     url: https://aclanthology.org/2022.lrec-1.375
   - title: "Efficient Long Sequence Encoding via Synchronization"
+    authors: "Xiangyang Mou, Mo Yu, Bingsheng Yao, Lifu Huang"
     venue: "Preprint 2022"
     domains: [nlp]
     topics: [nlp-methods]
     url: https://arxiv.org/abs/2203.07644
   - title: "NECE: Narrative Event Chain Extraction Toolkit"
+    authors: "Guangxuan Xu, Paulina Toro Isaza, Moshi Li, Akintoye Oloko, Bingsheng Yao, Cassia Sanctos, Aminat Adebiyi, Yufang Hou, Nanyun Peng, Dakuo Wang"
     venue: "Preprint 2022"
     domains: [nlp]
     topics: [nlp-methods]
     url: https://arxiv.org/abs/2208.08063
   - title: "Narrative Question Answering with Cutting-Edge Open-Domain QA Techniques: A Comprehensive Study"
+    authors: "Xiangyang Mou, Chenghao Yang, Mo Yu, Bingsheng Yao, Xiaoxiao Guo, Saloni Potdar, Hui Su"
     venue: "TACL 2021"
     domains: [nlp]
     topics: [nlp-methods]
     url: https://aclanthology.org/2021.tacl-1.61
   - title: "Trust in AutoML: Exploring Information Needs for Establishing Trust in Automated Machine Learning Systems"
+    authors: "Jaimie Drozdal, Justin Weisz, Dakuo Wang, Gaurav Dass, Bingsheng Yao, Changruo Zhao, Michael Muller, Lin Ju, Hui Su"
     venue: "IUI 2020"
     domains: [hci]
     topics: [collaboration]
     url: https://doi.org/10.1145/3377325.3377501
   - title: "Frustratingly Hard Evidence Retrieval for QA Over Books"
+    authors: "Xiangyang Mou, Mo Yu, Bingsheng Yao, Chenghao Yang, Xiaoxiao Guo, Saloni Potdar, Hui Su"
     venue: "NUSE @ ACL 2020"
     domains: [nlp]
     topics: [nlp-methods]
