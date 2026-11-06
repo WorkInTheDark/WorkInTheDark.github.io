@@ -125,7 +125,7 @@ html[data-theme='dark'] {
   --global-code-bg-color: #{$code-bg-color-dark};
   --global-text-color: #{$custom-web01-grey};
   --global-text-color-light: #{$custom-web01-grey};
-  --global-theme-color: #{$global-color};
+  --global-theme-color: #{lighten($global-color, 22%)};   // the light-mode blue reads dark here
   --global-hover-color: #{$custom-web01-yellow};
   --global-hover-text-color: #{$white-color};
   --global-footer-bg-color: #{$grey-color-light};
@@ -165,7 +165,7 @@ html[data-theme='dark'] {
   --backdrop-grid-faint: rgba(255, 255, 255, 0.035);
   --backdrop-grid-lit: rgba(255, 255, 255, 0.13);
   --backdrop-grid-cross: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='112' height='112'><path d='M50.5 55.5h10M55.5 50.5v10' stroke='%238DB0F6' stroke-width='1'/></svg>");
-  --home-highlight: #{rgba(lighten($purple-color, 15%), 0.3)};
+  --home-highlight: #{rgba(lighten($purple-color, 25%), 0.38)};
 
   .fa-sun {
     padding-left: 10px;

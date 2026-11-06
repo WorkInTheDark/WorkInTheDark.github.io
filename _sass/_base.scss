@@ -96,7 +96,7 @@ h6 {
 .post-title .last-name {
   font-family: inherit;
   font-weight: 500;
-  color: #2569ED;
+  color: var(--global-theme-color);
 }
 
 .conference {
@@ -644,7 +644,7 @@ footer.sticky-bottom {
     }
 
     &.active .page-link {
-      color: $white-color;
+      color: var(--global-bg-color);   /* white on the light blue, dark on the dark-mode blue */
       background-color: var(--global-theme-color);
 
       &:hover {
@@ -1377,6 +1377,23 @@ $home-section-gap-sm: 3.25rem;
 .home-banner-line {
   display: block;
   text-wrap: balance;
+}
+
+/* Dark mode: the banner line in brushed silver, a soft light-to-grey sheen
+ * clipped to the letters. The highlighted phrase stays solid and bright on
+ * its purple swipe; its own fill paints over the sheen. */
+html[data-theme='dark'] {
+  .home-banner-line {
+    background-image: linear-gradient(100deg, #f6f7f9 0%, #c1c6ce 30%, #f1f2f4 52%, #a9afb9 78%, #e3e5e9 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .home-banner strong {
+    -webkit-text-fill-color: #f5f2f7;
+  }
 }
 
 /* The first line is about 740px at full size, so it fits a 930px desktop
