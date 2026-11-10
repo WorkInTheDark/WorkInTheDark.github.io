@@ -28,4 +28,4 @@ phd101_intro: A growing collection of short lessons, reflections, and practical 
 news: true  # News beside Playground; the item count is announcements.limit in _config.yml
 ---
 
-My research investigates how people collaborate, and what it takes for AI agents to become effective partners in human work. By studying collaborative processes and designing human–AI systems, I envision a future of **collaborative symbiosis**, where humans and AI agents complement one another to expand what we can accomplish together.
+My research investigates how people collaborate, and what it takes for AI agents to become effective partners in human work. By studying collaborative processes and designing human–AI systems, I envision a future of **collaborative symbiosis**, where humans and AI agents complement one another to expand what we can accomplish together. Our [Human-Centered AI Lab](https://hailab.io/) aims to design AI systems and interactions that work effectively for and with people.
